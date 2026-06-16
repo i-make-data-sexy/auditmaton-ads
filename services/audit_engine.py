@@ -486,6 +486,30 @@ def _format_display_name(file_key):
 #   Public API
 # ========================================================================
 
+def get_theme_registry():
+    """
+    Loads the controlled theme vocabulary from json/_themes.json.
+
+    The per-check theme_tags filter and the dropdown both resolve labels and
+    side scoping from this single registry. Returns a dict keyed by slug so a
+    template can look up a theme's label in constant time.
+
+    Returns:
+        dict: {slug: {"slug", "label", "sides", "description"}}. Empty dict if
+            the registry file is missing or malformed.
+    """
+
+    path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "json", "_themes.json")
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except (IOError, json.JSONDecodeError) as e:
+        logger.error("Failed to load theme registry: %s", e)
+        return {}
+
+    return {t["slug"]: t for t in data.get("themes", []) if t.get("slug")}
+
+
 def get_category_metadata(category_key, platform=None):
     """
     Returns display name, icon class, and description for a category on a platform.
@@ -588,6 +612,7 @@ def get_subcategories(category_key, platform=None):
                     "id": check.get("id", ""),
                     "title": check.get("title", ""),
                     "impact_score": check.get("impact_score", 1),
+                    "theme_tags": check.get("theme_tags", []),
                 }
                 for check in subchecks
             ],
@@ -605,6 +630,10 @@ def get_subcategories(category_key, platform=None):
         if isinstance(raw, dict):
             metadata = {k: v for k, v in raw.items() if k != "audit_checks"}
 
+        # Union of theme slugs across this subcategory's checks, for the
+        # per-subcategory theme-filter dropdown.
+        theme_slugs = sorted({t for c in checks for t in c.get("theme_tags", [])})
+
         subcategories.append({
             "key": file_key,
             "slug": _key_to_slug(file_key),
@@ -613,6 +642,7 @@ def get_subcategories(category_key, platform=None):
             "max_impact": max_impact,
             "avg_impact": avg_impact,
             "checks": checks,
+            "theme_slugs": theme_slugs,
             "intro": metadata.get("intro", ""),
             "worth_it": metadata.get("worth_it", ""),
             "worth_it_explanation": metadata.get("worth_it_explanation", ""),

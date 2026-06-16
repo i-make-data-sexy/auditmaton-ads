@@ -37,13 +37,11 @@ DEFAULT_PLATFORM = "google-ads"
 # Platforms the dashboard chip strip can toggle between. Order = display
 # order in the chip strip. Add a tuple here when content for a new platform
 # ships under json/<slug>/.
+# Auditmaton: Ads platform registry. The full demand/supply, type-grouped
+# registry is a follow-up build. For the calibration sample only google-ads
+# is wired so the chip strip has no dead (content-less) entries.
 AVAILABLE_PLATFORMS = [
-    ("google-tag-manager", "Google Tag Manager"),
-    ("adobe-tags", "Adobe Tags"),
-    ("tealium-iq", "Tealium iQ"),
-    ("segment", "Segment"),
-    ("commanders-act", "Commanders Act"),
-    ("piwik-pro", "Piwik PRO"),
+    ("google-ads", "Google Ads"),
 ]
 
 PLATFORM_COOKIE_NAME = "active_platform"
@@ -142,6 +140,17 @@ JSON_BASE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "json",
 # (some slugs repeat across platforms, e.g. "governance", but the metadata is
 # scoped per platform).
 CATEGORY_METADATA = {
+    # Auditmaton: Ads (demand side). The full demand/supply category map is
+    # TBD; google-ads/conversion-tracking is wired first for the calibration
+    # sample. The legacy tag-management entries below are inert (not in
+    # AVAILABLE_PLATFORMS) and will be removed when the ads taxonomy lands.
+    "google-ads": {
+        "conversion-tracking": {
+            "display_name": "Conversion Tracking",
+            "icon_class": "fa-solid fa-bullseye",
+            "description": "Whether conversions are captured accurately, deduplicated, and durable as cookies erode",
+        },
+    },
     "google-tag-manager": {
         "container-structure": {
             "display_name": "Container Structure",

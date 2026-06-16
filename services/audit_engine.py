@@ -13,6 +13,7 @@
 import json
 import os
 import logging
+from collections import Counter
 
 logger = logging.getLogger(__name__)
 
@@ -630,9 +631,10 @@ def get_subcategories(category_key, platform=None):
         if isinstance(raw, dict):
             metadata = {k: v for k, v in raw.items() if k != "audit_checks"}
 
-        # Union of theme slugs across this subcategory's checks, for the
-        # per-subcategory theme-filter dropdown.
-        theme_slugs = sorted({t for c in checks for t in c.get("theme_tags", [])})
+        # Per-topic check counts across this subcategory, for the Topic
+        # dropdown (icon + label + count, mirroring the Depth filter).
+        theme_counter = Counter(t for c in checks for t in c.get("theme_tags", []))
+        theme_slugs = sorted(theme_counter)
 
         subcategories.append({
             "key": file_key,
@@ -643,6 +645,7 @@ def get_subcategories(category_key, platform=None):
             "avg_impact": avg_impact,
             "checks": checks,
             "theme_slugs": theme_slugs,
+            "theme_counts": dict(theme_counter),
             "intro": metadata.get("intro", ""),
             "worth_it": metadata.get("worth_it", ""),
             "worth_it_explanation": metadata.get("worth_it_explanation", ""),

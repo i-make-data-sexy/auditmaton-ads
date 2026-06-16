@@ -1,0 +1,456 @@
+{% extends "base.html" %}
+
+{% block title %}Editorial Revisions | Auditmaton for Ad Audits{% endblock %}
+
+
+{% block page_header %}
+<div class="entry-header">
+    <h1 class="entry-title">Editorial Revisions</h1>
+</div>
+{% endblock %}
+
+
+{% block extra_head %}
+<!--===================================================================
+     Page-Specific Styles
+     =================================================================== -->
+<style>
+    /* ========================================================================
+       Layout
+       base.html wraps every page in .main-content (max-width: 1200px).
+       This page-scoped <style> block only renders when /admin/revisions/
+       is being served, so widening .main-content here doesn't affect
+       any other route.
+       ======================================================================== */
+
+    .main-content {
+        max-width: none;
+        padding: 0;
+    }
+
+    .entry-header {
+        padding: 0 32px;
+    }
+
+    .revisions-page {
+        width: 100%;
+        margin: 0 auto;
+        padding: 20px 32px 60px;
+        box-sizing: border-box;
+    }
+
+    .revisions-summary {
+        color: #666;
+        margin-bottom: 18px;
+        font-size: 15px;
+    }
+
+    .revisions-summary strong {
+        color: #333;
+    }
+
+    .revisions-back {
+        display: inline-block;
+        margin-bottom: 12px;
+        font-size: 14px;
+        color: #0273BE;
+        text-decoration: none;
+    }
+
+    .revisions-back:hover {
+        color: #FFA500;
+    }
+
+
+    /* ========================================================================
+       Filters
+       ======================================================================== */
+
+    .revisions-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .revisions-filters label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+    }
+
+    .revisions-filters input[type="text"],
+    .revisions-filters select {
+        font-family: inherit;
+        font-size: 14px;
+        padding: 7px 10px;
+        border: 1px solid #DEDEDE;
+        border-radius: 6px;
+        background: #fff;
+        color: #333;
+        min-height: 36px;
+    }
+
+    .revisions-filters input[type="text"] {
+        min-width: 240px;
+        flex: 1 1 280px;
+        max-width: 360px;
+    }
+
+    .revisions-filters input[type="text"]:focus,
+    .revisions-filters select:focus {
+        outline: none;
+        border-color: #0273BE;
+        box-shadow: 0 0 0 2px rgba(2, 115, 190, 0.15);
+    }
+
+    .revisions-filters button {
+        font-family: inherit;
+        font-size: 13px;
+        padding: 7px 14px;
+        background: #fff;
+        border: 1px solid #DEDEDE;
+        border-radius: 6px;
+        color: #666;
+        cursor: pointer;
+        min-height: 36px;
+    }
+
+    .revisions-filters button:hover {
+        color: #0273BE;
+        border-color: #0273BE;
+    }
+
+    .revisions-filters .visible-count {
+        font-size: 13px;
+        color: #666;
+        margin-left: auto;
+    }
+
+
+    /* ========================================================================
+       Table — full width, fixed layout so columns don't drift on wide
+       screens. word-break on the long text columns lets cells grow tall
+       instead of forcing horizontal scroll.
+       ======================================================================== */
+
+    .revisions-table-wrapper {
+        border: 1px solid #DEDEDE;
+        border-radius: 8px;
+        background: #fff;
+        overflow: hidden;
+    }
+
+    .revisions-table {
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+    .revisions-table th,
+    .revisions-table td {
+        padding: 10px 12px;
+        text-align: left;
+        vertical-align: top;
+        border-bottom: 1px solid #DEDEDE;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+
+    .revisions-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .revisions-table th {
+        background: #F8F9FA;
+        font-weight: 600;
+        color: #333;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+    }
+
+    .revisions-table tbody tr:hover {
+        background: #FAFBFC;
+    }
+
+
+    /* ========================================================================
+       Column widths (fixed-table-layout uses these as authoritative)
+       Tuned for a 1440-1920px viewport with the long text columns getting
+       roughly 30% each so most cells fit on 2-4 lines.
+       ======================================================================== */
+
+    .col-date     { width:  6%; white-space: nowrap; color: #666; }
+    .col-url      { width: 16%; }
+    .col-before   { width: 28%; color: #888; line-height: 1.5; }
+    .col-rule     { width:  9%; }
+    .col-severity { width:  6%; white-space: nowrap; }
+    .col-after    { width: 35%; color: #333; line-height: 1.5; }
+
+    .col-url a {
+        color: #0273BE;
+        text-decoration: none;
+        display: block;
+    }
+
+    .col-url a:hover {
+        color: #FFA500;
+        text-decoration: underline;
+    }
+
+    .col-url .field-path {
+        display: block;
+        font-size: 11px;
+        color: #999;
+        margin-top: 4px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        word-break: break-all;
+    }
+
+
+    /* ========================================================================
+       Pills (severity + rule)
+       ======================================================================== */
+
+    .severity-pill,
+    .rule-pill {
+        display: inline-block;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        padding: 3px 9px;
+        border-radius: 12px;
+        letter-spacing: 0.4px;
+        white-space: nowrap;
+    }
+
+    .severity-high   { background: #FCE4EC; color: #C2185B; }
+    .severity-medium { background: #FFF3E0; color: #E65100; }
+    .severity-low    { background: #E8F5E9; color: #2E7D32; }
+
+    /* Rule pill — neutral by default so it doesn't fight the severity
+       pill for attention. Color the highest-frequency families. */
+    .rule-pill {
+        background: #ECEFF1;
+        color: #455A64;
+        text-transform: none;
+        font-weight: 500;
+        letter-spacing: 0.2px;
+    }
+
+    .rule-em-dash,
+    .rule-en-dash,
+    .rule-horizontal-rule,
+    .rule-silently-quietly,
+    .rule-throat-clearing,
+    .rule-not-just-framing {
+        background: #FFEBEE;
+        color: #B71C1C;
+    }
+
+    .rule-marketese {
+        background: #FFF8E1;
+        color: #B26A00;
+    }
+
+    .rule-editorializing {
+        background: #FCE4EC;
+        color: #AD1457;
+    }
+
+    .rule-comma-before-because-since,
+    .rule-mid-sentence-colon,
+    .rule-quote-punctuation,
+    .rule-quote-choice {
+        background: #E3F2FD;
+        color: #1565C0;
+    }
+
+    .rule-over-to-more-than,
+    .rule-eg-ie-comma,
+    .rule-fragment-list-intro,
+    .rule-long-parenthetical,
+    .rule-suggestive-phrasing,
+    .rule-abbreviation-expansion {
+        background: #E0F2F1;
+        color: #00695C;
+    }
+
+    .rule-deleted {
+        background: #ECEFF1;
+        color: #37474F;
+    }
+
+
+    /* ========================================================================
+       Empty / no-results states
+       ======================================================================== */
+
+    .revisions-empty {
+        padding: 60px 20px;
+        text-align: center;
+        color: #666;
+    }
+
+    .revisions-empty p {
+        margin: 0;
+        font-size: 16px;
+    }
+
+    .revisions-table tbody tr.is-hidden {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="revisions-page">
+
+    <a href="{{ app_root }}/admin/" class="revisions-back">&larr; Back to Admin Hub</a>
+
+    <p class="revisions-summary">
+        Direct edits to audit JSON content that enforce the Annielytics writing rules.
+        <strong>{{ total_count }}</strong> revision{{ '' if total_count == 1 else 's' }} logged.
+    </p>
+
+    {% if revisions %}
+    <div class="revisions-filters">
+        <label for="filter-url">URL contains</label>
+        <input type="text" id="filter-url" placeholder="e.g., ads/, meta-titles, recipe">
+
+        <label for="filter-rule">Rule</label>
+        <select id="filter-rule">
+            <option value="">All rules</option>
+            {% for key, label, count in rule_options %}
+            <option value="{{ key }}">{{ label }} ({{ count }})</option>
+            {% endfor %}
+        </select>
+
+        <label for="filter-severity">Severity</label>
+        <select id="filter-severity">
+            <option value="">All</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+        </select>
+
+        <button type="button" id="filter-clear">Clear</button>
+
+        <span class="visible-count">Showing <span id="visible-count">{{ total_count }}</span> of {{ total_count }}</span>
+    </div>
+
+    <div class="revisions-table-wrapper">
+        <table class="revisions-table">
+            <thead>
+                <tr>
+                    <th class="col-date">Date</th>
+                    <th class="col-url">URL</th>
+                    <th class="col-before">Before</th>
+                    <th class="col-rule">Rule</th>
+                    <th class="col-severity">Severity</th>
+                    <th class="col-after">After</th>
+                </tr>
+            </thead>
+            <tbody id="revisions-tbody">
+                {% for r in revisions %}
+                {% set rule = r.rule_category or 'other' %}
+                <tr data-url="{{ r.category }}/{{ r.subcategory }}/{{ r.check_id }} {{ r.json_path }}"
+                    data-severity="{{ r.severity }}"
+                    data-rule="{{ rule }}">
+                    <td class="col-date">{{ r.revised_at[:10] }}</td>
+                    <td class="col-url">
+                        <a href="{{ app_root }}{{ r.url }}" target="_blank" rel="noopener">
+                            {{ r.category }}/{{ r.subcategory }}/{{ r.check_id }}
+                        </a>
+                        <span class="field-path">{{ r.json_path }}</span>
+                    </td>
+                    <td class="col-before">{{ r.before_text }}</td>
+                    <td class="col-rule">
+                        <span class="rule-pill rule-{{ rule }}">{{ rule_labels.get(rule, rule) }}</span>
+                    </td>
+                    <td class="col-severity">
+                        <span class="severity-pill severity-{{ r.severity }}">{{ r.severity }}</span>
+                    </td>
+                    <td class="col-after">{{ r.after_text }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="revisions-empty">
+        <p>No revisions logged yet.</p>
+    </div>
+    {% endif %}
+
+</div>
+
+{% if revisions %}
+<script>
+    /* ========================================================================
+       Filter: URL partial match + rule + severity
+       Filters client-side. Re-runs on every keystroke or select change.
+       ======================================================================== */
+
+    (function () {
+        var urlInput = document.getElementById("filter-url");
+        var ruleSelect = document.getElementById("filter-rule");
+        var severitySelect = document.getElementById("filter-severity");
+        var clearBtn = document.getElementById("filter-clear");
+        var tbody = document.getElementById("revisions-tbody");
+        var visibleCountEl = document.getElementById("visible-count");
+        if (!urlInput || !ruleSelect || !severitySelect || !tbody) return;
+
+        var rows = Array.prototype.slice.call(tbody.querySelectorAll("tr"));
+
+        function applyFilters() {
+            var urlQuery = urlInput.value.trim().toLowerCase();
+            var rule = ruleSelect.value;
+            var severity = severitySelect.value;
+            var visible = 0;
+
+            rows.forEach(function (row) {
+                var rowUrl = (row.getAttribute("data-url") || "").toLowerCase();
+                var rowSeverity = row.getAttribute("data-severity") || "";
+                var rowRule = row.getAttribute("data-rule") || "";
+
+                var urlMatch = !urlQuery || rowUrl.indexOf(urlQuery) !== -1;
+                var ruleMatch = !rule || rowRule === rule;
+                var sevMatch = !severity || rowSeverity === severity;
+
+                if (urlMatch && ruleMatch && sevMatch) {
+                    row.classList.remove("is-hidden");
+                    visible += 1;
+                } else {
+                    row.classList.add("is-hidden");
+                }
+            });
+
+            if (visibleCountEl) {
+                visibleCountEl.textContent = visible;
+            }
+        }
+
+        urlInput.addEventListener("input", applyFilters);
+        ruleSelect.addEventListener("change", applyFilters);
+        severitySelect.addEventListener("change", applyFilters);
+
+        if (clearBtn) {
+            clearBtn.addEventListener("click", function () {
+                urlInput.value = "";
+                ruleSelect.value = "";
+                severitySelect.value = "";
+                applyFilters();
+                urlInput.focus();
+            });
+        }
+    })();
+</script>
+{% endif %}
+{% endblock %}

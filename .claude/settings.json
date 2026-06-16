@@ -1,0 +1,46 @@
+{
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "osascript -e 'display notification \"Claude Code needs your attention\" with title \"Claude Code\"'"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | xargs -I {} sh -c 'case \"{}\" in *.env*|*credentials*|*secret*) echo \"BLOCKED: refusing to write to sensitive file: {}\" >&2; exit 2;; esac'"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.command' | sh -c 'read cmd; case \"$cmd\" in *\"rm -rf\"*|*\"DROP TABLE\"*|*\"DROP DATABASE\"*|*\"--force\"*|*\"--hard\"*|*\"git push -f\"*|*\"git push --force\"*|*\"truncate \"*|*\"> /dev/\"*) echo \"BLOCKED: dangerous command detected\" >&2; exit 2;; esac'"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | xargs -I {} sh -c 'case \"{}\" in *.py) python -m py_compile \"{}\" 2>&1 || echo \"SYNTAX ERROR in {}\" >&2;; esac'"
+          }
+        ]
+      }
+    ]
+  }
+}

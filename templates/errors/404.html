@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{# 404 error page (dogfood treatment). Renders the missing page as if it
+   were a real audit finding inside Auditmaton for Tag Audits — reuses the canvas.html
+   chrome (breadcrumb + tab bar + -ate pills + ate-panel-inner card) so
+   it visually slots into the rest of the app. Tabs and pills are inert
+   on this page; they exist for the joke. #}
+
+{% block title %}Page Not Found (404) | Auditmaton for Tag Audits{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/canvas.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/errors.css') }}">
+{% endblock %}
+
+
+<!--===================================================================
+     Page Header — Breadcrumb mirrors the real audit hierarchy
+     =================================================================== -->
+{% block page_header %}
+<div class="canvas-header-area">
+    <div class="wrap">
+
+        <!--================================================
+             Check Title
+             ================================================ -->
+        <h1 class="canvas-check-title">Page Not Found (404)</h1>
+
+        <!--================================================
+             Breadcrumb (synthesized — not a real audit path)
+             ================================================ -->
+        <nav class="category-breadcrumb">
+            <a href="{{ app_root }}/">App Home</a>
+            <span class="breadcrumb-separator">
+                <i class="fa-solid fa-chevron-right"></i>
+            </span>
+            <a href="{{ app_root }}/dashboard/">Dashboard</a>
+            <span class="breadcrumb-separator">
+                <i class="fa-solid fa-chevron-right"></i>
+            </span>
+            <a href="{{ app_root }}/dashboard/google-tag-manager/">Google Tag Manager</a>
+            <span class="breadcrumb-separator">
+                <i class="fa-solid fa-chevron-right"></i>
+            </span>
+            <a href="{{ app_root }}/dashboard/google-tag-manager/container-structure/">Container Structure</a>
+            <span class="breadcrumb-separator">
+                <i class="fa-solid fa-chevron-right"></i>
+            </span>
+            <span class="breadcrumb-current">Page Not Found (404)</span>
+        </nav>
+    </div>
+</div>
+
+<!--================================================
+     Top-Level Tab Bar (inert — for the dogfood joke)
+     ================================================ -->
+<div class="canvas-tab-bar">
+    <div class="wrap">
+        <button class="canvas-tab active error-tab-inert" type="button"
+                aria-disabled="true" title="Inert on the 404 page">
+            <i class="fa-solid fa-book-open"></i> Guide
+        </button>
+        <button class="canvas-tab error-tab-inert" type="button"
+                aria-disabled="true" title="Inert on the 404 page">
+            <i class="fa-solid fa-file-lines"></i> Canvas
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+
+<!--===================================================================
+     Main Content — Dogfooded as an audit finding
+     =================================================================== -->
+{% block content %}
+<div class="tab-panel active">
+
+    <!--================================================
+         -ate step pills (inert)
+         ================================================ -->
+    <nav class="ate-step-nav">
+        <button class="ate-step-pill active error-pill-inert" type="button"
+                aria-disabled="true">
+            <span class="ate-step-number">1</span> Educate
+        </button>
+        <button class="ate-step-pill error-pill-inert" type="button"
+                aria-disabled="true">
+            <span class="ate-step-number">2</span> Investigate
+        </button>
+        <button class="ate-step-pill error-pill-inert" type="button"
+                aria-disabled="true">
+            <span class="ate-step-number">3</span> Generate
+        </button>
+    </nav>
+
+    <!--================================================
+         The finding card
+         ================================================ -->
+    <div class="ate-step-panel active">
+        <div class="ate-panel-inner">
+
+            <!--===============================
+                 Finding
+                 =============================== -->
+            <h2>Finding</h2>
+            <p>
+                Well, this is embarrassing. 👀 Looks like the URL
+                <code class="error-url-code">{{ requested_path }}</code>
+                returned a 404 status code. It's a bona fide swing-and-a-miss.
+            </p>
+
+            <!--===============================
+                 Impact
+                 =============================== -->
+            <h2>Impact</h2>
+            <p>
+                <span class="impact-score impact-score-low">Impact Score: 1 / 5</span>
+            </p>
+            <p>
+                <strong>Rationale:</strong> A one-off 404 from a mistyped URL
+                or a stale bookmark is harmless. A <em>pattern</em> of 404s on
+                URLs your own internal links point to—orphan link rot, broken
+                redirects, deleted pages without 301s—is exactly the kind of
+                thing Auditmaton for Tag Audits is built to surface. If you landed here from
+                an internal link inside this app, please
+                <a href="https://www.annielytics.com/contact/">let us know</a>
+                so we can patch it.
+            </p>
+
+            <!--===============================
+                 Recommendation
+                 =============================== -->
+            <h2>Recommendation</h2>
+            <ul>
+                <li>If you typed or pasted the URL, double-check the spelling.</li>
+                <li>If you followed a link from elsewhere in the app, head back
+                    to the <a href="{{ app_root }}/dashboard/">Dashboard</a> and re-navigate.</li>
+                <li>If you were trying to reach a specific audit, your audit
+                    list is at <a href="{{ app_root }}/audits/">My Audits</a>.</li>
+                <li>If you need help, the <a href="{{ app_root }}/help/">Help</a>
+                    page covers most common questions.</li>
+            </ul>
+
+            <!--===============================
+                 Supporting Data
+                 =============================== -->
+            <h2>Supporting Data</h2>
+            <h3>Affected URL</h3>
+            <p>Below is the URL that triggered this finding:</p>
+
+            <div class="generate-url-table-wrapper">
+                <table class="generate-url-table">
+                    <thead>
+                        <tr>
+                            <th>URL</th>
+                            <th>Status</th>
+                            <th>Detected At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code class="error-url-code">{{ requested_path }}</code></td>
+                            <td><span class="status-badge status-badge-404">404</span></td>
+                            <td>{{ detected_at }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!--===============================
+                 Inert footer (the wink)
+                 =============================== -->
+            <div class="ate-footer error-ate-footer">
+                <button class="add-to-canvas-btn" type="button"
+                        disabled aria-disabled="true">
+                    <i class="fa-solid fa-plus"></i> Add to Canvas
+                </button>
+                <p class="error-wink">
+                    Just kidding! There's no audit running.
+                    This finding is on the house.
+                </p>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

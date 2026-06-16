@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Start an Ad Audit | Auditmaton for Ad Audits{% endblock %}
+
+{# Suppress the page H1: the modal carries its own heading and covers the
+   page behind it. #}
+{% block page_header %}{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/intake.css') }}">
+{% endblock %}
+
+{% block content %}
+<!--===================================================================
+     Modal overlay
+     =================================================================== -->
+<div class="intake-overlay" id="intake-overlay">
+    <div class="intake-modal" id="intake-modal">
+
+        <!-- Close returns to the home page -->
+        <a class="intake-modal-close" href="{{ app_root }}/" title="Close">
+            <i class="fa-solid fa-xmark"></i>
+        </a>
+
+        <div class="intake-modal-body">
+
+            <h2 class="intake-modal-title">Start an Ad Audit</h2>
+            <p class="intake-lede">
+                A few details set up your audit. Nothing here is uploaded or
+                connected to an account. You inspect your own ad platform
+                directly, and these answers tailor the guidance and the
+                wording of your findings.
+            </p>
+
+            <form class="intake-form" method="POST" action="{{ url_for('intake.intake_start') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <!--===============================================
+                     Audit name
+                     =============================================== -->
+                <div class="intake-field">
+                    <label class="intake-label" for="intake-audit-name">Audit name</label>
+                    <p class="intake-help">A label for this audit, e.g., 'Acme Google Ads Q1 audit'.</p>
+                    <input class="intake-input" type="text" id="intake-audit-name"
+                           name="audit_name" value="{{ saved.audit_name }}"
+                           placeholder="Acme Google Ads audit" required>
+                </div>
+
+                <!--===============================================
+                     Platform
+                     =============================================== -->
+                <div class="intake-field">
+                    <label class="intake-label" for="intake-platform">Platform you are auditing</label>
+                    <p class="intake-help">Sets which platform's checks load. You can switch platforms later from the dashboard.</p>
+                    <select class="intake-input" id="intake-platform" name="platform" required>
+                        {% for slug, label in platforms %}
+                        <option value="{{ slug }}"{% if slug == saved.platform %} selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!--===============================================
+                     Audited site name / URL
+                     =============================================== -->
+                <div class="intake-field">
+                    <label class="intake-label" for="intake-site-name">Site name or URL</label>
+                    <p class="intake-help">Used to personalize your findings, so they can read like "I found that Acme has a duplicate tag".</p>
+                    <input class="intake-input" type="text" id="intake-site-name"
+                           name="site_name" value="{{ saved.site_name }}"
+                           placeholder="Acme, or acme.com">
+                </div>
+
+                <!--===============================================
+                     Site type (with an Other suggestion option)
+                     =============================================== -->
+                <div class="intake-field">
+                    <label class="intake-label" for="intake-site-type">Site type</label>
+                    <p class="intake-help">Surfaces extra, site-type-specific guidance inside relevant checks. It never hides a category or check, so pick the closest fit.</p>
+                    <select class="intake-input" id="intake-site-type" name="site_type">
+                        {% for st in site_types %}
+                        <option value="{{ st.key }}"{% if st.key == saved.site_type %} selected{% endif %}>{{ st.label }}</option>
+                        {% endfor %}
+                        <option value="other"{% if saved.site_type == 'other' %} selected{% endif %}>Other (suggest one)</option>
+                    </select>
+
+                    <!-- Revealed only when 'Other' is selected (intake.js) -->
+                    <div class="intake-other-wrap" id="intake-other-wrap"{% if saved.site_type != 'other' %} hidden{% endif %}>
+                        <label class="intake-sublabel" for="intake-site-type-other">Which site type should we add?</label>
+                        <input class="intake-input" type="text" id="intake-site-type-other"
+                               name="site_type_suggestion" value="{{ saved.site_type_suggestion }}"
+                               placeholder="e.g., Marketplace, Subscription box">
+                    </div>
+                </div>
+
+                <!--===============================================
+                     Narrative voice
+                     =============================================== -->
+                <fieldset class="intake-field intake-fieldset">
+                    <legend class="intake-label">Narrative voice</legend>
+                    <p class="intake-help">How your findings refer to you. A solo consultant reads as 'I'; a team or agency reads as 'We'.</p>
+                    <div class="intake-radio-group">
+                        {% for opt in voice_options %}
+                        <label class="intake-radio">
+                            <input type="radio" name="voice" value="{{ opt.key }}"
+                                   {% if opt.key == saved.voice %}checked{% endif %}>
+                            <span class="intake-radio-text">
+                                <span class="intake-radio-label">{{ opt.label }}</span>
+                                <span class="intake-radio-example">{{ opt.example }}</span>
+                            </span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </fieldset>
+
+                <!--===============================================
+                     Container / property ID (reference only)
+                     =============================================== -->
+                <div class="intake-field">
+                    <label class="intake-label" for="intake-container-id">Account or property ID <span class="intake-optional">(optional)</span></label>
+                    <p class="intake-help">For your own reference, e.g., your Google Ads customer ID. It is only a label on the audit, never used to connect to anything.</p>
+                    <input class="intake-input" type="text" id="intake-container-id"
+                           name="container_id" value="{{ saved.container_id }}"
+                           placeholder="123-456-7890">
+                </div>
+
+                <!--===============================================
+                     Submit
+                     =============================================== -->
+                <div class="intake-actions">
+                    <button type="submit" class="button intake-submit">Start audit</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/intake.js') }}"></script>
+{% endblock %}

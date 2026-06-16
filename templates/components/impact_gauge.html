@@ -1,0 +1,24 @@
+{# ====================================================================
+   Impact gauge (reusable macro). Self-contained inline SVG signal bars.
+
+   Renders a 1-5 impact score as ascending "signal strength" bars (the look
+   the app used originally), filled in brand blue up to the score, with the
+   remaining bars in light gray.
+
+   It is a SELF-CONTAINED SVG on purpose: fills and sizing are inline (no
+   external CSS class is required to render it). That makes it portable to
+   the audit canvas / exported deliverable, where category.css is not
+   present. If the canvas (Quill) strips inline SVG, the same markup can be
+   served as a data-URI or PNG <img>, which Quill and Word/PDF exports embed
+   natively.
+   ==================================================================== #}
+{% macro impact_gauge(score) %}
+{%- set names = {5: "Very high impact", 4: "High impact", 3: "Average impact", 2: "Low impact", 1: "Very low impact"} -%}
+<svg class="impact-gauge" xmlns="http://www.w3.org/2000/svg" width="28" height="20" viewBox="0 0 28 20" role="img" aria-label="Impact {{ score }} of 5, {{ names[score] }}" data-tooltip="{{ names[score] }} ({{ score }}/5)" style="vertical-align: middle">
+<title>{{ names[score] }} ({{ score }} of 5)</title>
+{%- for i in range(1, 6) -%}
+{%- set h = i * 4 -%}
+<rect x="{{ (i - 1) * 6 }}" y="{{ 20 - h }}" width="4" height="{{ h }}" rx="1" fill="{% if i <= score %}#0273BE{% else %}#DEDEDE{% endif %}"/>
+{%- endfor -%}
+</svg>
+{%- endmacro %}

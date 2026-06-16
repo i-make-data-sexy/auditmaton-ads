@@ -1,0 +1,1294 @@
+/* category.css
+   Page-specific styles for the category subcategory browser (Level 2).
+   Renders a left rail of subcategory buttons and a right panel of
+   check cards with impact gauges. Layers on top of styles.css. */
+
+
+/* ========================================================================
+   Breadcrumb
+   ======================================================================== */
+
+.category-breadcrumb {
+    padding: 16px 0;
+    font-size: 14px;
+    color: var(--color-secondary-text);
+}
+
+.category-breadcrumb a {
+    color: var(--link-color);
+    text-decoration: none;
+}
+
+.category-breadcrumb a:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+}
+
+.breadcrumb-separator {
+    margin: 0 8px;
+    font-size: 10px;
+    color: var(--color-muted);
+}
+
+.breadcrumb-current {
+    color: var(--color-dark-gray);
+    font-weight: var(--font-weight-bold);
+}
+
+
+/* ========================================================================
+   Category Browser — Layout
+   ======================================================================== */
+
+.category-browser {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+    padding-bottom: 40px;
+}
+
+
+/* ========================================================================
+   Left Rail — Subcategory Buttons
+   ======================================================================== */
+
+.category-rail {
+    flex: 0 0 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 20px;
+    position: sticky;
+    top: 20px;
+}
+
+
+/* ================================================
+     Worth-It Filter (above the subcategory rail)
+   ================================================ */
+
+/* Match the right-panel .subcat-tab-bar's bottom edge: the trigger's
+   border-bottom should sit on the same horizontal line as the
+   tab-bar's underline (active .subcat-tab uses 14px vertical padding
+   plus a 3px bottom border that overlaps the bar's 2px border, so
+   the underline sits ~52px below the tab top). */
+/* Filter (52px) bottom-aligns to the gray separator line at y=52;
+   the first subcat chip then drops to the panel content top.
+   Panel: bar 50 + ::after 2 outside box + bar margin-bottom 24 =
+   content top y=74. Filter: 52 + margin 16 + rail gap 6 = 74. */
+.worth-it-filter {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+}
+
+/* Trigger button — compact pill-style chip. Sized 52px so its bottom
+   lands on the gray separator line (positioned just below the
+   right-panel tab-bar's box at y=50-52). Pink-line/gray-line offset
+   means badge (50, in the bar) sits at pink, filter (52) extends to
+   gray. */
+.worth-it-filter-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 18px;
+    min-height: 52px;
+    box-sizing: border-box;
+    background: #fff;
+    border: 1px solid var(--color-light-gray);
+    border-radius: 999px;
+    color: #555;
+    font-size: 13px;
+    font-weight: var(--font-weight-bold);
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.worth-it-filter-trigger:hover {
+    background: #f7f7f7;
+    border-color: #c8c8c8;
+}
+
+.worth-it-filter-trigger > i:first-child {
+    font-size: 11px;
+    color: #888;
+}
+
+.worth-it-filter-trigger-label {
+    flex: 1;
+    text-align: left;
+}
+
+.worth-it-filter-chevron {
+    font-size: 10px;
+    color: #888;
+    transition: transform 0.2s ease;
+}
+
+.worth-it-filter.open .worth-it-filter-chevron {
+    transform: rotate(180deg);
+}
+
+/* Filtered state — tinted background + brand-blue border so the trigger
+   advertises that a filter is on even when the pill panel is collapsed.
+   The hover tooltip carries the "showing X of Y" count so the rail
+   itself doesn't need extra inline text below the trigger. */
+.worth-it-filter-trigger.filtered {
+    background: rgba(2, 115, 190, 0.08);
+    border-color: var(--color-brand-blue);
+    color: var(--color-brand-blue);
+}
+
+.worth-it-filter-trigger.filtered:hover {
+    background: rgba(2, 115, 190, 0.14);
+    border-color: var(--color-brand-blue);
+}
+
+.worth-it-filter-trigger.filtered > i:first-child,
+.worth-it-filter-trigger.filtered .worth-it-filter-chevron {
+    color: var(--color-brand-blue);
+}
+
+/* Global [data-tooltip] rule sets cursor: default; keep pointer here
+   so the trigger still reads as a button when filtered + hovered. */
+.worth-it-filter-trigger[data-tooltip] {
+    cursor: pointer;
+}
+
+/* Position the trigger's tooltip ABOVE the pill and horizontally
+   centered. Overrides the global [data-tooltip]::after defaults
+   (which place tooltips below + left-aligned) so the count doesn't
+   land on top of the pill panel when it's open. */
+.worth-it-filter-trigger[data-tooltip]::after {
+    top: auto;
+    bottom: 100%;
+    left: 50%;
+    margin-top: 0;
+    margin-bottom: 6px;
+    transform: translateX(-50%);
+}
+
+/* ===============================
+    Active-filter trigger icons
+   ============================== */
+
+/* Container sits between the label and the chevron. Empty by default,
+   populated by JS once the user deselects at least one pill so the
+   trigger advertises which buckets are still in view. */
+.worth-it-filter-trigger-icons {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.worth-it-trigger-icon {
+    font-size: 11px;
+}
+
+.worth-it-trigger-icon-yes {
+    color: var(--color-brand-green);
+}
+
+.worth-it-trigger-icon-no {
+    color: var(--color-brand-fuscia);
+}
+
+.worth-it-trigger-icon-depends {
+    color: var(--color-brand-orange);
+}
+
+/* Hide pills until the user opens the filter */
+.worth-it-filter-pills {
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid var(--color-light-gray);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.worth-it-filter.open .worth-it-filter-pills {
+    display: flex;
+}
+
+/* Pill button — modern compact pill with subtle brand color when active */
+.worth-it-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f7f7f7;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: var(--font-weight-bold);
+    color: #777;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.worth-it-pill:hover {
+    background: #efefef;
+}
+
+.worth-it-pill i {
+    font-size: 11px;
+    width: 12px;
+    text-align: center;
+}
+
+.worth-it-pill-label {
+    flex: 1;
+    text-align: left;
+}
+
+/* Count badge — subtle pill at the right edge of each filter pill */
+.worth-it-pill-count {
+    background: rgba(0, 0, 0, 0.08);
+    color: inherit;
+    font-size: 11px;
+    font-weight: var(--font-weight-bolder);
+    padding: 2px 8px;
+    border-radius: 999px;
+    min-width: 22px;
+    text-align: center;
+}
+
+/* Active state per status — uses the same brand colors as the badges */
+.worth-it-pill-yes.active {
+    background: rgba(139, 180, 45, 0.15);
+    border-color: var(--color-brand-green);
+    color: var(--color-brand-green);
+}
+
+.worth-it-pill-no.active {
+    background: rgba(233, 5, 85, 0.10);
+    border-color: var(--color-brand-fuscia);
+    color: var(--color-brand-fuscia);
+}
+
+.worth-it-pill-depends.active {
+    background: rgba(255, 165, 0, 0.15);
+    border-color: var(--color-brand-orange);
+    color: var(--color-brand-orange);
+}
+
+.worth-it-pill.active .worth-it-pill-count {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+/* Hide subcategory buttons that don't match the active filter set.
+   The JS toggles .filtered-out on each button as pills are clicked. */
+.subcategory-btn.filtered-out {
+    display: none;
+}
+
+/* ================================================
+     Subcategory Button
+   ================================================ */
+
+.subcategory-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background-color: var(--color-brand-green);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: var(--font-weight-bold);
+    cursor: pointer;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.subcategory-btn:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+    transform: translateX(4px);
+    text-decoration: none;
+    color: #fff;
+}
+
+.subcategory-btn:visited {
+    color: #fff;
+}
+
+/* Active subcategory button: fuscia left border indicator */
+.subcategory-btn.active {
+    border-left: 4px solid var(--color-brand-fuscia);
+    padding-left: 12px;
+}
+
+/* Subcategory name: stretch to fill available width for tooltip hover area */
+.subcategory-btn-name {
+    flex: 1;
+}
+
+/* Check count pill */
+.subcategory-btn-count {
+    background-color: rgba(255, 255, 255, 0.25);
+    color: #fff;
+    font-size: 12px;
+    font-weight: var(--font-weight-bolder);
+    padding: 2px 8px;
+    border-radius: 12px;
+    min-width: 24px;
+    text-align: center;
+}
+
+
+/* ========================================================================
+   Right Panel — Subcategory Content
+   ======================================================================== */
+
+.category-panel {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Hidden subcategory panels (only active one shows) */
+.subcategory-content {
+    display: none;
+}
+
+.subcategory-content.active {
+    display: block;
+}
+
+/* Subcategory heading */
+.subcategory-title {
+    color: var(--color-h2);
+    font-size: calc(var(--h1-size) * 0.85);
+    margin: 0 0 24px 0;
+}
+
+
+/* ========================================================================
+   Subcategory Tabs (Overview / Audit Checks)
+   ======================================================================== */
+
+/* ================================================
+     Tab Bar
+   ================================================ */
+
+/* Underline rendered via ::after so it doesn't add to the bar's height.
+   The bar's children (tabs + badge) can then extend right down to the
+   bottom edge — pills' bottoms land on the line instead of floating
+   2px above it. */
+.subcat-tab-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #fff;
+    margin-bottom: 24px;
+    position: relative;
+}
+
+/* Gray separator line drawn JUST BELOW the bar's box, separate from the
+   active tab's pink underline. Hidden for now — uncomment height to
+   bring it back. */
+.subcat-tab-bar::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    /* height: 2px; */
+    background: var(--color-light-gray);
+    pointer-events: none;
+}
+
+.subcat-tab-buttons {
+    display: flex;
+    margin-top: 14px;
+}
+
+.subcat-tab {
+    background: none;
+    border: none;
+    padding: 14px 28px;
+    font-family: var(--font-family-main);
+    font-size: 15px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-dark-gray);
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.subcat-tab:focus {
+    outline: none;
+}
+
+.subcat-tab:hover {
+    color: var(--color-brand-blue);
+}
+
+.subcat-tab.active {
+    color: var(--color-brand-fuscia);
+    border-bottom-color: var(--color-brand-fuscia);
+}
+
+/* ================================================
+     Tab Panels
+   ================================================ */
+
+.subcat-tab-panel {
+    display: none;
+}
+
+.subcat-tab-panel.active {
+    display: block;
+}
+
+
+/* ========================================================================
+   Overview Panel — Intro Content
+   ======================================================================== */
+
+/* ================================================
+     Worth It Badge
+   ================================================ */
+
+/* Sized to match the .subcat-tab height in the same row so the badge's
+   text lines up with the tab labels. min-height pins it; flex
+   centering vertically aligns the icon + text within the pill. */
+.worth-it-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: var(--font-weight-bold);
+    padding: 0 18px;
+    min-height: 50px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    white-space: nowrap;
+    line-height: 1;
+    margin-bottom: 20px;
+    /* Nudge the badge down so its bottom lands on the active tab's
+       fuscia underline. `top` shifts it without touching layout. */
+    position: relative;
+    top: 20px;
+}
+
+.worth-it-badge i {
+    font-size: 13px;
+}
+
+.worth-it-yes {
+    background-color: rgba(139, 180, 45, 0.15);
+    color: var(--color-brand-green);
+    border: 1px solid var(--color-brand-green);
+}
+
+.worth-it-no {
+    background-color: rgba(233, 5, 85, 0.08);
+    color: var(--color-brand-fuscia);
+    border: 1px solid var(--color-brand-fuscia);
+}
+
+.worth-it-depends {
+    background-color: rgba(255, 165, 0, 0.15);
+    color: var(--color-brand-orange);
+    border: 1px solid var(--color-brand-orange);
+}
+
+
+/* ================================================
+     Important Note Callout
+   ================================================ */
+
+.subcat-important-note {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background-color: rgba(255, 165, 0, 0.08);
+    border-left: 4px solid var(--color-brand-orange);
+    border-radius: 4px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    font-size: var(--font-size-p);
+    line-height: var(--line-height-normal);
+}
+
+.subcat-important-note > i {
+    color: var(--color-brand-orange);
+    font-size: 18px;
+    margin-top: 4px;
+    flex-shrink: 0;
+}
+
+.subcat-important-note a {
+    color: var(--link-color);
+}
+
+.subcat-important-note a:hover {
+    color: var(--link-hover);
+}
+
+/* Citation link on its own line below the note text */
+.important-note-cite {
+    display: block;
+    font-size: 13px;
+    margin-top: 8px;
+}
+
+
+/* ================================================
+     Subcategory Image (Floated Right)
+   ================================================ */
+
+.subcat-figure {
+    max-width: 100%;
+    margin: 0 0 24px 0;
+}
+
+.subcat-img {
+    width: 100%;
+    border: 1px solid var(--color-light-gray);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.subcat-caption {
+    font-size: 13px;
+    color: #777;
+    margin-top: 8px;
+    line-height: var(--line-height-tight);
+    text-align: center;
+}
+
+
+/* ================================================
+     Intro Text
+   ================================================ */
+
+.subcat-intro-text p {
+    font-size: var(--font-size-p);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-loose);
+    color: var(--color-dark-gray);
+    margin: 0 0 20px 0;
+}
+
+/* Worth-it explanation paragraph — same body type as intro paragraphs
+   so it reads as the next paragraph below the intro. */
+.subcat-worth-it-explanation {
+    font-size: var(--font-size-p);
+    font-weight: var(--font-weight-normal);
+    line-height: var(--line-height-loose);
+    color: var(--color-dark-gray);
+    margin: 0 0 20px 0;
+}
+
+
+/* ================================================
+     Google Guidance Link
+   ================================================ */
+
+.subcat-guidance-link {
+    display: inline-block;
+    font-size: 14px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-brand-blue);
+    text-decoration: none;
+    margin-top: 8px;
+    transition: color 0.2s ease;
+}
+
+.subcat-guidance-link:hover {
+    color: var(--link-hover);
+    text-decoration: underline;
+}
+
+.subcat-guidance-link i {
+    font-size: 12px;
+    margin-right: 4px;
+}
+
+
+/* ========================================================================
+   Check Cards
+   ======================================================================== */
+
+.check-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background-color: #fff;
+    border: 1px solid var(--color-light-gray);
+    border-left: 4px solid var(--color-brand-fuscia);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    transition: box-shadow 0.2s ease;
+}
+
+/* Left side: signal bars, title, GET STARTED link */
+.check-card-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.check-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+}
+
+
+/* ================================================
+     Check Card Header
+   ================================================ */
+
+.check-card-header {
+    margin-bottom: 8px;
+}
+
+
+/* ================================================
+     Impact Signal Bars
+   ================================================ */
+
+.signal-bars {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    margin-bottom: 12px;
+}
+
+/* Impact gauge rendered as a self-contained SVG via the impact_gauge
+   macro. Bottom margin keeps the stacked check-card layout from letting
+   the bars sit on top of the check title below them. */
+.impact-gauge {
+    margin-bottom: 15px;
+}
+
+/* Individual bar (default: empty / light gray) */
+.signal-bar {
+    width: 4px;
+    background-color: var(--color-light-gray);
+    border-radius: 1px;
+    display: inline-block;
+}
+
+/* Ascending bar heights */
+.signal-bar-1 { height: 4px; }
+.signal-bar-2 { height: 8px; }
+.signal-bar-3 { height: 12px; }
+.signal-bar-4 { height: 16px; }
+.signal-bar-5 { height: 20px; }
+
+/* Filled bar */
+.signal-bar.filled {
+    background-color: var(--color-brand-blue);
+}
+
+
+/* ================================================
+     Check Title
+   ================================================ */
+
+.check-title {
+    font-size: 18px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-dark-gray);
+    margin: 0;
+    line-height: var(--line-height-tight);
+}
+
+
+/* ================================================
+     GET STARTED Link
+   ================================================ */
+
+.check-link {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: var(--font-weight-bolder);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--color-brand-orange);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.check-link:hover {
+    color: var(--link-hover);
+    text-decoration: none;
+}
+
+.check-link:visited {
+    color: var(--color-brand-orange);
+}
+
+/* Chevron icon spacing */
+.check-link i {
+    font-size: 10px;
+    margin-left: 4px;
+}
+
+
+/* ========================================================================
+   Status Actions — Hover-Reveal Buttons (TO DO / DONE / SKIP)
+   ======================================================================== */
+
+/* ================================================
+     Status Buttons (shared)
+   ================================================ */
+
+.status-btn {
+    background: none;
+    border: 1px solid transparent;
+    font-size: 11px;
+    font-weight: var(--font-weight-bolder);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-brand-blue);
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    white-space: nowrap;
+}
+
+.status-btn:hover {
+    background-color: var(--color-brand-blue);
+    color: #fff;
+}
+
+/* ================================================
+     TO DO Card — Hover-Reveal Actions
+   ================================================ */
+
+/* Action buttons container: hidden until card hover */
+.check-status-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+/* Show action buttons on card hover (TO DO cards only) */
+.check-card:hover .check-status-actions {
+    opacity: 1;
+}
+
+/* Hide hover actions when card is done or skipped */
+.check-card.status-done .check-status-actions,
+.check-card.status-skip .check-status-actions {
+    display: none;
+}
+
+/* ================================================
+     Collapsed Card — DONE / SKIP States
+   ================================================ */
+
+/* Collapsed card: thin bar with reduced opacity */
+.check-card.status-done,
+.check-card.status-skip {
+    padding: 12px 24px;
+    opacity: 0.5;
+    transition: box-shadow 0.2s ease, opacity 0.3s ease, padding 0.3s ease;
+}
+
+/* Done: green border */
+.check-card.status-done {
+    border-left-color: var(--color-brand-green);
+}
+
+/* Skipped: gray border */
+.check-card.status-skip {
+    border-left-color: var(--color-light-gray);
+}
+
+/* Restore opacity on hover so buttons are readable */
+.check-card.status-done:hover,
+.check-card.status-skip:hover {
+    opacity: 0.75;
+}
+
+/* Hide signal bars and GET STARTED link in collapsed state */
+.check-card.status-done .signal-bars,
+.check-card.status-skip .signal-bars,
+.check-card.status-done .check-link,
+.check-card.status-skip .check-link {
+    display: none;
+}
+
+/* Hide the header bottom margin in collapsed state */
+.check-card.status-done .check-card-header,
+.check-card.status-skip .check-card-header {
+    margin-bottom: 0;
+}
+
+/* Strikethrough title in collapsed state */
+.check-card.status-done .check-title,
+.check-card.status-skip .check-title {
+    text-decoration: line-through;
+    font-size: 14px;
+}
+
+/* ================================================
+     Collapsed Card — Hover-Reveal Actions
+   ================================================ */
+
+/* Hidden by default, right-aligned within the card */
+.check-collapsed-actions {
+    display: none;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+}
+
+/* Show container when card is done or skipped */
+.check-card.status-done .check-collapsed-actions,
+.check-card.status-skip .check-collapsed-actions {
+    display: flex;
+}
+
+/* Status label (DONE / SKIPPED) */
+.check-collapsed-label {
+    font-size: 11px;
+    font-weight: var(--font-weight-bolder);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-dark-gray);
+    white-space: nowrap;
+}
+
+/* Collapsed action buttons: hidden until hover */
+.check-collapsed-btns {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+/* Reveal buttons on collapsed card hover */
+.check-card.status-done:hover .check-collapsed-btns,
+.check-card.status-skip:hover .check-collapsed-btns {
+    opacity: 1;
+}
+
+
+/* ========================================================================
+   Tooltips — CSS-Only Hover Tooltips
+   ======================================================================== */
+
+/* Tooltip trigger: any element with data-tooltip */
+[data-tooltip] {
+    position: relative;
+    cursor: default;
+}
+
+/* Tooltip bubble */
+[data-tooltip]::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 6px;
+    background-color: var(--color-dark-gray);
+    color: #fff;
+    font-size: 14px;
+    font-weight: var(--font-weight-normal);
+    line-height: 1.4;
+    text-align: left;
+    white-space: nowrap;
+    padding: 5px 10px;
+    border-radius: 4px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 10;
+}
+
+/* Show tooltip on hover */
+[data-tooltip]:hover::after {
+    opacity: 1;
+}
+
+/* Subcategory button tooltips: keep pointer cursor inside links */
+.subcategory-btn [data-tooltip] {
+    cursor: pointer;
+}
+
+
+/* ========================================================================
+   Skipped Subcategory Button
+   ======================================================================== */
+
+/* Muted green background for skipped subcategories */
+.subcategory-btn.skipped {
+    background-color: var(--color-brand-green-skip);
+}
+
+
+/* ========================================================================
+   Subcategory Context Menu (right-click)
+   ======================================================================== */
+
+.subcat-context-menu {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    background-color: #fff;
+    border: 1px solid var(--color-light-gray);
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14);
+    padding: 4px 0;
+    min-width: 120px;
+}
+
+/* Show the menu when toggled */
+.subcat-context-menu.visible {
+    display: block;
+}
+
+/* Menu item button */
+.subcat-context-menu-item {
+    display: block;
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+    font-size: 14px;
+    font-weight: var(--font-weight-bold);
+    color: var(--color-dark-gray);
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.subcat-context-menu-item:hover {
+    background-color: var(--color-app-bg);
+}
+
+
+/* ========================================================================
+   Responsive Design
+   ======================================================================== */
+
+/* ================================================
+     Medium (<= 1023px)
+   ================================================ */
+@media only screen and (max-width: 1023px) {
+
+    .category-rail {
+        flex: 0 0 200px;
+    }
+
+    .subcategory-title {
+        font-size: calc(var(--h1-size) * 0.85);
+    }
+}
+
+
+/* ================================================
+     Small (<= 800px)
+   ================================================ */
+@media only screen and (max-width: 800px) {
+
+    /* Stack layout: rail on top, panel below */
+    .category-browser {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    /* Rail becomes horizontal scrollable row */
+    .category-rail {
+        flex: none;
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 8px;
+        position: static;
+        padding-bottom: 4px;
+    }
+
+    /* Buttons become compact pills */
+    .subcategory-btn {
+        white-space: nowrap;
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+
+    .subcategory-title {
+        font-size: calc(var(--h1-size) * 0.85);
+    }
+
+    .check-card {
+        padding: 16px 18px;
+    }
+
+    /* Tab buttons get smaller padding on mobile */
+    .subcat-tab {
+        padding: 10px 18px;
+        font-size: 14px;
+    }
+}
+
+
+/* ================================================
+     Extra Small (<= 600px)
+   ================================================ */
+@media only screen and (max-width: 600px) {
+
+    .subcategory-title {
+        font-size: calc(var(--h1-size) * 0.7225);
+    }
+
+    .check-title {
+        font-size: 16px;
+    }
+
+    .check-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 14px 16px;
+    }
+
+    /* Status buttons always visible on touch screens */
+    .check-status-actions {
+        opacity: 1;
+    }
+
+    .status-btn {
+        font-size: 10px;
+        padding: 5px 10px;
+    }
+
+    /* Collapsed action buttons always visible on touch screens */
+    .check-collapsed-btns {
+        opacity: 1;
+    }
+}
+
+
+/* ================================================
+     Tiny (<= 500px)
+   ================================================ */
+@media only screen and (max-width: 500px) {
+
+    /* Rail pills wrap instead of scroll */
+    .category-rail {
+        flex-wrap: wrap;
+        overflow-x: visible;
+    }
+
+    .subcategory-btn {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+}
+
+
+/* ========================================================================
+   Depth filter (Ads edition)
+
+   Replaces the Worth it filter for this edition. Subcategory-level: a
+   collapsible trigger reveals full-width Core / Advanced pills (mirroring
+   the worth_it pill design) that filter the subcategory buttons. Counts
+   are subcategories per tier.
+   ======================================================================== */
+
+.depth-filter {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+}
+
+.depth-filter-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 18px;
+    min-height: 52px;
+    box-sizing: border-box;
+    background: #fff;
+    border: 1px solid var(--color-light-gray);
+    border-radius: 999px;
+    color: #555;
+    font-size: 13px;
+    font-weight: var(--font-weight-bold);
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.depth-filter-trigger:hover {
+    background: #f7f7f7;
+    border-color: #c8c8c8;
+}
+
+.depth-filter-trigger > i:first-child {
+    font-size: 11px;
+    color: #888;
+}
+
+.depth-filter-trigger-label {
+    flex: 1;
+    text-align: left;
+}
+
+.depth-filter-chevron {
+    font-size: 10px;
+    color: #888;
+    transition: transform 0.2s ease;
+}
+
+.depth-filter.open .depth-filter-chevron {
+    transform: rotate(180deg);
+}
+
+.depth-filter-trigger.filtered {
+    background: rgba(2, 115, 190, 0.08);
+    border-color: var(--color-brand-blue);
+    color: var(--color-brand-blue);
+}
+
+.depth-filter-trigger.filtered > i:first-child,
+.depth-filter-trigger.filtered .depth-filter-chevron {
+    color: var(--color-brand-blue);
+}
+
+/* Active-tier icons in the trigger, shown when the view is filtered. They
+   use the tier's own color (orange Core / fuchsia Advanced) so they stand
+   out against the blue 'filtered' trigger instead of reading blue-on-blue. */
+.depth-filter-trigger-icons {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.depth-trigger-icon {
+    font-size: 11px;
+}
+
+.depth-trigger-icon-core {
+    color: var(--color-brand-orange);
+}
+
+.depth-trigger-icon-advanced {
+    color: var(--color-brand-fuscia);
+}
+
+.depth-filter-pills {
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid var(--color-light-gray);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.depth-filter.open .depth-filter-pills {
+    display: flex;
+}
+
+/* Pill — mirrors .worth-it-pill exactly so the filter reads as the same
+   component, just speaking the Depth vocabulary. */
+.depth-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: #f7f7f7;
+    /* Thin gray border by default (deselected/grayed state); active pills
+       override the border-color with their tier color, same 1px weight. */
+    border: 1px solid var(--color-light-gray);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: var(--font-weight-bold);
+    color: #777;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.depth-pill:hover {
+    background: #efefef;
+}
+
+/* Suppress the browser's default focus ring on click (the blue outline);
+   matches the app convention (.subcat-tab, .bug-report-trigger). The active
+   tier color is the selection indicator. */
+.depth-pill:focus {
+    outline: none;
+}
+
+.depth-pill i {
+    font-size: 11px;
+    width: 12px;
+    text-align: center;
+}
+
+.depth-pill-label {
+    flex: 1;
+    text-align: left;
+}
+
+.depth-pill-count {
+    background: rgba(0, 0, 0, 0.08);
+    color: inherit;
+    font-size: 11px;
+    font-weight: var(--font-weight-bolder);
+    padding: 2px 8px;
+    border-radius: 999px;
+    min-width: 22px;
+    text-align: center;
+}
+
+/* Active states — blue = Core (essential), orange = Advanced (deep dive). */
+.depth-core.active {
+    background: rgba(255, 165, 0, 0.15);
+    border-color: var(--color-brand-orange);
+    color: var(--color-brand-orange);
+}
+
+.depth-advanced.active {
+    background: rgba(233, 5, 85, 0.10);
+    border-color: var(--color-brand-fuscia);
+    color: var(--color-brand-fuscia);
+}
+
+.depth-pill.active .depth-pill-count {
+    background: rgba(255, 255, 255, 0.6);
+}
+
+/* Subcategory button hidden by the Depth filter */
+.subcategory-btn.depth-filtered-out {
+    display: none;
+}
+
+/* Depth badge — selected subcategory's tier, upper-right in the tab bar
+   (where the Worth it badge sits in the Site Audit). */
+.depth-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: var(--font-weight-bold);
+    border-radius: 999px;
+    border: 1px solid transparent;
+}
+
+.depth-badge-core {
+    color: var(--color-brand-orange);
+    border-color: var(--color-brand-orange);
+    background: rgba(255, 165, 0, 0.10);
+}
+
+.depth-badge-advanced {
+    color: var(--color-brand-fuscia);
+    border-color: var(--color-brand-fuscia);
+    background: rgba(233, 5, 85, 0.08);
+}

@@ -1,0 +1,22 @@
+{# ====================================================================
+   App Architecture treemap (reusable)
+
+   Drop-in component used by the admin hub and the user-facing
+   /architecture/ page. Renders the live category -> subcategory ->
+   check-count taxonomy as a clickable Plotly treemap. The including
+   template must pass `treemap` (from chart_builder.build_architecture_treemap)
+   in its context.
+   ==================================================================== #}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/architecture-treemap.css') }}">
+
+<div class="architecture-treemap-wrap">
+    <div id="architecture-treemap" class="architecture-treemap" role="img"
+         aria-label="App architecture: all audit categories and subcategories, sized by check count"></div>
+</div>
+
+{# Server-rendered taxonomy data; the JS reads this and builds the trace. #}
+<script id="architecture-treemap-data" type="application/json">{{ treemap|tojson }}</script>
+
+{# Loaded from jsdelivr (allowed by the app CSP; cdn.plot.ly is not). #}
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.35.2/plotly.min.js" charset="utf-8"></script>
+<script src="{{ url_for('static', filename='js/architecture-treemap.js') }}"></script>

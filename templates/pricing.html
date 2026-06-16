@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}Pricing — Auditmaton for Ad Audits{% endblock %}
+
+{% block extra_head %}
+<!--===================================================================
+     Page-Specific Styles
+     =================================================================== -->
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/pricing.css') }}">
+{% endblock %}
+
+{% block page_header %}
+<!-- Suppress the default entry-header -->
+{% endblock %}
+
+{# Override the entire container block for full-width sections #}
+{% block container %}
+
+<!--===================================================================
+     Pricing — Hero (Base Product)
+     =================================================================== -->
+{% for product in products if product.product_type == 'base' %}
+<section class="pricing-hero">
+    <div class="pricing-hero-inner">
+        <div class="pricing-hero-card">
+
+            <!--================================================
+                 Base Product Icon + Name
+                 ================================================ -->
+            <div class="pricing-hero-icon">
+                <i class="{{ product.icon_class }}"></i>
+            </div>
+            <h1 class="pricing-hero-title">{{ product.display_name }}</h1>
+            <p class="pricing-hero-headline">{{ product.marketing_headline }}</p>
+
+            <!--================================================
+                 Price
+                 ================================================ -->
+            <div class="pricing-hero-price">
+                <span class="pricing-hero-price__amount">${{ "%.0f" | format(product.price_cents / 100) }}</span>
+                <span class="pricing-hero-price__period">/year</span>
+            </div>
+
+            <!--================================================
+                 Description
+                 ================================================ -->
+            <p class="pricing-hero-description">{{ product.description }}</p>
+
+            <!--================================================
+                 Feature List
+                 ================================================ -->
+            <ul class="pricing-hero-features">
+                <li><i class="fa-solid fa-check"></i> 7 audit categories</li>
+                <li><i class="fa-solid fa-check"></i> Educate step for every check</li>
+                <li><i class="fa-solid fa-check"></i> Investigate with guided instructions</li>
+                <li><i class="fa-solid fa-check"></i> Evaluate against benchmarks</li>
+                <li><i class="fa-solid fa-check"></i> Validate fixes post-implementation</li>
+                <li><i class="fa-solid fa-check"></i> Conditional sections for your site type</li>
+            </ul>
+
+            <!--================================================
+                 CTA Button
+                 ================================================ -->
+            <a href="{{ app_root }}/register/?products=base" id="pricing-cta-hero" class="button pricing-cta">
+                Get Started
+            </a>
+        </div>
+    </div>
+</section>
+{% endfor %}
+
+<!--===================================================================
+     Pricing — Add-ons Section
+     =================================================================== -->
+<section class="pricing-addons">
+    <div class="pricing-addons-inner">
+
+        <!--================================================
+             Section Heading
+             ================================================ -->
+        <h2 class="pricing-addons-heading">Supercharge Your Audit</h2>
+        <p class="pricing-addons-subheading">
+            Add powerful features to your Base plan. Select the add-ons you need
+            and bundle them for the best value.
+        </p>
+
+        <!--================================================
+             Add-on Card Grid
+             ================================================ -->
+        <div class="pricing-addon-grid">
+            {% for product in products if product.product_type == 'addon' %}
+            <div class="pricing-addon-card"
+                 data-slug="{{ product.slug }}"
+                 data-price="{{ product.price_cents }}">
+
+                <!-- Icon -->
+                <div class="pricing-addon-icon">
+                    <i class="{{ product.icon_class }}"></i>
+                </div>
+
+                <!-- Name + Price -->
+                <div class="pricing-addon-header">
+                    <h3 class="pricing-addon-name">{{ product.display_name }}</h3>
+                    <span class="pricing-addon-price">
+                        +${{ "%.0f" | format(product.price_cents / 100) }}/yr
+                    </span>
+                </div>
+
+                <!-- Description -->
+                <p class="pricing-addon-description">{{ product.description }}</p>
+
+                <!-- Actions -->
+                <div class="pricing-addon-actions">
+                    <button type="button"
+                            class="pricing-addon-learn-more"
+                            data-slug="{{ product.slug }}">
+                        Learn More
+                    </button>
+                    <button type="button" class="pricing-addon-select">
+                        <i class="fa-solid fa-plus"></i> Add
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!--================================================
+             Running Total + CTA
+             ================================================ -->
+        <div class="pricing-total-bar">
+            <div class="pricing-total-bar-inner">
+                <div class="pricing-total-info">
+                    <span class="pricing-total-label">Your Plan</span>
+                    <span class="pricing-total-amount" id="pricing-total-amount">$295/yr</span>
+                </div>
+                <a href="{{ app_root }}/register/?products=base"
+                   id="pricing-cta-bottom"
+                   class="button pricing-cta">
+                    Get Started
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!--===================================================================
+     Pricing — Lightbox Modals (one per add-on)
+     =================================================================== -->
+{% for product in products if product.product_type == 'addon' %}
+<div class="modal-overlay" data-product="{{ product.slug }}">
+    <div class="modal-dialog pricing-lightbox">
+
+        <!--================================================
+             Modal Header
+             ================================================ -->
+        <div class="modal-dialog-header">
+            <h3 class="modal-dialog-title">{{ product.display_name }}</h3>
+            <button type="button" class="modal-dialog-close" aria-label="Close">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!--================================================
+             Modal Body
+             ================================================ -->
+        <div class="modal-dialog-body pricing-lightbox-body">
+
+            <!-- Screenshot (left column on desktop) -->
+            <div class="pricing-lightbox-screenshot">
+                <img src="{{ url_for('static', filename='img/products/' + product.slug + '.png') }}"
+                     alt="{{ product.display_name }} screenshot"
+                     onerror="this.parentElement.style.display='none'">
+            </div>
+
+            <!-- Marketing copy (right column on desktop) -->
+            <div class="pricing-lightbox-copy">
+                <p class="pricing-lightbox-headline">{{ product.marketing_headline }}</p>
+                <div class="pricing-lightbox-description">
+                    {% for paragraph in product.marketing_description.split('\n\n') %}
+                    <p>{{ paragraph }}</p>
+                    {% endfor %}
+                </div>
+                <div class="pricing-lightbox-price">
+                    +${{ "%.0f" | format(product.price_cents / 100) }}/yr
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}
+
+{% block scripts %}
+<!-- Pricing page logic -->
+<script src="{{ url_for('static', filename='js/pricing.js') }}"></script>
+{% endblock %}

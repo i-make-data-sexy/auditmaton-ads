@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {# Google Tag Manager #}
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5FJGP2');</script>
+
+    {# SEO #}
+    {# Page title with block for child templates to override - can reference using {{ super() }} #}
+    <title>{% block title %}Annielytics AI Timeline{% endblock %}</title>
+    {# Canonical tag#}
+    <link rel="canonical" href="https://www.annielytics.com/tools/ai-timeline/">
+    <meta name="description" content="A curated timeline of AI model updates, innovations, research, legislation, fails, and more.">
+
+
+    {# Favicon for all pages #}
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.png') }}">
+
+    {# DEFAULT SOCIAL SHARING TAGS #}
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{% block og_title %}Annielytics AI Timeline{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}A curated timeline of AI model updates, innovations, research, legislation, fails, and more.{% endblock %}">
+    <meta property="og:url" content="{% block og_url %}{{ request.url }}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ url_for('static', filename='img/ai-timeline-card.png', _external=True) }}{% endblock %}">
+    <meta property="og:image:secure_url" content="https://www.annielytics.com/tools/ai-timeline/static/img/ai-timeline-card.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:alt" content="Illustration of a human hand touching a robotic hand over a digital background">
+    <meta name="author" content="Annie Cushing">
+    <meta property="article:author" content="https://www.annielytics.com/about/">
+
+    {# X-specific markup #}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}AI Timeline{% endblock %}">
+    <meta name="twitter:url" content="https://www.annielytics.com/tools/ai-timeline/">
+    <meta name="twitter:description" content="{% block twitter_description %}A curated timeline of AI model updates, innovations, research, legislation, fails, and more.{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{{ url_for('static', filename='img/ai-timeline-card.png', _external=True) }}{% endblock %}">
+    <meta name="twitter:site" content="@annielytics">
+    
+
+
+    {# External CSS libraries for visualization and layout #}
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    {# DataTables CSS #}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css"/>
+    
+    {# Vis Timeline CSS #}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-timeline/7.7.2/vis-timeline-graph2d.min.css" />
+    
+    {# Custom styles for the application #}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    
+    {# Block for additional page-specific head content #}
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+    {# Google Tag Manager #}
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5FJGP2"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+    {# Header with WordPress-style navigation reused from ML Model Picker #}
+    <header class="site-header">
+
+        {# Use custom header class if defined, otherwise default to 'wrap' - to allow for a full-width header on index.html #}
+        <div class="{{ self.header_class() if self.header_class is defined else 'wrap' }}">  
+
+            {# Logo and site branding area #}
+            <div class="title-area">
+                <a href="https://www.annielytics.com/"> 
+                    <img src="{{ url_for('static', filename='img/annielytics-logo.png') }}" alt="Annielytics Logo" class="header-logo">
+                </a>
+            </div>
+
+            {# This doesn't work in just this app; I don't know why #}
+            {# <button class="menu-toggle" aria-expanded="false">MENU</button> #}
+
+            {# Alternative solution suggested by Claude (pers acct: https://bit.ly/4kHRzHf) #}
+            <input type="checkbox" id="menu-toggle-checkbox" class="hidden">
+            {# Replace the button with a label that has the same styling #}
+            <label for="menu-toggle-checkbox" class="menu-toggle" aria-expanded="false">MENU</label>
+
+            {# Primary navigation menu #}
+            <nav class="nav-primary">
+                <ul class="menu">
+                    <li><a href="https://www.annielytics.com/about/">About</a></li>
+                    <!-- <li><a href="https://www.annielytics.com/services/">Services</a></li> -->
+                    <li><a href="https://www.annielytics.com/tools/">Tools</a></li>
+                    <li><a href="https://www.annielytics.com/blog/">Blog</a></li>
+                    <li><a href="https://www.annielytics.com/tips/">Tips</a></li>
+                    <li><a href="https://www.annielytics.com/sexy-data/">Portfolio</a></li>
+                    <li><a href="https://www.annielytics.com/contact/">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    {# Page title header #}
+    <div class="entry-header">
+        <h1 class="entry-title">{% block page_title %}AI Timeline{% endblock %}</h1>
+    </div>
+
+    {# Container block allows complete override of content structure #}
+    {% block container %}
+
+    {# Main content area that holds page-specific content #}
+    <div class="main-content">
+        {# Flash messages #}
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {# Content block for page-specific content #}
+        {% block content %}{% endblock %}
+
+        {# Show tutorial link and back button only on pages with titles #}
+        {% if self.page_title() %}  
+        <div class="wrap">
+            {# Link to tutorial blog post #}
+            <h2>Tutorial</h2>
+            <p>
+                Learn how to use this app in 
+                <a href="https://www.annielytics.com/blog/ai/track-ai-innovations-and-updates-with-my-interactive-timeline/" 
+                class="tools-link-no-padding">
+                    my announcement blog post</a>.
+            </p>
+            {# Back button - with conditional display #}
+            {% if request.path != '/tools/ai-timeline/' and request.path != '/tools/ai-timeline' %}
+                {# Center the button and add bottom margin #}
+                <p style="text-align: center; margin-bottom: 40px;">
+                    <a class="button" href="/tools/ai-timeline/">Back to the App</a>
+                </p>
+                <p><em>Note: </em>Returning to the app with this button will clear any filters you applied to the timeline. If you want to preserve your work, use your browser's back button.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        {# Image credit display for pages that provide credit info #}
+        {% if self.credit_url is defined %}
+        <div class='image-credit'>Image credit: 
+            <a href="{{ self.credit_url() }}" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                class="tools-link-no-padding">
+                {{ self.credit_name() }}
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    {% endblock %}
+
+    {# Footer with consistent navigation links across all pages #}
+    <footer class="footer">
+    <nav class="footer-nav">
+        <a href="/tools/ai-timeline/tips" class="footer-link">Tips</a>
+        <a href="/tools/ai-timeline/methodology" class="footer-link">Methodology</a>
+        <a href="/tools/ai-timeline/resources" class="footer-link">Resources</a>
+        <a href="/tools/ai-timeline/feedback" class="footer-link">Feedback</a>
+    </nav>
+    </footer> 
+
+    {# Core JavaScript libraries #}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    
+    {# Scripts block for page-specific JS #}
+    {% block scripts %}{% endblock %}
+
+    {# NEW - Need for hamburger menu to open #}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const menuToggle = document.getElementById('menu-toggle-checkbox');
+            const menu = document.querySelector('.nav-primary .menu');
+            
+            menuToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    menu.classList.add('visible');
+                } else {
+                    menu.classList.remove('visible');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

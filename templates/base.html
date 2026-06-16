@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!--===================================================================
+         Google Tag Manager
+         =================================================================== -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5FJGP2');</script>
+
+    <!--===================================================================
+         App Root Prefix (for JavaScript URL construction)
+         =================================================================== -->
+    <script>window.APP_ROOT = "{{ app_root }}";</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!--===================================================================
+         Title and Meta
+         =================================================================== -->
+    <title>{% block title %}Auditmaton for Ad Audits{% endblock %}</title>
+    <link rel="canonical" href="{% block canonical %}{% endblock %}">
+    <meta name="description" content="{% block meta_description %}Auditmaton for Ad Audits is a step-by-step ad-audit tool for digital analytics practitioners. Guided audits across demand-side and supply-side advertising platforms.{% endblock %}">
+    <meta name="author" content="Annie Cushing">
+
+    <!--===================================================================
+         Favicon
+         =================================================================== -->
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.png') }}" type="image/png">
+
+    <!--===================================================================
+         Fonts (Elms Sans for headings)
+         =================================================================== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Elms+Sans:wght@400;500;600;700&display=swap">
+
+    <!--===================================================================
+         Open Graph
+         =================================================================== -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{% block og_title %}Auditmaton for Ad Audits{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Professional ad-audit tool for digital analytics practitioners with AI-powered insights.{% endblock %}">
+    <meta property="og:url" content="{% block og_url %}{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{{ url_for('static', filename='img/annielytics-logo.png') }}{% endblock %}">
+
+    <!--===================================================================
+         Twitter Card
+         =================================================================== -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}Auditmaton for Ad Audits{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Professional ad-audit tool for digital analytics practitioners with AI-powered insights.{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{{ url_for('static', filename='img/annielytics-logo.png') }}{% endblock %}">
+
+    <!--===================================================================
+         CDN Stylesheets
+         =================================================================== -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <!--===================================================================
+         App Stylesheet
+         =================================================================== -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    {# Admin-only Test as tier switcher styles #}
+    {% if is_real_admin %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/test-tier-switcher.css') }}">
+    {% endif %}
+
+    <!--===================================================================
+         CSRF Token (available to all pages for AJAX requests)
+         =================================================================== -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!--===================================================================
+         Page-Specific Head Content
+         =================================================================== -->
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body data-user-role="{{ user_role }}" data-effective-tier="{{ effective_tier }}">
+    <!--===================================================================
+         Google Tag Manager (noscript fallback)
+         =================================================================== -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5FJGP2"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+    <!--===================================================================
+         Site Header
+         =================================================================== -->
+    <header class="site-header">
+        <div class="{{ self.header_class() if self.header_class is defined else 'wrap' }}">
+
+            {# Logo links back to Annielytics main site #}
+            <div class="title-area">
+                <a href="https://www.annielytics.com/">
+                    <img src="{{ url_for('static', filename='img/annielytics-logo.png') }}"
+                         alt="Annielytics Logo" class="header-logo">
+                </a>
+            </div>
+
+            {# Checkbox-hack hamburger menu toggle #}
+            <input type="checkbox" id="menu-toggle-checkbox" class="hidden">
+            <label for="menu-toggle-checkbox" class="menu-toggle"
+                   aria-expanded="false">MENU</label>
+
+            {# Primary nav links to Annielytics main site pages #}
+            <nav class="nav-primary">
+                <ul class="menu">
+                    <li><a href="https://www.annielytics.com/about/">About</a></li>
+                    <li><a href="https://www.annielytics.com/tools/">Tools</a></li>
+                    <li><a href="https://www.annielytics.com/blog/">Blog</a></li>
+                    <li><a href="https://www.annielytics.com/tips/">Tips</a></li>
+                    <li><a href="https://www.annielytics.com/portfolio/">Portfolio</a></li>
+                    <li><a href="https://www.annielytics.com/contact/">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!--===================================================================
+         Audit Context Bar (only visible when audit is active)
+         =================================================================== -->
+    {% if active_audit %}
+    <div class="audit-context-bar">
+        <div class="wrap">
+            <span class="audit-context-domain">{{ active_audit.domain }}</span>
+            <span class="audit-context-tier tier-{{ active_audit.tier }}">
+                {{ active_audit.tier_display }}
+            </span>
+            {% if active_audit.tier == 'ai' %}
+            <span class="audit-context-tokens">
+                <i class="fa-solid fa-coins"></i> {{ active_audit.tokens_remaining }} tokens
+            </span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!--===================================================================
+         Main Content (H1 lives inside the wrapper so the underline stays
+         constrained to the content column and the page reads as one unit)
+         =================================================================== -->
+    {% block container %}
+    <div class="main-content">
+        {% block page_header %}
+        <div class="entry-header">
+            <h1 class="entry-title">{% block page_title %}Dashboard{% endblock %}</h1>
+        </div>
+        {% endblock %}
+
+        {# Flash messages #}
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+    {% endblock %}
+
+    <!--===================================================================
+         Footer
+         =================================================================== -->
+    <footer class="footer">
+        <nav class="footer-nav">
+            {# Authenticated-only links. Gated on viewer_authenticated (not
+               current_user) so an admin previewing as 'unauth' sees the
+               logged-out menu. #}
+            {% if viewer_authenticated %}
+            <a href="{{ app_root }}/audits/" class="footer-link">My Audits</a>
+            <a href="{{ app_root }}/account/" class="footer-link">Account</a>
+            {% endif %}
+            <a href="{{ app_root }}/help/" class="footer-link">Help</a>
+            {% if user_role in ('admin', 'owner') %}
+            <a href="{{ app_root }}/admin/" class="footer-link">Admin</a>
+            {% endif %}
+            {% if viewer_authenticated %}
+            <form action="{{ app_root }}/logout/" method="POST" class="footer-logout-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="footer-link footer-logout-btn">Log Out</button>
+            </form>
+            {% else %}
+            <a href="{{ app_root }}/login/" class="footer-link">Log In</a>
+            {% endif %}
+
+            {# Admin-only Test as tier switcher. Gated on is_real_admin so it
+               stays visible even while previewing a lower tier or 'unauth',
+               letting the admin switch back. #}
+            {% if is_real_admin %}
+            <div class="test-tier-switcher">
+                <label for="test-tier-select" class="test-tier-label">Test as tier</label>
+                <select id="test-tier-select" class="test-tier-select">
+                    {% for value, label in tier_switcher_options %}
+                    <option value="{{ value }}" {% if value == effective_tier %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% endif %}
+        </nav>
+    </footer>
+
+    <!--===================================================================
+         Scripts
+         =================================================================== -->
+    {# jQuery (required before page scripts) #}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    {# Page-specific JS #}
+    {% block scripts %}{% endblock %}
+
+    {# Admin-only Test as tier switcher #}
+    {% if is_real_admin %}
+    <script src="{{ url_for('static', filename='js/test-tier-switcher.js') }}"></script>
+    {% endif %}
+
+    {# INLINE EXCEPTION: Hamburger menu toggle must stay inline because it
+       controls the menu toggle for every page and needs to execute without
+       an external file dependency. This is the ONE exception to the
+       "no inline JS" rule in CLAUDE.md. #}
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const menuToggle = document.getElementById("menu-toggle-checkbox");
+            const menu = document.querySelector(".nav-primary .menu");
+            menuToggle.addEventListener("change", function() {
+                if (this.checked) {
+                    menu.classList.add("visible");
+                } else {
+                    menu.classList.remove("visible");
+                }
+            });
+        });
+    </script>
+</body>
+</html>

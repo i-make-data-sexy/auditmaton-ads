@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account — Auditmaton for Ad Audits{% endblock %}
+
+{% block extra_head %}
+<!--===================================================================
+     Page-Specific Styles
+     =================================================================== -->
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/auth.css') }}">
+
+<!--===================================================================
+     CSRF Token (read by auth.js for AJAX requests)
+     =================================================================== -->
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+<!--===================================================================
+     Authorize.net Public Client Key (read by auth.js for Accept.js)
+     =================================================================== -->
+<meta name="anet-client-key" content="{{ config.AUTHORIZE_NET_PUBLIC_CLIENT_KEY | default('') }}">
+<meta name="anet-api-login-id" content="{{ config.AUTHORIZE_NET_API_LOGIN_ID | default('') }}">
+{% endblock %}
+
+{% block page_header %}
+<!-- Suppress the default entry-header -->
+{% endblock %}
+
+{% block content %}
+<!--===================================================================
+     Registration Form
+     =================================================================== -->
+<div class="auth-container auth-container--wide">
+    <div class="auth-card">
+        <h2>Get Started</h2>
+        <p class="auth-subtitle">Start your first site audit in minutes.</p>
+
+        <!--================================================
+             Step 1: Plan Selection + Payment
+             ================================================ -->
+        <div id="register-step-payment">
+
+            <!--================================================
+                 Plan Selection
+                 ================================================ -->
+            <h3 class="auth-section-heading" style="border-top: none; margin-top: 0; padding-top: 0;">Choose Your Plan</h3>
+
+            <div class="plan-cards">
+                {% for product in products %}
+                <div class="plan-card{% if product.product_type == 'base' %} plan-card--base plan-card--selected{% endif %}"
+                     data-slug="{{ product.slug }}"
+                     data-price="{{ product.price_cents }}">
+                    <input type="checkbox"
+                           name="products"
+                           value="{{ product.slug }}"
+                           {% if product.product_type == 'base' %}checked disabled{% endif %}
+                           class="plan-card__checkbox">
+                    <div class="plan-card__content">
+                        <div class="plan-card__header">
+                            <span class="plan-card__name">{{ product.display_name }}</span>
+                            <span class="plan-card__price">
+                                {% if product.product_type == 'addon' %}+{% endif %}${{ "%.0f" | format(product.price_cents / 100) }}/yr
+                            </span>
+                        </div>
+                        <p class="plan-card__description">{{ product.description }}</p>
+                        {% if product.product_type == 'base' %}
+                        <span class="plan-card__badge">Required</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!--================================================
+                 Running Total
+                 ================================================ -->
+            <div class="plan-total">
+                <span class="plan-total__label">Annual Total</span>
+                <span class="plan-total__amount" id="plan-total-amount">$295</span>
+            </div>
+
+            <!--================================================
+                 Payment Form (Authorize.net Accept.js)
+                 ================================================ -->
+            <h3 class="auth-section-heading">Payment Details</h3>
+
+            <div class="payment-form">
+                <!--================================================
+                     Card Number
+                     ================================================ -->
+                <div class="auth-form-group">
+                    <label for="card-number">Card Number</label>
+                    <input type="text" id="card-number"
+                           autocomplete="cc-number"
+                           placeholder="4111 1111 1111 1111"
+                           maxlength="19"
+                           inputmode="numeric">
+                </div>
+
+                <!--================================================
+                     Expiry + CVV (side by side)
+                     ================================================ -->
+                <div class="auth-name-row">
+                    <div class="auth-form-group">
+                        <label for="card-expiry">Expiration</label>
+                        <input type="text" id="card-expiry"
+                               autocomplete="cc-exp"
+                               placeholder="MM/YY"
+                               maxlength="5"
+                               inputmode="numeric">
+                    </div>
+                    <div class="auth-form-group">
+                        <label for="card-cvv">CVV</label>
+                        <input type="text" id="card-cvv"
+                               autocomplete="cc-csc"
+                               placeholder="123"
+                               maxlength="4"
+                               inputmode="numeric">
+                    </div>
+                </div>
+            </div>
+
+            <!--================================================
+                 Continue to Account Creation
+                 ================================================ -->
+            <button type="button" id="payment-continue" class="auth-submit">
+                Continue
+            </button>
+        </div>
+
+        <!--================================================
+             Step 2: Account Creation
+             (Hidden until payment step completes)
+             ================================================ -->
+        <div id="register-step-account" class="auth-step-hidden">
+
+            <!--================================================
+                 Google Sign-In
+                 ================================================ -->
+            <button type="button" id="google-signin-btn" class="auth-google-btn">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                     alt="" class="auth-google-icon">
+                Sign up with Google
+            </button>
+
+            <!--================================================
+                 Divider
+                 ================================================ -->
+            <div class="auth-divider">
+                <span>or</span>
+            </div>
+
+            <form id="register-form" novalidate>
+
+                <!--================================================
+                     Name Fields (side by side)
+                     ================================================ -->
+                <div class="auth-name-row">
+                    <div class="auth-form-group">
+                        <label for="register-first-name">First Name</label>
+                        <input type="text" id="register-first-name" name="first_name"
+                               autocomplete="given-name"
+                               placeholder="Annie">
+                    </div>
+                    <div class="auth-form-group">
+                        <label for="register-last-name">Last Name</label>
+                        <input type="text" id="register-last-name" name="last_name"
+                               autocomplete="family-name"
+                               placeholder="Cushing">
+                    </div>
+                </div>
+
+                <!--================================================
+                     Email
+                     ================================================ -->
+                <div class="auth-form-group">
+                    <label for="register-email">Email</label>
+                    <input type="email" id="register-email" name="email"
+                           autocomplete="email" required
+                           placeholder="you@example.com">
+                </div>
+
+                <!--================================================
+                     Password
+                     ================================================ -->
+                <div class="auth-form-group">
+                    <label for="register-password">Password</label>
+                    <div class="auth-password-wrapper">
+                        <input type="password" id="register-password" name="password"
+                               autocomplete="new-password" required
+                               placeholder="At least 8 characters" minlength="8">
+                        <button type="button" class="auth-password-toggle"
+                                aria-label="Toggle password visibility">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!--================================================
+                     Confirm Password
+                     ================================================ -->
+                <div class="auth-form-group">
+                    <label for="register-confirm">Confirm Password</label>
+                    <div class="auth-password-wrapper">
+                        <input type="password" id="register-confirm" name="confirm"
+                               autocomplete="new-password" required
+                               placeholder="Re-enter your password" minlength="8">
+                        <button type="button" class="auth-password-toggle"
+                                aria-label="Toggle password visibility">
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!--================================================
+                     Create Account & Pay
+                     ================================================ -->
+                <button type="submit" class="auth-submit">Create Account &amp; Pay</button>
+            </form>
+
+            <!--================================================
+                 Back Link
+                 ================================================ -->
+            <div class="auth-back-link">
+                <a href="#" id="back-to-payment">
+                    <i class="fa-solid fa-arrow-left"></i> Back to plan selection
+                </a>
+            </div>
+        </div>
+
+        <!--================================================
+             Error / Success Messages
+             ================================================ -->
+        <p id="auth-error" class="auth-error"></p>
+        <p id="auth-success" class="auth-success"></p>
+
+        <!--================================================
+             Device Limit Warning
+             ================================================ -->
+        <div id="device-warning" class="auth-device-warning">
+            <p><i class="fa-solid fa-triangle-exclamation"></i> <span></span></p>
+        </div>
+
+        <!--================================================
+             Footer Links
+             ================================================ -->
+        <div class="auth-footer">
+            Already have an account?
+            <a href="{{ url_for('auth.login') }}">Log in</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!--===================================================================
+     Firebase JS SDK (compat mode for broad browser support)
+     =================================================================== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+<!-- Firebase configuration — values loaded from server-side config -->
+<script>
+    firebase.initializeApp({
+        apiKey: "{{ config.FIREBASE_API_KEY | default('') }}",
+        authDomain: "{{ config.FIREBASE_AUTH_DOMAIN | default('') }}",
+        projectId: "{{ config.FIREBASE_PROJECT_ID | default('') }}"
+    });
+</script>
+
+<!--===================================================================
+     Authorize.net Accept.js SDK
+     =================================================================== -->
+{% if config.AUTHORIZE_NET_SANDBOX %}
+<script src="https://jstest.authorize.net/v1/Accept.js" charset="utf-8"></script>
+{% else %}
+<script src="https://js.authorize.net/v1/Accept.js" charset="utf-8"></script>
+{% endif %}
+
+<!-- Auth page logic -->
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

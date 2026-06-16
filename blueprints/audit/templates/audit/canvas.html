@@ -1,0 +1,791 @@
+{% extends "base.html" %}
+
+{% block title %}{{ check.title }} | Auditmaton for Ad Audits{% endblock %}
+
+{% block extra_head %}
+<!--===================================================================
+     Page-Specific Styles
+     =================================================================== -->
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/canvas.css') }}">
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/bug-report.css') }}">
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/editorial.css') }}">
+
+<!-- Quill.js Rich Text Editor (Snow theme) -->
+<link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
+{% endblock %}
+
+
+<!--===================================================================
+     Page Header Override — Breadcrumb + Title + Tabs (no decorative line)
+     =================================================================== -->
+{% block page_header %}
+<div class="canvas-header-area">
+    <div class="wrap">
+
+        <!--================================================
+             Check Title
+             ================================================ -->
+        <h1 class="canvas-check-title">{{ check.title }}</h1>
+
+        <!--================================================
+             Breadcrumb
+             ================================================ -->
+        <nav class="category-breadcrumb">
+            <a href="{{ app_root }}/">App Home</a>
+            <span class="breadcrumb-separator">
+                <i class="fa-solid fa-chevron-right"></i>
+            </span>
+            <a href="{{ app_root }}/dashboard/{{ active_platform }}/">Dashboard</a>
+            <span class="breadcrumb-separator">
+                <i class="fa-solid fa-chevron-right"></i>
+            </span>
+            <a href="{{ app_root }}/dashboard/{{ active_platform }}/">{{ active_platform_label }}</a>
+            <span class="breadcrumb-separator">
+                <i class="fa-solid fa-chevron-right"></i>
+            </span>
+            <a href="{{ app_root }}/dashboard/{{ active_platform }}/{{ category_key }}/">{{ category_meta.display_name }}</a>
+            <span class="breadcrumb-separator">
+                <i class="fa-solid fa-chevron-right"></i>
+            </span>
+            <a href="{{ app_root }}/dashboard/{{ active_platform }}/{{ category_key }}/{{ subcategory_slug }}/">{{ subcategory_display }}</a>
+            <span class="breadcrumb-separator">
+                <i class="fa-solid fa-chevron-right"></i>
+            </span>
+            <span class="breadcrumb-current">{{ check.title }}</span>
+        </nav>
+    </div>
+</div>
+
+<!--================================================
+     Top-Level Tabs: Guide | Canvas
+     ================================================ -->
+<div class="canvas-tab-bar">
+    <div class="wrap">
+        <button class="canvas-tab{% if active_step != 'canvas' %} active{% endif %}" data-tab="guide">
+            <i class="fa-solid fa-book-open"></i> Guide
+        </button>
+        <button class="canvas-tab{% if active_step == 'canvas' %} active{% endif %}" data-tab="canvas">
+            <i class="fa-solid fa-file-lines"></i> Canvas
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+
+<!--===================================================================
+     Main Content
+     =================================================================== -->
+{% block content %}
+{% from "components/impact_gauge.html" import impact_gauge %}
+
+<!--===================================================================
+     GUIDE TAB
+     =================================================================== -->
+<div class="tab-panel{% if active_step != 'canvas' %} active{% endif %}" id="panel-guide">
+
+    <!--================================================
+         -ate Step Navigation Pills + Bug Report
+         ================================================ -->
+    <nav class="ate-step-nav">
+
+        {% if check.educate %}
+        <button class="ate-step-pill{% if active_step == 'educate' %} active{% endif %}" data-step="educate"
+                data-tooltip="Class is in session! This tab is for you to learn more about a particular issue. You can also cherry pick details from it to add to the Canvas to augment the information you get from the Generate tab.">
+            <span class="ate-step-number">1</span> Educate
+        </button>
+        {% endif %}
+
+        {% if check.investigate %}
+        <button class="ate-step-pill{% if active_step == 'investigate' %} active{% endif %}" data-step="investigate"
+                data-tooltip="This tab will walk you through the steps you need to take to investigate an issue using each of the tools you select.">
+            <span class="ate-step-number">2</span> Investigate
+        </button>
+        {% endif %}
+
+        {% if check.generate %}
+        <button class="ate-step-pill{% if active_step == 'generate' %} active{% endif %}" data-step="generate"
+                data-tooltip="We created boilerplate text you can cherry pick from so you aren't starting with (wait for it&hellip;) a blank canvas. You can select text and add it to the Canvas from the contextual menu or add it all using the button at the bottom of the screen.">
+            <span class="ate-step-number">3</span> Generate
+        </button>
+        {% endif %}
+
+        <!-- Bug report trigger -->
+        <button class="bug-report-trigger" id="bug-report-trigger"
+                aria-label="Report a bug">
+            <i class="fa-solid fa-bug"></i>
+        </button>
+
+    </nav>
+
+
+    <!--===================================================================
+         Step 1: EDUCATE
+         =================================================================== -->
+    {% if check.educate %}
+    <div class="ate-step-panel{% if active_step == 'educate' %} active{% endif %}" id="step-educate">
+        <div class="ate-panel-inner">
+
+            <!-- Overview heading -->
+            <h2>Overview</h2>
+
+            <!-- Base explanation and site type overlays -->
+            <div class="ate-content" id="educate-content">
+                <div class="editable-content" data-content-path="{{ check.id }}::educate.base">
+                    {{ check.educate.base | render_content }}
+                </div>
+
+                <!-- Site type overlays -->
+                {% if check.educate.site_type_overlays and check.educate.site_type_overlays|length > 0 %}
+                    <h2>Site Type Insights</h2>
+                    <p>Sometimes certain site types have specific guidance. If your site fits a site type and there's tailored guidance, it will be included.</p>
+                    {% for site_type, overlay_text in check.educate.site_type_overlays.items() %}
+                    <div class="overlay-panel">
+                        <h3 class="tool-panel-heading">{{ site_type | replace('_', ' ') | title }}</h3>
+                        <div class="editable-content" data-content-path="{{ check.id }}::educate.site_type_overlays.{{ site_type }}">
+                            {{ overlay_text | render_content }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!--================================================
+                     Google Updates (conditional)
+                     ================================================ -->
+                {% if check.educate.impactful_updates and check.educate.impactful_updates|length > 0 %}
+                {% set updates = check.educate.impactful_updates %}
+
+                {% if updates|length == 1 %}
+                <!-- Single update -->
+                <h2>Google Update</h2>
+
+                {% set update = updates[0] %}
+
+                <p>We found an update relevant to this issue:</p>
+
+                <p data-content-path="{{ check.id }}::educate.impactful_updates[0].update_summary">{{ update.update_date }}: {{ update.update_summary | safe }} You can learn more about the {{ update.update_title | safe }} <a href="{{ update.update_link }}" data-content-path="{{ check.id }}::educate.impactful_updates[0].update_link" target="_blank" rel="noopener">here</a>.</p>
+
+                {% if update.confirmed == "Yes" %}
+                <p><em>Note: </em>Google confirmed this update.</p>
+                {% else %}
+                <p><em>Note: </em>We could not find confirmation of this update. If you find confirmation, please <a href="#" class="feedback-link" data-update-title="{{ update.update_title }}">let us know</a>.</p>
+                {% endif %}
+
+                {% else %}
+                <!-- Multiple updates -->
+                <h2>Google Updates</h2>
+
+                {% for update in updates %}
+                <h3>{{ update.update_title | safe }}</h3>
+
+                <p data-content-path="{{ check.id }}::educate.impactful_updates[{{ loop.index0 }}].update_summary">{{ update.update_date }}: {{ update.update_summary | safe }} You can learn more about the {{ update.update_title | safe }} update <a href="{{ update.update_link }}" data-content-path="{{ check.id }}::educate.impactful_updates[{{ loop.index0 }}].update_link" target="_blank" rel="noopener">here</a>.</p>
+
+                {% if update.confirmed == "Yes" %}
+                <p><em>Note: </em>Google confirmed this update.</p>
+                {% else %}
+                <p><em>Note: </em>We could not find confirmation of this update. If you find confirmation, please <a href="#" class="feedback-link" data-update-title="{{ update.update_title }}">let us know</a>.</p>
+                {% endif %}
+                {% endfor %}
+
+                {% endif %}
+                {% endif %}
+
+                <!--================================================
+                     Learn More
+                     ================================================ -->
+                {% if check.educate.learn_more and check.educate.learn_more|length > 0 %}
+                <h2>Learn More</h2>
+
+                <p>Learn more about this issue:</p>
+
+                <ul class="generate-learn-more-list">
+                    {% for source in check.educate.learn_more %}
+                    <li data-content-path="{{ check.id }}::educate.learn_more[{{ loop.index0 }}]">
+                        <a href="{{ source.source_url }}"
+                           data-content-path="{{ check.id }}::educate.learn_more[{{ loop.index0 }}].source_url"
+                           target="_blank" rel="noopener">
+                            <span data-content-path="{{ check.id }}::educate.learn_more[{{ loop.index0 }}].source_title">{{ source.source_title }}</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+    {% endif %}
+
+
+    <!--===================================================================
+         Step 2: INVESTIGATE
+         =================================================================== -->
+    {% if check.investigate %}
+    <div class="ate-step-panel{% if active_step == 'investigate' %} active{% endif %}" id="step-investigate">
+        <div class="ate-panel-inner">
+
+            <!-- Task heading and intro -->
+            <h2>Task</h2>
+
+            {% if check.investigate.intro %}
+            <div class="ate-content">
+                <div class="editable-content" data-content-path="{{ check.id }}::investigate.intro">
+                    {{ check.investigate.intro | render_content }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Tool guidance section -->
+            {% if check.investigate.tools %}
+            <div class="tool-section">
+
+                <h2>Tool Guidance</h2>
+
+                <p>Select the tools you'd like to use to perform this task. Under each tool will be a list of steps you can take.</p>
+
+                <!-- TODO: Filter tools by user's onboarding selections once intake system is connected -->
+
+                <!-- Checkbox list grouped by Free / Paid -->
+                <div class="tool-picker">
+
+                    <!-- Show All toggle -->
+                    <div class="tool-picker-show-all">
+                        <label class="tool-checkbox-label">
+                            <input type="checkbox" class="tool-checkbox-all"
+                                   id="tool-checkbox-all">
+                            <span class="tool-checkbox-name">Show All</span>
+                        </label>
+                    </div>
+
+                    {% if check.investigate.tools.free %}
+                    <div class="tool-picker-group">
+                        <span class="tool-picker-group-label">Free</span>
+                        {% for tool_key, tool_data in check.investigate.tools.free.items() %}
+                        <label class="tool-checkbox-label">
+                            <input type="checkbox" class="tool-checkbox"
+                                   value="{{ tool_key }}" checked>
+                            <span class="tool-checkbox-name">{{ tool_data.label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if check.investigate.tools.paid %}
+                    <div class="tool-picker-group">
+                        <span class="tool-picker-group-label">Paid</span>
+                        {% for tool_key, tool_data in check.investigate.tools.paid.items() %}
+                        <label class="tool-checkbox-label">
+                            <input type="checkbox" class="tool-checkbox"
+                                   value="{{ tool_key }}">
+                            <span class="tool-checkbox-name">{{ tool_data.label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Tool step panels (one per tool, toggled by checkboxes) -->
+                {% if check.investigate.tools.free %}
+                {% for tool_key, tool_data in check.investigate.tools.free.items() %}
+                <div class="tool-panel active"
+                     data-tool="{{ tool_key }}" id="tool-content-{{ tool_key }}">
+                    <h3 class="tool-panel-heading">{{ tool_data.label }}</h3>
+                    <ol class="tool-steps">
+                        {% for step in tool_data.steps %}
+                        <li data-content-path="{{ check.id }}::investigate.tools.free.{{ tool_key }}.steps[{{ loop.index0 }}]">{{ step|safe }}</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                {% if check.investigate.tools.paid %}
+                {% for tool_key, tool_data in check.investigate.tools.paid.items() %}
+                <div class="tool-panel"
+                     data-tool="{{ tool_key }}" id="tool-content-{{ tool_key }}">
+                    <h3 class="tool-panel-heading">{{ tool_data.label }}</h3>
+                    <ol class="tool-steps">
+                        {% for step in tool_data.steps %}
+                        <li data-content-path="{{ check.id }}::investigate.tools.paid.{{ tool_key }}.steps[{{ loop.index0 }}]">{{ step|safe }}</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+                {% endfor %}
+                {% endif %}
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+    {% endif %}
+
+
+    <!--===================================================================
+         Step 3: GENERATE
+         =================================================================== -->
+    {% if check.generate %}
+    <div class="ate-step-panel{% if active_step == 'generate' %} active{% endif %}" id="step-generate">
+        <div class="ate-panel-inner">
+
+            <!--================================================
+                 Finding
+                 ================================================ -->
+            <h2>Finding</h2>
+
+            <div class="ate-content" id="generate-finding-content">
+                <div class="editable-content" data-content-path="{{ check.id }}::generate.narrative_template">
+                    {{ check.generate.narrative_template | render_content }}
+                </div>
+            </div>
+
+
+            <!--================================================
+                 Impact
+                 ================================================ -->
+            <h2>Impact</h2>
+
+            <p>{{ impact_gauge(check.impact_score) }}</p>
+            <p>Rationale: <span class="editable-content" data-content-path="{{ check.id }}::impact_rationale">{{ check.impact_rationale | safe }}</span></p>
+
+
+
+            <!-- Add to Canvas -->
+            <div class="ate-footer">
+                <button class="add-to-canvas-btn" data-section="generate">
+                    <i class="fa-solid fa-plus"></i> Add All to Canvas
+                </button>
+            </div>
+
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+
+<!--===================================================================
+     CANVAS TAB
+     =================================================================== -->
+<div class="tab-panel{% if active_step == 'canvas' %} active{% endif %}" id="panel-canvas"
+     data-audit-id="{{ audit_id }}"
+     data-check-id="{{ check.id }}"
+     data-category="{{ category_meta.display_name }}"
+     data-category-key="{{ category_key }}"
+     data-subcategory="{{ subcategory_display }}"
+     data-subcategory-slug="{{ subcategory_slug }}"
+     data-check-title="{{ check.title }}">
+
+    <!-- Quill editor container -->
+    <div id="canvas-editor-wrapper">
+        <div id="canvas-editor">
+            <p><br></p>
+        </div>
+    </div>
+</div>
+
+
+<!--===================================================================
+     Contextual Text Selection UI
+     =================================================================== -->
+
+{% include "components/selection_popover.html" %}
+
+<!--================================================
+     Rephrase Submenu
+     ================================================ -->
+<div class="rephrase-submenu" id="rephrase-submenu">
+    <button class="submenu-option" data-rephrase="simplify">
+        <i class="fa-solid fa-feather"></i> Simplify the explanation
+    </button>
+    <button class="submenu-option" data-rephrase="detail">
+        <i class="fa-solid fa-layer-group"></i> Add more detail
+    </button>
+    <button class="submenu-option" data-rephrase="analogy">
+        <i class="fa-solid fa-lightbulb"></i> Add an everyday analogy
+    </button>
+    <button class="submenu-option" data-rephrase="regale">
+        <span class="submenu-emoji">💃</span> Regale me
+    </button>
+</div>
+
+<!--================================================
+     Report as Inaccurate Modal
+     ================================================ -->
+<div class="modal-overlay" id="report-modal-overlay">
+    <div class="modal-dialog report-modal-dialog">
+        <div class="modal-dialog-header">
+            <span class="modal-dialog-title">Report as Inaccurate</span>
+            <button class="modal-dialog-close" id="close-report-modal"
+                    aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-dialog-body">
+            <form id="report-form" novalidate>
+
+                <!-- First name (required) -->
+                <div class="form-field">
+                    <label class="form-label" for="report-first-name">
+                        First name <span class="required-asterisk">*</span>
+                    </label>
+                    <input type="text" id="report-first-name"
+                           class="form-input" required>
+                </div>
+
+                <!-- Last name -->
+                <div class="form-field">
+                    <label class="form-label" for="report-last-name">
+                        Last name
+                    </label>
+                    <input type="text" id="report-last-name"
+                           class="form-input">
+                </div>
+
+                <!-- What was inaccurate (required) -->
+                <div class="form-field">
+                    <label class="form-label" for="report-description">
+                        What was inaccurate? <span class="required-asterisk">*</span>
+                    </label>
+                    <textarea id="report-description"
+                              class="form-textarea" rows="4"
+                              required
+                              placeholder="Please be as specific as possible."></textarea>
+                </div>
+
+                <!-- Reference URL -->
+                <div class="form-field">
+                    <label class="form-label" for="report-reference">
+                        Reference
+                    </label>
+                    <input type="url" id="report-reference"
+                           class="form-input"
+                           placeholder="https://example.com/source">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="button-secondary"
+                            id="cancel-report">Cancel</button>
+                    <button type="submit" class="button">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% include "components/editorial_widgets.html" %}
+
+<!--================================================
+     Update Feedback Modal
+     ================================================ -->
+<div class="modal-overlay" id="feedback-modal-overlay">
+    <div class="modal-dialog feedback-modal-dialog">
+        <div class="modal-dialog-header">
+            <span class="modal-dialog-title" id="feedback-modal-title">Feedback</span>
+            <button class="modal-dialog-close" id="close-feedback-modal"
+                    aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-dialog-body">
+            <form id="feedback-form" novalidate>
+
+                <!-- Reference URL (required) -->
+                <div class="form-field">
+                    <label class="form-label" for="feedback-url">
+                        Reference URL <span class="required-asterisk">*</span>
+                    </label>
+                    <input type="url" id="feedback-url"
+                           class="form-input"
+                           placeholder="https://example.com/source"
+                           required>
+                </div>
+
+                <!-- Additional notes (optional) -->
+                <div class="form-field">
+                    <label class="form-label" for="feedback-notes">
+                        Is there anything else you'd like to tell us?
+                    </label>
+                    <textarea id="feedback-notes"
+                              class="form-textarea" rows="4"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="button-secondary"
+                            id="cancel-feedback">Cancel</button>
+                    <button type="submit" class="button">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!--================================================
+     Post-Rephrase Modal — Guide Tab
+     ================================================ -->
+<div class="modal-overlay" id="rephrase-guide-modal-overlay">
+    <div class="modal-dialog rephrase-modal-dialog">
+        <div class="modal-dialog-header">
+            <span class="modal-dialog-title">Keep this revision?</span>
+            <button class="modal-dialog-close" id="close-rephrase-guide-modal"
+                    aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-dialog-body">
+            <p class="rephrase-modal-desc">
+                The text has been rephrased. Choose how to save this revision.
+            </p>
+            <div class="rephrase-options">
+                <button class="rephrase-option-btn" data-remember="revert">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span class="rephrase-option-label">Revert</span>
+                    <span class="rephrase-option-desc">Undo and restore the original text</span>
+                </button>
+                <button class="rephrase-option-btn" data-remember="audit">
+                    <i class="fa-solid fa-bookmark"></i>
+                    <span class="rephrase-option-label">Remember for this audit</span>
+                    <span class="rephrase-option-desc">Use this revision for the current audit only</span>
+                </button>
+                <button class="rephrase-option-btn" data-remember="all">
+                    <i class="fa-solid fa-globe"></i>
+                    <span class="rephrase-option-label">Remember for all audits</span>
+                    <span class="rephrase-option-desc">Use this revision across all future audits</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--================================================
+     Post-Rephrase Modal — Canvas Tab
+     ================================================ -->
+<div class="modal-overlay" id="rephrase-canvas-modal-overlay">
+    <div class="modal-dialog rephrase-modal-dialog">
+        <div class="modal-dialog-header">
+            <span class="modal-dialog-title">Keep this revision?</span>
+            <button class="modal-dialog-close" id="close-rephrase-canvas-modal"
+                    aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-dialog-body">
+            <p class="rephrase-modal-desc">
+                The text has been rephrased.
+            </p>
+            <div class="rephrase-options">
+                <button class="rephrase-option-btn" data-remember="revert">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span class="rephrase-option-label">Revert</span>
+                    <span class="rephrase-option-desc">Undo and restore the original text</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--================================================
+     Hidden Gear Button (moved to toolbar by JS)
+     ================================================ -->
+<button type="button" id="styles-customize-btn" class="styles-customize-btn"
+        style="display: none;" title="Customize heading styles">
+    <i class="fa-solid fa-gear"></i>
+</button>
+
+<!--================================================
+     Custom Font Size Input (moved to toolbar by JS)
+     ================================================ -->
+<div id="custom-font-size" class="custom-font-size" style="display: none;">
+    <input type="text" class="font-size-value" placeholder="—" title="Font size (px)">
+    <button type="button" class="font-size-toggle" aria-label="Font size presets">
+        <i class="fa-solid fa-caret-down"></i>
+    </button>
+    <div class="font-size-presets">
+        <div class="font-size-option" data-size="10">10</div>
+        <div class="font-size-option" data-size="12">12</div>
+        <div class="font-size-option" data-size="14">14</div>
+        <div class="font-size-option" data-size="16">16</div>
+        <div class="font-size-option" data-size="18">18</div>
+        <div class="font-size-option" data-size="20">20</div>
+        <div class="font-size-option" data-size="24">24</div>
+        <div class="font-size-option" data-size="28">28</div>
+        <div class="font-size-option" data-size="32">32</div>
+        <div class="font-size-option" data-size="36">36</div>
+        <div class="font-size-option" data-size="48">48</div>
+        <div class="font-size-option" data-size="64">64</div>
+        <div class="font-size-option" data-size="72">72</div>
+    </div>
+</div>
+
+<!--================================================
+     Custom Spacing Button (moved to toolbar by JS)
+     ================================================ -->
+<button type="button" id="spacing-btn" class="spacing-btn"
+        style="display: none;" title="Custom spacing">
+    <i class="fa-solid fa-text-height"></i>
+</button>
+
+<!--================================================
+     Custom Spacing Modal
+     ================================================ -->
+<div class="modal-overlay" id="spacing-modal-overlay">
+    <div class="modal-dialog spacing-modal-dialog">
+        <div class="modal-dialog-header">
+            <span class="modal-dialog-title">Custom Spacing</span>
+            <button class="modal-dialog-close" id="close-spacing-modal"
+                    aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-dialog-body">
+            <div class="spacing-field">
+                <label for="spacing-line">Line spacing</label>
+                <input type="number" id="spacing-line" class="spacing-input"
+                       min="0.5" max="5" step="0.05" placeholder="—">
+            </div>
+            <div class="spacing-paragraph-label">Paragraph spacing (pts)</div>
+            <div class="spacing-row">
+                <div class="spacing-field">
+                    <label for="spacing-before">Before</label>
+                    <input type="number" id="spacing-before" class="spacing-input"
+                           min="0" max="200" step="1" placeholder="0">
+                </div>
+                <div class="spacing-field">
+                    <label for="spacing-after">After</label>
+                    <input type="number" id="spacing-after" class="spacing-input"
+                           min="0" max="200" step="1" placeholder="0">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="button-secondary" id="cancel-spacing">Cancel</button>
+                <button type="button" class="button" id="apply-spacing">Apply</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--================================================
+     Heading Styles Customization Modal
+     ================================================ -->
+<div class="modal-overlay" id="styles-customize-modal-overlay">
+    <div class="modal-dialog styles-modal-dialog">
+        <div class="modal-dialog-header">
+            <span class="modal-dialog-title">Customize Heading Styles</span>
+            <button class="modal-dialog-close" id="close-styles-customize-modal"
+                    aria-label="Close">&times;</button>
+        </div>
+        <div class="modal-dialog-body">
+
+            <!-- Grid: Level | Font | Size | Color -->
+            <div class="styles-grid">
+
+                <!-- Header row -->
+                <div class="styles-grid-header">
+                    <span>Level</span>
+                    <span>Font</span>
+                    <span>Size</span>
+                    <span>Color</span>
+                </div>
+
+                <!-- H1 -->
+                <div class="styles-grid-row" data-level="1">
+                    <span class="styles-level-label">H1</span>
+                    <select class="styles-font-select"></select>
+                    <div class="styles-size-wrapper">
+                        <input type="number" class="styles-size-input"
+                               min="8" max="120" step="1">
+                        <span class="styles-size-suffix">px</span>
+                    </div>
+                    <input type="color" class="styles-color-input">
+                </div>
+
+                <!-- H2 -->
+                <div class="styles-grid-row" data-level="2">
+                    <span class="styles-level-label">H2</span>
+                    <select class="styles-font-select"></select>
+                    <div class="styles-size-wrapper">
+                        <input type="number" class="styles-size-input"
+                               min="8" max="120" step="1">
+                        <span class="styles-size-suffix">px</span>
+                    </div>
+                    <input type="color" class="styles-color-input">
+                </div>
+
+                <!-- H3 -->
+                <div class="styles-grid-row" data-level="3">
+                    <span class="styles-level-label">H3</span>
+                    <select class="styles-font-select"></select>
+                    <div class="styles-size-wrapper">
+                        <input type="number" class="styles-size-input"
+                               min="8" max="120" step="1">
+                        <span class="styles-size-suffix">px</span>
+                    </div>
+                    <input type="color" class="styles-color-input">
+                </div>
+
+                <!-- H4 -->
+                <div class="styles-grid-row" data-level="4">
+                    <span class="styles-level-label">H4</span>
+                    <select class="styles-font-select"></select>
+                    <div class="styles-size-wrapper">
+                        <input type="number" class="styles-size-input"
+                               min="8" max="120" step="1">
+                        <span class="styles-size-suffix">px</span>
+                    </div>
+                    <input type="color" class="styles-color-input">
+                </div>
+
+                <!-- H5 -->
+                <div class="styles-grid-row" data-level="5">
+                    <span class="styles-level-label">H5</span>
+                    <select class="styles-font-select"></select>
+                    <div class="styles-size-wrapper">
+                        <input type="number" class="styles-size-input"
+                               min="8" max="120" step="1">
+                        <span class="styles-size-suffix">px</span>
+                    </div>
+                    <input type="color" class="styles-color-input">
+                </div>
+
+                <!-- H6 -->
+                <div class="styles-grid-row" data-level="6">
+                    <span class="styles-level-label">H6</span>
+                    <select class="styles-font-select"></select>
+                    <div class="styles-size-wrapper">
+                        <input type="number" class="styles-size-input"
+                               min="8" max="120" step="1">
+                        <span class="styles-size-suffix">px</span>
+                    </div>
+                    <input type="color" class="styles-color-input">
+                </div>
+
+            </div>
+
+            <!-- Footer buttons -->
+            <div class="form-actions">
+                <button type="button" class="button-secondary"
+                        id="reset-styles-defaults">Reset to Defaults</button>
+                <button type="button" class="button"
+                        id="save-styles">Save</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Bug Report Modal (shared partial) -->
+{% include "components/bug_report_modal.html" %}
+
+{% endblock %}
+
+
+{% block scripts %}
+<!--===================================================================
+     Page-Specific Scripts
+     =================================================================== -->
+
+<!-- Quill.js Rich Text Editor -->
+<script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+
+<!-- Canvas page behavior -->
+<script src="{{ url_for('static', filename='js/canvas.js') }}"></script>
+
+<!-- Bug report behavior (shared across pages) -->
+<script src="{{ url_for('static', filename='js/bug-report.js') }}"></script>
+
+<!-- Editorial overlay (propose edits, comments) -->
+{% if user_role in ('contributor', 'editor', 'owner') %}
+<script src="{{ url_for('static', filename='js/editorial.js') }}"></script>
+{% endif %}
+{% endblock %}

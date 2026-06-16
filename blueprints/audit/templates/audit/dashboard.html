@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Audit Dashboard | Auditmaton for Ad Audits{% endblock %}
+{% block page_title %}Audit Dashboard{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<!--===================================================================
+     Category Dashboard
+     =================================================================== -->
+<div class="wrap">
+
+    <!--================================================
+         Welcome Panel
+         ================================================ -->
+    <div class="audit-welcome panel">
+        <div class="audit-welcome-grid">
+
+            {# Left: CTA #}
+            <div class="audit-welcome-cta">
+                <span class="audit-welcome-heading">Start a new audit</span>
+                <span class="audit-welcome-desc">
+                    Run a crawl of your site, then tell us about it.
+                    <i class="fa-solid fa-circle-info info-icon"
+                       data-tooltip="You'll want to run a crawl of your site using your preferred crawl tool. Then you'll fill out the form below with some questions about the site you're auditing. The info you provide will be used to customize the categories, subcategories, and instructions throughout the app."></i>
+                </span>
+                <a href="{{ app_root }}/intake/" class="button">Start New Audit</a>
+            </div>
+
+            {# Right: Audit status snapshot #}
+            <div class="audit-welcome-status">
+                <span class="audit-welcome-status-label">Current progress</span>
+                <span class="audit-welcome-status-progress">
+                    {{ categories | selectattr('status', 'ne', 'locked')
+                       | selectattr('completed') | list | length }} of
+                    {{ categories | rejectattr('locked') | list | length }} categories started.
+                </span>
+                {% set total_completed = categories | rejectattr('locked') | selectattr('completed') | list | length %}
+                {% set total_visible = categories | rejectattr('locked') | list | length %}
+                {% if total_visible > 0 %}
+                {% set pct = (total_completed * 100 / total_visible) | int %}
+                <div class="progress-track" style="margin-top: 8px;">
+                    <div class="progress-fill progress-fill-in_progress"
+                         data-progress="{{ pct }}"
+                         style="width: 0%;"></div>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+
+    <!--================================================
+         Category Card Grid
+         ================================================ -->
+    <div class="row">
+        {% for cat in categories %}
+        {# Hide locked conditional sections entirely #}
+        {% if not cat.locked %}
+        <div class="col-lg-4 col-md-6 col-12 mb-4">
+            <div class="category-card panel
+                        category-card-{{ cat.status }}
+                        {% if cat.locked %}category-card-locked{% endif %}
+                        {% if cat.muted %}category-card-muted{% endif %}"
+                 data-category="{{ cat.key }}"
+                 {% if cat.locked %}
+                 data-toggle="tooltip"
+                 data-placement="top"
+                 title="{{ cat.locked_reason }}"
+                 {% elif cat.muted %}
+                 data-toggle="tooltip"
+                 data-placement="top"
+                 title="{{ cat.muted_reason }}"
+                 {% endif %}>
+
+                {# Lock overlay for conditional categories #}
+                {% if cat.locked %}
+                <div class="category-card-lock">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                {% endif %}
+
+                {# Muted badge for deprioritized categories #}
+                {% if cat.muted %}
+                <div class="category-card-muted-badge">
+                    <i class="fa-solid fa-arrow-down"></i> Deprioritized
+                </div>
+                {% endif %}
+
+                {# Icon and title #}
+                <div class="category-card-header">
+                    <i class="{{ cat.icon_class }} category-card-icon"></i>
+                    <h3 class="category-card-title">{{ cat.display_name }}</h3>
+                </div>
+
+                {# Description #}
+                <p class="category-card-desc">{{ cat.description }}</p>
+
+                {# Progress bar #}
+                <div class="progress-track">
+                    <div class="progress-fill
+                                progress-fill-{{ cat.status }}"
+                         data-progress="{{ cat.percentage }}"
+                         style="width: 0%;">
+                    </div>
+                </div>
+
+                {# Progress text — positive framing #}
+                <span class="category-card-progress">
+                    {% if cat.locked %}
+                        Not available for this site type
+                    {% elif cat.status == 'complete' %}
+                        <i class="fa-solid fa-check"></i> All {{ cat.total_subchecks }} complete
+                    {% elif cat.muted and cat.status == 'not_started' %}
+                        Deprioritized &middot; 0 of {{ cat.total_subchecks }} complete
+                    {% elif cat.muted %}
+                        Deprioritized &middot; {{ cat.completed }} of {{ cat.total_subchecks }} complete
+                    {% elif cat.status == 'not_started' %}
+                        0 of {{ cat.total_subchecks }} complete
+                    {% else %}
+                        {{ cat.completed }} of {{ cat.total_subchecks }} complete
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

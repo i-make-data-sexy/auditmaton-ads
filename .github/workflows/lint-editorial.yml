@@ -1,0 +1,44 @@
+# .github/workflows/lint-editorial.yml
+# Runs the editorial linter on every push and pull request. Fails the
+# build on any high-severity finding so violations can't slip into main
+# even when the pre-commit hook is bypassed with --no-verify.
+#
+# The check is fast (~1 second on the full json/ tree) so there's no
+# meaningful CI cost. Medium-severity findings are reported in the job
+# log for review but don't fail the build — adjust to --severity medium
+# if you want stricter enforcement.
+
+name: lint-editorial
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "json/**"
+      - "scripts/lint_editorial.py"
+      - ".github/workflows/lint-editorial.yml"
+  pull_request:
+    paths:
+      - "json/**"
+      - "scripts/lint_editorial.py"
+      - ".github/workflows/lint-editorial.yml"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Report all medium+ findings (informational)
+        # `|| true` keeps this step non-fatal — we want the full report
+        # in the job log even when the strict gate below will fail.
+        run: python3 scripts/lint_editorial.py --severity medium --no-color json/ || true
+
+      - name: Strict gate — fail on high-severity findings
+        run: python3 scripts/lint_editorial.py --severity high --no-color json/

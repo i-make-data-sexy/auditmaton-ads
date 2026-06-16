@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Log In — Auditmaton for Ad Audits{% endblock %}
+
+{% block extra_head %}
+<!--===================================================================
+     Page-Specific Styles
+     =================================================================== -->
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/auth.css') }}">
+
+<!--===================================================================
+     CSRF Token (read by auth.js for AJAX requests)
+     =================================================================== -->
+<meta name="csrf-token" content="{{ csrf_token() }}">
+{% endblock %}
+
+{% block page_header %}
+<!-- Suppress the default entry-header -->
+{% endblock %}
+
+{% block content %}
+<!--===================================================================
+     Login Form
+     =================================================================== -->
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Log In</h2>
+        <p class="auth-subtitle">Welcome back. Sign in to continue your audit.</p>
+
+        <!--================================================
+             Google Sign-In
+             ================================================ -->
+        <button type="button" id="google-signin-btn" class="auth-google-btn">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                 alt="" class="auth-google-icon">
+            Sign in with Google
+        </button>
+
+        <!--================================================
+             Divider
+             ================================================ -->
+        <div class="auth-divider">
+            <span>or</span>
+        </div>
+
+        <form id="login-form" novalidate>
+
+            <!--================================================
+                 Email
+                 ================================================ -->
+            <div class="auth-form-group">
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" name="email"
+                       autocomplete="email" required
+                       placeholder="you@example.com">
+            </div>
+
+            <!--================================================
+                 Password
+                 ================================================ -->
+            <div class="auth-form-group">
+                <label for="login-password">Password</label>
+                <div class="auth-password-wrapper">
+                    <input type="password" id="login-password" name="password"
+                           autocomplete="current-password" required
+                           placeholder="Enter your password">
+                    <button type="button" class="auth-password-toggle"
+                            aria-label="Toggle password visibility">
+                        <i class="fa-solid fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!--================================================
+                 Submit
+                 ================================================ -->
+            <button type="submit" class="auth-submit">Log In</button>
+
+            <!--================================================
+                 Error / Success Messages
+                 ================================================ -->
+            <p id="auth-error" class="auth-error"></p>
+            <p id="auth-success" class="auth-success"></p>
+
+            <!--================================================
+                 Device Limit Warning
+                 ================================================ -->
+            <div id="device-warning" class="auth-device-warning">
+                <p><i class="fa-solid fa-triangle-exclamation"></i>
+                    You have reached the maximum of 2 authorized devices.
+                </p>
+            </div>
+        </form>
+
+        <!--================================================
+             Footer Links
+             ================================================ -->
+        <div class="auth-footer">
+            <a href="{{ url_for('auth.reset_password') }}">Forgot your password?</a>
+            <div class="auth-footer-separator">&mdash;</div>
+            Don't have an account?
+            <a href="{{ url_for('auth.register') }}">Sign up</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!--===================================================================
+     Firebase JS SDK (compat mode for broad browser support)
+     =================================================================== -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+<!-- Firebase configuration — values loaded from server-side config -->
+<script>
+    firebase.initializeApp({
+        apiKey: "{{ config.FIREBASE_API_KEY | default('') }}",
+        authDomain: "{{ config.FIREBASE_AUTH_DOMAIN | default('') }}",
+        projectId: "{{ config.FIREBASE_PROJECT_ID | default('') }}"
+    });
+</script>
+
+<!-- Auth page logic -->
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+{% endblock %}

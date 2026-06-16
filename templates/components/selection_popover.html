@@ -1,0 +1,76 @@
+{# templates/components/selection_popover.html
+   Kindle-style selection popover with two top-level groups: "User"
+   (read/feedback actions) and "Editorial" (content modifications).
+   Hovering each group reveals its submenu of actions. Editor- and
+   owner-only actions are gated by user_role at render time. #}
+
+<!--================================================
+     Selection Popover (Kindle-style floating bar)
+     ================================================ -->
+<div class="selection-popover" id="selection-popover">
+
+    <!--============================
+         User group (read / feedback)
+         ============================ -->
+    <div class="popover-group" data-group="user">
+        <button class="popover-action popover-group-trigger" type="button">
+            <i class="fa-solid fa-user"></i>
+            <span>User</span>
+            <i class="fa-solid fa-chevron-down popover-arrow"></i>
+        </button>
+        <div class="popover-submenu" id="popover-user-submenu">
+            <button class="popover-action" id="popover-update-heading"
+                    data-action="update-heading" type="button"
+                    style="display: none;">
+                <i class="fa-solid fa-heading"></i>
+                <span>Update Heading 1</span>
+            </button>
+            <button class="popover-action" data-action="add-to-canvas" type="button">
+                <i class="fa-solid fa-plus"></i>
+                <span>Add to canvas</span>
+            </button>
+            <button class="popover-action" data-action="rephrase" type="button">
+                <i class="fa-solid fa-pen-fancy"></i>
+                <span>Rephrase</span>
+                <i class="fa-solid fa-chevron-right popover-arrow"></i>
+            </button>
+            <button class="popover-action" data-action="lookup" type="button">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <span>Look up</span>
+            </button>
+            <button class="popover-action" data-action="report" type="button">
+                <i class="fa-solid fa-flag"></i>
+                <span>Report as inaccurate</span>
+            </button>
+        </div>
+    </div>
+
+    {% if user_role in ('contributor', 'editor', 'owner') %}
+    <!--====================================
+         Editorial group (content edit actions)
+         ==================================== -->
+    <div class="popover-group" data-group="editorial">
+        <button class="popover-action popover-group-trigger" type="button">
+            <i class="fa-solid fa-pen-to-square"></i>
+            <span>Editorial</span>
+            <i class="fa-solid fa-chevron-down popover-arrow"></i>
+        </button>
+        <div class="popover-submenu" id="popover-editorial-submenu">
+            {% if user_role in ('editor', 'owner') %}
+            <button class="popover-action popover-editorial" data-action="format-as-code" type="button">
+                <i class="fa-solid fa-code"></i>
+                <span>Format as code</span>
+            </button>
+            <button class="popover-action popover-editorial" data-action="propose-edit" type="button">
+                <i class="fa-solid fa-pencil"></i>
+                <span>Propose Edit</span>
+            </button>
+            {% endif %}
+            <button class="popover-action popover-editorial" data-action="comment" type="button">
+                <i class="fa-solid fa-comment"></i>
+                <span>Comment</span>
+            </button>
+        </div>
+    </div>
+    {% endif %}
+</div>

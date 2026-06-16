@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+
+{% block title %}{{ category_meta.display_name }} | Auditmaton for Ad Audits{% endblock %}
+{% block page_title %}{{ category_meta.display_name }}{% endblock %}
+
+{% block extra_head %}
+<!--===================================================================
+     Page-Specific Styles
+     =================================================================== -->
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/category.css') }}">
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/bug-report.css') }}">
+
+{# canvas.css carries the text-selection popover styles (hidden by default,
+   revealed on selection). Load it for all users so the popover works on
+   this page for everyone, not just editors. #}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/canvas.css') }}">
+
+{# Quill + editorial styles are only needed for the editor-only Propose
+   Edit / Comment flow. #}
+{% if user_role in ('editor', 'owner') %}
+<link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/editorial.css') }}">
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% from "components/impact_gauge.html" import impact_gauge %}
+<!--===================================================================
+     Breadcrumb
+     =================================================================== -->
+<div class="wrap">
+    <nav class="category-breadcrumb">
+        <a href="{{ app_root }}/">App Home</a>
+        <span class="breadcrumb-separator">
+            <i class="fa-solid fa-chevron-right"></i>
+        </span>
+        <a href="{{ app_root }}/dashboard/{{ active_platform }}/">Dashboard</a>
+        <span class="breadcrumb-separator">
+            <i class="fa-solid fa-chevron-right"></i>
+        </span>
+        <a href="{{ app_root }}/dashboard/{{ active_platform }}/">{{ active_platform_label }}</a>
+        <span class="breadcrumb-separator">
+            <i class="fa-solid fa-chevron-right"></i>
+        </span>
+        <span class="breadcrumb-current">{{ category_meta.display_name }}</span>
+    </nav>
+</div>
+
+<!--===================================================================
+     Category Browser (two-column layout)
+     =================================================================== -->
+<div class="wrap">
+
+    <!--================================================
+         Subcategory Title + Bug Report (above both columns)
+         ================================================ -->
+    <div class="subcategory-title-row">
+        <h2 class="subcategory-title" id="subcategory-title">{{ selected.display_name }}</h2>
+    </div>
+
+    {# Pre-compute Depth tier counts (subcategories per tier) for the filter
+       pills. Depth replaces the Worth it filter for the Ads edition. #}
+    {% set tier_core = subcategories | selectattr('tier', 'equalto', 'core') | list | length %}
+    {% set tier_advanced = subcategories | selectattr('tier', 'equalto', 'advanced') | list | length %}
+    {% set tier_total = tier_core + tier_advanced %}
+
+    <div class="category-browser">
+
+        <!--================================================
+             Left Rail — Depth filter + Subcategory Buttons
+             ================================================ -->
+        <aside class="category-rail">
+
+            {# Depth filter — collapsed by default, click the trigger to
+               reveal the Core / Advanced pills (full-width, mirroring the
+               worth_it pills). Counts are subcategories per tier. Only
+               renders when at least one subcategory carries a tier. #}
+            {% if tier_total > 0 %}
+            <div class="depth-filter" id="depth-filter"
+                 role="group" aria-label="Filter subcategories by depth">
+                <button type="button" class="depth-filter-trigger"
+                        id="depth-filter-trigger"
+                        aria-expanded="false"
+                        aria-controls="depth-filter-pills">
+                    <i class="fa-solid fa-filter"></i>
+                    <span class="depth-filter-trigger-label">Depth</span>
+                    {# Active-tier icons print here when the view is filtered,
+                       as a cue that a Depth filter is applied. #}
+                    <span class="depth-filter-trigger-icons" aria-hidden="true"></span>
+                    <i class="fa-solid fa-chevron-down depth-filter-chevron"></i>
+                </button>
+                <div class="depth-filter-pills" id="depth-filter-pills">
+                    <button type="button"
+                            class="depth-pill depth-core active"
+                            data-tier="core"
+                            aria-pressed="true">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span class="depth-pill-label">Core</span>
+                        <span class="depth-pill-count">{{ tier_core }}</span>
+                    </button>
+                    <button type="button"
+                            class="depth-pill depth-advanced active"
+                            data-tier="advanced"
+                            aria-pressed="true">
+                        <i class="fa-solid fa-rocket"></i>
+                        <span class="depth-pill-label">Advanced</span>
+                        <span class="depth-pill-count">{{ tier_advanced }}</span>
+                    </button>
+                </div>
+            </div>
+            {% endif %}
+
+            {% for sub in subcategories %}
+            <a href="{{ app_root }}/dashboard/{{ active_platform }}/{{ category_key }}/{{ sub.slug }}/overview/"
+               class="subcategory-btn{% if sub.slug == selected_slug %} active{% endif %}"
+               data-subcategory="{{ sub.slug }}"
+               data-worth-it="{{ sub.worth_it }}"
+               data-tier="{{ sub.tier }}">
+                <span class="subcategory-btn-name"
+                      data-tooltip="Avg impact: {{ sub.avg_impact }} (out of 5)">{{ sub.display_name }}</span>
+                <span class="subcategory-btn-count"
+                      data-tooltip="{{ sub.check_count }} check{{ 's' if sub.check_count != 1 else '' }}">{{ sub.check_count }}</span>
+            </a>
+            {% endfor %}
+        </aside>
+
+        <!--================================================
+             Right Panel — Subcategory Checks
+             ================================================ -->
+        <main class="category-panel">
+            {% for sub in subcategories %}
+            <div class="subcategory-content{% if sub.slug == selected_slug %} active{% endif %}"
+                 data-subcategory="{{ sub.slug }}">
+
+                <!--==============================
+                     Tabbed Layout (Overview + Audit Checks)
+                     ============================== -->
+                {% if sub.intro %}
+
+                {# ── Tab bar with Worth It badge ── #}
+                <div class="subcat-tab-bar">
+                    <div class="subcat-tab-buttons">
+                        <button class="subcat-tab{{ ' active' if (sub.slug != selected_slug or active_tab == 'overview') }}" data-tab="overview-{{ sub.key }}">Overview</button>
+                        <button class="subcat-tab{{ ' active' if (sub.slug == selected_slug and active_tab == 'audit-checks') }}" data-tab="checks-{{ sub.key }}">Audit Checks</button>
+                    </div>
+
+                    {# Depth badge — selected subcategory's tier, right-aligned
+                       in the tab bar (where the Worth it badge sat). #}
+                    {% if sub.tier %}
+                    {% set tier_class = 'depth-badge-core' if sub.tier == 'core' else 'depth-badge-advanced' %}
+                    <span class="depth-badge {{ tier_class }}">
+                        {% if sub.tier == 'core' %}
+                            <i class="fa-solid fa-shield-halved"></i> Core
+                        {% else %}
+                            <i class="fa-solid fa-rocket"></i> Advanced
+                        {% endif %}
+                    </span>
+                    {% endif %}
+                </div>
+
+                {# ── Overview panel ── #}
+                <div class="subcat-tab-panel{{ ' active' if (sub.slug != selected_slug or active_tab == 'overview') }}" id="panel-overview-{{ sub.key }}">
+
+                    {# Image above intro content #}
+                    {% if sub.subcat_img %}
+                    <figure class="subcat-figure">
+                        <a href="{{ app_root }}{{ sub.subcat_img }}" target="_blank" rel="noopener noreferrer">
+                            <img src="{{ app_root }}{{ sub.subcat_img }}" alt="{{ sub.subcat_img_caption }}" class="subcat-img">
+                        </a>
+                        {% if sub.subcat_img_caption %}
+                        <figcaption class="subcat-caption">{{ sub.subcat_img_caption }}</figcaption>
+                        {% endif %}
+                        {% if sub.subcat_img_credit %}
+                        <figcaption class="subcat-credit">{{ sub.subcat_img_credit | safe }}</figcaption>
+                        {% endif %}
+                    </figure>
+                    {% endif %}
+
+                    {# Important Note callout #}
+                    {% if sub.important_note %}
+                    <div class="subcat-important-note">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        <div class="editable-content"
+                             data-content-path="__subcat__/{{ category_key }}/{{ sub.slug }}::important_note">
+                            {{ sub.important_note | safe }}
+                            {% if sub.important_note_url %}
+                            <a href="{{ sub.important_note_url }}" target="_blank"
+                               rel="noopener noreferrer" class="important-note-cite">Source</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {# Intro text — render_content splits on \n\n into real <p> tags and handles inline HTML #}
+                    <div class="subcat-intro-text editable-content"
+                         data-content-path="__subcat__/{{ category_key }}/{{ sub.slug }}::intro">
+                        {{ sub.intro | render_content }}
+                    </div>
+
+                    {# Worth-it explanation — its own paragraph immediately
+                       below the intro so the reader sees the badge's
+                       reasoning without leaving the overview tab. #}
+                    {% if sub.worth_it_explanation and sub.worth_it_visible != 'No' %}
+                    <p class="subcat-worth-it-explanation editable-content"
+                       data-content-path="__subcat__/{{ category_key }}/{{ sub.slug }}::worth_it_explanation">
+                        {{ sub.worth_it_explanation | safe }}
+                    </p>
+                    {% endif %}
+
+                    {# Footer row: Learn more link on the left, bug-report
+                       trigger on the far right. Bug is rendered per-subcat
+                       so it lives inside the active panel without
+                       overflowing the rest of the page. #}
+                    <div class="subcat-guidance-row">
+                        {% if sub.google_guidance %}
+                        <a href="{{ sub.google_guidance }}" target="_blank" rel="noopener noreferrer"
+                           class="subcat-guidance-link">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Learn more
+                        </a>
+                        {% endif %}
+                        <button class="bug-report-trigger"
+                                {% if loop.first %}id="bug-report-trigger"{% endif %}
+                                aria-label="Report a bug">
+                            <i class="fa-solid fa-bug"></i>
+                        </button>
+                    </div>
+
+                </div>
+
+                {# ── Audit Checks panel ── #}
+                <div class="subcat-tab-panel{{ ' active' if (sub.slug == selected_slug and active_tab == 'audit-checks') }}" id="panel-checks-{{ sub.key }}">
+                {% endif %}
+
+                {# Check cards sorted by impact desc #}
+                {% for check in sub.checks %}
+                <div class="check-card"
+                     data-check-id="{{ check.id }}"
+                     data-category="{{ category_key }}">
+
+                    <!--==============================
+                         Left: Check Content
+                         ============================== -->
+                    <div class="check-card-main">
+                        <div class="check-card-header">
+
+                            {# Impact gauge (1-5 severity ramp, self-contained SVG) #}
+                            {{ impact_gauge(check.impact_score) }}
+
+                            {# Check title #}
+                            <h3 class="check-title editable-content"
+                                data-content-path="{{ check.id }}::title">{{ check.title | safe }}</h3>
+                        </div>
+
+                        {# GET STARTED link with chevron #}
+                        <a href="{{ app_root }}/dashboard/{{ active_platform }}/{{ category_key }}/{{ sub.slug }}/{{ check.id }}/educate/"
+                           class="check-link">
+                            GET STARTED <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    </div>
+
+                    <!--==============================
+                         Right: Status Actions
+                         ============================== -->
+
+                    {# Hover buttons for TO DO cards #}
+                    <div class="check-status-actions">
+                        <button class="status-btn" data-status="done">DONE</button>
+                        <button class="status-btn" data-status="skip">SKIP</button>
+                    </div>
+
+                    {# Collapsed bar actions for DONE/SKIP cards #}
+                    <div class="check-collapsed-actions">
+                        <div class="check-collapsed-btns">
+                            <button class="status-btn" data-status="todo">TO DO</button>
+                            <button class="status-btn" data-status="done">DONE</button>
+                            <button class="status-btn" data-status="skip">SKIP</button>
+                        </div>
+                        <span class="check-collapsed-label"></span>
+                    </div>
+
+                </div>
+                {% endfor %}
+
+                {# Close the Audit Checks tab panel if tabbed layout is active #}
+                {% if sub.intro %}
+                </div>
+                {% endif %}
+
+            </div>
+            {% endfor %}
+        </main>
+
+    </div>
+</div>
+
+<!--===================================================================
+     Subcategory Context Menu (right-click)
+     =================================================================== -->
+<div class="subcat-context-menu" id="subcat-context-menu">
+    <button class="subcat-context-menu-item" id="subcat-skip-btn">Skip</button>
+</div>
+
+<!-- Bug Report Modal (shared partial) -->
+{% include "components/bug_report_modal.html" %}
+
+{# Selection popover — same component used on the canvas page. The
+   selection-handling JS in canvas.js shows/hides buttons by context
+   (overview pages hide Add to canvas / Rephrase). #}
+{% include "components/selection_popover.html" %}
+
+{# Editorial modals (Propose Edit) and the comment input widget.
+   Required so popover actions have somewhere to render. #}
+{% include "components/editorial_widgets.html" %}
+
+{% endblock %}
+
+{% block scripts %}
+<!--===================================================================
+     Page-Specific Scripts
+     =================================================================== -->
+<script src="{{ url_for('static', filename='js/category.js') }}"></script>
+
+<!-- Depth filter (Ads edition) -->
+<script src="{{ url_for('static', filename='js/tier-filter.js') }}"></script>
+
+<!-- Bug report behavior (shared across pages) -->
+<script src="{{ url_for('static', filename='js/bug-report.js') }}"></script>
+
+<!-- canvas.js powers the text-selection popover. It calls bindTextSelection()
+     before its early-return, and every Quill reference is after that return,
+     so it runs here purely for the selection handler (no #canvas-editor, no
+     Quill needed). Load for all users so the popover works for everyone. -->
+<script src="{{ url_for('static', filename='js/canvas.js') }}"></script>
+
+{% if user_role in ('contributor', 'editor', 'owner') %}
+<!-- Quill + editorial actions (Format as code, Propose Edit, Comment) — the
+     Editorial group in the popover is editor-only. -->
+<script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+<script src="{{ url_for('static', filename='js/editorial.js') }}"></script>
+{% endif %}
+{% endblock %}

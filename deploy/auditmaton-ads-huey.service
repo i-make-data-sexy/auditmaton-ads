@@ -1,0 +1,28 @@
+# deploy/auditmaton-ads-huey.service
+# systemd unit file for the Auditmaton: Ads Huey background worker (PRODUCTION).
+# Processes chart generation and PDF exports in a separate process from the Gunicorn
+# web server.
+#
+# Install:
+#   sudo cp deploy/auditmaton-ads-huey.service /etc/systemd/system/auditmaton-ads-huey.service
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable auditmaton-ads-huey
+#   sudo systemctl start auditmaton-ads-huey
+#
+# Logs:
+#   sudo journalctl -u auditmaton-ads-huey -f
+
+[Unit]
+Description=Auditmaton: Ads Huey Worker
+After=network.target postgresql.service
+
+[Service]
+User=anniecushing
+WorkingDirectory=/home/anniecushing/apps/auditmaton-ads
+ExecStart=/home/anniecushing/apps/auditmaton-ads/venv/bin/huey_consumer services.task_queue.huey -w 4 -k process
+Restart=always
+RestartSec=5
+Environment=FLASK_ENV=production
+
+[Install]
+WantedBy=multi-user.target

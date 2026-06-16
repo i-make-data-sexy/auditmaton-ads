@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# scripts/git-hooks/pre-commit
+# Runs the editorial linter on staged JSON content files before allowing
+# the commit. Fails on any high-severity finding (em-dashes, marketese,
+# "It's important to note", "Isn't just X it's Y", silently/quietly +
+# verb). Medium-severity findings (mid-sentence colons, comma rules,
+# quote-punctuation) print as warnings but don't block.
+#
+# This hook is the keystone of the editorial enforcement chain. Pair
+# with the GitHub Actions workflow (which runs the same linter on every
+# push and PR) so violations are caught locally AND in CI.
+#
+# Enable by running once per clone:
+#   git config core.hooksPath scripts/git-hooks
+# That setup is local-only — not committed to the repo. The Canvas
+# replication playbook documents this so every new Canvas app wires it
+# up at scaffold time.
+
+set -euo pipefail
+
+# Collect staged JSON files under json/ that have been Added, Copied,
+# or Modified. Skip Deletions to avoid false-firing on removals.
+STAGED_JSON=$(git diff --cached --name-only --diff-filter=ACM -- 'json/**/*.json')
+
+if [ -z "$STAGED_JSON" ]; then
+    exit 0
+fi
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+LINTER="$REPO_ROOT/scripts/lint_editorial.py"
+
+if [ ! -f "$LINTER" ]; then
+    echo "warning: editorial linter not found at $LINTER; skipping check" >&2
+    exit 0
+fi
+
+# Print the medium+ report so authors see everything that needs review,
+# then fail only on highs. Two separate runs because the linter exit
+# code reflects findings at or above the --severity threshold and we
+# want the report broad but the gate strict.
+echo "Running editorial linter on staged content…"
+python3 "$LINTER" --severity medium --no-color $STAGED_JSON || true
+
+# Strict gate.
+if ! python3 "$LINTER" --severity high --quiet --no-color $STAGED_JSON; then
+    echo "" >&2
+    echo "Commit blocked: high-severity editorial violations above." >&2
+    echo "Fix the highs (em-dashes, marketese, etc.) and re-stage." >&2
+    echo "Bypass: git commit --no-verify  (only if you know what you're doing)." >&2
+    exit 1
+fi
+
+exit 0

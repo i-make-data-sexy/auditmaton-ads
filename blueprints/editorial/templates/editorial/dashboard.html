@@ -1,0 +1,1689 @@
+{% extends "base.html" %}
+
+{% block title %}Editorial Dashboard | Auditmaton for Ad Audits{% endblock %}
+
+{% block extra_head %}
+<!--===================================================================
+     Page-Specific Styles
+     =================================================================== -->
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/editorial.css') }}">
+
+<!-- Quill Rich Text Editor -->
+<link href="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/quill@1.3.7/dist/quill.min.js"></script>
+
+<style>
+    /* ========================================================================
+       Editorial Dashboard Layout
+       ======================================================================== */
+
+    .editorial-dashboard {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .dashboard-subtitle {
+        color: #666;
+        margin-bottom: 30px;
+    }
+
+
+    /* ========================================================================
+       Tabs
+       ======================================================================== */
+
+    .ed-tabs {
+        display: flex;
+        border-bottom: 2px solid #DEDEDE;
+        margin-bottom: 0;
+        gap: 0;
+    }
+
+    .ed-tab {
+        padding: 10px 24px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 400;
+        color: #666;
+        border-bottom: 3px solid transparent;
+        margin-bottom: -2px;
+        transition: color 0.2s, border-color 0.2s;
+    }
+
+    .ed-tab:hover {
+        color: #0273BE;
+    }
+
+    .ed-tab.active {
+        color: #0273BE;
+        border-bottom-color: #0273BE;
+    }
+
+    .ed-tab-badge {
+        display: inline-block;
+        background: #E90555;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 1px 7px;
+        border-radius: 10px;
+        margin-left: 6px;
+        vertical-align: middle;
+    }
+
+    .ed-tab-panel {
+        display: none;
+    }
+
+    .ed-tab-panel.active {
+        display: block;
+    }
+
+
+    /* ========================================================================
+       Status Filter Buttons (To Do / Done)
+       ======================================================================== */
+
+    .ed-filter-bar {
+        display: flex;
+        gap: 0;
+        padding: 16px 0;
+        border-bottom: 1px solid #eee;
+        margin-bottom: 16px;
+    }
+
+    .ed-filter-btn {
+        padding: 7px 20px;
+        border: 1px solid #DEDEDE;
+        background: #fff;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 400;
+        color: #666;
+        transition: all 0.15s;
+    }
+
+    .ed-filter-btn:first-child {
+        border-radius: 4px 0 0 4px;
+    }
+
+    .ed-filter-btn:last-child {
+        border-radius: 0 4px 4px 0;
+        border-left: none;
+    }
+
+    .ed-filter-btn.active {
+        background: #0273BE;
+        border-color: #0273BE;
+        color: #fff;
+    }
+
+    .ed-filter-btn:hover:not(.active) {
+        background: #f0f0f0;
+    }
+
+    .ed-filter-count {
+        font-size: 12px;
+        margin-left: 4px;
+        opacity: 0.8;
+    }
+
+
+    /* ========================================================================
+       Table Styles
+       ======================================================================== */
+
+    .ed-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .ed-table th {
+        text-align: left;
+        padding: 10px 12px;
+        border-bottom: 2px solid #DEDEDE;
+        color: #333;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .ed-table td {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+        vertical-align: top;
+        font-size: 14px;
+    }
+
+    .ed-table tr:hover {
+        background: #f8f9fa;
+    }
+
+
+    /* ========================================================================
+       Status Badges
+       ======================================================================== */
+
+    .ed-status {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .ed-status-pending, .ed-status-open {
+        background: #FFF3CD;
+        color: #856404;
+    }
+
+    .ed-status-approved, .ed-status-resolved {
+        background: #D4EDDA;
+        color: #155724;
+    }
+
+    .ed-status-rejected {
+        background: #F8D7DA;
+        color: #721C24;
+    }
+
+    .ed-status-applied {
+        background: #D6E9F5;
+        color: #0C4A75;
+    }
+
+
+    /* ========================================================================
+       Cell Styles
+       ======================================================================== */
+
+    .ed-check-id {
+        font-weight: 600;
+        font-size: 13px;
+        color: #333;
+    }
+
+    .ed-field-path {
+        font-size: 12px;
+        color: #888;
+        font-family: monospace;
+    }
+
+    .ed-source-link {
+        display: inline-block;
+        margin-top: 4px;
+        font-size: 12px;
+    }
+
+    .ed-source-link a {
+        color: #0273BE;
+        text-decoration: none;
+    }
+
+    .ed-source-link a:hover {
+        text-decoration: underline;
+        color: #FFA500;
+    }
+
+    .ed-text-preview {
+        max-width: 350px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: #555;
+    }
+
+    .diff-original {
+        background: #ffeef0;
+        padding: 4px 8px;
+        border-radius: 3px;
+        margin-bottom: 6px;
+        word-break: break-word;
+    }
+
+    .diff-proposed {
+        background: #e6ffed;
+        padding: 4px 8px;
+        border-radius: 3px;
+        word-break: break-word;
+    }
+
+    .ed-meta {
+        font-size: 13px;
+        color: #666;
+    }
+
+    .ed-meta-name {
+        font-weight: 600;
+    }
+
+    .ed-meta-date {
+        font-size: 12px;
+        color: #999;
+    }
+
+    .ed-comment-text {
+        font-size: 13px;
+        color: #555;
+        line-height: 1.5;
+    }
+
+    .ed-selected-text {
+        font-size: 12px;
+        color: #888;
+        font-style: italic;
+        margin-top: 4px;
+        word-break: break-word;
+    }
+
+
+    /* ========================================================================
+       Action Buttons
+       ======================================================================== */
+
+    .review-actions {
+        display: flex;
+        gap: 8px;
+    }
+
+    .btn-approve, .btn-reject, .btn-resolve {
+        padding: 6px 14px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        transition: opacity 0.2s;
+    }
+
+    .btn-approve {
+        background: #8BB42D;
+        color: #fff;
+    }
+
+    .btn-reject {
+        background: #E90555;
+        color: #fff;
+    }
+
+    .btn-resolve {
+        background: #0273BE;
+        color: #fff;
+    }
+
+    .btn-revert {
+        padding: 6px 14px;
+        border: 1px solid #DEDEDE;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        background: #fff;
+        color: #666;
+        transition: all 0.2s;
+    }
+
+    .btn-revert:hover {
+        background: #f0f0f0;
+        border-color: #999;
+        color: #333;
+    }
+
+    .btn-approve:hover, .btn-resolve:hover {
+        opacity: 0.85;
+    }
+
+    .btn-reject:hover {
+        background: #C7044A;
+    }
+
+    .btn-approve:disabled, .btn-reject:disabled, .btn-resolve:disabled {
+        opacity: 0.4;
+        cursor: default;
+    }
+
+
+    /* ========================================================================
+       Empty State
+       ======================================================================== */
+
+    .dashboard-empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+    }
+
+    .dashboard-empty-state i {
+        font-size: 48px;
+        margin-bottom: 16px;
+    }
+
+    .dashboard-empty-state p {
+        font-size: 16px;
+    }
+
+
+    /* ========================================================================
+       Preview Button & Modal
+       ======================================================================== */
+
+    .btn-preview {
+        margin-top: 6px;
+        padding: 3px 10px;
+        border: 1px solid #DEDEDE;
+        border-radius: 3px;
+        background: #fff;
+        color: #666;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.15s;
+    }
+
+    .btn-preview:hover {
+        background: #f0f0f0;
+        border-color: #999;
+        color: #333;
+    }
+
+    .preview-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .preview-overlay.visible {
+        display: flex;
+    }
+
+    .preview-modal {
+        background: #fff;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 800px;
+        max-height: 80vh;
+        overflow-y: auto;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .preview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .preview-header h3 {
+        margin: 0;
+        font-size: 18px;
+        color: #333;
+    }
+
+    .preview-close {
+        background: none;
+        border: none;
+        font-size: 20px;
+        color: #999;
+        cursor: pointer;
+        padding: 4px 8px;
+    }
+
+    .preview-close:hover {
+        color: #333;
+    }
+
+    .preview-body {
+        display: flex;
+        gap: 0;
+    }
+
+    .preview-pane {
+        flex: 1;
+        padding: 20px;
+    }
+
+    .preview-pane:first-child {
+        border-right: 1px solid #eee;
+    }
+
+    .preview-pane-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 12px;
+        color: #888;
+    }
+
+    .preview-pane-content {
+        font-size: 14px;
+        line-height: 1.6;
+        color: #333;
+    }
+
+    .preview-pane-content ul,
+    .preview-pane-content ol {
+        padding-left: 20px;
+        margin: 8px 0;
+    }
+
+    .preview-pane-content li {
+        margin-bottom: 4px;
+    }
+
+    .preview-pane-content p {
+        margin: 0 0 8px;
+    }
+
+    .preview-original .preview-pane-content {
+        background: #ffeef0;
+        padding: 12px;
+        border-radius: 4px;
+    }
+
+    .preview-proposed .preview-pane-content {
+        background: #e6ffed;
+        padding: 12px;
+        border-radius: 4px;
+    }
+
+
+    /* ========================================================================
+       Edit Button & Modal
+       ======================================================================== */
+
+    .btn-edit {
+        padding: 6px 14px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+        background: #FFA500;
+        color: #fff;
+        transition: background 0.2s;
+    }
+
+    .btn-edit:hover {
+        background: #E09200;
+    }
+
+    .edit-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .edit-overlay.visible {
+        display: flex;
+    }
+
+    .edit-modal {
+        background: #fff;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 700px;
+        max-height: 85vh;
+        overflow-y: auto;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .edit-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .edit-modal-header h3 {
+        margin: 0;
+        font-size: 18px;
+        color: #333;
+    }
+
+    .edit-modal-body {
+        padding: 20px;
+    }
+
+    .edit-modal-section {
+        margin-bottom: 20px;
+    }
+
+    .edit-modal-label {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #888;
+        margin-bottom: 8px;
+    }
+
+    .edit-original-display {
+        background: #f8f8f8;
+        padding: 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        line-height: 1.6;
+        color: #555;
+        white-space: pre-wrap;
+        border: 1px solid #eee;
+    }
+
+    .edit-original-input {
+        width: 100%;
+        min-height: 80px;
+        background: #f8f8f8;
+        padding: 12px;
+        border-radius: 4px;
+        font-size: 14px;
+        font-family: var(--font-family-main);
+        line-height: 1.6;
+        color: #555;
+        border: 1px solid #ddd;
+        resize: vertical;
+        box-sizing: border-box;
+    }
+
+    .edit-original-input:focus {
+        outline: none;
+        border-color: var(--color-brand-blue);
+        background: #fff;
+    }
+
+    .edit-modal-hint {
+        font-size: 11px;
+        font-weight: 400;
+        text-transform: none;
+        letter-spacing: 0;
+        color: #aaa;
+        margin-left: 6px;
+    }
+
+
+    /* ====================================================================
+        Notice Modal (replaces native alert/confirm)
+       ==================================================================== */
+
+    .notice-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .notice-overlay.visible {
+        display: flex;
+    }
+
+    .notice-modal {
+        background: #fff;
+        border-radius: 8px;
+        max-width: 480px;
+        width: calc(100% - 32px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+    }
+
+    .notice-modal-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 16px 20px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .notice-modal-header i {
+        font-size: 18px;
+    }
+
+    .notice-modal.notice-error .notice-modal-header i {
+        color: var(--color-brand-fuscia);
+    }
+
+    .notice-modal.notice-confirm .notice-modal-header i {
+        color: var(--color-brand-orange);
+    }
+
+    .notice-modal.notice-success .notice-modal-header i {
+        color: var(--color-brand-green);
+    }
+
+    .notice-modal-title {
+        font-weight: 600;
+        font-size: 15px;
+    }
+
+    .notice-modal-body {
+        padding: 16px 20px;
+        line-height: 1.5;
+        color: #333;
+        font-size: 14px;
+        white-space: pre-line;
+    }
+
+    .notice-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 12px 20px;
+        border-top: 1px solid #eee;
+    }
+
+    .notice-btn {
+        padding: 8px 16px;
+        border-radius: 4px;
+        border: none;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+
+    .notice-btn-primary {
+        background: var(--color-brand-blue);
+        color: #fff;
+    }
+
+    .notice-btn-primary:hover {
+        background: var(--color-brand-blue-light);
+    }
+
+    .notice-btn-secondary {
+        background: #f0f0f0;
+        color: #333;
+    }
+
+    .notice-btn-secondary:hover {
+        background: #e6e6e6;
+    }
+
+    #edit-quill-container {
+        min-height: 150px;
+        font-size: 14px;
+    }
+
+    .edit-modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 16px 20px;
+        border-top: 1px solid #eee;
+    }
+
+    .btn-edit-cancel {
+        padding: 8px 20px;
+        border: 1px solid #DEDEDE;
+        border-radius: 4px;
+        background: #fff;
+        color: #666;
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .btn-edit-cancel:hover {
+        background: #f0f0f0;
+    }
+
+    .btn-edit-save {
+        padding: 8px 20px;
+        border: none;
+        border-radius: 4px;
+        background: #8BB42D;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .btn-edit-save:hover {
+        background: #7AA027;
+    }
+</style>
+{% endblock %}
+
+
+{% block page_header %}
+<div class="entry-header">
+    <h1 class="entry-title">Editorial Dashboard</h1>
+</div>
+{% endblock %}
+
+
+{% block content %}
+<!-- Count pending items for badge display -->
+{% set pending_count = overrides|selectattr('status', 'equalto', 'pending')|list|length %}
+{% set open_comment_count = open_comments|length %}
+
+<div class="editorial-dashboard">
+
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <p class="dashboard-subtitle">Review edit proposals and comments from your team.</p>
+        <button class="btn-reject" onclick="rejectAllOverrides()" style="font-size: 12px; padding: 5px 12px;">
+            <i class="fa-solid fa-ban"></i> Reject All Overrides
+        </button>
+    </div>
+
+    <!--===================================================================
+         Tab Navigation
+         =================================================================== -->
+    <div class="ed-tabs">
+        <div class="ed-tab active" data-tab="proposals">
+            Edit Proposals
+            {% if pending_count %}<span class="ed-tab-badge">{{ pending_count }}</span>{% endif %}
+        </div>
+        <div class="ed-tab" data-tab="comments">
+            Comments
+            {% if open_comment_count %}<span class="ed-tab-badge">{{ open_comment_count }}</span>{% endif %}
+        </div>
+    </div>
+
+
+    <!--===================================================================
+         Edit Proposals Tab
+         =================================================================== -->
+    <div class="ed-tab-panel active" id="tab-proposals">
+
+        <!-- Status filter buttons -->
+        {% set done_overrides = overrides|selectattr('status', 'ne', 'pending')|list %}
+        {% set todo_overrides = overrides|selectattr('status', 'equalto', 'pending')|list %}
+        <div class="ed-filter-bar" data-panel="proposals">
+            <button class="ed-filter-btn active" data-filter="todo">
+                To Do <span class="ed-filter-count">({{ todo_overrides|length }})</span>
+            </button>
+            <button class="ed-filter-btn" data-filter="done">
+                Done <span class="ed-filter-count">({{ done_overrides|length }})</span>
+            </button>
+        </div>
+
+        {% if overrides %}
+        <table class="ed-table" id="proposals-table">
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Check</th>
+                    <th>Changes</th>
+                    <th>Proposed By</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for override in overrides %}
+                <tr data-override-id="{{ override.id }}"
+                    data-original-text="{{ override.original_text|e }}"
+                    data-proposed-text="{{ override.proposed_text|e }}"
+                    data-status="{{ 'todo' if override.status == 'pending' else 'done' }}"
+                    {% if override.status != 'pending' %}style="display: none;"{% endif %}>
+                    <td>
+                        <span class="ed-status ed-status-{{ override.status }}">
+                            {{ override.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="ed-check-id">{{ override.check_id }}</div>
+                        <div class="ed-field-path">{{ override.field_path }}</div>
+                        {% if override.source_url %}
+                        <div class="ed-source-link">
+                            <a href="{{ override.source_url }}" target="_blank">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> View page
+                            </a>
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td class="ed-text-preview">
+                        <div class="diff-original">{{ override.original_text[:200] }}{% if override.original_text|length > 200 %}...{% endif %}</div>
+                        <div class="diff-proposed">{{ override.proposed_text[:200]|e }}{% if override.proposed_text|length > 200 %}...{% endif %}</div>
+                        <button class="btn-preview" onclick="previewChange(this)"
+                                data-original="{{ override.original_text|e }}"
+                                data-proposed="{{ override.proposed_text|e }}">
+                            <i class="fa-solid fa-eye"></i> Preview
+                        </button>
+                    </td>
+                    <td>
+                        <div class="ed-meta">
+                            {% if override.proposed_by %}
+                            <div class="ed-meta-name">{{ override.proposed_by.first_name }} {{ override.proposed_by.last_name }}</div>
+                            {% endif %}
+                            <div class="ed-meta-date">{{ override.proposed_at_display or "" }}</div>
+                        </div>
+                    </td>
+                    <td>
+                        {% if override.status == 'pending' %}
+                        <div class="review-actions">
+                            <button class="btn-edit" onclick="openEditModal('{{ override.id }}')">
+                                <i class="fa-solid fa-pen"></i> Edit
+                            </button>
+                            <button class="btn-approve" onclick="reviewOverride('{{ override.id }}', 'approved')">
+                                <i class="fa-solid fa-check"></i> Approve
+                            </button>
+                            <button class="btn-reject" onclick="reviewOverride('{{ override.id }}', 'rejected')">
+                                <i class="fa-solid fa-xmark"></i> Reject
+                            </button>
+                        </div>
+                        {% else %}
+                        <div class="review-actions">
+                            <button class="btn-edit" onclick="openEditModal('{{ override.id }}')">
+                                <i class="fa-solid fa-pen"></i> Edit
+                            </button>
+                            <button class="btn-revert" onclick="reviewOverride('{{ override.id }}', 'pending')">
+                                <i class="fa-solid fa-rotate-left"></i> Revert
+                            </button>
+                        </div>
+                        {% if override.reviewed_by %}
+                        <div class="ed-meta" style="margin-top: 6px;">
+                            <div class="ed-meta-date">
+                                {{ override.reviewed_by.first_name }} {{ override.reviewed_by.last_name }}
+                                &middot; {{ override.reviewed_at_display or "" }}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% else %}
+
+        <div class="dashboard-empty-state">
+            <i class="fa-solid fa-inbox"></i>
+            <p>No edit proposals yet.</p>
+        </div>
+
+        {% endif %}
+    </div>
+
+
+    <!--===================================================================
+         Comments Tab
+         =================================================================== -->
+    <div class="ed-tab-panel" id="tab-comments">
+
+        <!-- Status filter buttons -->
+        <div class="ed-filter-bar" data-panel="comments">
+            <button class="ed-filter-btn active" data-filter="todo">
+                To Do <span class="ed-filter-count">({{ open_comments|length }})</span>
+            </button>
+            <button class="ed-filter-btn" data-filter="done">
+                Done <span class="ed-filter-count">({{ resolved_comments|length }})</span>
+            </button>
+        </div>
+
+        {% if open_comments or resolved_comments %}
+        <table class="ed-table" id="comments-table">
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Check</th>
+                    <th>Comment</th>
+                    <th>Author</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Open comments (To Do) -->
+                {% for comment in open_comments %}
+                <tr data-comment-id="{{ comment.id }}" data-status="todo">
+                    <td>
+                        <span class="ed-status ed-status-open">Open</span>
+                    </td>
+                    <td>
+                        <div class="ed-check-id">{{ comment.check_id }}</div>
+                        {% if comment.source_url %}
+                        <div class="ed-source-link">
+                            <a href="{{ comment.source_url }}" target="_blank">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> View page
+                            </a>
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="ed-comment-text">{{ comment.comment_text }}</div>
+                        {% if comment.anchor and comment.anchor.exact %}
+                        <div class="ed-selected-text">"{{ comment.anchor.exact }}"</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="ed-meta">
+                            {% if comment.author %}
+                            <div class="ed-meta-name">{{ comment.author.first_name }} {{ comment.author.last_name }}</div>
+                            {% endif %}
+                            <div class="ed-meta-date">{{ comment.created_at_display or "" }}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <button class="btn-resolve" onclick="resolveComment('{{ comment.id }}')">
+                            <i class="fa-solid fa-check"></i> Resolve
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+
+                <!-- Resolved comments (Done) — hidden by default -->
+                {% for comment in resolved_comments %}
+                <tr data-comment-id="{{ comment.id }}" data-status="done" style="display: none;">
+                    <td>
+                        <span class="ed-status ed-status-resolved">Resolved</span>
+                    </td>
+                    <td>
+                        <div class="ed-check-id">{{ comment.check_id }}</div>
+                        {% if comment.source_url %}
+                        <div class="ed-source-link">
+                            <a href="{{ comment.source_url }}" target="_blank">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> View page
+                            </a>
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="ed-comment-text">{{ comment.comment_text }}</div>
+                        {% if comment.anchor and comment.anchor.exact %}
+                        <div class="ed-selected-text">"{{ comment.anchor.exact }}"</div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="ed-meta">
+                            {% if comment.author %}
+                            <div class="ed-meta-name">{{ comment.author.first_name }} {{ comment.author.last_name }}</div>
+                            {% endif %}
+                            <div class="ed-meta-date">{{ comment.created_at_display or "" }}</div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="ed-meta-date">Resolved</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        {% else %}
+
+        <div class="dashboard-empty-state">
+            <i class="fa-solid fa-comments"></i>
+            <p>No comments yet.</p>
+        </div>
+
+        {% endif %}
+    </div>
+
+    <!--===================================================================
+         Edit Modal
+         =================================================================== -->
+    <div class="edit-overlay" id="edit-overlay">
+        <div class="edit-modal">
+            <div class="edit-modal-header">
+                <h3>Edit Proposed Text</h3>
+                <button class="preview-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="edit-modal-body">
+                <input type="hidden" id="edit-modal-override-id">
+
+                <!-- Original text — editable so the owner can re-anchor a
+                     stale override against the current JSON content -->
+                <div class="edit-modal-section">
+                    <div class="edit-modal-label">
+                        Original
+                        <span class="edit-modal-hint">(edit to re-anchor against current source)</span>
+                    </div>
+                    <textarea class="edit-original-input" id="edit-modal-original" rows="4"></textarea>
+                </div>
+
+                <!-- Proposed text (editable via Quill) -->
+                <div class="edit-modal-section">
+                    <div class="edit-modal-label">Proposed</div>
+                    <div id="edit-quill-container"></div>
+                </div>
+            </div>
+            <div class="edit-modal-footer">
+                <button class="btn-edit-cancel" onclick="closeEditModal()">Cancel</button>
+                <button class="btn-edit-save" onclick="saveAndApproveEdit()">
+                    <i class="fa-solid fa-check"></i> Save &amp; Approve
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!--===================================================================
+         Notice Modal — replaces native alert() / confirm() chrome
+         =================================================================== -->
+    <div class="notice-overlay" id="notice-overlay">
+        <div class="notice-modal" id="notice-modal">
+            <div class="notice-modal-header">
+                <i class="fa-solid" id="notice-icon"></i>
+                <span class="notice-modal-title" id="notice-title">Notice</span>
+            </div>
+            <div class="notice-modal-body" id="notice-body"></div>
+            <div class="notice-modal-footer">
+                <button class="notice-btn notice-btn-secondary" id="notice-cancel"
+                        type="button" style="display: none;">Cancel</button>
+                <button class="notice-btn notice-btn-primary" id="notice-ok"
+                        type="button">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!--===================================================================
+         Preview Modal
+         =================================================================== -->
+    <div class="preview-overlay" id="preview-overlay">
+        <div class="preview-modal">
+            <div class="preview-header">
+                <h3>Change Preview</h3>
+                <button class="preview-close" onclick="closePreview()">&times;</button>
+            </div>
+            <div class="preview-body">
+                <div class="preview-pane preview-original">
+                    <div class="preview-pane-label">Original</div>
+                    <div class="preview-pane-content" id="preview-original-content"></div>
+                </div>
+                <div class="preview-pane preview-proposed">
+                    <div class="preview-pane-label">Proposed</div>
+                    <div class="preview-pane-content" id="preview-proposed-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+/* ========================================================================
+   Editorial Dashboard Scripts
+   ======================================================================== */
+
+
+// ================================================
+//   Notice Modal (replaces alert / confirm)
+// ================================================
+
+function showNotice(message, options) {
+    /**
+     * Shows a styled in-page modal in place of native alert() / confirm().
+     * Returns a Promise that resolves to true on OK, false on Cancel.
+     *
+     * Args:
+     *     message (str): Body text. Newlines render as line breaks.
+     *     options (object, optional):
+     *         title (str): Header text. Defaults by kind.
+     *         kind (str): "info" | "success" | "error" | "confirm".
+     *         okLabel (str): Override the OK button label.
+     *         cancelLabel (str): Override the Cancel button label.
+     *         showCancel (bool): Force-show the Cancel button (default
+     *             true for kind="confirm", false otherwise).
+     */
+
+    options = options || {};
+    var kind = options.kind || "info";
+    var iconByKind = {
+        "info": "fa-circle-info",
+        "success": "fa-circle-check",
+        "error": "fa-circle-exclamation",
+        "confirm": "fa-triangle-exclamation",
+    };
+    var titleByKind = {
+        "info": "Notice",
+        "success": "Done",
+        "error": "Heads up",
+        "confirm": "Confirm",
+    };
+    var defaultOkByKind = {
+        "info": "OK",
+        "success": "OK",
+        "error": "OK",
+        "confirm": "Yes",
+    };
+
+    var icon = $("#notice-icon");
+    icon.attr("class", "fa-solid " + (iconByKind[kind] || iconByKind.info));
+    $("#notice-modal").attr("class", "notice-modal notice-" + kind);
+    $("#notice-title").text(options.title || titleByKind[kind] || "Notice");
+    $("#notice-body").text(message);
+    $("#notice-ok").text(options.okLabel || defaultOkByKind[kind] || "OK");
+    $("#notice-cancel").text(options.cancelLabel || "Cancel");
+
+    var showCancel = options.showCancel !== undefined
+        ? options.showCancel
+        : (kind === "confirm");
+    $("#notice-cancel").toggle(!!showCancel);
+
+    $("#notice-overlay").addClass("visible");
+
+    return new Promise(function(resolve) {
+        function cleanup(result) {
+            $("#notice-overlay").removeClass("visible");
+            $("#notice-ok").off(".notice");
+            $("#notice-cancel").off(".notice");
+            $(document).off("keydown.notice");
+            resolve(result);
+        }
+
+        $("#notice-ok").on("click.notice", function() { cleanup(true); });
+        $("#notice-cancel").on("click.notice", function() { cleanup(false); });
+        $(document).on("keydown.notice", function(e) {
+            if (e.key === "Escape") { cleanup(false); }
+            if (e.key === "Enter") { cleanup(true); }
+        });
+    });
+}
+
+
+// ================================================
+//   Tab Switching
+// ================================================
+
+$(".ed-tab").on("click", function() {
+    /**
+     * Switches between Edit Proposals and Comments tabs.
+     */
+
+    var tabName = $(this).data("tab");
+
+    // Update tab active state
+    $(".ed-tab").removeClass("active");
+    $(this).addClass("active");
+
+    // Update panel visibility
+    $(".ed-tab-panel").removeClass("active");
+    $("#tab-" + tabName).addClass("active");
+});
+
+
+// ================================================
+//   To Do / Done Filter
+// ================================================
+
+$(".ed-filter-btn").on("click", function() {
+    /**
+     * Filters table rows by To Do or Done status within the current
+     * tab panel.
+     */
+
+    var filterBar = $(this).closest(".ed-filter-bar");
+    var panelId = filterBar.closest(".ed-tab-panel").attr("id");
+    var filter = $(this).data("filter");
+
+    // Update active button
+    filterBar.find(".ed-filter-btn").removeClass("active");
+    $(this).addClass("active");
+
+    // Show/hide rows based on data-status
+    $("#" + panelId + " tbody tr").each(function() {
+        if ($(this).data("status") === filter) {
+            $(this).show();
+        } else {
+            $(this).hide();
+        }
+    });
+});
+
+
+// ================================================
+//   Override Review
+// ================================================
+
+function reviewOverride(overrideId, status) {
+    /**
+     * Sends an approve or reject action for an override proposal.
+     * Updates the row in place instead of removing it.
+     *
+     * Args:
+     *     overrideId (str): UUID of the override.
+     *     status (str): "approved" or "rejected".
+     */
+
+    var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    var csrfValue = csrfMeta ? csrfMeta.getAttribute("content") : "";
+
+    fetch(window.APP_ROOT + "/api/overrides/" + overrideId + "/review/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfValue,
+            "X-Requested-With": "XMLHttpRequest",
+        },
+        body: JSON.stringify({ status: status }),
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+        if (data.success) {
+            var row = $("tr[data-override-id='" + overrideId + "']");
+
+            if (status === "pending") {
+                // Revert: move back to To Do
+                row.find(".ed-status").attr("class", "ed-status ed-status-pending").text("pending");
+                row.attr("data-status", "todo");
+
+                // Replace Revert button with Edit/Approve/Reject
+                row.find("td:last").html(
+                    '<div class="review-actions">' +
+                    '<button class="btn-edit" onclick="openEditModal(\'' + overrideId + '\')">' +
+                    '<i class="fa-solid fa-pen"></i> Edit</button>' +
+                    '<button class="btn-approve" onclick="reviewOverride(\'' + overrideId + '\', \'approved\')">' +
+                    '<i class="fa-solid fa-check"></i> Approve</button>' +
+                    '<button class="btn-reject" onclick="reviewOverride(\'' + overrideId + '\', \'rejected\')">' +
+                    '<i class="fa-solid fa-xmark"></i> Reject</button></div>'
+                );
+
+                // Hide from Done view, show will happen when switching to To Do
+                row.fadeOut(300);
+            } else {
+                // Approve/Reject: move to Done
+                var badgeClass = status === "approved" ? "ed-status-approved" : "ed-status-rejected";
+                row.find(".ed-status").attr("class", "ed-status " + badgeClass).text(status);
+                row.attr("data-status", "done");
+                row.fadeOut(300);
+
+                // Replace action buttons with Edit + Revert
+                row.find("td:last").html(
+                    '<div class="review-actions">' +
+                    '<button class="btn-edit" onclick="openEditModal(\'' + overrideId + '\')">' +
+                    '<i class="fa-solid fa-pen"></i> Edit</button>' +
+                    '<button class="btn-revert" onclick="reviewOverride(\'' + overrideId + '\', \'pending\')">' +
+                    '<i class="fa-solid fa-rotate-left"></i> Revert</button></div>'
+                );
+            }
+
+            // Update filter counts and tab badge
+            updateFilterCounts("proposals");
+            updateTabBadge("proposals");
+        } else {
+
+            // If approval failed because the underlying JSON has changed
+            // since the edit was created, offer to reject the stale row
+            // outright instead of leaving it in limbo. (For Save & Approve
+            // from the edit modal, the owner can re-anchor the original
+            // text instead of rejecting.)
+            var msg = data.error || "Failed to review override.";
+            if (status === "approved" && /not found in target field|page may be stale/i.test(msg)) {
+                showNotice(
+                    "This edit references text that's no longer in the source — the content " +
+                    "has changed since the edit was proposed.\n\nReject this stale edit?",
+                    { kind: "confirm", okLabel: "Reject", cancelLabel: "Keep" }
+                ).then(function(confirmed) {
+                    if (confirmed) {
+                        reviewOverride(overrideId, "rejected");
+                    }
+                });
+            } else {
+                showNotice(msg, { kind: "error" });
+            }
+        }
+    });
+}
+
+
+// ================================================
+//   Comment Resolution
+// ================================================
+
+function resolveComment(commentId) {
+    /**
+     * Marks a comment as resolved. Updates the row in place.
+     *
+     * Args:
+     *     commentId (str): UUID of the comment.
+     */
+
+    var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    var csrfValue = csrfMeta ? csrfMeta.getAttribute("content") : "";
+
+    fetch(window.APP_ROOT + "/api/comments/" + commentId + "/resolve/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfValue,
+            "X-Requested-With": "XMLHttpRequest",
+        },
+        body: JSON.stringify({}),
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+        if (data.success) {
+            var row = $("tr[data-comment-id='" + commentId + "']");
+
+            // Update status badge
+            row.find(".ed-status").attr("class", "ed-status ed-status-resolved").text("Resolved");
+
+            // Mark as done and hide (since we're on the To Do view)
+            row.attr("data-status", "done");
+            row.fadeOut(300);
+
+            // Replace action button with "Resolved" text
+            row.find("td:last").html('<span class="ed-meta-date">Resolved</span>');
+
+            // Update filter counts
+            updateFilterCounts("comments");
+
+            // Update tab badge
+            updateTabBadge("comments");
+        } else {
+            showNotice(data.error || "Failed to resolve comment.", { kind: "error" });
+        }
+    });
+}
+
+
+// ================================================
+//   Count Helpers
+// ================================================
+
+function updateFilterCounts(panelName) {
+    /**
+     * Recalculates the To Do and Done counts for a panel's filter buttons.
+     *
+     * Args:
+     *     panelName (str): "proposals" or "comments".
+     */
+
+    var panel = $("#tab-" + panelName);
+    var todoCount = panel.find("tbody tr[data-status='todo']").length;
+    var doneCount = panel.find("tbody tr[data-status='done']").length;
+    var filterBar = panel.find(".ed-filter-bar");
+
+    filterBar.find("[data-filter='todo'] .ed-filter-count").text("(" + todoCount + ")");
+    filterBar.find("[data-filter='done'] .ed-filter-count").text("(" + doneCount + ")");
+}
+
+// ================================================
+//   Change Preview
+// ================================================
+
+function previewChange(btn) {
+    /**
+     * Opens the preview modal showing original and proposed text
+     * side by side, with HTML rendered so bullets/formatting display.
+     *
+     * Args:
+     *     btn (HTMLElement): The Preview button with data attributes.
+     */
+
+    var original = $(btn).data("original");
+    var proposed = $(btn).data("proposed");
+
+    // Render HTML content for proposed text (shows bullets, bold, etc.)
+    // Original is always plain text, so escape and show with whitespace
+    $("#preview-original-content").css("white-space", "pre-wrap").text(original);
+    $("#preview-proposed-content").html(proposed);
+
+    $("#preview-overlay").addClass("visible");
+}
+
+function closePreview() {
+    /**
+     * Closes the preview modal.
+     */
+
+    $("#preview-overlay").removeClass("visible");
+}
+
+// Close preview on overlay click or Escape
+$("#preview-overlay").on("click", function(e) {
+    if ($(e.target).is("#preview-overlay")) {
+        closePreview();
+    }
+});
+
+$(document).on("keydown", function(e) {
+    if (e.key === "Escape" && $("#preview-overlay").hasClass("visible")) {
+        closePreview();
+    }
+});
+
+
+// ================================================
+//   Edit Modal
+// ================================================
+
+// Quill editor instance for the edit modal
+var editQuill = null;
+
+function openEditModal(overrideId) {
+    /**
+     * Opens the edit modal with the proposed text loaded into a
+     * Quill rich text editor. Shows original text as read-only reference.
+     *
+     * Args:
+     *     overrideId (str): UUID of the override to edit.
+     */
+
+    var row = $("tr[data-override-id='" + overrideId + "']");
+    var originalText = row.data("original-text") || "";
+    var proposedText = row.data("proposed-text") || "";
+
+    // Store the override ID for submission
+    $("#edit-modal-override-id").val(overrideId);
+
+    // Show original text (editable)
+    $("#edit-modal-original").val(originalText);
+
+    // Initialize Quill if not already done
+    if (!editQuill) {
+        editQuill = new Quill("#edit-quill-container", {
+            theme: "snow",
+            modules: {
+                toolbar: [
+                    ["bold", "italic", "underline"],
+                    [{ "list": "ordered" }, { "list": "bullet" }],
+                    ["link"],
+                    ["clean"],
+                ],
+            },
+        });
+    }
+
+    // Load proposed text into Quill (render HTML if it contains tags)
+    if (proposedText.indexOf("<") !== -1) {
+        editQuill.root.innerHTML = proposedText;
+    } else {
+        editQuill.setText(proposedText);
+    }
+
+    $("#edit-overlay").addClass("visible");
+}
+
+function closeEditModal() {
+    /**
+     * Closes the edit modal.
+     */
+
+    $("#edit-overlay").removeClass("visible");
+}
+
+function saveAndApproveEdit() {
+    /**
+     * Saves the edited proposed text and approves the override in one step.
+     * Sends the updated proposed_text along with status="approved" to the
+     * review endpoint.
+     */
+
+    var overrideId = $("#edit-modal-override-id").val();
+
+    // Get HTML from Quill
+    var quillHtml = editQuill.root.innerHTML.trim();
+    var quillText = editQuill.getText().trim();
+
+    // Use plain text if no formatting was applied
+    var proposedText = quillHtml === "<p>" + quillText + "</p>" ? quillText : quillHtml;
+
+    if (!proposedText) {
+        showNotice("Please enter the proposed text.", { kind: "error" });
+        return;
+    }
+
+    // Read the (possibly re-anchored) original text the owner edited
+    var originalText = $("#edit-modal-original").val();
+    if (!originalText || !originalText.trim()) {
+        showNotice("Original text cannot be empty.", { kind: "error" });
+        return;
+    }
+
+    var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    var csrfValue = csrfMeta ? csrfMeta.getAttribute("content") : "";
+
+    fetch(window.APP_ROOT + "/api/overrides/" + overrideId + "/review/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfValue,
+            "X-Requested-With": "XMLHttpRequest",
+        },
+        body: JSON.stringify({
+            status: "approved",
+            proposed_text: proposedText,
+            original_text: originalText,
+        }),
+    })
+    .then(function(response) { return response.json(); })
+    .then(function(data) {
+        if (data.success) {
+            closeEditModal();
+
+            var row = $("tr[data-override-id='" + overrideId + "']");
+
+            // Update status badge
+            row.find(".ed-status").attr("class", "ed-status ed-status-approved").text("approved");
+            row.attr("data-status", "done");
+
+            // Update the stored proposed text
+            row.data("proposed-text", proposedText);
+
+            // Update the diff-proposed preview in the table
+            var previewText = proposedText.length > 200 ? proposedText.substring(0, 200) + "..." : proposedText;
+            row.find(".diff-proposed").text(previewText);
+
+            // Replace action buttons with Edit + Revert
+            row.find("td:last").html(
+                '<div class="review-actions">' +
+                '<button class="btn-edit" onclick="openEditModal(\'' + overrideId + '\')">' +
+                '<i class="fa-solid fa-pen"></i> Edit</button>' +
+                '<button class="btn-revert" onclick="reviewOverride(\'' + overrideId + '\', \'pending\')">' +
+                '<i class="fa-solid fa-rotate-left"></i> Revert</button></div>'
+            );
+
+            row.fadeOut(300);
+
+            // Update counts
+            updateFilterCounts("proposals");
+            updateTabBadge("proposals");
+        } else {
+
+            // Same stale-anchor recovery as the regular Approve flow,
+            // but here the owner has the modal open so they can edit
+            // the original_text and try again instead of rejecting.
+            var msg = data.error || "Failed to save and approve edit.";
+            if (/not found in target field|page may be stale/i.test(msg)) {
+                showNotice(
+                    "The Original text doesn't match anything in the source file " +
+                    "anymore. Edit it to match a span that's currently in the page, " +
+                    "then click Save & Approve again.",
+                    { kind: "error", title: "Stale anchor" }
+                );
+            } else {
+                showNotice(msg, { kind: "error" });
+            }
+        }
+    });
+}
+
+// Close edit modal on overlay click or Escape
+$("#edit-overlay").on("click", function(e) {
+    if ($(e.target).is("#edit-overlay")) {
+        closeEditModal();
+    }
+});
+
+$(document).on("keydown", function(e) {
+    if (e.key === "Escape" && $("#edit-overlay").hasClass("visible")) {
+        closeEditModal();
+    }
+});
+
+
+// ================================================
+//   Bulk Actions
+// ================================================
+
+function rejectAllOverrides() {
+    /**
+     * Rejects all approved and pending overrides, restoring original
+     * JSON content across all pages. Prompts for confirmation first.
+     */
+
+    showNotice(
+        "This will reject ALL pending and approved edit proposals, restoring " +
+        "all pages to their original JSON content. Continue?",
+        { kind: "confirm", okLabel: "Reject all" }
+    ).then(function(confirmed) {
+        if (!confirmed) {
+            return;
+        }
+
+        var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        var csrfValue = csrfMeta ? csrfMeta.getAttribute("content") : "";
+
+        fetch(window.APP_ROOT + "/api/overrides/reject-all/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfValue,
+                "X-Requested-With": "XMLHttpRequest",
+            },
+            body: JSON.stringify({}),
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.success) {
+                showNotice(
+                    data.count + " override(s) rejected. All pages restored to original content.",
+                    { kind: "success" }
+                ).then(function() { window.location.reload(); });
+            } else {
+                showNotice(data.error || "Failed to reject overrides.", { kind: "error" });
+            }
+        });
+    });
+}
+
+
+function updateTabBadge(panelName) {
+    /**
+     * Updates the tab badge count (showing To Do items only).
+     *
+     * Args:
+     *     panelName (str): "proposals" or "comments".
+     */
+
+    var panel = $("#tab-" + panelName);
+    var todoCount = panel.find("tbody tr[data-status='todo']").length;
+    var tab = $(".ed-tab[data-tab='" + panelName + "']");
+    var badge = tab.find(".ed-tab-badge");
+
+    if (todoCount > 0) {
+        if (badge.length) {
+            badge.text(todoCount);
+        } else {
+            tab.append(' <span class="ed-tab-badge">' + todoCount + '</span>');
+        }
+    } else {
+        badge.remove();
+    }
+}
+</script>
+{% endblock %}

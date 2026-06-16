@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+
+{% block title %}Audit Dashboard | Auditmaton for Tag Audits{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<!--===================================================================
+     Breadcrumb
+     =================================================================== -->
+<div class="wrap">
+    <nav class="category-breadcrumb">
+        <a href="{{ app_root }}/">App Home</a>
+        <span class="breadcrumb-separator">
+            <i class="fa-solid fa-chevron-right"></i>
+        </span>
+        <span class="breadcrumb-current">Dashboard</span>
+    </nav>
+</div>
+
+<!--===================================================================
+     Platform Strip — clickable toggle. Each chip links to
+     /dashboard/<slug>/, which sets the active platform and renders that
+     platform's categories. The active chip carries .is-active.
+     =================================================================== -->
+<div class="wrap">
+    <div class="platform-strip" role="region" aria-label="Tag-management platforms">
+        <span class="platform-strip-label">Platforms</span>
+        {% for slug, label in available_platforms %}
+        <a class="platform-chip {% if slug == active_platform %}is-active{% endif %}"
+           href="{{ app_root }}/dashboard/{{ slug }}/">
+            {{ label }}
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+<!--===================================================================
+     Category Dashboard — Kanban Board
+     =================================================================== -->
+<div class="wrap">
+
+    {% set visible = categories | rejectattr('locked') | list %}
+    {% set cats_not_started = visible | selectattr('status', 'eq', 'not_started') | list %}
+    {% set cats_in_progress = visible | selectattr('status', 'eq', 'in_progress') | list %}
+    {% set cats_complete = visible | selectattr('status', 'eq', 'complete') | list %}
+
+    <!--================================================
+         Kanban Board
+         ================================================ -->
+    <div class="kanban-board" data-platform="{{ active_platform }}">
+
+        <!-- Not Started Column -->
+        <div class="kanban-column kanban-column-todo">
+            <div class="kanban-column-header">
+                <span class="kanban-column-count kanban-count-todo">{{ cats_not_started | length }}</span>
+                <span class="kanban-column-label">Not Started</span>
+            </div>
+            <div class="kanban-column-body">
+                {% for cat in cats_not_started %}
+                <div class="kanban-card panel
+                            {% if cat.muted %}kanban-card-muted{% endif %}"
+                     data-category="{{ cat.key }}"
+                     data-total="{{ cat.total_subchecks }}"
+                     data-status="not_started"
+                     {% if cat.muted %}
+                     data-toggle="tooltip"
+                     data-placement="top"
+                     title="{{ cat.muted_reason }}"
+                     {% endif %}>
+
+                    {# Muted badge for deprioritized categories #}
+                    {% if cat.muted %}
+                    <div class="kanban-card-muted-badge">
+                        <i class="fa-solid fa-arrow-down"></i> Deprioritized
+                    </div>
+                    {% endif %}
+
+                    {# Icon and title #}
+                    <div class="kanban-card-header">
+                        <i class="{{ cat.icon_class }} kanban-card-icon"></i>
+                        <h3 class="kanban-card-title">{{ cat.display_name }}</h3>
+                    </div>
+
+                    {# Progress bar #}
+                    <div class="progress-track">
+                        <div class="progress-fill progress-fill-not_started"
+                             data-progress="{{ cat.percentage }}"
+                             style="width: 0%;">
+                        </div>
+                    </div>
+
+                    {# Progress text #}
+                    <span class="kanban-card-progress"
+                          data-progress-text
+                          data-muted="{{ cat.muted | lower }}">
+                        {% if cat.muted %}
+                            Deprioritized &middot; 0 of {{ cat.total_subchecks }} complete
+                        {% else %}
+                            0 of {{ cat.total_subchecks }} complete
+                        {% endif %}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- In Progress Column -->
+        <div class="kanban-column kanban-column-progress">
+            <div class="kanban-column-header">
+                <span class="kanban-column-count kanban-count-progress">{{ cats_in_progress | length }}</span>
+                <span class="kanban-column-label">In Progress</span>
+            </div>
+            <div class="kanban-column-body">
+                {% for cat in cats_in_progress %}
+                <div class="kanban-card panel"
+                     data-category="{{ cat.key }}"
+                     data-total="{{ cat.total_subchecks }}"
+                     data-status="in_progress">
+
+                    {# Icon and title #}
+                    <div class="kanban-card-header">
+                        <i class="{{ cat.icon_class }} kanban-card-icon"></i>
+                        <h3 class="kanban-card-title">{{ cat.display_name }}</h3>
+                    </div>
+
+                    {# Progress bar #}
+                    <div class="progress-track">
+                        <div class="progress-fill progress-fill-in_progress"
+                             data-progress="{{ cat.percentage }}"
+                             style="width: 0%;">
+                        </div>
+                    </div>
+
+                    {# Progress text #}
+                    <span class="kanban-card-progress"
+                          data-progress-text
+                          data-muted="false">
+                        {{ cat.completed }} of {{ cat.total_subchecks }} complete
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Completed Column -->
+        <div class="kanban-column kanban-column-done">
+            <div class="kanban-column-header">
+                <span class="kanban-column-count kanban-count-done">{{ cats_complete | length }}</span>
+                <span class="kanban-column-label">Completed</span>
+            </div>
+            <div class="kanban-column-body">
+                {% for cat in cats_complete %}
+                <div class="kanban-card panel"
+                     data-category="{{ cat.key }}"
+                     data-total="{{ cat.total_subchecks }}"
+                     data-status="complete">
+
+                    {# Icon and title #}
+                    <div class="kanban-card-header">
+                        <i class="{{ cat.icon_class }} kanban-card-icon"></i>
+                        <h3 class="kanban-card-title">{{ cat.display_name }}</h3>
+                    </div>
+
+                    {# Progress bar #}
+                    <div class="progress-track">
+                        <div class="progress-fill progress-fill-complete"
+                             data-progress="{{ cat.percentage }}"
+                             style="width: 0%;">
+                        </div>
+                    </div>
+
+                    {# Progress text #}
+                    <span class="kanban-card-progress"
+                          data-progress-text
+                          data-muted="false">
+                        <i class="fa-solid fa-check"></i> All {{ cat.total_subchecks }} complete
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+    {# Manual-mode ad audit: no crawl/CSV upload modal and no
+       "data last updated" footer. The auditor inspects their live
+       ad account directly in the platform UI, so there is no ingested
+       dataset to re-upload or date-stamp. (Both were Site-audit leftovers.) #}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

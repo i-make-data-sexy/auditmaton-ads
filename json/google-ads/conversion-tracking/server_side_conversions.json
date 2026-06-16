@@ -1,0 +1,212 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/google-ads/answer/13397447",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Server-side conversion sending is a measurement layer decision, not a reporting cosmetic. When the browser tag and the server path both fire without deduplication, Smart Bidding learns from a doubled count and bids up campaigns that look twice as effective as they are. When the server path drops the Google Click Identifier or consent signals, conversions land in reports without attribution or arrive outside consent, which creates legal and measurement exposure at the same time. These checks surface configuration gaps that tend to persist unnoticed because the conversion count still rises, just wrongly.",
+  "worth_it_visible": "Yes",
+  "tier": "advanced",
+  "intro": "Server-side conversion sending routes conversion data to Google Ads from a server rather than from the browser. The approach preserves measurement when browser-based tags are blocked, and it can carry signals, such as consent state and the Google Click Identifier (GCLID), that a browser-side tag alone cannot always guarantee. These checks examine whether the server-side path and the client-side tag deduplicate correctly, whether the required signals travel through the server path, and whether a server-side fallback exists for environments where the browser tag is frequently blocked.",
+  "audit_checks": [
+    {
+      "id": "server-side-conversion-duplicate-without-dedup",
+      "title": "Server-side and client-side conversion tags both fire without a shared transaction ID for deduplication",
+      "category": "conversion-tracking",
+      "subcategory": "server_side_conversions",
+      "impact_score": 4,
+      "impact_rationale": "A doubled conversion count inflates the signal Smart Bidding learns from. Campaigns appear twice as effective as they are, which draws budget toward inflated performance and misstates return on ad spend. The error compounds over time as the bidding algorithm internalizes the wrong baseline.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "When both a client-side Google Ads conversion tag and a server-side path send the same conversion event to Google, Google Ads counts it twice unless a shared transaction identifier tells the system the two pings describe the same event. The transaction ID is the deduplication key. Without it, each ping registers as a distinct conversion, and the reported count doubles.<br><br>Google Ads deduplicates conversion events by matching the transaction ID across pings that arrive for the same conversion action. If the client-side tag sends a transaction ID and the server-side request sends the same value, Google keeps one and discards the other. If either ping omits the transaction ID, or if the two paths use different values for the same event, deduplication does not fire and both conversions record.<br><br>A doubled count feeds Smart Bidding the wrong signal. The algorithm learns that a click led to two conversions when it led to one, and it adjusts bids accordingly. Over time, campaigns optimized toward doubled data bid higher than the actual return warrants. Correcting the count does not automatically undo what Smart Bidding has already internalized; a learning period follows any fix.<br><br>The signs to look for are straightforward. You may want to check whether the conversion action's diagnostics show a transaction ID being received consistently, whether both the tag and the server path pass the same value, and whether the conversion volume the account reports aligns with what the order management or CRM system records for the same period.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the order ID is the natural transaction ID. The client-side tag on the confirmation page and the server-side ping should both carry the same order ID for the same purchase. You may want to confirm that the confirmation page exposes the order ID to the tag and that the server path reads it from the same source rather than generating its own identifier."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "About deduplication for Google Ads conversions",
+            "source_url": "https://support.google.com/google-ads/answer/6386790"
+          },
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "Set up server-side tagging for Google Ads conversions",
+            "source_url": "https://support.google.com/google-ads/answer/13397447"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether the conversion action receives a consistent transaction ID from both the client-side tag and the server-side path, and whether the volume Google Ads reports aligns with the actual order or lead count.",
+        "tools": {
+          "free": {
+            "google_ads_ui": {
+              "label": "Google Ads UI",
+              "steps": [
+                "Open 'Goals', then 'Conversions', and select the conversion action you want to examine.",
+                "Open the conversion action's diagnostics and look for any transaction ID status. Note whether Google reports IDs as received or flags them as missing.",
+                "Compare the conversion count the account reports for a recent completed period against the order or lead count from the site's own records for the same period. A count that runs at roughly twice the expected volume points to duplicate firing."
+              ]
+            },
+            "google_tag_assistant": {
+              "label": "Google Tag Assistant",
+              "steps": [
+                "Open Tag Assistant and complete a test conversion, such as a test purchase on a staging environment.",
+                "Inspect the conversion event and note whether it carries a transaction ID field and what value it holds.",
+                "If both a client-side tag and a server-side GTM setup are active, compare the transaction ID values across both pings to confirm they match."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each conversion action that has both a client-side tag and a server-side path active, whether both paths pass a transaction ID, whether the values match across both paths for the same event, and whether the reported conversion count aligns with the actual event count from the site's own records. A conversion action with matching transaction IDs on both paths and an aligned count passes. A conversion action with mismatched IDs, missing IDs on either path, or a count that runs approximately double the expected volume is a fail, recorded with the conversion action name and the discrepancy observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the transaction ID status and the conversion count comparison for each affected conversion action above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sends conversion data to Google Ads from both a client-side tag and a server-side path without a shared transaction ID to deduplicate the two pings. Google Ads counts each ping as a distinct conversion, so the reported volume runs approximately double the actual event count. Smart Bidding learns from the doubled count and adjusts bids as if campaigns are performing better than they are. {{voice_recommend}} passing the same transaction ID, such as the order ID, from both the client-side tag and the server-side path for the same conversion event, and confirming in the conversion action's diagnostics that Google receives and applies it."
+      }
+    },
+    {
+      "id": "server-side-conversion-missing-gclid-or-consent",
+      "title": "Server-side conversion path drops the GCLID or consent signals the browser tag carried",
+      "category": "conversion-tracking",
+      "subcategory": "server_side_conversions",
+      "impact_score": 4,
+      "impact_rationale": "A server-side ping without the GCLID cannot be attributed to the click that generated the session, so the conversion appears in unattributed volume and does not feed Smart Bidding's click-level learning. A ping without consent signals in a regulated market creates compliance exposure and may be filtered by Google before it counts at all.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "privacy"],
+      "educate": {
+        "base": "When a server-side path sends a conversion to Google Ads, the request needs to carry two categories of signal that the browser naturally holds: the Google Click Identifier (GCLID) and, where Consent Mode is required, the consent state the user expressed in the browser session.<br><br>The GCLID is the parameter Google appends to the destination URL when a user clicks a Google ad. It ties the conversion back to the specific click, campaign, ad group, and keyword. Without it, Google records the conversion but cannot attribute it to a click. The conversion appears in the account but does not credit the campaign that drove it, and Smart Bidding cannot use it to learn which clicks are converting.<br><br>Consent signals under <a href='https://support.google.com/google-ads/answer/10000082' class='tools-link-no-padding' target='_blank'>Consent Mode v2</a> tell Google whether the user consented to ad measurement and personalization. A browser-based tag sends these signals automatically when Consent Mode is configured. A server-side path does not have access to the browser's consent state unless the implementation explicitly reads the consent cookie or a dataLayer variable and forwards it in the server request.<br><br>Both gaps have different consequences. A missing GCLID produces unattributed conversions that do not benefit Smart Bidding. Missing consent signals in a market where Consent Mode is required, such as the European Economic Area (EEA) or the United Kingdom, mean the conversion may arrive outside consent and be filtered by Google, or may create compliance exposure under the General Data Protection Regulation (GDPR) or similar frameworks.<br><br>You may want to confirm that the implementation reads the GCLID from the landing-page URL or a first-party cookie and passes it in the server-side request, and that the consent state from the browser session travels alongside the conversion data.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the GCLID is most often stored in a first-party cookie or passed through the dataLayer at the moment of the click. You may want to trace whether the checkout flow preserves the GCLID from the landing page through to the confirmation event so the server-side ping can read it. Sessions that cross subdomains or that redirect through a payment gateway sometimes lose the GCLID before it reaches the server."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "Consent Mode and server-side tagging",
+            "source_url": "https://support.google.com/google-ads/answer/10000082"
+          },
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "About the Google Click Identifier",
+            "source_url": "https://support.google.com/google-ads/answer/9744275"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that the server-side conversion request carries the GCLID and, where Consent Mode applies, the consent signals from the browser session.",
+        "tools": {
+          "free": {
+            "google_ads_ui": {
+              "label": "Google Ads UI",
+              "steps": [
+                "Open 'Goals', then 'Conversions', and select the server-side conversion action.",
+                "In the diagnostics, look for any attribution or consent status messages. A high share of conversions appearing in unattributed volume, or a message about missing click IDs, points to the GCLID not reaching the server path."
+              ]
+            },
+            "google_tag_assistant": {
+              "label": "Google Tag Assistant",
+              "steps": [
+                "Click a Google ad and land on the site so the GCLID appends to the URL.",
+                "Complete a test conversion and inspect the server-side conversion request in Tag Assistant. Confirm the GCLID field is present and populated.",
+                "If Consent Mode is in scope, confirm the consent parameters travel with the server-side request, not only with the browser-based tag."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each server-side conversion action, whether the GCLID is present and populated in the server-side request as observed in Tag Assistant, and whether the consent signals required for the markets the account serves travel with the request. A server-side conversion action with the GCLID confirmed and consent signals present where required passes. A conversion action with the GCLID absent or with consent signals missing in a regulated market is a fail, recorded with the conversion action name and the specific gap observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the GCLID and consent signal observations for each server-side conversion action above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the server-side conversion path on {{site_name}} drops the GCLID, the consent signals, or both before the conversion request reaches Google Ads. Conversions without the GCLID arrive unattributed and do not credit the campaigns that generated the sessions, which limits what Smart Bidding can learn from the data. Conversions without consent signals in regulated markets create compliance exposure and may be filtered before they count. {{voice_recommend}} confirming that the server-side implementation reads the GCLID from the landing-page URL or a first-party cookie and includes it in every server-side conversion request, and that the consent state from the browser session is forwarded alongside the conversion data for sessions in markets where Consent Mode v2 applies."
+      }
+    },
+    {
+      "id": "no-server-side-fallback-where-browser-tag-blocked",
+      "title": "No server-side conversion fallback exists where the browser tag is frequently blocked",
+      "category": "conversion-tracking",
+      "subcategory": "server_side_conversions",
+      "impact_score": 3,
+      "impact_rationale": "Ad-blocking software and privacy-focused browsers block client-side conversion tags at measurable rates on some site types. When no server-side path exists to fill the gap, those conversions disappear from the count. The loss does not surface as an error; the conversion simply does not appear.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "Browser-based conversion tags rely on JavaScript executing in the user's browser to send conversion data to Google Ads. Content blockers, privacy-focused browsers such as Brave, and browser-level privacy settings can prevent that script from loading or from making the outbound request. When that happens, the conversion fires on the site but Google Ads never receives the signal.<br><br>A server-side conversion path sends the conversion from the advertiser's own server rather than from the browser. Because the request originates from a server rather than a browser, content blockers do not intercept it. A server-side path that runs as a fallback, or as the primary conversion path with the browser tag used only as a supplement, closes the measurement gap that blocking creates.<br><br>The absence of a fallback does not produce an error in Google Ads. The affected conversions simply do not appear. The diagnostic surface is a comparison between the conversion count Google Ads reports and what the site's own order management or analytics system records for the same period. A persistent shortfall that is not explained by attribution differences or deduplication points to tag blocking as a possible cause.<br><br>The site types most often affected are those whose audiences include a higher share of technically oriented users, privacy-conscious readers, or users in markets where ad blocking rates are high. You may want to check the audience composition before deciding whether a server-side fallback is warranted for a given account.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the gap between Google Ads conversion volume and confirmed order volume in the order management system is a starting point. You may want to pull confirmed orders for a recent completed period and compare that count to the Google Ads conversion count for the same window, after accounting for attribution differences such as conversion window and click-through versus view-through credit."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "About server-side tagging for Google Ads",
+            "source_url": "https://support.google.com/google-ads/answer/13397447"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Compare the conversion count Google Ads reports to the site's own record of the same events, and assess whether tag blocking is a plausible explanation for any persistent shortfall.",
+        "tools": {
+          "free": {
+            "google_ads_ui": {
+              "label": "Google Ads UI",
+              "steps": [
+                "Pull the conversion count for a primary conversion action over a recent completed period, such as the last 30 days, using a date range that avoids the attribution window edge.",
+                "Compare that count to the confirmed event count from the site's order management system, analytics platform, or CRM for the same period.",
+                "If the Google Ads count runs persistently lower than the site's own records, and the gap is not explained by attribution model differences or known deduplication, note the discrepancy as a sign that a portion of conversions may not be reaching the tag."
+              ]
+            },
+            "google_analytics_4": {
+              "label": "Google Analytics 4",
+              "steps": [
+                "Open Google Analytics 4 (GA4) and find the event that corresponds to the conversion action, such as the 'purchase' event for a purchase conversion.",
+                "Compare the GA4 event count to the Google Ads conversion count for the same period. GA4 fires its own tag in the browser and is also subject to blocking, so the comparison is not a precise measurement of blocked conversions, but a GA4 count meaningfully higher than the Google Ads count suggests Google Ads is missing events that GA4 still records."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each primary conversion action, the Google Ads conversion count for a recent completed period and the corresponding count from the site's own records for the same period. A gap of less than five percent that is plausibly explained by attribution differences passes. A persistent gap that is not explained by attribution or deduplication differences, and for which no server-side path currently exists, is a fail, recorded with the conversion action name, the gap size, and the period examined.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the Google Ads conversion count and the site-side event count for the period above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} relies on a browser-based conversion tag with no server-side fallback, and that the Google Ads conversion count runs lower than the confirmed event count from the site's own records for the same period. Content blockers and privacy-focused browsers can prevent the browser tag from sending conversion data to Google Ads, and when no server-side path fills the gap those conversions do not appear in the account. {{voice_recommend}} evaluating a server-side conversion setup, either through server-side Google Tag Manager (GTM) or the Google Ads API, to capture conversion events that the browser tag misses, and pairing it with a shared transaction ID to prevent double counting if the browser tag continues to fire alongside it."
+      }
+    }
+  ]
+}

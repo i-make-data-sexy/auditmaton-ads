@@ -1,0 +1,216 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/google-ads/answer/6095821",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Duplicate conversions inflate every metric that conversion volume touches: reported ROAS, cost per conversion, and the training signal Smart Bidding uses to set bids. The checks here are tag-level and configuration-level, meaning most of them can be confirmed without a developer and fixed with a tag or import setting change. A clean deduplication setup is a prerequisite for trusting any performance number in the account.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Deduplication errors cause Google Ads to count the same conversion more than once. The duplicate inflates reported conversion volume, distorts cost-per-conversion and return on ad spend calculations, and feeds Smart Bidding a signal that is higher than the real event count. Three sources account for most duplication: a conversion firing from both a Google tag and a Google Tag Manager container at the same time, a confirmation page that re-fires because it lacks a transaction or order ID to deduplicate against, and a GA4-imported conversion that also runs as a native Google Ads conversion action for the same event. These checks confirm which of those patterns is present and how to close each one.",
+  "audit_checks": [
+    {
+      "id": "dedup-dual-tag-firing",
+      "title": "Conversion fires from both the Google tag and a GTM tag, doubling the count",
+      "category": "conversion-tracking",
+      "subcategory": "deduplication",
+      "impact_score": 4,
+      "impact_rationale": "Every conversion in the affected action counts twice. The doubled volume distorts ROAS and cost-per-conversion in reporting, and Smart Bidding trains on twice as many conversions as actually happened, which skews bids away from where the real performance sits.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "Google Ads conversion tracking fires a conversion event when the Google tag, or a tag managed by Google Tag Manager (GTM), sends a conversion ping to Google's servers. When a site has both a Google tag loaded directly in the page and a GTM container that also contains a Google Ads conversion tag for the same action, that ping can fire twice on the same page load: once from the page-level tag and once from the container.<br><br>The result is two conversion records in Google Ads for one visitor action. Google Ads has no automatic mechanism to detect that both pings originated from the same user on the same session, so both count. The conversion action's reported volume is double what the site actually produced.<br><br>The scenario is a setup artifact. It arises when a hardcoded Google tag is left in the page template after a migration to GTM, or when a developer adds a page-level tag for a separate purpose and includes a conversion snippet by mistake.<br><br>Google Tag Assistant is the fastest way to see this. Loading a conversion page in Tag Assistant shows every tag that fires and which network requests each one sends. Two outbound conversion pings to <code>googleads.g.doubleclick.net</code> or <code>google.com/pagead/</code> for the same conversion ID on a single page load confirm the duplication.<br><br>The fix is to choose one firing path and remove the other. If GTM is the primary tag management tool, the page-level Google tag should not contain a conversion snippet, only the global site tag portion that loads the container. You may want to confirm with the developer which tag was intended to be authoritative before removing either one.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the purchase confirmation page is the most common place this duplication surfaces because it is the page where both the developer's hardcoded tag and the GTM container's conversion tag fire. You may want to check this page specifically in Tag Assistant before reviewing other conversion pages."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "About duplicate conversions",
+            "source_url": "https://support.google.com/google-ads/answer/6095821"
+          },
+          {
+            "source_type": "Google Developers",
+            "source_title": "Set up the Google tag for Google Ads conversion tracking",
+            "source_url": "https://developers.google.com/google-ads/tag-setup/google-tag"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether the conversion fires from both a page-level Google tag and a GTM container tag for the same conversion action.",
+        "tools": {
+          "free": {
+            "google_tag_assistant": {
+              "label": "Google Tag Assistant",
+              "steps": [
+                "Open Google Tag Assistant and navigate to a page where the conversion fires, such as a purchase confirmation page or a thank-you page.",
+                "After the page loads, open the Tag Assistant summary and look at the tags listed. Check whether both a Google tag (gtag.js) and a GTM container are present.",
+                "Select the conversion event in Tag Assistant and inspect the outbound network requests. If you see two separate conversion pings to Google's ad servers for the same conversion ID on the same page load, the action is firing twice.",
+                "Note the conversion ID and the tag type for each ping so you can identify which tag is the intended source."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open DevTools and go to the Network tab. Filter by 'conversion' or 'googleads'.",
+                "Load the conversion page and watch for outbound requests to <code>google.com/pagead/</code> or <code>googleads.g.doubleclick.net</code>.",
+                "If the same conversion ID appears in more than one request on a single page load, the tag is firing from two sources.",
+                "Check the Initiator column for each request to identify whether the call came from the inline Google tag or from the GTM container."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a conversion action fires from more than one tag source on the same page load, as observed in Tag Assistant or DevTools. A single outbound conversion ping per page load passes. Two or more pings for the same conversion ID on a single page load is a fail, recorded with the conversion action name and the tag types responsible.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the Tag Assistant or DevTools observation for each conversion page above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that a Google Ads conversion action on {{site_name}} fires from both a page-level Google tag and a GTM container tag on the same page load, which causes the conversion to count twice for every visitor who completes the action. The doubled count inflates reported conversion volume, distorts ROAS and cost-per-conversion, and provides Smart Bidding with a training signal that is higher than the real event count. {{voice_recommend}} choosing one firing path, either the page-level tag or the GTM container tag, and removing the conversion snippet from the other. After the change, confirm in Tag Assistant that a single conversion ping fires per page load for the affected action."
+      }
+    },
+    {
+      "id": "dedup-missing-order-id",
+      "title": "Conversion action lacks a transaction or order ID, allowing confirmation page reloads to re-count",
+      "category": "conversion-tracking",
+      "subcategory": "deduplication",
+      "impact_score": 3,
+      "impact_rationale": "A user who reloads the confirmation page, navigates back to it, or shares the URL causes the conversion tag to fire again with no order ID to block the repeat. Each reload adds a conversion record. The scale of the inflation depends on how often confirmation pages are revisited, but the mechanism produces false conversions with no way to detect them in the conversion report itself.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "The Google tag for a conversion action fires every time the confirmation or thank-you page loads. Without a transaction or order ID passed to the tag, Google Ads has no basis for recognizing that a second page load for the same order is a repeat rather than a new conversion. Every load counts.<br><br>An order ID, also called a transaction ID, is a unique identifier that the tag sends with each conversion event. Google Ads uses it to deduplicate: if the same order ID arrives more than once, only the first instance counts. When the field is empty or absent, deduplication does not run and every page load creates a conversion record.<br><br>Confirmation pages are visited more than once for several reasons. A user can reload the page, use the browser's back button to return from a subsequent step, or share the URL with someone else. Email receipt links that point to the confirmation page also bring new sessions back to the same URL. Each of those visits fires the tag again.<br><br>Passing an order ID solves this at the tag level. The ID should come from the order data the page already holds, rendered into a variable the tag can read. You may want to confirm that the tag receives a non-empty, unique value for each order rather than a static placeholder or an empty string, both of which defeat deduplication.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the purchase confirmation page already has an order ID from the transaction the checkout flow completed. You may want to confirm that the same order ID the page displays to the customer is also passed to the conversion tag, rather than a session variable that expires or a counter that does not uniquely identify the order."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "Use transaction IDs to prevent duplicate conversions",
+            "source_url": "https://support.google.com/google-ads/answer/9386746"
+          },
+          {
+            "source_type": "Google Developers",
+            "source_title": "Conversion tracking with the global site tag",
+            "source_url": "https://developers.google.com/google-ads/tag-setup/conversion-tracking"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether the conversion tag passes a unique transaction or order ID with each conversion event, and whether that ID is populated with a real unique value rather than a static string or an empty field.",
+        "tools": {
+          "free": {
+            "google_tag_assistant": {
+              "label": "Google Tag Assistant",
+              "steps": [
+                "Open Google Tag Assistant and load the confirmation or thank-you page for a test transaction.",
+                "Find the conversion event in the Tag Assistant summary and expand its parameters.",
+                "Look for a field named 'transaction_id' or 'order_id'. Note whether it is present and whether its value is a unique identifier tied to the order rather than an empty string or a static value like '1'.",
+                "Reload the page and check the event again. If the field is absent or shows a non-unique value on both loads, deduplication is not running."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open DevTools and go to the Network tab. Filter by 'conversion' or 'googleads'.",
+                "Complete a test transaction and load the confirmation page. Find the outbound conversion request.",
+                "Inspect the request payload for a 'transaction_id' or 'order_id' parameter. Note whether the value is present and unique.",
+                "Reload the confirmation page and check the same request again. A missing or repeated value on reload confirms deduplication is not in place."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for the conversion action, whether the conversion event passes a 'transaction_id' or 'order_id' parameter with a unique, non-empty value as observed in Tag Assistant or DevTools. A unique, populated ID present on the conversion event passes. An absent field, an empty string, or a repeated non-unique value is a fail, recorded with the conversion action name and the observed field state.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the Tag Assistant or DevTools observation for the transaction ID field on the conversion event above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Google Ads conversion action on {{site_name}} does not pass a transaction or order ID with the conversion event, which means a user who reloads or revisits the confirmation page generates an additional conversion record each time. Google Ads has no basis for recognizing the repeat as a duplicate without a unique identifier to match against. {{voice_recommend}} passing the order's unique identifier to the conversion tag as the 'transaction_id' parameter so Google Ads can deduplicate repeat page loads against the first. After the change, confirm in Tag Assistant that the conversion event carries a populated, unique value in that field."
+      }
+    },
+    {
+      "id": "dedup-ga4-import-and-native-tag-both-active",
+      "title": "The same conversion is imported from GA4 and tracked as a native Google Ads action simultaneously",
+      "category": "conversion-tracking",
+      "subcategory": "deduplication",
+      "impact_score": 3,
+      "impact_rationale": "When GA4-imported and natively tagged conversions both count for the same event, the conversion total is doubled even though the user completed the action once. Smart Bidding trains on the inflated number and reported ROAS and cost per conversion are both wrong in opposite directions. The issue is structural and affects every campaign that includes the duplicated conversion action in its bidding target.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "Google Ads supports two paths for counting a web conversion. One is a native conversion action, where a Google tag or GTM tag fires directly and sends the conversion data to Google Ads. The other is an imported conversion, where Google Analytics 4 (GA4) records the event and Google Ads imports a count from GA4 under a linked conversion action.<br><br>Both paths are valid on their own. The problem arises when both are active and both include the same underlying event as a 'primary' conversion action in the account. If a purchase event is tracked by a native Google Ads tag on the confirmation page and also imported from a GA4 purchase event tied to the same Google Ads account, Google Ads counts the purchase twice: once from the tag and once from the import. There is no automatic deduplication between the two sources.<br><br>The account structure makes this detectable. Under Goals and then Conversions, the conversion actions list shows each action's source. Actions sourced from the Google tag and actions sourced from 'Google Analytics 4 (web)' that map to the same event appear as separate rows. When both are set to primary and both count toward 'Conversions' (rather than 'All conversions'), the bidding target includes each event twice.<br><br>One resolution is to designate one source as primary and move the other to 'secondary', which keeps it in 'All conversions' for reporting but removes it from the bidding signal. Another is to pause the native action and rely on the GA4 import, or vice versa. You may want to confirm which source is more complete and which one the team has a stronger reason to keep before deciding.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the purchase event is the most common place this overlap appears. A GA4 purchase event and a native Google Ads purchase tag can both fire on the same confirmation page load and both feed the same Google Ads account. You may want to check whether 'Purchase (Google Ads)' and a GA4-imported purchase action both appear as primary conversions in the account."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "Import Google Analytics 4 conversions into Google Ads",
+            "source_url": "https://support.google.com/google-ads/answer/9381556"
+          },
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "About primary and secondary conversion actions",
+            "source_url": "https://support.google.com/google-ads/answer/9564659"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Check whether the account has both a native Google Ads conversion action and a GA4-imported conversion action for the same event, and whether both are set as primary conversion actions.",
+        "tools": {
+          "free": {
+            "google_ads_ui": {
+              "label": "Google Ads UI",
+              "steps": [
+                "Open 'Goals', then 'Conversions', and review the list of conversion actions.",
+                "Look for actions with a 'Source' of 'Google tag' or 'Website' alongside actions with a source of 'Google Analytics 4 (web)'. Note whether any pair describes the same underlying event, for example a purchase or a lead form submission.",
+                "For each pair that maps to the same event, check the 'Category' and whether each is set to 'Primary' under 'Conversion action optimization'. If both are primary, the event counts twice in reported Conversions and in Smart Bidding.",
+                "Note the names, sources, and primary/secondary designations for any overlapping pairs."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the account contains both a native Google Ads conversion action and a GA4-imported conversion action for the same underlying event, and whether both are set as primary. A setup where the same event exists in both sources but only one is primary passes. A setup where the same event has two primary conversion actions from different sources is a fail, recorded with the action names and sources.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the conversion action names, sources, and primary or secondary designations for any overlapping pairs above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Google Ads account counts the same conversion event twice: once through a native Google Ads conversion tag and once through an imported Google Analytics 4 (GA4) conversion action, both set as primary. Every time a user completes the action, it enters the Conversions column twice, which inflates reported volume, distorts cost-per-conversion and ROAS, and provides Smart Bidding with a signal that is twice the real event count. {{voice_recommend}} designating one source as primary and moving the other to secondary, which keeps the second source available in 'All conversions' for reference without including it in the bidding target. After the change, confirm that the Conversions column for the affected campaigns reflects the expected single-count volume."
+      }
+    }
+  ]
+}

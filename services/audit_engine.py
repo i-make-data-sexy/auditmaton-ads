@@ -451,6 +451,7 @@ def _format_display_name(file_key):
 
     # Special-case display names for abbreviations and proper nouns
     overrides = {
+        "server_side_conversions": "Server-Side Conversions",
         "xml_sitemap": "XML Sitemap",
         "robots_txt": "Robots.txt",
         "url_structure": "URL Structure",

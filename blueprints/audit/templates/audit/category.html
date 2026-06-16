@@ -79,44 +79,8 @@
              ================================================ -->
         <aside class="category-rail">
 
-            {# Depth filter — collapsed by default, click the trigger to
-               reveal the Core / Advanced pills (full-width, mirroring the
-               worth_it pills). Counts are subcategories per tier. Only
-               renders when at least one subcategory carries a tier. #}
-            {% if tier_total > 0 %}
-            <div class="depth-filter" id="depth-filter"
-                 role="group" aria-label="Filter subcategories by depth">
-                <button type="button" class="depth-filter-trigger"
-                        id="depth-filter-trigger"
-                        aria-expanded="false"
-                        aria-controls="depth-filter-pills">
-                    <i class="fa-solid fa-filter"></i>
-                    <span class="depth-filter-trigger-label">Depth</span>
-                    {# Active-tier icons print here when the view is filtered,
-                       as a cue that a Depth filter is applied. #}
-                    <span class="depth-filter-trigger-icons" aria-hidden="true"></span>
-                    <i class="fa-solid fa-chevron-down depth-filter-chevron"></i>
-                </button>
-                <div class="depth-filter-pills" id="depth-filter-pills">
-                    <button type="button"
-                            class="depth-pill depth-core active"
-                            data-tier="core"
-                            aria-pressed="true">
-                        <i class="fa-solid fa-shield-halved"></i>
-                        <span class="depth-pill-label">Core</span>
-                        <span class="depth-pill-count">{{ tier_core }}</span>
-                    </button>
-                    <button type="button"
-                            class="depth-pill depth-advanced active"
-                            data-tier="advanced"
-                            aria-pressed="true">
-                        <i class="fa-solid fa-rocket"></i>
-                        <span class="depth-pill-label">Advanced</span>
-                        <span class="depth-pill-count">{{ tier_advanced }}</span>
-                    </button>
-                </div>
-            </div>
-            {% endif %}
+            {# Depth filter removed for the Ads edition. Theme is the filter
+               here, and it lives in the tab bar (top right of the panel). #}
 
             {% for sub in subcategories %}
             <a href="{{ app_root }}/dashboard/{{ active_platform }}/{{ category_key }}/{{ sub.slug }}/overview/"
@@ -152,17 +116,35 @@
                         <button class="subcat-tab{{ ' active' if (sub.slug == selected_slug and active_tab == 'audit-checks') }}" data-tab="checks-{{ sub.key }}">Audit Checks</button>
                     </div>
 
-                    {# Depth badge — selected subcategory's tier, right-aligned
-                       in the tab bar (where the Worth it badge sat). #}
-                    {% if sub.tier %}
-                    {% set tier_class = 'depth-badge-core' if sub.tier == 'core' else 'depth-badge-advanced' %}
-                    <span class="depth-badge {{ tier_class }}">
-                        {% if sub.tier == 'core' %}
-                            <i class="fa-solid fa-shield-halved"></i> Core
-                        {% else %}
-                            <i class="fa-solid fa-rocket"></i> Advanced
-                        {% endif %}
-                    </span>
+                    {# Theme filter — multi-select dropdown over this
+                       subcategory's checks, right-aligned in the tab bar
+                       (where the Depth badge sat). Only the themes present
+                       on these checks appear, so a selection never returns
+                       an empty result. #}
+                    {% if sub.theme_slugs %}
+                    <div class="theme-filter" id="theme-filter-{{ sub.key }}"
+                         data-subcategory="{{ sub.slug }}"
+                         role="group" aria-label="Filter checks by theme">
+                        <button type="button" class="theme-filter-trigger"
+                                aria-expanded="false">
+                            <i class="fa-solid fa-tags"></i>
+                            <span class="theme-filter-trigger-label">Theme</span>
+                            {# Count of active themes prints here when filtered. #}
+                            <span class="theme-filter-trigger-count" aria-hidden="true"></span>
+                            <i class="fa-solid fa-chevron-down theme-filter-chevron"></i>
+                        </button>
+                        <div class="theme-filter-menu" role="listbox" aria-multiselectable="true">
+                            {% for slug in sub.theme_slugs %}
+                            {% set theme = theme_registry.get(slug) %}
+                            <button type="button" class="theme-pill active"
+                                    role="option" aria-selected="true"
+                                    data-theme="{{ slug }}">
+                                <i class="fa-solid fa-check theme-pill-check"></i>
+                                <span class="theme-pill-label">{{ theme.label if theme else slug }}</span>
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
                     {% endif %}
                 </div>
 
@@ -237,36 +219,6 @@
 
                 {# ── Audit Checks panel ── #}
                 <div class="subcat-tab-panel{{ ' active' if (sub.slug == selected_slug and active_tab == 'audit-checks') }}" id="panel-checks-{{ sub.key }}">
-                {% endif %}
-
-                {# Theme filter — multi-select dropdown over this subcategory's
-                   checks. Mirrors the Depth filter but filters check cards by
-                   their theme_tags. Only the themes present on these checks
-                   appear, so an option never returns an empty result. #}
-                {% if sub.theme_slugs %}
-                <div class="theme-filter" id="theme-filter-{{ sub.key }}"
-                     data-subcategory="{{ sub.slug }}"
-                     role="group" aria-label="Filter checks by theme">
-                    <button type="button" class="theme-filter-trigger"
-                            aria-expanded="false">
-                        <i class="fa-solid fa-tags"></i>
-                        <span class="theme-filter-trigger-label">Theme</span>
-                        {# Count of active themes prints here when filtered. #}
-                        <span class="theme-filter-trigger-count" aria-hidden="true"></span>
-                        <i class="fa-solid fa-chevron-down theme-filter-chevron"></i>
-                    </button>
-                    <div class="theme-filter-menu" role="listbox" aria-multiselectable="true">
-                        {% for slug in sub.theme_slugs %}
-                        {% set theme = theme_registry.get(slug) %}
-                        <button type="button" class="theme-pill active"
-                                role="option" aria-selected="true"
-                                data-theme="{{ slug }}">
-                            <i class="fa-solid fa-check theme-pill-check"></i>
-                            <span class="theme-pill-label">{{ theme.label if theme else slug }}</span>
-                        </button>
-                        {% endfor %}
-                    </div>
-                </div>
                 {% endif %}
 
                 {# Check cards sorted by impact desc #}

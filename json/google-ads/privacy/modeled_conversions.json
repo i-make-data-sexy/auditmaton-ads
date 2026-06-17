@@ -1,0 +1,197 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/google-ads/answer/10548233",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Modeled conversions fill the measurement gap that consent rejection and cookie loss open up, and they flow into the same 'Conversions' column that Smart Bidding learns from. A setup that never qualifies for modeling, or a gap between observed and modeled volume that nobody has looked at, changes both the reported numbers and how the account bids. The checks here are read-only. Consent mode modeling is either eligible or it is not, and the modeled portion of the count is visible in the account, so confirming the state takes minutes rather than a rebuild.",
+  "worth_it_visible": "Yes",
+  "tier": "advanced",
+  "intro": "Modeled conversions are estimates Google Ads adds to the reported count for conversions it cannot observe directly, most often because a user declined consent or a browser blocked the identifier the tag needed. Consent mode modeling is the path that produces them, and it turns on only after a domain and country grouping clears Google's confidence thresholds. These checks confirm that modeling is eligible where it should be, that a large gap between observed and modeled volume has been examined rather than assumed correct, and that decisions are not resting on modeled data without a check on how much of the count is modeled.",
+  "audit_checks": [
+    {
+      "id": "consent-mode-modeling-not-eligible",
+      "title": "Consent mode modeling is not eligible because the account has not met Google's thresholds",
+      "category": "privacy",
+      "subcategory": "modeled_conversions",
+      "impact_score": 3,
+      "impact_rationale": "When modeling is not eligible, conversions from users who declined consent are never recovered, so the reported count and the Smart Bidding that learns from it both run below the real performance. The loss is silent because the account still reports the observed conversions it can see.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "Consent mode lets a Google tag adjust its behavior when a user declines consent, sending pings without reading or writing cookies instead of either firing fully or not at all. Conversion modeling is what fills the gap those consentless pings leave. Google uses observed data from users who did consent to estimate the conversions it could not measure from users who did not, and it adds those modeled conversions to the reported count.<br><br>Modeling does not turn on automatically. Google applies confidence thresholds before a domain and country grouping qualifies, so a recently launched account, a low-traffic market, or a consent mode setup that is misconfigured can leave modeling switched off. Google states the requirement as a correctly implemented consent mode or Transparency and Consent Framework (TCF) integration, plus a daily volume of more than 700 ad clicks over a 7 day period per country and domain grouping.<br><br>When a grouping does not clear those thresholds, the consentless conversions are not modeled and not reported. The account looks like it is measuring conversions because the observed ones still appear, so the missing modeled volume is easy to overlook.<br><br>A few signs suggest modeling is not eligible for a grouping:<ul><li>Consent mode is implemented but the consent mode impact results show no modeled conversions for a market</li><li>A country and domain grouping sits below the daily click volume Google requires</li><li>The consent mode signals are not passing correctly, so Google cannot confirm the implementation</li></ul>You may want to confirm the consent mode implementation first, then check eligibility per market rather than for the account as a whole. Thresholds apply at the country and domain grouping level, so a large market can qualify while a small one does not.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, purchase volume varies a lot by market, so a flagship country can clear the daily click threshold while smaller markets fall short and never receive modeled conversions. You may want to read eligibility per country rather than assume the whole account qualifies, and weigh whether the unmodeled markets carry enough spend to act on.",
+          "lead_gen": "On a lead-generation site, total conversion volume is often lower than a store's, so clearing the daily click threshold for modeling can be harder, especially in a single country. You may want to confirm whether the account's markets reach the volume Google requires before treating an absence of modeled conversions as a tracking fault rather than an eligibility one."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "About consent mode modeling",
+            "source_url": "https://support.google.com/google-ads/answer/10548233"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that consent mode is implemented correctly, then check whether each country and domain grouping is eligible for modeling and whether modeled conversions are reaching the reports.",
+        "tools": {
+          "free": {
+            "google_ads_ui": {
+              "label": "Google Ads UI",
+              "steps": [
+                "Open 'Goals', then 'Conversions', and look for the consent mode impact results or the consent mode status surface in the account.",
+                "Read whether consent mode is detected and whether modeled conversions are being reported. An implementation that is detected but reports no modeled conversions points to an eligibility gap rather than a missing tag.",
+                "Where the account separates results by country, check each market rather than the account total. Thresholds apply per country and domain grouping, so one market can qualify while another does not."
+              ]
+            },
+            "google_tag_assistant": {
+              "label": "Google Tag Assistant",
+              "steps": [
+                "Load a page and inspect the consent state the Google tag sends, confirming it passes the consent signals Google expects.",
+                "Check that the signals change as expected when consent is granted and when it is declined. A consent mode setup that never reports a declined state cannot be confirmed, which can block eligibility."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per country and domain grouping, whether consent mode is confirmed as implemented and whether modeled conversions are reported. A grouping with consent mode confirmed and modeled conversions present passes. A grouping where consent mode is implemented but no modeled conversions appear, and the cause traces to a volume threshold or a signal problem, is a fail recorded with the market name and the suspected cause.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the consent mode status and whether modeled conversions appear for each market above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that consent mode modeling is not eligible for one or more of {{site_name}}'s markets, so conversions from users who declined consent are not being recovered. Google applies confidence thresholds, including a daily click volume requirement, before a country and domain grouping qualifies for modeling, and the affected markets have not cleared them or the consent signals are not confirmed. The reported conversion count runs below the real performance, and Smart Bidding learns from the lower number. {{voice_recommend}} confirming the consent mode implementation passes the correct signals, then reviewing eligibility per market. A high-volume country can qualify while a smaller one cannot."
+      }
+    },
+    {
+      "id": "modeled-vs-observed-gap-unexamined",
+      "title": "A large gap between observed and modeled conversions has not been examined",
+      "category": "privacy",
+      "subcategory": "modeled_conversions",
+      "impact_score": 3,
+      "impact_rationale": "A wide gap between observed and modeled volume can reflect heavy consent loss, which is expected, or a measurement fault that modeling is papering over. Left unexamined, a tracking problem hides inside a number that looks healthy, and the bidding optimizes toward an estimate built on a shaky base.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "The 'Conversions' column in Google Ads blends two things once consent mode modeling is active. Observed conversions are the ones Google measured directly. Modeled conversions are the estimates Google adds for users it could not observe, mostly because they declined consent. Google reports the modeled share through the consent mode impact results, which separate the change in conversions that modeling produced from the conversions that were measured.<br><br>A large modeled share is not automatically a problem. A market with strict consent rejection rates can legitimately show many modeled conversions relative to observed ones. The risk is treating the blended total as fully measured and never asking which part is which. A tracking fault that suppresses observed conversions can look like ordinary consent loss once modeling backfills the count.<br><br>Reading the impact results separates the two stories. A modeled share that tracks the market's consent rejection rate is consistent with privacy signal loss. A modeled share that spikes without a matching change in consent behavior is worth tracing back to the tag. It can mean observed conversions are dropping for a reason that has nothing to do with consent.<br><br>You may want to look at the modeled portion per market rather than for the account as a whole. Consent behavior and tracking quality both vary by country, and an account-level average can hide a single market where observed conversions have quietly fallen away.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, a sudden rise in the modeled share for a market can coincide with a checkout change that broke the observed purchase tag, so modeling is filling a gap the tag should be measuring. You may want to compare the modeled share against the period of any recent checkout or tag release before accepting it as consent loss.",
+          "lead_gen": "On a lead-generation site, form changes and thank-you page edits are frequent, and either can suppress observed conversions while modeling backfills the count. You may want to check whether a jump in the modeled share lines up with a recent form or confirmation page change rather than a shift in consent behavior."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "About consent mode modeling",
+            "source_url": "https://support.google.com/google-ads/answer/10548233"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the consent mode impact results to separate observed from modeled conversions per market, then check whether a large modeled share matches the market's consent behavior or points back to a tracking fault.",
+        "tools": {
+          "free": {
+            "google_ads_ui": {
+              "label": "Google Ads UI",
+              "steps": [
+                "Open 'Goals', then 'Conversions', and open the consent mode impact results.",
+                "For each market, note the observed conversions, the modeled conversions, and the modeled share of the total.",
+                "Flag any market where the modeled share is large or has changed sharply, and note the date the change began so it can be compared against recent site or tag releases."
+              ]
+            },
+            "google_tag_assistant": {
+              "label": "Google Tag Assistant",
+              "steps": [
+                "For a flagged market, load a conversion page and confirm the observed conversion tag still fires and records the conversion.",
+                "Confirm the conversion value and identifiers are present, so a tag fault is ruled out before the modeled share is accepted as consent loss."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per market, the observed and modeled conversion volume and whether a large or rising modeled share has a plausible consent explanation. A market whose modeled share is consistent with its consent rejection rate passes. A market whose modeled share is large or spiking with no matching consent change, and where the observed tag is suspect, is a fail recorded with the market name and the suspected tag fault.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the observed volume, the modeled volume, and a consent explanation for each flagged market above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has a large gap between observed and modeled conversions in one or more markets that has not been examined. A wide modeled share can reflect genuine consent loss, or it can hide a tracking fault that suppressed the observed conversions modeling is now backfilling. Without separating the two, a measurement problem sits inside a number that looks healthy, and Smart Bidding learns from it. {{voice_recommend}} reading the consent mode impact results per market, comparing each market's modeled share against its consent rejection rate, and tracing any modeled spike that does not match a consent change back to the observed conversion tag."
+      }
+    },
+    {
+      "id": "decisions-resting-on-modeled-data",
+      "title": "Account decisions rest on the blended conversion count without checking the modeled share",
+      "category": "privacy",
+      "subcategory": "modeled_conversions",
+      "impact_score": 2,
+      "impact_rationale": "Modeled conversions are estimates, not measured events, so reading the blended total as if every conversion were observed overstates the certainty behind optimization and reporting decisions. The effect is a confidence problem rather than a direct loss, which is why it scores lower than an eligibility or tracking fault.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "attribution"],
+      "educate": {
+        "base": "Once consent mode modeling is active, the conversion count a campaign reports is part measured and part estimated. Modeled conversions are Google's estimate of the conversions it could not observe, and they are added to the same total that automated bidding reads and that practitioners pull into reports. Read without context, the blended total looks like a direct count of events that happened.<br><br>The risk is in how the number gets used downstream. A return on ad spend (ROAS) target, a budget shift toward a market, or a claim in a client report can all rest on a total whose modeled share is unknown to the person acting on it. Two markets with the same reported conversions can carry very different certainty if one is mostly observed and the other is mostly modeled.<br><br>Google reports the modeled portion through the consent mode impact results, so the split is available rather than hidden. The gap is usually one of practice, where the blended total is read and the modeled share is never pulled. Knowing the share does not make the modeled conversions wrong. It sets the confidence level behind a decision and flags where a market is leaning hard on estimation.<br><br>You may want to record the modeled share alongside the conversion totals in any recurring report, so the people reading it can weigh how much of the count is measured. A market that is mostly modeled deserves more caution before a large budget move than one that is mostly observed.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, revenue-based bidding and reporting raise the stakes. A return on ad spend figure built on a heavily modeled conversion count carries less certainty than the single number suggests. You may want to surface the modeled share next to revenue so a market that leans on estimation gets weighed accordingly before a budget shift.",
+          "lead_gen": "On a lead-generation site, a cost per acquisition target drives optimization, and a target set against a blended count treats modeled and observed leads as equally certain. You may want to note the modeled share when reviewing the target. A market that is mostly modeled may warrant a wider tolerance than one that is mostly measured."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "About consent mode modeling",
+            "source_url": "https://support.google.com/google-ads/answer/10548233"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether the modeled share is being read alongside the conversion totals that feed bidding targets and reporting, or whether the blended count is used as if it were fully measured.",
+        "tools": {
+          "free": {
+            "google_ads_ui": {
+              "label": "Google Ads UI",
+              "steps": [
+                "Open 'Goals', then 'Conversions', and open the consent mode impact results to see the modeled share per market.",
+                "Compare that split against how the conversion total is used in bidding targets and reporting. Note whether the modeled share is referenced anywhere in the decision-making or only the blended total.",
+                "Identify any market with a large modeled share that also drives a budget or target decision. That is where reading the blended count as fully measured carries the most risk."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per market that drives a bidding target or a reported result, whether the modeled share is read alongside the conversion total. A market whose decisions account for the modeled share passes. A market with a large modeled share whose targets or reports treat the blended count as fully measured is a fail recorded with the market name and the decision at risk.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the modeled share is read alongside the conversion total for each decision-driving market above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s bidding targets and reporting rest on the blended conversion count without accounting for how much of it is modeled. Modeled conversions are estimates Google adds for users it could not observe, and treating the total as fully measured overstates the certainty behind a budget shift or a reported result, especially in a market that leans on estimation. {{voice_recommend}} reading the modeled share from the consent mode impact results, recording it alongside the conversion totals in recurring reports, and applying more caution to decisions in markets where the modeled portion is large."
+      }
+    }
+  ]
+}

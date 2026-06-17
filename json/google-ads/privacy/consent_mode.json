@@ -1,0 +1,219 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/google-ads/answer/10000067",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Consent Mode v2 governs whether European Economic Area (EEA) traffic reaches Google Ads at all. Without it, the conversion data for that traffic is lost to both reporting and Smart Bidding, and the loss is invisible in the account because the campaigns still run. The check reads the consent signals the page sends and compares the implementation against what the account needs, so it surfaces a gap that does not show up as an error anywhere in the interface. The fix is a tagging change in the consent management platform and the Google tag rather than a campaign rebuild, and the recovered modeling applies from the day the signals start flowing.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Consent Mode is the mechanism that tells Google tags whether a user agreed to ad and analytics storage. Its second version, Consent Mode v2, adds two signals, 'ad_user_data' and 'ad_personalization', that Google requires for personalized advertising to EEA users. When the version is missing, set to the wrong implementation type, or not wired into the consent banner, conversions from consented users still go uncounted and modeling never kicks in. These checks confirm that Consent Mode v2 is present, that the implementation type matches what the account needs, and that the consent banner actually drives the signals the Google tag reads.",
+  "audit_checks": [
+    {
+      "id": "consent-mode-v2-not-implemented",
+      "title": "Consent Mode v2 is not implemented, so EEA traffic is lost to bidding and reporting",
+      "category": "privacy",
+      "subcategory": "consent_mode",
+      "impact_score": 5,
+      "impact_rationale": "Without Consent Mode v2, Google stops collecting and using EEA ad data once its EEA consent enforcement applies, so conversions from those users go uncounted and remarketing audiences stop growing. Smart Bidding learns from the undercount, and the loss is silent because the account shows no error.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "conversion-tracking"],
+      "educate": {
+        "base": "Consent Mode is a Google framework that passes a user's consent choices to Google tags so the tags adjust what they collect. Consent Mode v2 added two signals on top of the original ones. 'ad_user_data' states whether the user agreed to send their data to Google for advertising, and 'ad_personalization' states whether the user agreed to personalized advertising such as remarketing. Google requires both signals for users in the European Economic Area (EEA) before it will use that traffic for personalized ads.<br><br>When Consent Mode v2 is missing, the Google tag has no consent signals to read for EEA users. Under Google's EEA consent enforcement, the result is that ad data for those users is not collected or used. Conversions from consented EEA users go uncounted, remarketing lists stop adding EEA users, and Smart Bidding optimizes from a dataset that is missing a region. None of this surfaces as an error in the account, so the campaigns keep spending against numbers that are quietly short.<br><br>A correct setup has two parts that have to line up. The consent management platform shows the banner and records the user's choice, and the Google tag reads that choice through the four consent signals. A banner that collects consent but never updates the Google tag's consent state leaves the tag operating as though no choice was made.<br><br>A few signs point to Consent Mode v2 being absent:<ul><li>The page sends no 'ad_user_data' or 'ad_personalization' signals when the Google tag fires</li><li>The consent banner records a choice but the Google tag's consent state never updates from the default</li><li>Tag Assistant or the browser console shows the original consent signals without the two v2 additions</li></ul>You may want to confirm both that the v2 signals exist and that the consent banner drives them. A banner with no connection to the tag and a tag with no banner behind it both leave EEA data on the floor.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the EEA share of purchases can be large, so a missing Consent Mode v2 setup removes a real slice of revenue-driving conversions from the reported total. You may want to confirm the consent banner loads before the conversion tag on the purchase confirmation page, so the user's choice is recorded by the time the purchase fires rather than after it.",
+          "lead_gen": "On a lead-generation site, EEA form fills depend on the same consent signals reaching the Google tag at submission. You may want to confirm the consent banner updates the tag's consent state before the lead conversion fires, so a consented submission is counted rather than dropped because the signal arrived late."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "About consent mode",
+            "source_url": "https://support.google.com/google-ads/answer/10000067"
+          },
+          {
+            "source_type": "Google for Developers",
+            "source_title": "Consent mode overview",
+            "source_url": "https://developers.google.com/tag-platform/security/concepts/consent-mode"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether the page sends the two Consent Mode v2 signals and whether the consent banner drives them.",
+        "tools": {
+          "free": {
+            "google_tag_assistant": {
+              "label": "Google Tag Assistant",
+              "steps": [
+                "Open Tag Assistant and load a page that fires the Google tag, then accept the consent banner.",
+                "Inspect the consent state and check for the 'ad_user_data' and 'ad_personalization' signals alongside the original 'ad_storage' and 'analytics_storage' signals. Two missing signals point to a setup that never moved to Consent Mode v2.",
+                "Reload the page and decline the banner instead. Confirm the consent state flips to denied, which shows the banner is wired to the tag rather than recording a choice the tag ignores."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open DevTools, go to the Network panel, and filter for the Google tag requests as you load the page and act on the consent banner.",
+                "Inspect the request parameters for the 'gcs' and 'gcd' consent values. A 'gcs' value that never reflects the v2 signals, or that never changes when you accept or decline, points to a missing or disconnected Consent Mode v2 setup."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the two Consent Mode v2 signals appear when the Google tag fires and whether accepting or declining the banner changes the recorded consent state. A page that sends both v2 signals and whose consent state tracks the banner choice passes. A page that sends neither v2 signal, or whose consent state never changes with the banner, is a fail recorded with the page tested.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the v2 signal presence and the banner behavior for the page tested above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that Consent Mode v2 is not implemented on {{site_name}}. Google requires the 'ad_user_data' and 'ad_personalization' signals before it will use European Economic Area traffic for advertising, and without them the conversions, remarketing audiences, and bidding signals from that region go uncounted while the campaigns keep spending. {{voice_recommend}} implementing Consent Mode v2 through the consent management platform and the Google tag, so the banner choice updates all four consent signals. After the change, confirm in Google Tag Assistant that the two v2 signals appear and that accepting or declining the banner changes the recorded consent state."
+      }
+    },
+    {
+      "id": "consent-mode-basic-where-advanced-recovers-more",
+      "title": "Consent Mode is running in basic mode where advanced mode would recover more conversions",
+      "category": "privacy",
+      "subcategory": "consent_mode",
+      "impact_score": 3,
+      "impact_rationale": "Basic mode blocks the Google tag until a user accepts, so users who decline or ignore the banner send nothing and Google has no signal to model from. Advanced mode sends cookieless pings that feed conversion modeling, so the choice between the two changes how many declined-consent conversions are recovered.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "conversion-tracking"],
+      "educate": {
+        "base": "Consent Mode runs in one of two implementation types, and the choice changes how much data Google can model when a user does not consent. Basic mode holds the Google tag back until the user accepts the consent banner. If the user declines or leaves without choosing, the tag never loads and Google receives nothing for that visit. Advanced mode loads the tag with a default consent state of denied and sends cookieless pings even before consent, so Google receives an anonymized signal that it can use to model the conversions it cannot directly observe.<br><br>The practical difference is the data Google has to model from. In basic mode, declined and undecided visits are invisible to Google, so there is nothing to model and those conversions are lost. In advanced mode, the same visits send a cookieless ping, which gives Google's conversion modeling the input it needs to estimate the conversions that consent rules prevent it from counting directly.<br><br>Advanced mode is not always the right answer. Some legal teams require that no request reach Google before consent, which rules advanced mode out. The point of the check is to confirm the implementation type is a deliberate choice rather than a default. An account sitting on basic mode without a legal reason gives up modeled conversions it could recover.<br><br>You may want to confirm the implementation type with the team that owns the consent banner. If the constraint is legal, basic mode stands. If basic mode is in place only because it was the simpler setup, advanced mode is worth weighing for the modeled conversions it adds.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, a meaningful share of EEA shoppers decline or skip the banner, and in basic mode those purchases are invisible to Google with nothing to model. You may want to weigh advanced mode with the legal team. The modeled purchase conversions it recovers can be material on higher EEA volume.",
+          "lead_gen": "On a lead-generation site, declined-consent visits in basic mode send no signal, so modeled lead conversions are zero for that group. You may want to confirm whether a legal constraint requires basic mode, and if not, weigh advanced mode for the modeled leads it recovers from users who do not accept the banner."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google for Developers",
+            "source_title": "Consent mode overview",
+            "source_url": "https://developers.google.com/tag-platform/security/concepts/consent-mode"
+          },
+          {
+            "source_type": "Google for Developers",
+            "source_title": "Set up consent mode on websites",
+            "source_url": "https://developers.google.com/tag-platform/security/guides/consent"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Determine which implementation type is in place by watching whether the Google tag fires before the user acts on the consent banner.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open DevTools, go to the Network panel, and load the page with the consent banner showing but before clicking anything.",
+                "Watch for Google tag requests. A request that fires before any consent choice, carrying a denied consent state, points to advanced mode. No request until you accept points to basic mode.",
+                "Accept the banner and confirm the consent state updates, which rules out a tag that fired but never received the choice."
+              ]
+            },
+            "google_tag_assistant": {
+              "label": "Google Tag Assistant",
+              "steps": [
+                "Open Tag Assistant and load the page without acting on the consent banner.",
+                "Check whether the Google tag reports a consent state before any choice is made. A default denied state present before interaction indicates advanced mode, while no tag activity until acceptance indicates basic mode."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the Google tag fires with a denied consent state before the user acts on the banner. A tag that sends cookieless pings before consent is advanced mode and passes when that is the intended setup. A tag that stays silent until acceptance is basic mode, which passes only when a legal constraint requires it and otherwise is flagged as a recoverable gap recorded with the page tested.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the pre-consent tag behavior and the legal constraint, if any, for the page tested above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that Consent Mode on {{site_name}} is running in basic mode, which holds the Google tag back until a user accepts the consent banner. Visits where the user declines or does not choose send nothing, so Google has no signal to model and those conversions are lost. Advanced mode sends cookieless pings for the same visits, which feeds conversion modeling and recovers part of that loss. {{voice_recommend}} reviewing the implementation type with the team that owns the consent banner, and if no legal constraint requires basic mode, moving to advanced mode for the modeled conversions it recovers. After the change, confirm in the browser network panel that the tag fires with a denied default state before the user acts on the banner."
+      }
+    },
+    {
+      "id": "consent-signals-not-passed-to-google-tag",
+      "title": "Consent signals are not passed from the consent banner to the Google tag",
+      "category": "privacy",
+      "subcategory": "consent_mode",
+      "impact_score": 4,
+      "impact_rationale": "A consent banner that records a choice but never updates the Google tag's consent state leaves the tag operating on its default, so consented conversions can be dropped and declined visits can still be collected. The data and the legal posture both drift from what the banner promised the user.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Consent Mode works only when the consent banner and the Google tag are connected. The banner, shown by the consent management platform (CMP), records what the user chose. The Google tag reads that choice through its consent state and adjusts what it collects. The connection between the two is an update call that pushes the user's choice into the tag's consent signals. When that call is missing, the banner and the tag run in parallel without talking to each other.<br><br>A disconnected setup fails in both directions. If the tag defaults to granted and the user declines, the tag keeps collecting against a choice the user did not make, which is the legal exposure the banner was meant to prevent. If the tag defaults to denied and the user accepts, the tag stays restricted and consented conversions go uncounted. Either way, the reported numbers and the consent the user expressed no longer match.<br><br>The signals to trace are the four consent parameters. 'ad_storage' and 'analytics_storage' cover cookie storage, and 'ad_user_data' and 'ad_personalization' cover the Consent Mode v2 requirements for advertising. The update call has to set all four from the banner choice, not just the original two, for an EEA setup to satisfy Google's requirements.<br><br>You may want to test the connection by changing the consent choice and watching the tag's consent state respond. A state that moves with the banner confirms the update call is firing. A state frozen on its default, regardless of what the user picks, confirms the banner choice is never reaching the tag.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the conversion tag on the purchase confirmation page reads the consent state at the moment the purchase fires. You may want to confirm the consent update call runs before that conversion tag, so a shopper who accepted the banner is counted and one who declined is honored, rather than both being treated by the tag's default.",
+          "lead_gen": "On a lead-generation site, the consent update call has to run before the lead conversion tag on form submission. You may want to confirm the order of operations. A form that submits before the consent state updates leaves the lead recorded under the tag's default rather than the user's actual choice."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google for Developers",
+            "source_title": "Set up consent mode on websites",
+            "source_url": "https://developers.google.com/tag-platform/security/guides/consent"
+          },
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "FAQs About the EU user consent policy for Customer Match upload partners",
+            "source_url": "https://support.google.com/google-ads/answer/14310715"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that the consent banner choice updates the Google tag's four consent signals rather than leaving the tag on its default state.",
+        "tools": {
+          "free": {
+            "google_tag_assistant": {
+              "label": "Google Tag Assistant",
+              "steps": [
+                "Open Tag Assistant and load a page that shows the consent banner.",
+                "Accept the banner and read the tag's consent state for all four signals, then in a fresh session decline and read the state again.",
+                "Confirm the four signals move with the choice. A consent state that stays identical whether you accept or decline shows the banner choice is not reaching the tag."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open DevTools, go to the Network panel, and filter for the Google tag requests.",
+                "Act on the consent banner and inspect the 'gcs' consent parameter on the tag requests before and after the choice. A 'gcs' value that does not change with the banner choice confirms the update call is missing or not wired to the banner."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the tag's consent state after accepting the banner and after declining it. A state where all four signals reflect the choice in both cases passes. A state that does not change with the choice, or that updates only the two original signals and not the v2 additions, is a fail recorded with the page tested and the signals that did not respond.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the consent state after accepting and after declining the banner on the page above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the consent banner on {{site_name}} records a choice but does not pass it to the Google tag, so the tag operates on its default consent state. When the default and the user's choice disagree, consented conversions can be dropped or declined visits can still be collected, which puts the data and the consent the user expressed out of step. {{voice_recommend}} wiring the consent management platform to send an update call that sets all four consent signals from the banner choice, including the Consent Mode v2 additions. After the change, confirm in Google Tag Assistant that accepting and declining the banner each move the tag's consent state accordingly."
+      }
+    }
+  ]
+}

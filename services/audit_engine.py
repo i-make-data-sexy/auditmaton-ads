@@ -271,6 +271,26 @@ CATEGORY_METADATA = {
             "icon_class": "fa-solid fa-scale-balanced",
             "description": "Account structure, access, linking, and naming conventions",
         },
+        "bidding": {
+            "display_name": "Bidding",
+            "icon_class": "fa-solid fa-gavel",
+            "description": "Bid strategy fit, budgets, and pacing",
+        },
+        "targeting": {
+            "display_name": "Targeting",
+            "icon_class": "fa-solid fa-crosshairs",
+            "description": "Audiences, exclusions, geography, and ad scheduling",
+        },
+        "creative": {
+            "display_name": "Creative",
+            "icon_class": "fa-solid fa-palette",
+            "description": "Responsive search ads, assets, testing, and policy",
+        },
+        "privacy": {
+            "display_name": "Privacy",
+            "icon_class": "fa-solid fa-user-shield",
+            "description": "Consent Mode, first-party data, and measurement durability",
+        },
     },
     "google-tag-manager": {
         "container-structure": {

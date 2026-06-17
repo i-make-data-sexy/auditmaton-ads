@@ -1,0 +1,232 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/google-ads/answer/6095821",
+  "worth_it": "Yes",
+  "worth_it_explanation": "A conversion tag that fires on page load or is missing from key pages hands Smart Bidding a false signal from the first click, and the account bids against that signal indefinitely until someone catches the error. The checks here are quick to run, the tools are free, and the fixes are configuration changes, not rebuilds. An hour spent here protects the conversion data every other check in this audit depends on.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Before any conversion data can be trusted, the tag that records it has to be on the right pages, firing at the right moment, and passing the click identifier that ties conversions back to campaigns. These checks confirm that the Google tag or Google Tag Manager (GTM) conversion event is installed on the pages that matter, that it fires on the completed action rather than on every page visit, that the conversion linker passes the Google Click Identifier (GCLID) for cross-domain attribution, and that Consent Mode v2 is wired so conversions are modeled when users deny consent.",
+  "audit_checks": [
+    {
+      "id": "conversion-tag-missing-or-misfiring",
+      "title": "Conversion tag is missing from key pages or fires on page load rather than on the completed action",
+      "category": "conversion-tracking",
+      "subcategory": "tag_implementation",
+      "impact_score": 4,
+      "impact_rationale": "A tag absent from the confirmation page records no conversions at all, so bidding has nothing to optimize toward. A tag that fires on page load counts every session as a conversion, which inflates the count and steers Smart Bidding toward traffic that never completed the intended action.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "A Google Ads conversion action records a conversion when the Google tag fires the conversion event on the page that confirms the completed action, such as a purchase confirmation or a thank-you page after a lead form submits. Two failure modes are worth checking. The first is that the tag is simply absent from that page. The second is that the tag fires on a page a visitor can reach before completing the action, such as a product page or the beginning of a checkout flow, so every visit counts as a conversion rather than only the ones that finish.<br><br>When the tag fires on page load on a broadly visited page, the conversion count climbs alongside session volume rather than alongside actual completions. Smart Bidding learns from that inflated signal and optimizes toward traffic patterns that match visits, not buyers or leads. The account may look efficient in the interface because conversions per click appear high, but the underlying count does not reflect real outcomes.<br><br>The conversion action's diagnostics in Google Ads and Google Tag Assistant are the two fastest places to check. The diagnostics view will flag if no conversions have been recorded in a way that suggests the tag is absent. Tag Assistant will show the event firing as you navigate, which makes it straightforward to see whether the event fires on the confirmation page alone or on pages earlier in the path.<br><br>Auditing the tag container itself, including firing order, duplicate tags, and dataLayer design, is its own discipline. <a href='/tools/auditmaton/tag-audits/' class='tools-link-no-padding' target='_blank'>Auditmaton for Tag Audits</a> covers that container-level review in depth.<br><br>A few signs suggest a placement or timing problem worth investigating:<ul><li>The conversion action's diagnostics show a very high conversion rate relative to sessions</li><li>Tag Assistant fires the conversion event on pages before the confirmation page</li><li>The conversion count matches or tracks closely with total sessions rather than with a subset of them</li></ul>You may want to confirm the conversion event fires once, on the confirmation page, and only after the action completes.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the purchase conversion event belongs on the order confirmation page, the page a buyer reaches only after a successful payment. You may want to confirm with Tag Assistant that the event does not fire on the cart page, the checkout entry page, or any step a visitor can reach without completing a purchase. A tag placed on a high-traffic step in the funnel will record a conversion for every visitor who reaches that step, which inflates the count well beyond actual transactions.",
+          "lead_gen": "On a lead-generation site, the conversion event belongs on the thank-you page a visitor reaches only after the form submits successfully. You may want to confirm that the event does not fire when the page first loads or when the form page is visited, only when the form posts and the confirmation page renders. A tag placed on the form page itself may fire before the visitor has filled in a single field."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "Set up conversion tracking for your website",
+            "source_url": "https://support.google.com/google-ads/answer/6095821"
+          },
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "Use Tag Assistant to troubleshoot your unverified or inactive conversion actions",
+            "source_url": "https://support.google.com/google-ads/answer/10989978"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that the conversion event fires on the correct page, at the correct moment, and not on pages that precede the completed action.",
+        "tools": {
+          "free": {
+            "google_ads_ui": {
+              "label": "Google Ads UI",
+              "steps": [
+                "Open 'Goals', then 'Conversions', and select each primary conversion action.",
+                "In the conversion action's diagnostics, read the status message. A status reporting no recent conversions despite active campaigns suggests the tag is absent from the intended page.",
+                "Compare the conversion count with session volume in the same date range. A conversion rate that approaches or exceeds 100 percent suggests the tag fires on a page most visitors reach, not only on those who complete the action."
+              ]
+            },
+            "google_tag_assistant": {
+              "label": "Google Tag Assistant",
+              "steps": [
+                "Open Tag Assistant and start a recording session, beginning on a page well before the conversion, such as a homepage or a product page.",
+                "Navigate through the site as a visitor would, including visiting the conversion page without completing the action, if that is possible.",
+                "Then complete the action and reach the confirmation page.",
+                "In the Tag Assistant summary, note on which pages the conversion event fired. If it fired on any page other than the confirmation page, the tag has a placement or trigger problem."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per primary conversion action, whether the conversion event fired on the confirmation page and whether it fired on any page that precedes the completed action. A conversion event that fires exactly once on the confirmation page passes. A conversion event that fires on an earlier page, or that does not fire at all during a completed transaction, is a fail recorded with the page where the misfiring occurred.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which page the conversion event fired on for each primary conversion action above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the conversion tag on {{site_name}} is either absent from the confirmation page or fires on a page visitors reach before completing the intended action. When the tag fires on a broadly visited page, the conversion count tracks with sessions rather than with completed transactions or leads, and Smart Bidding optimizes toward that inflated signal rather than toward real outcomes. {{voice_recommend}} confirming in Google Tag Assistant that the conversion event fires once, on the confirmation page, and only after the action completes, then correcting the trigger configuration in the Google tag or Google Tag Manager container."
+      }
+    },
+    {
+      "id": "conversion-linker-or-gclid-missing",
+      "title": "Conversion linker is not in place or GCLID is dropped before the confirmation page",
+      "category": "conversion-tracking",
+      "subcategory": "tag_implementation",
+      "impact_score": 3,
+      "impact_rationale": "Without the GCLID reaching the conversion tag, Google Ads cannot join the conversion to the click that preceded it. The conversion records without a campaign attribution, which means bidding cannot learn which keywords, audiences, or placements drove the outcome.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "attribution"],
+      "educate": {
+        "base": "When a user clicks a Google Ads ad, Google appends a GCLID to the landing page URL. The Google tag reads that GCLID, stores it in a first-party cookie, and passes it with every conversion event so Google Ads can tie the conversion back to the specific click, keyword, and campaign that preceded it.<br><br>Two situations break that chain. The first is a site that drops URL parameters on navigation, so the GCLID disappears before the visitor reaches a page where the Google tag can read it. The second is a checkout or booking flow that crosses domains, for example from a marketing site on one subdomain to a payment processor or booking tool on another, without the conversion linker carrying the GCLID across.<br><br>The conversion linker is the component that handles cross-domain cases. When implemented in GTM, it decorates links between domains with the GCLID so the destination page receives it. Without the linker, conversions that cross a domain boundary arrive at the confirmation page without the identifier, and the conversion records as unattributed. Google Ads reports the conversion but cannot credit any campaign for it, so Smart Bidding cannot improve its understanding of which traffic converts.<br><br>You may want to check auto-tagging is on in Google Ads account settings, that URL parameters are preserved through navigation on the landing site, and that the conversion linker is in place for any checkout or form hosted on a separate domain.",
+        "site_type_overlays": {
+          "ecommerce": "Stores that send users to a third-party payment processor for checkout, such as Stripe, PayPal, or Shopify Payments on a separate subdomain, need the conversion linker to carry the GCLID from the product pages to the confirmation page. You may want to confirm the conversion linker fires before or on the pages that link to the payment domain and that the receiving payment domain is included in the linker's domain configuration.",
+          "lead_gen": "Lead-generation sites that embed a form from a third-party tool, such as a scheduling widget or a form builder on its own subdomain, face the same cross-domain problem. You may want to confirm the conversion linker is configured to pass the GCLID to the form's domain, so conversions recorded on the confirmation page carry attribution."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "About auto-tagging",
+            "source_url": "https://support.google.com/google-ads/answer/3095550"
+          },
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "How Google Ads tracks website conversions",
+            "source_url": "https://support.google.com/google-ads/answer/7521212"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that auto-tagging is on, that the GCLID survives navigation to the conversion page, and that the conversion linker is in place for any cross-domain steps in the conversion path.",
+        "tools": {
+          "free": {
+            "google_ads_ui": {
+              "label": "Google Ads UI",
+              "steps": [
+                "Open the account settings and confirm auto-tagging is turned on. Without it, no GCLID is appended to ad clicks, and the check that follows has nothing to trace.",
+                "In 'Goals', then 'Conversions', select a primary conversion action and open its diagnostics. Look for any message about unlinked clicks or attribution gaps that Google flags."
+              ]
+            },
+            "google_tag_assistant": {
+              "label": "Google Tag Assistant",
+              "steps": [
+                "Simulate an ad click by appending a test GCLID parameter to the landing page URL, for example '?gclid=testvalue123', and open that URL in Tag Assistant's recording session.",
+                "Navigate through the site to the confirmation page, following the same path a real user would, including any redirect to a payment or booking domain.",
+                "On the confirmation page, inspect the conversion event and check whether it carries a 'gclid' or 'aw_merchant_id' value. If the parameter is absent, the GCLID was lost somewhere in the path."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether auto-tagging is on, whether the test GCLID survived navigation to the confirmation page as seen in Tag Assistant, and whether a cross-domain step exists in the conversion path. A setup where auto-tagging is on, the GCLID reaches the confirmation page, and a conversion linker is present for any cross-domain step passes. A setup where the GCLID is absent from the conversion event on the confirmation page is a fail recorded with the step in the path where it was lost.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the auto-tagging setting and the GCLID trace result for each conversion action above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s conversion path does not reliably carry the GCLID to the confirmation page where the conversion fires. When that identifier is lost, Google Ads records the conversion without campaign attribution, so Smart Bidding cannot learn which traffic drove the outcome and the reporting cannot credit any keyword, audience, or placement. {{voice_recommend}} confirming auto-tagging is on in the account settings, tracing whether URL parameters survive navigation through the conversion path, and adding the conversion linker in Google Tag Manager for any step that crosses to a separate domain, such as a payment processor or booking tool."
+      }
+    },
+    {
+      "id": "consent-mode-v2-not-wired",
+      "title": "Consent Mode v2 is not implemented, so conversions are not modeled when users deny consent",
+      "category": "conversion-tracking",
+      "subcategory": "tag_implementation",
+      "impact_score": 4,
+      "impact_rationale": "Without Consent Mode v2, the account loses all conversion signal from users who deny consent. In markets with high consent-denial rates, that gap is large enough to starve Smart Bidding and distort reported return on ad spend. The account appears to perform on a subset of traffic while the rest converts invisibly.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "privacy"],
+      "educate": {
+        "base": "<a href='https://support.google.com/google-ads/answer/14009635' class='tools-link-no-padding' target='_blank'>Consent Mode v2</a> is Google's framework for telling the Google tag whether a user has consented to measurement and advertising cookies. When a user denies consent, the tag does not set its cookies. With Consent Mode v2 in place and the correct signals passed, Google uses modeled conversions to estimate the conversions that occurred without cookies, so bidding retains signal even for users who declined. Without Consent Mode v2, those conversions are not modeled at all, they simply disappear from the count.<br><br>Consent Mode v2 has two states the tag reads. The first is 'basic', where the tag does not fire at all for users who deny consent. The second is 'advanced', where the tag fires but in a cookieless form, sending pings Google uses to build the model. Advanced mode provides a better modeling foundation because Google receives some behavioral signal even for users who declined. Basic mode provides no signal and relies on Google modeling from aggregate patterns alone.<br><br>Implementation requires two steps. The consent management platform (CMP) has to pass the consent signals to the Google tag before it fires, and the Google tag has to be configured to read those signals. A tag that fires before the CMP sets the signal, or a CMP that does not pass the signal in the format the tag expects, behaves as though consent is always granted, which poses a compliance risk in addition to a modeling gap.<br><br>In the European Economic Area (EEA), <a href='https://support.google.com/google-ads/answer/13695607' class='tools-link-no-padding' target='_blank'>Consent Mode v2 has been required for Google Ads to use customer data for personalization since March 2024</a>. Accounts that serve EEA traffic without it may lose access to audience features in addition to losing the modeling benefit.<br><br>A few conditions suggest Consent Mode v2 may be absent or misconfigured:<ul><li>The tag fires at full capacity regardless of the CMP banner state</li><li>No consent signals appear in Tag Assistant when consent is denied</li><li>The account serves EEA traffic but Consent Mode is not visible in the tag configuration</li></ul>You may want to test the setup by denying consent in the CMP and then confirming in Tag Assistant what the tag sends, if anything.",
+        "site_type_overlays": {
+          "ecommerce": "Stores with EEA traffic may see a meaningful share of users deny consent, particularly on first visit. You may want to test the conversion count in a European market against total sessions to assess the size of the modeling gap before and after Consent Mode v2 is in place. A large gap between sessions and cookied conversions in those markets is a signal the account is losing more than it reports.",
+          "lead_gen": "Lead-generation sites that run campaigns in EEA markets or in US states with opt-out consent requirements may find that a share of form completions never reach the conversion tag because the user denied consent and no modeling fills the gap. You may want to confirm the consent management platform passes consent signals correctly and that the Google tag reads them before deciding whether to fire."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "Set up consent mode",
+            "source_url": "https://support.google.com/google-ads/answer/14009635"
+          },
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "Updates to consent mode for traffic in the European Economic Area",
+            "source_url": "https://support.google.com/google-ads/answer/13695607"
+          },
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "Tag Manager consent mode support",
+            "source_url": "https://support.google.com/google-ads/answer/10718549"
+          }
+        ],
+        "impactful_updates": [
+          {
+            "update_link": "https://support.google.com/google-ads/answer/13695607",
+            "update_label": "Consent Mode v2 required for EEA personalization features (March 2024)"
+          }
+        ]
+      },
+      "investigate": {
+        "intro": "Confirm that Consent Mode v2 signals are passed to the Google tag and that the tag behaves correctly when a user denies consent.",
+        "tools": {
+          "free": {
+            "google_tag_assistant": {
+              "label": "Google Tag Assistant",
+              "steps": [
+                "Open Tag Assistant and start a recording session on the site.",
+                "When the consent banner appears, deny all optional cookies or tracking.",
+                "In the Tag Assistant summary, check the Google tag's consent state. If the tag fires at full capacity with no consent parameters or with all parameters set to 'granted' despite the denial, Consent Mode v2 is absent or the CMP is not passing signals correctly.",
+                "Accept consent in a second recording session and confirm the tag fires at full capacity. The two sessions should show clearly different tag behavior."
+              ]
+            },
+            "google_ads_ui": {
+              "label": "Google Ads UI",
+              "steps": [
+                "Open the account's 'Goals', then 'Conversions', and inspect the conversion action's settings.",
+                "Look for any Consent Mode configuration or diagnostics message that indicates consent signals are being read. The absence of any consent-related message in an account serving EEA or consent-regulated traffic warrants further investigation in Tag Assistant."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the site serves traffic in consent-regulated markets, whether the CMP passes consent signals to the Google tag, and whether Tag Assistant shows different tag behavior when consent is denied versus granted. An account that does not serve consent-regulated markets and has no CMP in place may pass this check with a note. An account serving EEA or other regulated markets where Tag Assistant shows the tag fires at full capacity regardless of consent state is a fail recorded with the CMP and tag configuration details.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the site serves consent-regulated markets and what Tag Assistant shows when consent is denied above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not have Consent Mode v2 implemented, or has it implemented in a way that does not send the correct signals when users deny consent. Without those signals, Google Ads cannot model conversions for users who declined measurement, and the reported conversion volume reflects only the users who accepted. In markets where denial rates are meaningful, the gap between actual and reported conversions can be large enough to affect how Smart Bidding allocates spend. {{voice_recommend}} confirming that the consent management platform passes the correct consent signals to the Google tag before it fires, testing the configuration by denying consent in Tag Assistant and verifying that the tag's consent parameters reflect the denial, and reviewing whether the account's EEA campaigns require Consent Mode v2 for personalization features."
+      }
+    }
+  ]
+}

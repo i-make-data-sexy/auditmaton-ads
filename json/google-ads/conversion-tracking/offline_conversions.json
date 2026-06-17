@@ -1,0 +1,204 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/google-ads/answer/2998031",
+  "worth_it": "Yes",
+  "worth_it_explanation": "When a business's actual revenue comes from deals that close in a CRM or over the phone, form fills are a proxy, not the goal. Offline conversion import lets Smart Bidding learn from the revenue signal rather than the form-fill signal, and that difference shows up in the cost per closed deal. The checks here cover three failure modes: the import not existing at all, the click identifier not being stored when the lead comes in, and uploads arriving too late to influence bidding. Each one is diagnosable without special tooling.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Offline conversion import (OCI) connects what happens after the click, in a CRM, on a sales call, or in a physical store, back to the Google Ads campaign that drove the lead or visit. Without it, Smart Bidding learns from whatever conversion action the account does track online, which is usually a form fill rather than a sale. These checks look at whether OCI is configured at all, whether the click identifier is captured at lead time so the later upload can match it, and whether uploads arrive frequently enough to inform bidding before the signal loses influence.",
+  "audit_checks": [
+    {
+      "id": "offline-conversion-import-not-configured",
+      "title": "No offline conversion import is configured for a business whose sales close after the click",
+      "category": "conversion-tracking",
+      "subcategory": "offline_conversions",
+      "impact_score": 4,
+      "impact_rationale": "Smart Bidding optimizes toward whatever conversion action the account bids on. When that action is a form fill but the actual goal is a closed deal, the algorithm finds more form fills, not more revenue. The gap between the two widens as Smart Bidding compounds its optimization toward the wrong signal.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "bidding"],
+      "educate": {
+        "base": "Offline conversion import is a Google Ads feature that lets advertisers upload conversions that happen after the click and outside the website, for example a phone consultation that turns into a booked appointment, a sales call that closes in a customer relationship management system (CRM), or a walk-in visit to a retail location. Once uploaded, those conversions appear in Google Ads alongside the ones the tag records, and Smart Bidding can optimize toward them.<br><br>For businesses where the click to close cycle spans days or weeks, OCI is the mechanism that connects ad spend to actual revenue. Without it, the account typically tracks only the online action closest to the click, such as a contact form submission. Smart Bidding then learns to produce more of that action, which may not reflect revenue at all. The campaigns can look efficient by the form-fill metric while performing poorly on closed deals.<br><br>Setting up OCI involves three steps. The account creates an import-type conversion action in Google Ads to receive the uploaded data. The CRM or sales system stores the Google Click Identifier (GCLID) or, for app and iOS traffic, the GBRAID or WBRAID parameter alongside each lead record. When a deal closes, the advertiser uploads a file, or uses the API, to send the GCLID and the conversion time back to Google.<br><br>OCI is worth considering for any account where a meaningful share of revenue comes from outcomes that a website tag cannot record. A few signs point to OCI being absent when it should be present:<ul><li>The account's primary conversion action is a form fill and the business's sales cycle extends past the visit</li><li>No conversion actions of type 'Import' appear under Goals, then Conversions in the Google Ads UI</li><li>Smart Bidding's target CPA or target ROAS is set against form fills rather than closed revenue</li></ul>You may want to confirm with the client whether the form-fill volume they see in the account is meaningfully correlated with revenue before treating this gap as low priority.",
+        "site_type_overlays": {
+          "lead_gen": "Lead-generation advertisers are the primary audience for OCI. The click produces a form submission, but the value of that submission depends on what happens in the sales process afterward. You may want to determine how the business scores and closes leads and whether that data lives in a CRM that could be connected to an OCI upload, either through a manual export or through a direct integration."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "About offline conversion imports",
+            "source_url": "https://support.google.com/google-ads/answer/2998031"
+          },
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "Set up offline conversions using Google Click ID (GCLID)",
+            "source_url": "https://support.google.com/google-ads/answer/7012522"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether the account has any import-type conversion actions, and whether the business model requires tracking conversions that happen after the visit.",
+        "tools": {
+          "free": {
+            "google_ads_ui": {
+              "label": "Google Ads UI",
+              "steps": [
+                "Open 'Goals', then 'Conversions', and review the list of conversion actions.",
+                "Check the 'Source' column. Conversion actions sourced from an import, such as 'Imported from file' or 'Imported from Salesforce', indicate that OCI is at least partially configured.",
+                "If no import-type conversion actions appear, confirm with the client whether the business closes deals or books appointments outside the website. If it does, this check is a gap."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner confirms, by reviewing the conversion action list, whether any import-type conversion actions exist. If the business model involves post-click sales or appointments and no import-type conversion action is present, the check fails. If import-type conversion actions are present, the check passes and investigation shifts to the GCLID capture and upload timeliness checks below.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Review the conversion action list in Google Ads to confirm whether an import-type conversion action is present, then record the finding above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} no offline conversion import configured in {{site_name}}'s Google Ads account. The account's primary conversion action is a form submission, but the business closes deals after the visit, in a CRM or over the phone. Smart Bidding is optimizing toward form fills rather than revenue, so the campaigns may look efficient by the metric the account tracks while performing differently on actual closed business. {{voice_recommend}} setting up an offline conversion import, capturing the GCLID at the point of form submission, and uploading closed deals back to Google Ads so Smart Bidding can learn from the revenue signal rather than the lead signal."
+      }
+    },
+    {
+      "id": "gclid-not-captured-at-lead-time",
+      "title": "The click identifier is not captured and stored when the lead form submits",
+      "category": "conversion-tracking",
+      "subcategory": "offline_conversions",
+      "impact_score": 4,
+      "impact_rationale": "Offline conversion import cannot match a closed deal back to a click without the GCLID. If the GCLID is not stored when the lead comes in, there is nothing to upload when the deal closes, and OCI produces no data even when the rest of the setup is correct.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "OCI works by matching a conversion that happens later, such as a closed sale in a CRM, back to the specific Google Ads click that produced the lead. The matching key is the GCLID, a parameter Google appends to the destination URL when a user clicks an ad. For app and iOS traffic where the GCLID is not available, Google uses GBRAID or WBRAID parameters instead.<br><br>The GCLID is present in the landing page URL for the duration of the visit. When the user submits the lead form, the GCLID must be captured from the URL and stored alongside the lead record, typically as a hidden form field passed to the CRM. If that capture step does not happen, the CRM holds a lead with no click identifier, and there is nothing to include in the upload when that lead later becomes a sale.<br><br>This is a gap that sits between the website and the CRM, not inside Google Ads. The Google Ads account can be configured correctly, the import-type conversion action can exist, and the upload process can be in place, but if the CRM records have no GCLID in them, the upload matches nothing and the OCI data is empty.<br><br>Two checks confirm whether the GCLID is being stored:<ul><li>Open a CRM record for a recent lead and look for a GCLID field. A value that starts with 'Cj0K' or another recognizable prefix, and is a long alphanumeric string, is a GCLID</li><li>Click a live Google Ads ad, inspect the landing page URL, and submit a test lead. Then check the CRM to confirm the GCLID from the URL appears in the new record</li></ul>Auto-tagging must be enabled in Google Ads for GCLIDs to append to destination URLs at all. You may want to verify auto-tagging is on before investigating the capture step.",
+        "site_type_overlays": {
+          "lead_gen": "Lead-generation sites are where this gap surfaces. The lead form is the handoff point between the click and the CRM. You may want to confirm that the form passes the GCLID as a hidden field and that the CRM is configured to store it. Many CRM integrations handle this automatically once the hidden field is present, but the capture step on the website is a precondition."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "Enable auto-tagging in Google Ads",
+            "source_url": "https://support.google.com/google-ads/answer/1752125"
+          },
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "Set up offline conversions using Google Click ID (GCLID)",
+            "source_url": "https://support.google.com/google-ads/answer/7012522"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that auto-tagging is on, that the landing page URL carries a GCLID when an ad is clicked, and that the GCLID appears in CRM records for leads from Google Ads.",
+        "tools": {
+          "free": {
+            "google_ads_ui": {
+              "label": "Google Ads UI",
+              "steps": [
+                "Open 'Settings' at the account level and select 'Account settings'.",
+                "Find 'Auto-tagging' and confirm it is enabled. If it is off, GCLIDs will not append to destination URLs and the capture step cannot work regardless of how the form is built.",
+                "Click a live ad, inspect the landing page URL in the browser address bar, and look for a 'gclid=' parameter. Its presence confirms auto-tagging is working for this campaign."
+              ]
+            },
+            "crm_review": {
+              "label": "CRM review",
+              "steps": [
+                "Open several recent lead records in the CRM that came from Google Ads campaigns.",
+                "Look for a field that stores the GCLID, such as a field named 'GCLID', 'Google Click ID', or a custom field the development team created.",
+                "If no GCLID field exists in the CRM, or if it exists but is empty on records from the period after the last Google Ads click, the capture step is not working."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner confirms that auto-tagging is on, that a GCLID parameter appears in the landing page URL after clicking an ad, and that CRM records for leads from Google Ads contain a stored GCLID value. All three must be true for the check to pass. If auto-tagging is off, or if GCLID values are absent from CRM records, the check fails and OCI uploads will not match any conversions regardless of how the upload file is structured.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Confirm auto-tagging status, inspect the landing page URL after clicking a live ad, and check a sample of CRM records for a stored GCLID field. Record the findings above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} is not capturing and storing the GCLID when leads submit the contact form. Offline conversion import depends on the GCLID to match a closed deal back to the ad click that produced it. Without a stored GCLID in the CRM, any offline conversion uploads will return no matches, and Smart Bidding will not receive the revenue signal the import is meant to provide. {{voice_recommend}} enabling auto-tagging in the Google Ads account, adding a hidden GCLID field to the lead form, and confirming that the CRM stores the value from each form submission. After the change, verify that new lead records in the CRM carry a populated GCLID field."
+      }
+    },
+    {
+      "id": "offline-conversion-uploads-too-infrequent-or-delayed",
+      "title": "Offline conversion uploads arrive too infrequently or too long after the click to influence bidding",
+      "category": "conversion-tracking",
+      "subcategory": "offline_conversions",
+      "impact_score": 3,
+      "impact_rationale": "Smart Bidding's ability to act on an offline conversion diminishes as the time between the click and the upload grows. Conversions uploaded weeks after a campaign has already made thousands of bid decisions have limited effect on the bids that produced the lead. The import exists, but the signal arrives too late to inform the decisions it is meant to improve.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "bidding", "data-quality"],
+      "educate": {
+        "base": "OCI is most useful to Smart Bidding when the upload arrives while the campaign is still making bid decisions that reflect the converted traffic. Google recommends uploading conversions <a href='https://support.google.com/google-ads/answer/2998031' class='tools-link-no-padding' target='_blank'>within 90 days of the click</a>, but the practical influence on bidding is strongest when the data arrives within a few days. A conversion uploaded 60 days after the click informs the model's understanding of what converted, but the auction decisions that led to that click are long finished.<br><br>Upload frequency also affects how the account's conversion count looks day to day. Monthly uploads produce conversion totals that appear in lumps, which can confuse performance reviews and trigger unexpected Smart Bidding behavior if the algorithm sees a sudden spike in conversions followed by a dry period. More frequent uploads, such as daily or weekly, produce a steadier signal.<br><br>The conversion window set on the import-type conversion action also matters. If the conversion window is 30 days but the sales cycle is 60 days, some closed deals will fall outside the window and never credit the click even when the GCLID is present and the upload is timely. You may want to confirm the conversion window matches the actual sales cycle for this business.<br><br>A few signs point to uploads arriving too late or too infrequently:<ul><li>The OCI conversion action shows a 'last upload' date that is weeks or months old</li><li>Conversion volume in Google Ads reports shows sharp spikes rather than a steady flow</li><li>The sales cycle is longer than the conversion window set on the import conversion action</li></ul>",
+        "site_type_overlays": {
+          "lead_gen": "For lead-generation advertisers with a short sales cycle, such as a home services business that closes appointments within a day or two, daily uploads are achievable and keep the signal timely. For advertisers with a longer cycle, such as a B2B software sale, weekly uploads may be the practical minimum. You may want to ask the client how they manage their upload cadence and whether the conversion window reflects their actual time to close."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "About offline conversion import",
+            "source_url": "https://support.google.com/google-ads/answer/2998031"
+          },
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "Choose the right conversion window",
+            "source_url": "https://support.google.com/google-ads/answer/3123169"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Check the last upload date on the import conversion action, review the conversion volume trend for spikes, and confirm the conversion window matches the business's sales cycle.",
+        "tools": {
+          "free": {
+            "google_ads_ui": {
+              "label": "Google Ads UI",
+              "steps": [
+                "Open 'Goals', then 'Conversions', and select the import-type conversion action.",
+                "Note the date of the most recent upload shown in the conversion action's details or diagnostics. Compare that date to today. A gap of more than two weeks suggests the upload cadence is too infrequent for a business with a short sales cycle.",
+                "Review the conversion window set on the action and compare it to the client's typical time from lead to closed deal. If the window is shorter than the sales cycle, some closed deals will not credit the original click.",
+                "Pull a conversion report segmented by day for the past 60 days and look for the pattern of conversions over time. Lumpy totals with gaps suggest batch uploads rather than a steady cadence."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the date of the last upload, the upload cadence the client describes, and the conversion window set on the import action. If the last upload is more than two weeks old and the business has an active sales pipeline, the check fails on timeliness. If the conversion window is shorter than the typical sales cycle, the check fails on window configuration. Both can be true at once. If uploads are recent, cadence is at least weekly, and the window covers the actual sales cycle, the check passes.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Note the last upload date, the conversion window, and the client's typical sales cycle length above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s offline conversion uploads are not arriving frequently enough to give Smart Bidding a timely signal. The most recent upload was more than two weeks old at the time of the audit, and the conversion window on the import action may not cover the full sales cycle. Conversions that arrive this late have limited influence on the bid decisions that produced the original leads. {{voice_recommend}} establishing a weekly upload cadence at minimum, and reviewing the conversion window to confirm it matches the actual time from click to closed deal. For businesses with a short sales cycle, daily uploads through the Google Ads API or a CRM integration are worth considering."
+      }
+    }
+  ]
+}

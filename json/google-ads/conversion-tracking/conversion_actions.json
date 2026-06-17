@@ -1,0 +1,201 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/google-ads/answer/6032150",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Conversion action settings are the foundation Smart Bidding builds on. A count type set to 'Every' on a lead form inflates the denominator Smart Bidding uses and trains the algorithm toward the wrong signal. A window that ends before the typical purchase cycle closes cuts the count short. A key action sitting as a secondary conversion feeds reporting but never touches the bids. Each of these is a configuration setting, not a tagging rebuild, and confirming them or correcting them takes minutes in Goals > Conversions.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Conversion actions in Google Ads define what counts as a success, how many times it counts per click, how long after the click it counts, and which model assigns credit. These settings feed Smart Bidding directly, so a misconfigured action trains the algorithm toward a number that does not match the business. These checks confirm that the count type, conversion window, primary or secondary status, and attribution model are set to match the business objective each action represents.",
+  "audit_checks": [
+    {
+      "id": "conversion-action-count-type-mismatched",
+      "title": "Conversion action count type does not match the business goal",
+      "category": "conversion-tracking",
+      "subcategory": "conversion_actions",
+      "impact_score": 4,
+      "impact_rationale": "Smart Bidding learns from the conversion signals the account reports. A lead form set to 'Every' counts each repeated submission from the same click as a separate conversion, inflating volume without adding business value. A purchase action set to 'One' undercounts when a single session produces multiple orders. Either error sends the algorithm toward the wrong volume, which distorts how it bids.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "bidding", "data-quality"],
+      "educate": {
+        "base": "Each conversion action has a count type setting that controls how many conversions Google Ads records per ad click. 'Every' counts each conversion event that fires after a single click. 'One' counts at most one conversion per click, regardless of how many events fire within the lookback window.<br><br>The right setting depends on what the action measures. A purchase action should generally use 'Every' because a single session can contain multiple orders, and each order has distinct business value. A lead form submission should generally use 'One' because a single user submitting the same form multiple times after one click represents one prospect, not several. Counting those repeats with 'Every' inflates the lead volume Smart Bidding sees and trains it toward a signal that overstates the real outcome.<br><br>This setting is separate from how the tag fires. The tag can fire once per confirmation page load, but the count type determines whether each fire counts as a new conversion in the data. Changing the count type does not change the tag. It changes how Google Ads tallies the events it already receives.<br><br>A few patterns suggest the count type may be mismatched to the goal. These include a lead generation conversion action showing very high conversion rates relative to click volume, or an ecommerce conversion action showing a conversion rate that is capped near one even when multi-item sessions are expected.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the purchase conversion action should use 'Every' so that a session with two separate orders records two conversions. Setting it to 'One' means a multi-order session contributes the same signal as a single-order session, which underrepresents the revenue event. You may want to confirm the purchase action's count type is 'Every' and that the tag fires once per order confirmation rather than on each page view of a confirmation that persists across a session.",
+          "lead_gen": "On a lead-generation site, the primary lead form action should use 'One' to avoid counting repeat submissions from the same click as separate leads. A visitor who clicks Submit, hits an error, and clicks Submit again will fire the tag twice if the tag is not deduplicated. With 'Every' set, that sequence records two conversions. You may want to confirm the count type is 'One' for form submission actions unless the business explicitly counts each submission as a separate qualified lead."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "About conversion counting",
+            "source_url": "https://support.google.com/google-ads/answer/3438531"
+          },
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "Set up conversion tracking for your website",
+            "source_url": "https://support.google.com/google-ads/answer/6095821"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each primary conversion action's count type setting and confirm it matches the business objective the action represents.",
+        "tools": {
+          "free": {
+            "google_ads_ui": {
+              "label": "Google Ads UI",
+              "steps": [
+                "Open 'Goals', then 'Conversions', and select a primary conversion action.",
+                "In the action's settings, locate the 'Count' field and note whether it is set to 'Every' or 'One'.",
+                "Compare the setting against the action's purpose. A lead form should be 'One'. A purchase or add-to-cart action should generally be 'Every'. Note any action where the setting and the purpose do not match.",
+                "Repeat for each primary conversion action in the account."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each primary conversion action, the practitioner records the action name, its type (purchase, lead, etc.), and its count type setting. An action whose count type matches the business logic for that action type passes. An action whose count type conflicts with the business logic, such as a lead form using 'Every' or a purchase action using 'One', is a fail recorded with the action name and the setting observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the count type setting and action type for each primary conversion action above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more primary conversion actions on {{site_name}} have a count type that does not match the goal the action represents. A lead form action using 'Every' counts each submission from the same click as a separate conversion, inflating the signal Smart Bidding learns from. A purchase action using 'One' undercounts sessions that contain more than one order. {{voice_recommend}} reviewing the count type setting on each primary conversion action and aligning it to the action's purpose, so the conversion data Smart Bidding receives reflects what the business actually values."
+      }
+    },
+    {
+      "id": "conversion-action-window-too-short",
+      "title": "Conversion window is shorter than the account's typical sales cycle",
+      "category": "conversion-tracking",
+      "subcategory": "conversion_actions",
+      "impact_score": 3,
+      "impact_rationale": "Conversions that happen after the window closes go uncounted. Smart Bidding trains on the truncated count, which understates the value of clicks that produce late conversions and can cause the algorithm to underbid on campaigns or keywords that actually close well.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "attribution", "bidding"],
+      "educate": {
+        "base": "The conversion window controls how long after a click Google Ads will attribute a conversion to that click. The default for most conversion actions is 30 days for clicks and 1 day for view-through, but the setting is adjustable per action, up to 90 days for clicks.<br><br>If the window is shorter than the time many customers take to convert, a share of real conversions fall outside it and are not counted. This is a silent truncation. The tag fires, the page loads, the conversion happens, but the click that drove it has already aged past the window. The conversion does not appear in the account and Smart Bidding does not learn from it.<br><br>The consequence for bidding is that campaigns or keywords with a longer sales cycle look less efficient than they are. Smart Bidding sees fewer conversions per click than actually occurred, so it bids lower on that traffic. That compounds the original undercount by reducing impression share on a channel that was working.<br><br>Identifying the right window requires knowing the actual lag between click and conversion. Some paths to confirm this include examining the time-to-conversion data in Google Ads' attribution reports, reviewing checkout or CRM records to find the median and 90th-percentile days from first ad click to close, and comparing conversion volume under the current window against a modeled estimate of what a longer window would capture.",
+        "site_type_overlays": {
+          "ecommerce": "For a store selling products with a short consideration period, the default 30-day window may be appropriate. For a store with high-ticket items or subscription products where shoppers compare options across multiple sessions over weeks, a 60- or 90-day window may capture a larger share of purchases that genuinely trace to an ad click. You may want to consult the attribution report's path-length and time-lag data before deciding whether to extend the window.",
+          "lead_gen": "For a lead-generation account where the conversion is a form submission, a 30-day window is often sufficient. Where the business sells a service that prospects research for weeks or months before requesting a consultation, a shorter window may cut the count meaningfully. You may want to compare the window setting against the typical time from first visit to form submission using the time-lag report under Tools > Measurement > Attribution."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "About conversion windows",
+            "source_url": "https://support.google.com/google-ads/answer/3123169"
+          },
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "About attribution reports",
+            "source_url": "https://support.google.com/google-ads/answer/1722023"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Find the conversion window setting for each primary action and compare it against the time-lag data the account already holds.",
+        "tools": {
+          "free": {
+            "google_ads_ui": {
+              "label": "Google Ads UI",
+              "steps": [
+                "Open 'Goals', then 'Conversions', select a primary conversion action, and note the click-through conversion window in its settings.",
+                "Open 'Tools', then 'Measurement', then 'Attribution'. Select the conversion action you are reviewing and navigate to the 'Time lag' report.",
+                "Read the distribution of days from click to conversion. Note what share of conversions occur within the current window and what share would be lost if the window ends earlier than your typical cycle.",
+                "Compare the window setting against the median and 90th-percentile days from the time-lag report. If a meaningful share of conversions fall outside the window, the window is likely cutting the count."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each primary conversion action, the practitioner records the current click-through window, the median days to conversion from the time-lag report, and the share of conversions falling outside the window. An action whose window covers the 90th-percentile lag passes. An action whose window ends before the 75th-percentile lag is a fail, recorded with the action name, the current window, and the share of conversions estimated to fall outside it.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the window setting and the time-lag distribution for each primary conversion action above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more primary conversion actions on {{site_name}} use a conversion window shorter than the account's observed time from click to conversion. Conversions that occur after the window closes go uncounted, so Smart Bidding trains on a lower conversion rate than the campaigns actually achieve. {{voice_recommend}} reviewing the time-lag report for each affected conversion action and extending the window to cover at least the 90th-percentile lag, so the count reflects the full conversion activity the campaigns drive."
+      }
+    },
+    {
+      "id": "key-conversion-set-as-secondary",
+      "title": "A key business conversion action is set as secondary and does not feed Smart Bidding",
+      "category": "conversion-tracking",
+      "subcategory": "conversion_actions",
+      "impact_score": 4,
+      "impact_rationale": "Only primary conversion actions, those included in the 'Conversions' column, are used by Smart Bidding to optimize bids. A key action sitting as secondary appears in 'All conversions' but is invisible to the bidding algorithm. Campaigns using tCPA or tROAS bid toward a signal that does not include the action the business cares about most.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "bidding"],
+      "educate": {
+        "base": "Google Ads splits conversion actions into two categories: primary and secondary. Primary actions are included in the 'Conversions' column and are what Smart Bidding strategies such as tCPA and tROAS optimize toward. Secondary actions appear only in the 'All conversions' column. They are visible in reporting but the bidding algorithm does not use them as optimization signals.<br><br>The split matters because tCPA and tROAS campaigns bid based entirely on what the 'Conversions' column shows. A purchase action set as secondary means the campaign optimizes toward whatever is primary instead. If what is primary is a softer action, such as a page view or a scroll event, the algorithm bids to maximize that softer signal at the target cost. The purchase, which is what the business values, does not factor in.<br><br>This situation arises in a few ways. An account may have added a tracking action for observational purposes and left it as primary by accident. It may have created a purchase action during a migration from Universal Analytics (UA) to GA4 and not updated the primary designation. Or it may have set up a funnel with multiple steps, intended the final step as primary, and left the intermediate steps in the wrong category.<br><br>The goal structure to confirm is that every action the business would optimize toward if given the choice is set as primary, and that observational or micro-conversion actions are set as secondary so they do not dilute or redirect the optimization signal.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the purchase action should be primary. Actions such as 'Add to cart', 'Begin checkout', or 'Product detail view' may be worth tracking, but setting them as primary alongside the purchase creates a mixed optimization signal where Smart Bidding may maximize cart additions rather than purchases. You may want to confirm the purchase action is the only primary action, or the only primary action with a meaningful weight if goal-based bidding is in use.",
+          "lead_gen": "On a lead-generation site, the form submission or phone call that represents a qualified lead should be primary. A page view of a contact page or a scroll depth event may be worth tracking as secondary for observational purposes, but should not compete with the lead action for primary status. You may want to confirm that the action Smart Bidding should optimize toward is the only one in the primary category."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "About primary and secondary conversion actions",
+            "source_url": "https://support.google.com/google-ads/answer/11461796"
+          },
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "About conversion actions",
+            "source_url": "https://support.google.com/google-ads/answer/6032150"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the category assignment for each conversion action and confirm that the actions the business would optimize toward are designated primary.",
+        "tools": {
+          "free": {
+            "google_ads_ui": {
+              "label": "Google Ads UI",
+              "steps": [
+                "Open 'Goals', then 'Conversions'. Review the list of conversion actions and note the 'Category' column, which shows whether each action is 'Primary' or 'Secondary'.",
+                "Identify the actions that represent the most meaningful business outcomes, such as purchase completions, lead form submissions, or phone calls from the site.",
+                "Confirm those actions are designated 'Primary'. If any key action is 'Secondary', note its name.",
+                "Review what is currently set as primary. If the primary set includes observational or micro-conversion actions alongside key business actions, note those as potentially diluting the optimization signal."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner lists every conversion action and its primary or secondary designation. An account where all key business-outcome actions are primary and observational or micro-conversion actions are secondary passes. An account where a key business-outcome action is set as secondary, or where a diluting micro-conversion is set as primary alongside the key action, is a fail recorded with the action name and the current designation.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "List each conversion action and its primary or secondary designation above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s conversion action configuration includes a key business outcome set as a secondary action, which means Smart Bidding does not use it when optimizing bids. Campaigns running tCPA or tROAS bid toward whatever primary actions are in the account, which may not reflect what the business values most. {{voice_recommend}} reviewing the primary versus secondary designation for each conversion action, promoting the key business-outcome action to primary, and demoting any observational or micro-conversion actions to secondary so the bidding signal aligns with the actual goal."
+      }
+    }
+  ]
+}

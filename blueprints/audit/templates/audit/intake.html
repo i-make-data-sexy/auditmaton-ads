@@ -1,137 +1,198 @@
 {% extends "base.html" %}
 
-{% block title %}Start an Ad Audit | Auditmaton for Ad Audits{% endblock %}
-
-{# Suppress the page H1: the modal carries its own heading and covers the
-   page behind it. #}
-{% block page_header %}{% endblock %}
+{% block title %}New Audit | Auditmaton: Ads{% endblock %}
+{% block page_title %}New Audit{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/intake.css') }}">
 {% endblock %}
 
 {% block content %}
+{# One-line, plain-language definition per platform type, shown in the
+   info-icon tooltip next to each type heading so a new hire is never stuck. #}
+{% set type_tooltips = {
+    "Walled Garden": "A self-serve ad platform where you buy and measure inside one company's tools, such as Google Ads or Meta.",
+    "DSP": "A demand-side platform buys ad inventory programmatically across many sites.",
+    "Verification": "Tools that confirm your ads were viewable, brand-safe, and free of invalid traffic, such as DoubleVerify or IAS.",
+    "Measurement": "Tools that measure audience and outcomes, such as Nielsen or Comscore.",
+    "Ad Server": "Software that decides which ad to show in each slot on a publisher's site.",
+    "SSP": "A supply-side platform sells a publisher's inventory to many buyers.",
+    "Header Bidding": "A method that lets many buyers bid on inventory at once before the ad server decides, such as Prebid.",
+    "Publisher Tag": "The on-page code that requests ads from the ad server, such as Google Publisher Tag.",
+    "Native SSP": "An SSP focused on native ad formats that match the look of the page.",
+    "Video Ad Server": "An ad server specialized in video inventory.",
+    "Custom Ad Server": "A developer-focused ad server for building bespoke ad serving."
+} %}
+
 <!--===================================================================
-     Modal overlay
+     Intake modal (2-step wizard)
      =================================================================== -->
 <div class="intake-overlay" id="intake-overlay">
     <div class="intake-modal" id="intake-modal">
 
-        <!-- Close returns to the home page -->
-        <a class="intake-modal-close" href="{{ app_root }}/" title="Close">
+        <a href="{{ app_root }}/" class="intake-modal-close" title="Close">
             <i class="fa-solid fa-xmark"></i>
         </a>
 
-        <div class="intake-modal-body">
+        <!--================================================
+             Step Progress Indicator
+             ================================================ -->
+        <div class="intake-progress">
+            <div class="intake-progress-step active" data-step="1">1</div>
+            <div class="intake-progress-line"></div>
+            <div class="intake-progress-step" data-step="2">2</div>
+        </div>
 
-            <h2 class="intake-modal-title">Start an Ad Audit</h2>
-            <p class="intake-lede">
-                A few details set up your audit. Nothing here is uploaded or
-                connected to an account. You inspect your own ad platform
-                directly, and these answers tailor the guidance and the
-                wording of your findings.
-            </p>
+        <form method="post" action="{{ url_for('intake.intake_start') }}" id="intake-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
-            <form class="intake-form" method="POST" action="{{ url_for('intake.intake_start') }}">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <!--===================================================================
+                 Step 1: Scope
+                 =================================================================== -->
+            <div class="intake-panel active" id="intake-panel-1">
 
-                <!--===============================================
-                     Audit name
-                     =============================================== -->
-                <div class="intake-field">
-                    <label class="intake-label" for="intake-audit-name">Audit name</label>
-                    <p class="intake-help">A label for this audit, e.g., 'Acme Google Ads Q1 audit'.</p>
-                    <input class="intake-input" type="text" id="intake-audit-name"
-                           name="audit_name" value="{{ saved.audit_name }}"
-                           placeholder="Acme Google Ads audit" required>
-                </div>
+                <p class="intake-lede">
+                    Choose your role and every platform you are auditing. Nothing here
+                    connects to an account or uploads data.
+                </p>
 
-                <!--===============================================
-                     Platform
-                     =============================================== -->
-                <div class="intake-field">
-                    <label class="intake-label" for="intake-platform">Platform you are auditing</label>
-                    <p class="intake-help">Sets which platform's checks load. You can switch platforms later from the dashboard.</p>
-                    <select class="intake-input" id="intake-platform" name="platform" required>
-                        {% for slug, label in platforms %}
-                        <option value="{{ slug }}"{% if slug == saved.platform %} selected{% endif %}>{{ label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <!--===============================================
-                     Audited site name / URL
-                     =============================================== -->
-                <div class="intake-field">
-                    <label class="intake-label" for="intake-site-name">Site name or URL</label>
-                    <p class="intake-help">Used to personalize your findings, so they can read like "I found that Acme has a duplicate tag".</p>
-                    <input class="intake-input" type="text" id="intake-site-name"
-                           name="site_name" value="{{ saved.site_name }}"
-                           placeholder="Acme, or acme.com">
-                </div>
-
-                <!--===============================================
-                     Site type (with an Other suggestion option)
-                     =============================================== -->
-                <div class="intake-field">
-                    <label class="intake-label" for="intake-site-type">Site type</label>
-                    <p class="intake-help">Surfaces extra, site-type-specific guidance inside relevant checks. It never hides a category or check, so pick the closest fit.</p>
-                    <select class="intake-input" id="intake-site-type" name="site_type">
-                        {% for st in site_types %}
-                        <option value="{{ st.key }}"{% if st.key == saved.site_type %} selected{% endif %}>{{ st.label }}</option>
-                        {% endfor %}
-                        <option value="other"{% if saved.site_type == 'other' %} selected{% endif %}>Other (suggest one)</option>
-                    </select>
-
-                    <!-- Revealed only when 'Other' is selected (intake.js) -->
-                    <div class="intake-other-wrap" id="intake-other-wrap"{% if saved.site_type != 'other' %} hidden{% endif %}>
-                        <label class="intake-sublabel" for="intake-site-type-other">Which site type should we add?</label>
-                        <input class="intake-input" type="text" id="intake-site-type-other"
-                               name="site_type_suggestion" value="{{ saved.site_type_suggestion }}"
-                               placeholder="e.g., Marketplace, Subscription box">
+                <!-- Which side -->
+                <div class="intake-section">
+                    <h3 class="intake-section-title">Which side are you auditing?
+                        <span class="info-icon"
+                              data-tooltip="Demand means you buy ads to promote a business (an advertiser). Supply means you sell ad space on your own site or app to earn revenue (a publisher)."
+                              role="button" tabindex="0" aria-label="About demand and supply">&#9432;</span>
+                    </h3>
+                    <div class="intake-radio-group">
+                        <label class="intake-radio-option">
+                            <input type="radio" name="side" value="demand" id="intake-side-demand"
+                                   {% if saved.side != 'supply' %}checked{% endif %}>
+                            <span>Demand (advertiser)</span>
+                        </label>
+                        <label class="intake-radio-option">
+                            <input type="radio" name="side" value="supply" id="intake-side-supply"
+                                   {% if saved.side == 'supply' %}checked{% endif %}>
+                            <span>Supply (publisher)</span>
+                        </label>
                     </div>
                 </div>
 
-                <!--===============================================
-                     Narrative voice
-                     =============================================== -->
-                <fieldset class="intake-field intake-fieldset">
-                    <legend class="intake-label">Narrative voice</legend>
-                    <p class="intake-help">How your findings refer to you. A solo consultant reads as 'I'; a team or agency reads as 'We'.</p>
-                    <div class="intake-radio-group">
-                        {% for opt in voice_options %}
-                        <label class="intake-radio">
-                            <input type="radio" name="voice" value="{{ opt.key }}"
-                                   {% if opt.key == saved.voice %}checked{% endif %}>
-                            <span class="intake-radio-text">
-                                <span class="intake-radio-label">{{ opt.label }}</span>
-                                <span class="intake-radio-example">{{ opt.example }}</span>
-                            </span>
+                <!-- Platforms -->
+                <div class="intake-section">
+                    <h3 class="intake-section-title">Platforms you are auditing
+                        <span class="info-icon"
+                              data-tooltip="Select every platform in your audit scope. You can switch the active platform later from the dashboard."
+                              role="button" tabindex="0" aria-label="About platforms">&#9432;</span>
+                    </h3>
+
+                    {% for side_key, groups in [('demand', demand_groups), ('supply', supply_groups)] %}
+                    <div class="intake-platform-block" id="intake-platforms-{{ side_key }}" data-side="{{ side_key }}">
+                        {% for type_label, group_platforms in groups %}
+                        <div class="intake-schema-group">
+                            <h4 class="intake-schema-group-title">{{ type_label }}
+                                <span class="info-icon"
+                                      data-tooltip="{{ type_tooltips.get(type_label, '') }}"
+                                      role="button" tabindex="0" aria-label="About {{ type_label }}">&#9432;</span>
+                            </h4>
+                            <div class="intake-checkbox-grid intake-checkbox-grid-compact">
+                                {% for p in group_platforms %}
+                                <label class="intake-checkbox-card intake-checkbox-card-compact{% if not p.has_content %} intake-platform-soon{% endif %}">
+                                    <input type="checkbox" name="platforms" value="{{ p.slug }}"
+                                           {% if p.slug in saved.platforms %}checked{% endif %}>
+                                    <span class="intake-checkbox-label">{{ p.name }}</span>
+                                    {% if not p.has_content %}<span class="intake-soon-badge">soon</span>{% endif %}
+                                </label>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+
+            <!--===================================================================
+                 Step 2: Details
+                 =================================================================== -->
+            <div class="intake-panel" id="intake-panel-2">
+
+                <div class="intake-section">
+                    <h3 class="intake-section-title">Audit name</h3>
+                    <p class="intake-section-desc">A label for this audit, e.g., 'Acme Google Ads Q1 audit'.</p>
+                    <input type="text" name="audit_name" class="intake-input"
+                           placeholder="Acme Google Ads audit" value="{{ saved.audit_name }}">
+                </div>
+
+                <div class="intake-section">
+                    <h3 class="intake-section-title">Site or account name</h3>
+                    <p class="intake-section-desc">The business this audit is for. It personalizes the wording of your findings.</p>
+                    <input type="text" name="site_name" class="intake-input"
+                           placeholder="Acme Co" value="{{ saved.site_name }}">
+                </div>
+
+                <div class="intake-section">
+                    <h3 class="intake-section-title">Site type
+                        <span class="info-icon"
+                              data-tooltip="Your business or content type. It tailors the examples and wording in your findings."
+                              role="button" tabindex="0" aria-label="About site type">&#9432;</span>
+                    </h3>
+                    <div class="intake-checkbox-grid">
+                        {% for st in site_types %}
+                        <label class="intake-checkbox-card">
+                            <input type="radio" name="site_type" value="{{ st.key }}"
+                                   {% if saved.site_type == st.key %}checked{% endif %}>
+                            <span class="intake-checkbox-label">{{ st.label }}</span>
                         </label>
                         {% endfor %}
                     </div>
-                </fieldset>
-
-                <!--===============================================
-                     Container / property ID (reference only)
-                     =============================================== -->
-                <div class="intake-field">
-                    <label class="intake-label" for="intake-container-id">Account or property ID <span class="intake-optional">(optional)</span></label>
-                    <p class="intake-help">For your own reference, e.g., your Google Ads customer ID. It is only a label on the audit, never used to connect to anything.</p>
-                    <input class="intake-input" type="text" id="intake-container-id"
-                           name="container_id" value="{{ saved.container_id }}"
-                           placeholder="123-456-7890">
                 </div>
 
-                <!--===============================================
-                     Submit
-                     =============================================== -->
-                <div class="intake-actions">
-                    <button type="submit" class="button intake-submit">Start audit</button>
+                <div class="intake-section">
+                    <h3 class="intake-section-title">Findings voice
+                        <span class="info-icon"
+                              data-tooltip="Whether your findings read as 'I' (a solo consultant) or 'We' (a team or agency)."
+                              role="button" tabindex="0" aria-label="About findings voice">&#9432;</span>
+                    </h3>
+                    <div class="intake-radio-group">
+                        <label class="intake-radio-option">
+                            <input type="radio" name="voice" value="solo"
+                                   {% if saved.voice != 'team' %}checked{% endif %}>
+                            <span>I (solo consultant)</span>
+                        </label>
+                        <label class="intake-radio-option">
+                            <input type="radio" name="voice" value="team"
+                                   {% if saved.voice == 'team' %}checked{% endif %}>
+                            <span>We (team or agency)</span>
+                        </label>
+                    </div>
                 </div>
 
-            </form>
-        </div>
+                <div class="intake-section">
+                    <h3 class="intake-section-title">Account or property ID</h3>
+                    <p class="intake-section-desc">Optional, for your reference only, e.g., a Google Ads customer ID.</p>
+                    <input type="text" name="container_id" class="intake-input"
+                           placeholder="Optional" value="{{ saved.container_id }}">
+                </div>
+
+            </div>
+
+            <!--================================================
+                 Navigation
+                 ================================================ -->
+            <div class="intake-modal-nav">
+                <button type="button" class="intake-modal-back hidden" id="intake-back">
+                    <i class="fa-solid fa-arrow-left"></i> Back
+                </button>
+                <button type="button" class="intake-modal-next" id="intake-next">
+                    Next <i class="fa-solid fa-arrow-right"></i>
+                </button>
+                <button type="submit" class="intake-modal-next start-audit intake-hidden" id="intake-submit">
+                    Start Audit <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+        </form>
     </div>
 </div>
 {% endblock %}

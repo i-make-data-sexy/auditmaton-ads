@@ -5,7 +5,7 @@ import re
 
 from flask import Blueprint, session, render_template, request, abort
 from flask_login import login_required
-from services.audit_engine import get_subcategories, get_category_metadata, AVAILABLE_PLATFORMS
+from services.audit_engine import get_subcategories, get_category_metadata, get_theme_registry, AVAILABLE_PLATFORMS
 
 # Pattern for validating route slugs (letters, digits, hyphens, underscores)
 SLUG_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
@@ -221,4 +221,5 @@ def category_view(platform, category, subcategory=None, tab=None):
         selected=selected,
         selected_slug=selected_slug,
         active_tab=active_tab,
+        theme_registry=get_theme_registry(),
     )

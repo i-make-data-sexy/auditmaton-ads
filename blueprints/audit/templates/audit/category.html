@@ -12,6 +12,10 @@
 <link rel="stylesheet"
       href="{{ url_for('static', filename='css/bug-report.css') }}">
 
+{# Theme filter (Ads edition) — dropdown + check-card chips. #}
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/theme-filter.css') }}">
+
 {# canvas.css carries the text-selection popover styles (hidden by default,
    revealed on selection). Load it for all users so the popover works on
    this page for everyone, not just editors. #}
@@ -75,44 +79,8 @@
              ================================================ -->
         <aside class="category-rail">
 
-            {# Depth filter — collapsed by default, click the trigger to
-               reveal the Core / Advanced pills (full-width, mirroring the
-               worth_it pills). Counts are subcategories per tier. Only
-               renders when at least one subcategory carries a tier. #}
-            {% if tier_total > 0 %}
-            <div class="depth-filter" id="depth-filter"
-                 role="group" aria-label="Filter subcategories by depth">
-                <button type="button" class="depth-filter-trigger"
-                        id="depth-filter-trigger"
-                        aria-expanded="false"
-                        aria-controls="depth-filter-pills">
-                    <i class="fa-solid fa-filter"></i>
-                    <span class="depth-filter-trigger-label">Depth</span>
-                    {# Active-tier icons print here when the view is filtered,
-                       as a cue that a Depth filter is applied. #}
-                    <span class="depth-filter-trigger-icons" aria-hidden="true"></span>
-                    <i class="fa-solid fa-chevron-down depth-filter-chevron"></i>
-                </button>
-                <div class="depth-filter-pills" id="depth-filter-pills">
-                    <button type="button"
-                            class="depth-pill depth-core active"
-                            data-tier="core"
-                            aria-pressed="true">
-                        <i class="fa-solid fa-shield-halved"></i>
-                        <span class="depth-pill-label">Core</span>
-                        <span class="depth-pill-count">{{ tier_core }}</span>
-                    </button>
-                    <button type="button"
-                            class="depth-pill depth-advanced active"
-                            data-tier="advanced"
-                            aria-pressed="true">
-                        <i class="fa-solid fa-rocket"></i>
-                        <span class="depth-pill-label">Advanced</span>
-                        <span class="depth-pill-count">{{ tier_advanced }}</span>
-                    </button>
-                </div>
-            </div>
-            {% endif %}
+            {# Depth filter removed for the Ads edition. Theme is the filter
+               here, and it lives in the tab bar (top right of the panel). #}
 
             {% for sub in subcategories %}
             <a href="{{ app_root }}/dashboard/{{ active_platform }}/{{ category_key }}/{{ sub.slug }}/overview/"
@@ -148,17 +116,36 @@
                         <button class="subcat-tab{{ ' active' if (sub.slug == selected_slug and active_tab == 'audit-checks') }}" data-tab="checks-{{ sub.key }}">Audit Checks</button>
                     </div>
 
-                    {# Depth badge — selected subcategory's tier, right-aligned
-                       in the tab bar (where the Worth it badge sat). #}
-                    {% if sub.tier %}
-                    {% set tier_class = 'depth-badge-core' if sub.tier == 'core' else 'depth-badge-advanced' %}
-                    <span class="depth-badge {{ tier_class }}">
-                        {% if sub.tier == 'core' %}
-                            <i class="fa-solid fa-shield-halved"></i> Core
-                        {% else %}
-                            <i class="fa-solid fa-rocket"></i> Advanced
-                        {% endif %}
-                    </span>
+                    {# Theme filter — multi-select dropdown over this
+                       subcategory's checks, right-aligned in the tab bar
+                       (where the Depth badge sat). Only the themes present
+                       on these checks appear, so a selection never returns
+                       an empty result. #}
+                    {% if sub.theme_slugs %}
+                    <div class="theme-filter" id="theme-filter-{{ sub.key }}"
+                         data-subcategory="{{ sub.slug }}"
+                         role="group" aria-label="Filter checks by topic">
+                        <button type="button" class="theme-filter-trigger"
+                                aria-expanded="false">
+                            <i class="fa-solid fa-tags"></i>
+                            <span class="theme-filter-trigger-label">Topic</span>
+                            {# Count of active themes prints here when filtered. #}
+                            <span class="theme-filter-trigger-count" aria-hidden="true"></span>
+                            <i class="fa-solid fa-chevron-down theme-filter-chevron"></i>
+                        </button>
+                        <div class="theme-filter-menu" role="listbox" aria-multiselectable="true">
+                            {% for slug in sub.theme_slugs %}
+                            {% set theme = theme_registry.get(slug) %}
+                            <button type="button" class="theme-pill active"
+                                    role="option" aria-selected="true"
+                                    data-theme="{{ slug }}">
+                                {% if theme and theme.icon_class %}<i class="{{ theme.icon_class }}"></i>{% endif %}
+                                <span class="theme-pill-label">{{ theme.label if theme else slug }}</span>
+                                <span class="theme-pill-count">{{ sub.theme_counts.get(slug, 0) }}</span>
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
                     {% endif %}
                 </div>
 
@@ -239,7 +226,8 @@
                 {% for check in sub.checks %}
                 <div class="check-card"
                      data-check-id="{{ check.id }}"
-                     data-category="{{ category_key }}">
+                     data-category="{{ category_key }}"
+                     data-themes="{{ check.theme_tags | join(' ') }}">
 
                     <!--==============================
                          Left: Check Content
@@ -254,6 +242,18 @@
                             <h3 class="check-title editable-content"
                                 data-content-path="{{ check.id }}::title">{{ check.title | safe }}</h3>
                         </div>
+
+                        {# Theme chips — the check's theme_tags, resolved to
+                           labels via the registry. Filterable via the Theme
+                           dropdown above the check list. #}
+                        {% if check.theme_tags %}
+                        <div class="check-themes">
+                            {% for slug in check.theme_tags %}
+                            {% set theme = theme_registry.get(slug) %}
+                            <span class="check-theme-chip" data-theme="{{ slug }}">{{ theme.label if theme else slug }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
 
                         {# GET STARTED link with chevron #}
                         <a href="{{ app_root }}/dashboard/{{ active_platform }}/{{ category_key }}/{{ sub.slug }}/{{ check.id }}/educate/"
@@ -326,6 +326,9 @@
 
 <!-- Depth filter (Ads edition) -->
 <script src="{{ url_for('static', filename='js/tier-filter.js') }}"></script>
+
+<!-- Theme filter (Ads edition) — multi-select dropdown over check cards -->
+<script src="{{ url_for('static', filename='js/theme-filter.js') }}"></script>
 
 <!-- Bug report behavior (shared across pages) -->
 <script src="{{ url_for('static', filename='js/bug-report.js') }}"></script>

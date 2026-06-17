@@ -1,0 +1,194 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/displayvideo/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Budget and pacing problems can destroy campaign efficiency without triggering an obvious alert: a mismatched pacing type burns the flight budget in the first days and then goes dark, while a line item budget that exceeds the insertion order (IO) cap causes DV360 to throttle delivery without surfacing an error. Both conditions show up in the platform UI with a few clicks, and the fix is a settings change rather than a rebuild. Catching either issue before a flight ends recovers spend that would otherwise be wasted or left undelivered.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Display and Video 360 (DV360) organizes spend through a hierarchy: campaign budgets flow down into insertion orders (IOs) and from IOs into line items (LIs). Pacing controls how quickly each layer spends its allocated budget across a flight. When a pacing type does not match the goal, or when LI budgets add up to more than the IO allows, the platform either exhausts spend before the flight ends or caps delivery unexpectedly. These checks confirm that pacing settings are deliberate and that budget allocations at the IO and LI levels are coherent.",
+  "audit_checks": [
+    {
+      "id": "dv360-pacing-type-mismatched-to-goal",
+      "title": "Pacing type does not match the campaign goal or flight structure",
+      "category": "campaigns",
+      "subcategory": "budget_pacing",
+      "impact_score": 3,
+      "impact_rationale": "A pacing type set to 'ASAP' on a brand-awareness flight exhausts the budget in the first day or two, then goes dark for the rest of the flight. A pacing type set to 'Even' on a time-sensitive promotion may leave budget unspent at the end. Either condition means the flight delivers less value than the budget could support.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "performance"],
+      "educate": {
+        "base": "Display and Video 360 (DV360) offers three pacing types for insertion orders (IOs) and line items (LIs): 'Even', 'Ahead', and 'ASAP'. Each controls how the platform distributes spend across the flight period.<br><br>'Even' spreads the budget in roughly equal increments across each day of the flight. 'Ahead' front-loads spend, targeting faster-than-even delivery earlier in the flight and then slowing once ahead of pace. 'ASAP' spends as quickly as available inventory allows, with no smoothing across days. A fourth setting, 'Even' with a daily cap, combines even delivery with a hard ceiling per day.<br><br>The right pacing type depends on the goal and the flight length. 'ASAP' suits a short, time-critical promotion where all the budget should go out quickly. 'Even' suits a brand campaign where steady frequency across a month matters more than speed. 'Ahead' suits a campaign where early delivery is preferred but some reserve is needed in case of underpacing later in the flight.<br><br>A few signs suggest the pacing type may not match the goal:<ul><li>An awareness campaign using 'ASAP', which concentrates impressions in the first days and leaves most of the flight with no delivery</li><li>A time-sensitive promotion using 'Even', which may leave significant budget unspent at the flight end if daily delivery falls short of the even-pace target</li><li>A flight using 'Ahead' with no historical pacing data to justify why front-loading is preferred</li></ul>You may want to review pacing type against the flight length and the goal before the flight begins rather than after delivery has already run off course.",
+        "site_type_overlays": {
+          "ecommerce": "For a store running a promotional flight tied to a sale window, 'ASAP' or 'Ahead' can make sense because early delivery aligns with peak purchase intent. You may want to confirm the flight end date matches the promotion end date so the budget does not continue spending after the sale has ended.",
+          "lead_gen": "For a lead-generation advertiser running a flight without a hard event deadline, 'Even' pacing typically produces more consistent lead volume across the flight. You may want to confirm that the daily delivery target under 'Even' pacing is achievable given the targeting and bid levels set on the LIs."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 API Reference",
+            "source_title": "Pacing object — PacingType and PacingPeriod enum values",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v3/Pacing"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm the pacing type set on each active IO and its LIs, then assess whether the type matches the campaign goal and remaining flight duration.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Open the advertiser, navigate to 'Campaigns', and select the campaign you are auditing.",
+                "Open each active IO and navigate to its 'Budget and pacing' settings. Note the pacing type ('Even', 'Ahead', or 'ASAP') and the pacing period ('Daily' or 'Flight').",
+                "Review the delivery chart below the IO settings. Note whether spend front-loaded heavily in the first days of the flight or whether it tracks closer to the even-pace reference line.",
+                "Repeat the review for each active LI within the IO. A LI can have its own pacing type that overrides the IO-level setting for that LI's share of the budget.",
+                "Compare each pacing type against the campaign goal and the flight length. Flag any combination where the type does not align with the stated objective."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per IO and active LI, the pacing type and pacing period, alongside the campaign goal and flight length. An IO or LI whose pacing type aligns with the goal and flight length passes. An IO set to 'ASAP' on a multi-week brand-awareness flight, or one set to 'Even' on a short promotional flight where the daily target is already unachievable, is a fail recorded with the IO or LI name and the misaligned pacing type.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the pacing type, pacing period, campaign goal, and flight length for each IO and LI above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more insertion orders or line items in {{site_name}}'s DV360 account use a pacing type that does not match the campaign goal or flight structure. A pacing type misaligned to the goal concentrates delivery when it should be steady, or spreads delivery when the budget needs to go out quickly, and the result is either front-loaded spend that goes dark mid-flight or underspend at the flight end. {{voice_recommend}} reviewing the pacing type on each active IO and LI against the campaign goal and flight length, and adjusting to 'Even' for sustained flights, 'ASAP' for short time-critical promotions, or 'Ahead' where front-loading is deliberately preferred and justified by prior delivery patterns."
+      }
+    },
+    {
+      "id": "dv360-line-item-budgets-exceed-io-budget",
+      "title": "The sum of line item budgets exceeds the insertion order budget, causing delivery caps",
+      "category": "campaigns",
+      "subcategory": "budget_pacing",
+      "impact_score": 3,
+      "impact_rationale": "When the LI budgets in aggregate exceed the IO budget cap, DV360 throttles delivery once the IO cap is reached, even when individual LIs still have budget remaining. The throttling is not surfaced as a clear error in the UI, so the account can appear healthy at the LI level while the IO cap cuts off delivery for all LIs beneath it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "governance"],
+      "educate": {
+        "base": "In Display and Video 360 (DV360), insertion orders (IOs) hold a budget cap for a flight or budget segment. Line items (LIs) within that IO each have their own budget allocation. DV360 enforces the IO cap as a ceiling: once the IO has spent its budget, all LIs under it stop delivering, regardless of how much budget each LI has remaining.<br><br>A configuration problem arises when the LI budgets add up to more than the IO budget allows. This can happen when a campaign manager adds or increases an LI budget without adjusting the parent IO cap, or when the IO budget is reduced mid-flight without revising the LIs beneath it. The IO cap is the binding constraint, so LIs whose individual budgets appear healthy never fully spend because the IO runs out first.<br><br>The situation is easy to miss because the LI delivery view shows remaining LI budget but does not surface how close the parent IO is to its cap. The IO-level pacing chart is where the constraint becomes visible: the IO flattens or stops while the LIs show budget remaining.<br><br>A few signs point to this condition:<ul><li>One or more LIs show budget remaining at the end of a flight, but the IO delivery chart shows it hit the cap before the flight ended</li><li>The sum of active LI budgets under an IO is visibly larger than the IO budget segment amount</li><li>Delivery on all LIs within an IO drops to zero at the same time, with no LI-level budget exhaustion to explain it</li></ul>You may want to review IO budget segments alongside the LI budgets beneath them at the start of each flight to confirm the sums are coherent.",
+        "site_type_overlays": {
+          "ecommerce": "For a store running multiple LIs targeting different product categories under a single IO, the budget conflict can route all remaining IO budget to whichever LI bids highest, leaving lower-priority LIs with their budget intact but no delivery. You may want to confirm whether the IO budget segment amount reflects the intended total across all product-category LIs.",
+          "lead_gen": "For a lead-generation advertiser using one IO across multiple audience-targeted LIs, an IO cap reached early in the flight cuts off all audiences at once. You may want to confirm that the IO budget covers the full intended reach across all LI audiences, not just the highest-spending one."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 API Reference",
+            "source_title": "InsertionOrderBudgetSegment — budget amount and date range fields",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v3/advertisers.insertionOrders#InsertionOrderBudgetSegment"
+          },
+          {
+            "source_type": "DV360 API Reference",
+            "source_title": "CampaignBudget — total budget and linked insertion order segments",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v3/advertisers.campaigns#CampaignBudget"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that the IO budget segment amount for each active IO is equal to or greater than the sum of its active LI budgets for the same flight period.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Open the advertiser, navigate to 'Campaigns', and select the campaign you are auditing.",
+                "Open each active IO and note the budget segment amount and the segment's start and end dates in the 'Budget and pacing' section.",
+                "Navigate to the LIs within that IO. For each active LI, note its budget amount and confirm the LI flight dates fall within the IO segment dates.",
+                "Add the LI budget amounts together and compare the sum to the IO budget segment amount. Note whether the sum of LI budgets exceeds the IO cap.",
+                "Open the IO-level delivery chart. If the IO delivery line flattens before the flight end date while LIs still show budget remaining, the IO cap was the binding constraint during those dates."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per IO, the IO budget segment amount and the sum of its active LI budgets. An IO whose budget segment amount equals or exceeds the sum of its LI budgets passes. An IO whose LI budgets sum to more than the IO segment amount is a fail, recorded with the IO name, the IO segment amount, and the LI budget total.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the IO budget segment amount and the sum of active LI budgets for each IO above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the combined line item budgets within one or more insertion orders in {{site_name}}'s DV360 account exceed the IO budget cap, which causes DV360 to throttle delivery once the IO cap is reached. This leaves individual line items with budget remaining that never spends because the parent IO cap is the binding constraint. {{voice_recommend}} reviewing the IO budget segment amount for each affected IO and adjusting it to equal or exceed the sum of its active line item budgets, or reducing LI budgets to fit within the existing IO cap, depending on the intended total spend for the flight."
+      }
+    },
+    {
+      "id": "dv360-underpacing-flight-budget-at-risk",
+      "title": "Active flights are underpacing and at risk of leaving budget unspent",
+      "category": "campaigns",
+      "subcategory": "budget_pacing",
+      "impact_score": 2,
+      "impact_rationale": "Budget left unspent at the end of a flight represents reach and frequency the campaign paid for but never delivered. The effect is a lower actual impression count than the budget could have supported, and a flight that under-delivers against its own plan without triggering an alert.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "performance"],
+      "educate": {
+        "base": "An insertion order (IO) or line item (LI) underpaces when its actual spend runs behind the even-pace reference line for the flight period. DV360 shows a pacing indicator in the IO and LI views that surfaces how far actual spend deviates from the expected pace given the budget and the days remaining.<br><br>Underpacing has several causes. Bids that are too low to win enough auctions at the current targeting, targeting that is too narrow to find sufficient inventory, creative that is not eligible to serve in the environments the LI is targeting, or a daily spend cap set below the amount needed to reach the IO's even-pace target are all conditions that produce underpacing. DV360 will not automatically raise bids or widen targeting to compensate, so underpacing that begins early in a flight will continue unless the underlying constraint is addressed.<br><br>The practical consequence is that the remaining budget cannot always be absorbed in the last days of the flight. Attempting to spend a large share of a flight's budget in the final two or three days typically requires much higher bid prices to win enough volume in that compressed window, which raises the effective cost per impression above what the campaign originally planned for.<br><br>A few signs point to a flight at risk of underspending:<ul><li>The pacing indicator shows spend significantly behind the even-pace reference line with less than half the flight remaining</li><li>The IO or LI has a daily spend cap that is below the amount required to meet the even-pace target</li><li>Inventory forecasts in the DV360 reach planner show fewer available impressions than the IO requires at the current bid and targeting</li></ul>You may want to review pacing indicators on active flights at least once per week, and more frequently in the final third of a flight, to identify underpacing before it becomes unrecoverable.",
+        "site_type_overlays": {
+          "ecommerce": "For a store with a promotional flight, underpacing in the first half of the flight means the promotion reaches fewer potential buyers than planned during the period of highest purchase intent. You may want to identify the cause of underpacing, whether bid-related, targeting-related, or a daily cap constraint, before adjusting. Widening targeting on a promotional flight can reduce relevance and lower conversion rates.",
+          "lead_gen": "For a lead-generation advertiser with a fixed flight budget, underpacing early means fewer leads than the budget should support. You may want to confirm whether the underpacing traces to a bid that cannot compete in the target audience's auctions. Raising the bid is often a faster path to recovery than widening the audience."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 API Reference",
+            "source_title": "Pacing object — PacingType and PacingPeriod enum values",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v3/Pacing"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether active IOs and LIs are on pace to spend their budgets by the flight end date, and identify any that show meaningful underpacing.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Open the advertiser and navigate to 'Campaigns'. In the IO list view, look for the pacing status indicator. IOs with a pacing status showing 'Underpacing' or a negative deviation from the even-pace line are candidates for review.",
+                "Open each underpacing IO and check the delivery chart. Note the percentage of the flight budget spent, the percentage of the flight elapsed, and the days remaining.",
+                "Review each active LI under the underpacing IO. Look for a daily spend cap set below the amount needed to hit even pace, a bid floor or target cost-per-mille (CPM) that may be too low to win sufficient inventory, or targeting that is too narrow to find enough impressions at the bid.",
+                "Check the IO's frequency cap setting. A frequency cap that limits each user to a low number of impressions per day can constrain total delivery if the targetable audience is small.",
+                "Note the gap between the current pace and the even-pace target, and estimate how much of the remaining budget needs to be absorbed per day to finish on pace by the flight end date."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per active IO and LI, the percentage of budget spent versus the percentage of flight elapsed, the pacing indicator status, and the identified cause of underpacing where applicable. An IO or LI spending within a reasonable margin of the even-pace target passes. An IO or LI where spend is behind the even-pace reference by more than 15 percentage points with less than half the flight remaining is a fail, recorded with the IO or LI name, the budget percentage spent, the flight percentage elapsed, and the likely cause.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the budget percentage spent, the flight percentage elapsed, the pacing status, and the identified cause for each active IO and LI above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more active flights in {{site_name}}'s DV360 account are underpacing and at risk of leaving budget unspent by the flight end date. When spend runs behind the even-pace reference for most of a flight, the remaining budget cannot always be absorbed in the final days without paying substantially higher CPMs to force delivery in a compressed window. {{voice_recommend}} identifying the cause of underpacing on each affected IO or LI, whether a bid too low to win sufficient inventory, a daily cap below the even-pace target, or targeting too narrow to find enough impressions, and addressing the constraint while enough flight remains for delivery to recover naturally."
+      }
+    }
+  ]
+}

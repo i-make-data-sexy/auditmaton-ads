@@ -1,0 +1,186 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://developers.google.com/display-video/api/reference/rest/v3/advertisers.lineItems#LineItemType",
+  "worth_it": "Yes",
+  "worth_it_explanation": "A line item whose type does not match the channel it runs on cannot use the settings that channel requires. A YouTube buy forced through a display line item loses YouTube-specific controls: audience signals, video ad formats, frequency management, and the bidding options designed for that inventory. A programmatic guaranteed deal attached to a standard real-time bidding line item cannot deliver against the committed impression volume. The check is quick: read the line item type, read the channel and deal attached to it, and confirm the two match. The fix is a structural one, so finding it before the campaign launches avoids mid-flight waste.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Display and Video 360 (DV360) line items carry a type field that determines which channels, ad formats, deal types, bidding options, and reporting dimensions are available. The hierarchy runs from Partner to Advertiser to Campaign to Insertion Order (IO) to Line Item (LI) to Creative. The IO type sets the broad context (RTB or OTT), and the line item type narrows it further: display default, video default, audio, YouTube and partners, programmatic guaranteed, over-the-top, and several others. A mismatched type limits what the line item can do without an obvious error. These checks confirm that each line item's type aligns with the channel it is meant to run on, that YouTube buys use YouTube and partners line items, and that deal-backed commitments use types that can honor a deal.",
+  "audit_checks": [
+    {
+      "id": "dv360-line-item-type-channel-mismatch",
+      "title": "Line item type does not match the channel or ad format it is running",
+      "category": "campaigns",
+      "subcategory": "line_item_types",
+      "impact_score": 3,
+      "impact_rationale": "When the line item type and the channel diverge, the line item cannot access the targeting, bidding, and creative settings that channel requires. Spend goes out under a configuration that was designed for a different format, and the controls meant to manage it are absent.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "bidding"],
+      "educate": {
+        "base": "Display and Video 360 uses the line item type to determine which settings are available for that line item. A display line item type ('LINE_ITEM_TYPE_DISPLAY_DEFAULT') exposes HTML5, native, and rich-media creative options and display-specific bidding. A video line item type ('LINE_ITEM_TYPE_VIDEO_DEFAULT') exposes in-stream and out-stream video formats, video-specific viewability goals, and video completion rate bidding. An audio line item type ('LINE_ITEM_TYPE_AUDIO_DEFAULT') supports audio creatives across audio environments. Each type is purpose-built, and the options that do not apply to a given type are hidden or unavailable in the interface and the API.<br><br>When a line item's type does not reflect its actual channel, the gap is functional: the settings that channel needs are simply not there. A display line item used to run a video creative cannot set a video viewability threshold or a completion rate goal. An audio line item used to run a display creative cannot access display brand safety controls. The line item runs, but it runs with a reduced set of controls, and the campaign team may not notice if the type was set at setup and never reviewed.<br><br>A few signs point to a type mismatch:<ul><li>A line item shows display or generic settings but the attached creatives are video</li><li>Reporting shows impressions in a channel the line item type does not support</li><li>Expected settings fields (e.g., video completion rate, audio environment) are absent from a line item that should use them</li></ul>You may want to confirm the line item type against the creative format and the inventory source before assuming a missing setting is a platform limitation. The type field in the line item's settings panel shows the current type.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail or ecommerce advertiser running both display prospecting and video retargeting, having separate line items with the correct types (display default for banner ads, video default for video retargeting) ensures each line item can apply the right creative format controls and the right viewability or completion thresholds. A display line item carrying a video retargeting creative skips those controls entirely.",
+          "lead_gen": "For a lead-generation advertiser running display prospecting alongside a video brand awareness push, mismatched types mean the video line item cannot set a video completion rate goal, which is the primary signal for brand recall measurement. You may want to confirm each line item's type matches its creative format before the campaign launches."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Developers",
+            "source_title": "LineItemType enum reference — Display and Video 360 API",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v3/advertisers.lineItems#LineItemType"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each active line item's type in the interface and confirm it matches the creative format and inventory source attached to it.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Navigate to the Campaign, then open the Insertion Order. Select a Line Item and open its settings.",
+                "Find the 'Type' field near the top of the line item settings. Note the type (e.g., Display, Video, Audio, YouTube and partners).",
+                "Open the 'Creatives' tab for the same line item and note the creative format attached.",
+                "Compare the line item type with the creative format. If the type is Display but the creatives are video files, that is a mismatch. Repeat for each active line item in the insertion order."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each active line item, the practitioner records the line item name, its type as shown in settings, and the creative format attached. A line item whose type and creative format are in the same channel (both display, both video, both audio) passes. A line item whose type does not match the creative format is a fail recorded with the line item name, the type setting, and the creative format observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the line item name, type, and creative format above for each active line item to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} line items in {{site_name}}'s DV360 account where the type setting does not match the channel or creative format attached to the line item. A line item type that diverges from its channel cannot access the settings that channel requires, so the line item runs without the controls that were meant to manage it. {{voice_recommend}} reviewing the type field on each active line item, confirming it matches the creative format and inventory source, and rebuilding any mismatched line items with the correct type before the next flight begins."
+      }
+    },
+    {
+      "id": "dv360-youtube-not-using-youtube-line-item-type",
+      "title": "YouTube inventory is running under a standard display or video line item rather than a YouTube and partners line item",
+      "category": "campaigns",
+      "subcategory": "line_item_types",
+      "impact_score": 4,
+      "impact_rationale": "YouTube and partners line items carry settings that standard line item types do not expose: YouTube-specific audience signals, video ad format controls (skippable, non-skippable, bumper, video action), frequency management within YouTube, and bidding options built for YouTube inventory. Buying YouTube inventory through a standard line item means the campaign runs without those controls, and the spend has no access to the optimization signals that make YouTube buys perform.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "targeting"],
+      "educate": {
+        "base": "Display and Video 360 offers a distinct family of line item types for YouTube inventory: 'LINE_ITEM_TYPE_YOUTUBE_AND_PARTNERS_ACTION' for conversion-focused campaigns, 'LINE_ITEM_TYPE_YOUTUBE_AND_PARTNERS_NON_SKIPPABLE' for non-skippable pre-roll, 'LINE_ITEM_TYPE_YOUTUBE_AND_PARTNERS_REACH' for reach and frequency buying, and several others. These types enable a settings layer that does not exist on standard display or video line items: YouTube audience signals, YouTube-specific frequency caps, ad format selection within YouTube's format roster (skippable in-stream, bumper, non-skippable in-stream), and bidding strategies calibrated to YouTube auction dynamics.<br><br>When an advertiser targets YouTube placements through a standard 'LINE_ITEM_TYPE_DISPLAY_DEFAULT' or 'LINE_ITEM_TYPE_VIDEO_DEFAULT' line item, the YouTube-specific settings layer is absent. The line item may serve on YouTube in some configurations, but it does so without the controls designed for that environment. YouTube-specific audience management is unavailable, the video format selection is limited, and the bidding options for YouTube action or reach campaigns are not accessible. The buy runs, but it runs on generic settings that were not built for YouTube.<br><br>A few signs point to this configuration:<ul><li>A line item is targeting YouTube placements but its type is Display or Video Default rather than a YouTube and partners variant</li><li>The line item settings do not include YouTube-specific sections (format selection, YouTube audience signals)</li><li>Reporting shows YouTube impressions attributed to a non-YouTube line item type</li></ul>You may want to confirm which line items are buying YouTube inventory and verify that each uses a YouTube and partners type. The line item type cannot be changed after creation, so this requires building new line items with the correct type.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser running YouTube video action campaigns to drive purchases, the 'LINE_ITEM_TYPE_YOUTUBE_AND_PARTNERS_ACTION' type is the one that supports video action ad formats and the conversion-focused bidding options for YouTube. A standard video line item serving on YouTube cannot access those format and bidding controls.",
+          "lead_gen": "For a lead-generation advertiser using YouTube to drive form fills or quote requests, a YouTube and partners action line item makes available the lead form ad extension and the conversion bidding options on YouTube. A generic video line item serving on YouTube inventory does not have access to those lead-generation-specific controls."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Developers",
+            "source_title": "LineItemType enum reference — Display and Video 360 API",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v3/advertisers.lineItems#LineItemType"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Identify any line items targeting YouTube placements and confirm each uses a YouTube and partners line item type.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "In the Campaign, open each active Insertion Order and look at its line items.",
+                "For each line item, open its settings and read the 'Type' field. Note whether it is a YouTube and partners variant or a standard display or video type.",
+                "Open the line item's targeting and look for YouTube channel or placement targeting. If YouTube placements are targeted but the line item type is not a YouTube and partners variant, record it as a mismatch.",
+                "Check whether the line item has a YouTube-specific settings section (format selector, YouTube audience signals). If that section is absent on a line item buying YouTube inventory, the type is wrong."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each line item with YouTube placements in its targeting or with YouTube impressions in its reporting, the practitioner records the line item name and its type. A line item using a YouTube and partners type passes. A line item using any other type while targeting or delivering on YouTube is a fail, recorded with the line item name and the type field observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the line item name and type for each line item that targets or delivers on YouTube above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} is running YouTube inventory through line items that are not typed as YouTube and partners. Standard display or video line items that serve on YouTube do not have access to YouTube-specific ad format controls, audience signals, frequency management, or the bidding options YouTube requires for action and reach campaigns. The type field cannot be changed after a line item is created, so the affected line items need to be rebuilt. {{voice_recommend}} creating new line items with the appropriate YouTube and partners type for each YouTube campaign goal, transferring the targeting and budget settings, and pausing the mismatched line items once the replacements are live."
+      }
+    },
+    {
+      "id": "dv360-pg-deal-wrong-line-item-type",
+      "title": "A programmatic guaranteed deal is attached to a line item type that cannot honor a guaranteed commitment",
+      "category": "campaigns",
+      "subcategory": "line_item_types",
+      "impact_score": 4,
+      "impact_rationale": "A programmatic guaranteed (PG) deal carries a committed impression volume negotiated directly with a publisher. The line item type must support guaranteed delivery for the deal to pace and deliver against that commitment. A deal attached to an incompatible type cannot pace against the guaranteed volume, so the contracted impressions go undelivered and the publisher relationship is damaged.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "bidding"],
+      "educate": {
+        "base": "A programmatic guaranteed deal in Display and Video 360 is a direct deal with a publisher that commits to a specific impression volume at a negotiated price. Unlike preferred deals or private auction deals, a PG deal requires the buyer to take the impressions. DV360 manages delivery against that commitment through line items that are specifically typed to handle guaranteed inventory, using pacing logic that differs from a standard real-time bidding auction.<br><br>When a PG deal is attached to a line item type that is not designed for guaranteed delivery, the deal cannot pace correctly. The line item treats the deal like open auction inventory and bids when it chooses to, rather than pacing to fulfill the contracted volume. The result is under-delivery against the commitment, missed contracted impressions, and a potential billing dispute or publisher penalty depending on the deal terms.<br><br>The same logic applies to preferred deals, which are non-guaranteed fixed-price deals. A preferred deal attached to a line item that cannot use it correctly also fails to deliver as expected, though the consequences differ because preferred deals are not committed volumes.<br><br>A few signs point to this configuration:<ul><li>A PG deal appears in an insertion order but the line item type is a standard RTB type rather than a type that supports guaranteed delivery</li><li>The deal shows low delivery or pacing warnings in the deal section of the IO</li><li>The line item settings do not show a 'Deal' section or show the deal grayed out</li></ul>You may want to review the deal type and the line item type together, not in isolation. The deal section of the IO shows which deals are active and whether they are attached to compatible line items.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser with PG deals on premium publisher inventory for a seasonal event, under-delivery against the commitment during the peak window is particularly costly. Confirming the line item type before the deal goes live avoids discovering the mismatch during the campaign.",
+          "lead_gen": "For a lead-generation advertiser with a PG deal on a niche publication relevant to their audience, the contracted impressions represent a specific, planned audience exposure. A type mismatch that under-delivers the commitment wastes the media investment on that deal."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Developers",
+            "source_title": "LineItemType enum reference — Display and Video 360 API",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v3/advertisers.lineItems#LineItemType"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review any active PG deals in the account and confirm each is attached to a line item type that supports guaranteed delivery.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "In the Inventory section of DV360, open 'My Inventory' or navigate to the Marketplace and find active PG deals.",
+                "For each active PG deal, note which line item it is attached to. The deal settings show the associated line item.",
+                "Open that line item's settings and read the 'Type' field. Confirm the type is one that supports programmatic guaranteed delivery rather than a standard RTB type.",
+                "In the deal section of the Insertion Order, look for pacing or delivery warnings on PG deals. A deal pacing below its committed volume is a signal that the line item type may be incompatible."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each active PG deal, the practitioner records the deal name, the line item it is attached to, and the line item type. A PG deal attached to a line item type that supports guaranteed delivery passes. A PG deal attached to a standard RTB line item type, or a line item showing pacing warnings on the deal, is a fail recorded with the deal name and the line item type observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the deal name, attached line item name, and line item type for each active PG deal above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more programmatic guaranteed deals in {{site_name}}'s DV360 account are attached to line item types that cannot pace against a guaranteed commitment. A PG deal commits to a specific contracted impression volume, and when the line item type is not built for guaranteed delivery, the pacing logic treats the deal as optional auction inventory rather than a commitment to fill. The contracted impressions go undelivered. {{voice_recommend}} reviewing each active PG deal, confirming the attached line item uses a type that supports guaranteed delivery, and rebuilding any incompatible line items with the correct type before the deal's flight date."
+      }
+    }
+  ]
+}

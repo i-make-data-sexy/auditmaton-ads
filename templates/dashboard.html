@@ -32,20 +32,35 @@
      when no intake selection exists).
      =================================================================== -->
 <div class="wrap">
-    <div class="platform-strip" role="region" aria-label="Ad-audit platforms">
-        <span class="platform-strip-label">Platform</span>
-        {% for type_label, group_platforms in picker_groups %}
-        <span class="platform-strip-type-label">{{ type_label }}</span>
-        {% for p in group_platforms %}
-        {% if p.has_content %}
-        <a href="{{ app_root }}/dashboard/{{ p.slug }}/"
-           class="platform-chip{% if p.slug == active_platform %} is-active{% endif %}">{{ p.name }}</a>
-        {% else %}
-        <span class="platform-chip is-disabled"
-              title="Content coming soon">{{ p.name }}</span>
-        {% endif %}
-        {% endfor %}
-        {% endfor %}
+    {# Active-platform selector. One dropdown (mirrors the Topic filter),
+       grouped by type, scoped to the practitioner's selected stack.
+       Content-less platforms render greyed with a 'soon' badge. #}
+    {% set ns = namespace(active_name=active_platform) %}
+    {% for type_label, group_platforms in picker_groups %}{% for p in group_platforms %}{% if p.slug == active_platform %}{% set ns.active_name = p.name %}{% endif %}{% endfor %}{% endfor %}
+    <div class="platform-filter" id="platform-filter" role="region" aria-label="Active ad-audit platform">
+        <span class="platform-filter-label">Platform</span>
+        <div class="platform-filter-control">
+            <button type="button" class="platform-filter-trigger" id="platform-filter-trigger"
+                    aria-haspopup="true" aria-expanded="false">
+                <i class="fa-solid fa-layer-group"></i>
+                <span class="platform-filter-trigger-label">{{ ns.active_name }}</span>
+                <i class="fa-solid fa-chevron-down platform-filter-chevron"></i>
+            </button>
+            <div class="platform-filter-menu" role="menu">
+                {% for type_label, group_platforms in picker_groups %}
+                <p class="platform-filter-type-label">{{ type_label }}</p>
+                {% for p in group_platforms %}
+                {% if p.has_content %}
+                <a href="{{ app_root }}/dashboard/{{ p.slug }}/" role="menuitem"
+                   class="platform-filter-option{% if p.slug == active_platform %} is-active{% endif %}">{{ p.name }}</a>
+                {% else %}
+                <span class="platform-filter-option is-disabled" aria-disabled="true"
+                      title="Content coming soon">{{ p.name }}<span class="platform-filter-soon">soon</span></span>
+                {% endif %}
+                {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
     </div>
 </div>
 
@@ -206,4 +221,5 @@
 
 {% block scripts %}
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='js/platform-filter.js') }}"></script>
 {% endblock %}

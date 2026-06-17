@@ -1,0 +1,214 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/displayvideo/answer/2986882",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Floodlight is the conversion layer shared between Display & Video 360 (DV360) and Campaign Manager 360 (CM360). When it fires on the wrong pages, fires twice, or uses a counting method that does not match the business event, the reported conversion count is wrong and the bid strategy optimizes toward a number no one can trust. These checks identify the gap in minutes by reviewing activity placement and tag settings in CM360, and the fix is almost always a configuration change rather than a rebuild.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Floodlight activities are the conversion tags that Campaign Manager 360 and DV360 share. A Floodlight activity placed on the right page, with the right counting method, and without duplicate fires gives DV360 a reliable signal for optimization and reporting. A misconfigured activity, a tag on the wrong page, or a counting method that inflates the count produces a conversion signal that the platform cannot use well. These checks confirm that Floodlight activities fire on the correct pages, that deduplication settings prevent a single user action from recording more than once, and that the counting method matches the actual business event being measured.",
+  "audit_checks": [
+    {
+      "id": "floodlight-firing-wrong-pages-or-missing",
+      "title": "Floodlight activities fire on incorrect pages or are missing from conversion pages",
+      "category": "measurement",
+      "subcategory": "floodlight_conversions",
+      "impact_score": 4,
+      "impact_rationale": "A Floodlight activity that fires on the wrong page (e.g., a product listing page instead of the confirmation page) inflates conversion counts, while one missing from a conversion page leaves genuine conversions uncounted. Either error corrupts the signal DV360 uses for bid optimization, so the account over-bids toward inflated counts or under-bids toward an undercount.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "A Floodlight activity records a conversion each time a user loads the page where the tag is placed. Campaign Manager 360 (CM360) manages the activity configuration, and DV360 reads the resulting conversion data for reporting and bidding. The two systems share the same Floodlight container, so a placement error in CM360 affects what DV360 counts.<br><br>The most common placement problems are a tag placed on a page a user visits before completing an action (so every visitor counts as a converter), a tag missing from the actual confirmation page (so no conversions are recorded), and a tag on a page that can be reached through multiple paths where only one path represents a real conversion.<br><br>Google Tag Manager can deploy Floodlight tags alongside other measurement tags, which can make it harder to trace where each activity fires. You may want to confirm the page a tag fires on by reviewing it in <a href='https://support.google.com/campaignmanager/answer/2558098' class='tools-link-no-padding' target='_blank'>CM360's activity list</a> and then verifying directly in the browser that the tag fires only on the intended page.<br><br>A few signs point to a placement problem:<ul><li>The conversion rate for a Floodlight activity is implausibly high, e.g., near 100% of clicks or impressions</li><li>CM360 reports conversions but a purchase or lead confirmation flow produces zero</li><li>The same Floodlight activity appears in multiple page-load triggers with no filtering by URL path</li></ul>You may want to cross-reference the Floodlight activity URL in the tag against the page you see in the browser's address bar when the intended event completes.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the Floodlight sales activity should fire only on the order confirmation page. You may want to verify that the tag is not also placed on the cart page, a payment-error page, or the account page, each of which a user can reach without completing a purchase.",
+          "lead_gen": "On a lead-generation site, the Floodlight counter activity should fire on the thank-you page or confirmation step that follows a completed form submission. You may want to confirm the tag is not placed on the form page itself, which would fire once on every visit regardless of whether the form was submitted."
+        },
+        "learn_more": [
+          {
+            "source_type": "Campaign Manager 360 Help",
+            "source_title": "About Floodlight activities",
+            "source_url": "https://support.google.com/campaignmanager/answer/2558098"
+          },
+          {
+            "source_type": "Display & Video 360 Help",
+            "source_title": "Set up Floodlight conversion tracking in DV360",
+            "source_url": "https://support.google.com/displayvideo/answer/2986882"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that each Floodlight activity in CM360 fires only on the page that represents a completed conversion, not on upstream or unrelated pages.",
+        "tools": {
+          "free": {
+            "campaign_manager_360_ui": {
+              "label": "Campaign Manager 360 UI",
+              "steps": [
+                "Open CM360 and navigate to 'Advertiser', then 'Floodlight', then 'Activities'. Review the list of active activities and note the intended conversion page for each.",
+                "For each activity, open the tag details and note the activity tag string. Confirm the activity type (counter or sales) and the counting method match the intended event.",
+                "On your site, load the page where the conversion is supposed to happen. In the browser's developer tools, open the Network tab and filter for requests containing the Floodlight domain 'fls.doubleclick.net'. Confirm the activity tag fires on the confirmation page and not on upstream pages."
+              ]
+            },
+            "google_tag_assistant": {
+              "label": "Google Tag Assistant",
+              "steps": [
+                "Open Tag Assistant and record a session starting from the first page a user lands on through to the conversion confirmation page.",
+                "Review the Tag Assistant timeline for Floodlight activity fires. Confirm each activity fires once on the correct page and does not appear on pages earlier in the flow.",
+                "If a Floodlight activity fires on multiple pages in the session recording, note which pages it fires on and compare to the intended trigger."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per Floodlight activity, the page it fires on (observed in Tag Assistant or Network tab) and the intended conversion page. An activity that fires only on the confirmation or completion page passes. An activity that fires on a page a user visits before completing the intended action, or an activity absent from the confirmation page, is a fail recorded with the activity name and the incorrect page.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the observed firing page and the intended conversion page for each Floodlight activity above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more Floodlight activities on {{site_name}} fire on incorrect pages or are missing from conversion pages. When a tag fires upstream of the actual conversion event, DV360 records more conversions than occurred. When a tag is absent from the confirmation page, genuine conversions go uncounted. Both errors corrupt the conversion signal that DV360 uses for optimization. {{voice_recommend}} reviewing each Floodlight activity in Campaign Manager 360 and confirming in the browser that the tag fires only on the intended completion page. Any activity firing on unintended pages should have its trigger corrected, and any conversion page missing a Floodlight activity should have one added."
+      }
+    },
+    {
+      "id": "floodlight-counting-method-mismatched",
+      "title": "Floodlight counting method does not match the business event",
+      "category": "measurement",
+      "subcategory": "floodlight_conversions",
+      "impact_score": 3,
+      "impact_rationale": "A counting method that inflates conversions (e.g., 'Standard' per-event counting on a page a returning user loads repeatedly) makes campaign performance appear stronger than it is and bids drift upward toward a count that includes non-incremental events. A method set too conservatively (e.g., 'Unique' on a repeat-purchase store) suppresses counted revenue and causes DV360 to under-bid for campaigns that are actually delivering value.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "attribution"],
+      "educate": {
+        "base": "Campaign Manager 360 (CM360) offers two Floodlight activity types: counter activities, which record an action a user takes, and sales activities, which record a transaction value. Within each type, the counting method controls how many times the same user's action is recorded within the lookback window.<br><br>For counter activities, three counting methods are available. 'Standard' counts each tag load separately. 'Unique' counts each user only once in the lookback window regardless of how many times the tag fires for that user. 'Per session' counts one conversion per user per session, where a session resets after 30 minutes of inactivity by default.<br><br>The right method depends on what the tag is measuring. A newsletter signup should use 'Unique' because the same user signing up twice in the same month is not two conversions. A video view on a page a user visits repeatedly may warrant 'Per session'. A sales activity on a store's confirmation page should record each transaction separately, so 'Standard' is appropriate there because each order is a distinct business event.<br><br>A mismatch often goes unnoticed because the numbers look plausible. A few signs point to a counting method problem:<ul><li>The conversion count for a lead-gen activity rises in direct proportion to return visits rather than new form submissions</li><li>A sales activity reports far fewer conversions than the order management system records</li><li>The same user appears in DV360 as converting repeatedly within a short window on a product that is not a repurchase item</li></ul>You may want to review the counting method alongside the intended business definition of the event before concluding the configuration is correct.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the sales activity should generally use 'Standard' counting so each completed order is counted separately. You may want to confirm the activity type is set to 'Sales' rather than 'Counter' since only sales activities pass transaction ID and revenue values that DV360 can use for return-on-ad-spend (ROAS) bidding.",
+          "lead_gen": "On a lead-generation site, the counter activity for a completed form submission usually fits 'Unique' or 'Per session' best. You may want to confirm which fits the business intent: 'Unique' if a single lead from a user represents one opportunity regardless of when they submitted, or 'Per session' if the same user submitting the same form in a new visit represents a legitimate new lead."
+        },
+        "learn_more": [
+          {
+            "source_type": "Campaign Manager 360 Help",
+            "source_title": "Floodlight activity counting methods",
+            "source_url": "https://support.google.com/campaignmanager/answer/2604034"
+          },
+          {
+            "source_type": "Campaign Manager 360 Help",
+            "source_title": "About Floodlight activities",
+            "source_url": "https://support.google.com/campaignmanager/answer/2558098"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each Floodlight activity's type and counting method in CM360 and compare to the business definition of the event it measures.",
+        "tools": {
+          "free": {
+            "campaign_manager_360_ui": {
+              "label": "Campaign Manager 360 UI",
+              "steps": [
+                "Open CM360 and navigate to 'Advertiser', then 'Floodlight', then 'Activities'.",
+                "For each active activity, note the activity type (Counter or Sales), the counting method (Standard, Unique, or Per session for counter; Standard for sales), and the expected lookback window.",
+                "Compare the counting method to the business definition of the event. Record any activity where the method produces a count that does not align with what the business considers one conversion, e.g., a counter using 'Standard' on a subscription confirmation page where one user subscribing once is the intended event."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per Floodlight activity, the activity type, the counting method, and the business definition of the event. An activity whose type and counting method align with the business definition passes. An activity where the counting method inflates or suppresses the count relative to the intended definition is a fail recorded with the activity name, the current method, and the recommended method.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the activity type, counting method, and business definition for each Floodlight activity above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more Floodlight activities on {{site_name}} use a counting method that does not match the business event they measure. A misconfigured counting method inflates or suppresses the conversion count DV360 uses for optimization, so bid strategy runs toward a number that does not reflect real performance. {{voice_recommend}} reviewing the activity type and counting method for each affected activity in Campaign Manager 360 against the business definition of the event. Counter activities measuring unique actions such as lead submissions typically fit 'Unique' or 'Per session', while sales activities recording distinct transactions fit 'Standard'."
+      }
+    },
+    {
+      "id": "floodlight-deduplication-not-configured",
+      "title": "Floodlight deduplication is not configured, allowing a single conversion to count more than once",
+      "category": "measurement",
+      "subcategory": "floodlight_conversions",
+      "impact_score": 3,
+      "impact_rationale": "When deduplication is absent, a single user completing one conversion can be counted by multiple ad servers, platforms, or tag fires. The total reported in DV360 exceeds the actual number of conversions, which inflates performance metrics and can push bid strategies toward overspending on campaigns that look more efficient than they are.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "Deduplication prevents the same conversion from being counted more than once when multiple tags or platforms fire on the same confirmation page. In a typical DV360 setup, a Floodlight tag may fire alongside a Google Ads conversion tag, a Meta Pixel, or a first-party analytics event. Without a mechanism to identify and remove duplicate records, each tag produces an independent count and the totals across platforms sum to more than the actual number of conversions.<br><br>CM360 supports order ID deduplication for sales activities. When the confirmation page passes a unique transaction identifier to the Floodlight tag, CM360 ignores any subsequent fires for the same transaction ID within the lookback window. This works for purchases and form submissions that produce a unique reference number.<br><br>Cross-platform deduplication is a separate concern. When DV360 and Google Ads both have conversion tags on the same page, the advertiser may count a single conversion twice at the platform level. One approach is to rely on Floodlight exclusively for DV360 reporting and to import those Floodlight conversions into Google Ads rather than running a second conversion tag. Another is to use the Google Ads data import of CM360 conversions so both systems read from one source.<br><br>A few signs point to a deduplication problem:<ul><li>The conversion count in DV360 or CM360 is consistently higher than the order management system or CRM records</li><li>A sales activity does not pass an order ID parameter, so CM360 cannot identify duplicate fires</li><li>Both a Floodlight tag and a separate Google Ads conversion tag fire on the same confirmation page</li></ul>You may want to review the tag setup on the confirmation page and the activity configuration in CM360 to determine whether an order ID or transaction ID is being passed.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the sales activity should receive the order ID from the confirmation page. You may want to confirm the tag is configured to pass the order ID parameter and that the page actually renders the order ID value before the tag fires. An order ID that arrives empty or as a placeholder such as '0' does not prevent duplicates.",
+          "lead_gen": "On a lead-generation site, a unique lead or submission ID passed to the Floodlight counter activity can serve the same deduplication purpose as an order ID on a store. If the confirmation page does not generate a unique reference number, you may want to consider whether the 'Unique' counting method is sufficient or whether a generated submission ID should be added."
+        },
+        "learn_more": [
+          {
+            "source_type": "Campaign Manager 360 Help",
+            "source_title": "Use order IDs to deduplicate conversions",
+            "source_url": "https://support.google.com/campaignmanager/answer/2823400"
+          },
+          {
+            "source_type": "Display & Video 360 Help",
+            "source_title": "Conversion tracking with Floodlight in DV360",
+            "source_url": "https://support.google.com/displayvideo/answer/2997464"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that Floodlight sales activities pass an order ID for deduplication, and check whether multiple conversion tags fire on the same confirmation page.",
+        "tools": {
+          "free": {
+            "campaign_manager_360_ui": {
+              "label": "Campaign Manager 360 UI",
+              "steps": [
+                "Open CM360 and navigate to 'Advertiser', then 'Floodlight', then 'Activities'.",
+                "For each sales activity, open the tag and confirm whether the 'ord' parameter (the order ID field) is present and configured to receive a dynamic value from the confirmation page.",
+                "For counter activities, note whether the counting method is set to 'Unique' or 'Per session' as a deduplication mechanism, or whether 'Standard' is used with no other deduplication in place."
+              ]
+            },
+            "google_tag_assistant": {
+              "label": "Google Tag Assistant",
+              "steps": [
+                "Record a session through a conversion completion on the confirmation page.",
+                "In the Tag Assistant timeline, identify every tag that fires on the confirmation page. Note whether both a Floodlight tag and a Google Ads conversion tag fire for the same event.",
+                "For any Floodlight sales activity that fires, inspect the tag request URL in the Network tab and confirm the 'ord' parameter carries a unique transaction value, not a placeholder or empty string."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per Floodlight sales activity, whether the 'ord' parameter receives a unique transaction ID on the confirmation page. A sales activity that passes a unique, non-empty order ID on every conversion passes. A sales activity with no order ID, a static order ID, or an empty 'ord' parameter is a fail. Additionally, a confirmation page where both a Floodlight tag and a separate Google Ads conversion tag fire for the same event is a fail recorded as a cross-platform deduplication gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the order ID status and the tags observed on the confirmation page for each Floodlight activity above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that Floodlight deduplication is not properly configured on {{site_name}}, which allows a single conversion event to be counted more than once. On a sales activity, the absence of a unique order ID means CM360 cannot identify and discard duplicate tag fires for the same transaction. Where multiple conversion tags fire on the same confirmation page, DV360 and other platforms each record the same event independently. {{voice_recommend}} configuring the Floodlight sales activity to receive a unique order ID from the confirmation page and auditing the confirmation page for any additional conversion tags that produce a separate count for the same event. Passing a unique order ID is the most reliable deduplication mechanism CM360 provides."
+      }
+    }
+  ]
+}

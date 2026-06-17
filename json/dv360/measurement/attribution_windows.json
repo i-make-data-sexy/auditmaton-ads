@@ -1,0 +1,222 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/displayvideo/answer/2697116",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Attribution windows in Display & Video 360 (DV360) are set at the Floodlight Group level, so a misconfigured window affects every campaign that shares that group. A click-through window that is far shorter than the typical sales cycle drops real conversions from the count. A view-through window that runs at the platform maximum inflates credit to display impressions that played no meaningful role. Neither problem announces itself in the interface. These checks confirm the windows match the advertiser's actual sales cycle, that view-through credit is calibrated deliberately, and that the attribution model in use reflects a deliberate choice rather than an inherited default.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "DV360 attributes conversions using Floodlight, the shared measurement layer it shares with Campaign Manager 360 (CM360). The lookback windows and attribution model are configured at the Floodlight Group level, which means one setting governs every campaign in the group. The click-through lookback window determines how many days after a click a conversion still counts. The impression lookback window determines how many days after a served impression a conversion still counts. These checks confirm the windows are calibrated to the advertiser's sales cycle, that impression credit is not inflated by an overlong view-through window, and that the attribution model reflects a deliberate decision.",
+  "audit_checks": [
+    {
+      "id": "dv360-floodlight-lookback-windows-misaligned-with-sales-cycle",
+      "title": "Floodlight lookback windows do not reflect the advertiser's sales cycle",
+      "category": "measurement",
+      "subcategory": "attribution_windows",
+      "impact_score": 4,
+      "impact_rationale": "A click-through window shorter than the actual sales cycle drops real conversions from the count, so the campaign appears to perform below its true level and bidding signals are weaker than they should be. A window that is far longer than the cycle attributes conversions that had nothing to do with the ad. Either direction produces a conversion count that does not reflect real performance.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["attribution", "conversion-tracking"],
+      "educate": {
+        "base": "DV360 measures conversions through Floodlight, the tracking layer it shares with Campaign Manager 360 (CM360). The lookback windows are set at the Floodlight Group level in CM360 and apply to every campaign that uses that group. Two separate windows control how credit is assigned:<br><br><ul><li>The click-through lookback window counts a conversion if a user clicked an ad within the specified number of days before converting. DV360 supports up to 90 days.</li><li>The impression lookback window counts a conversion if a user saw an ad within the specified number of days before converting, even without a click.</li></ul>The default windows at account setup do not adapt to the advertiser's product. A software trial with a 30-day evaluation period needs a click-through window of at least 30 days or conversions from late-deciding users drop out of the count entirely. A consumer packaged goods (CPG) brand may convert within hours of an ad, making a 30-day window wasteful rather than helpful.<br><br>The window calibration has a direct downstream effect on <a href='https://support.google.com/displayvideo/answer/2696999' class='tools-link-no-padding' target='_blank'>DV360 automated bidding</a>. Line items using Target cost-per-acquisition (CPA) or Target return on ad spend (ROAS) optimize toward the conversions the Floodlight window captures. If the window cuts off before most conversions register, the bid algorithm sees fewer signals and may underspend or underbid on inventory that does convert.<br><br>A few signs point to misaligned windows:<ul><li>The sales cycle or average consideration time exceeds the current click-through window</li><li>Conversion volume dropped noticeably after a window was shortened, with no corresponding drop in traffic</li><li>The advertiser reports converting customers who visited the site more than once before purchasing, with gaps longer than the window between visits</li></ul>You may want to ask the advertiser for their typical path-to-purchase timeline before confirming the window is appropriate.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser, the right click-through window depends on the product category. A consumable with a short reorder cycle may convert within a day or two of seeing an ad, while a considered purchase such as furniture or electronics may involve a week or more of comparison shopping. You may want to review the advertiser's session-to-conversion time distribution in their analytics platform to calibrate the window rather than accepting a default.",
+          "lead_gen": "For a lead-generation advertiser, the conversion event is typically a form fill or a phone call, which usually happens within days of ad exposure rather than weeks. The relevant question is how long after an ad impression or click a prospect typically submits the form. A window longer than that span counts credit for awareness that predates the campaign rather than the campaign itself."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 Help",
+            "source_title": "About Floodlight conversion counting",
+            "source_url": "https://support.google.com/displayvideo/answer/2697116"
+          },
+          {
+            "source_type": "DV360 API Reference",
+            "source_title": "FloodlightGroups: lookback window fields (clickDays, impressionDays)",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v4/floodlightGroups"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Locate the Floodlight Group settings in CM360 and compare the current lookback windows against what the advertiser's sales cycle warrants.",
+        "tools": {
+          "free": {
+            "campaign_manager_360_ui": {
+              "label": "Campaign Manager 360 UI",
+              "steps": [
+                "In CM360, open 'Advertiser settings' and navigate to 'Floodlight configuration'.",
+                "Find the lookback window settings. Note the current click-through window (in days) and the view-through window (in days).",
+                "Compare the click-through window to the advertiser's typical path-to-purchase or lead-consideration timeline. If the advertiser has analytics data showing a median session-to-conversion lag, use that as a reference."
+              ]
+            },
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "In DV360, open the Advertiser settings and locate the Floodlight section.",
+                "Confirm which Floodlight Group the advertiser uses and note the group ID.",
+                "Cross-reference the group ID against the CM360 configuration to confirm the windows you are reviewing govern the campaigns in scope."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the current click-through window and compares it to the advertiser's typical path-to-purchase or lead-consideration period. A window that fully covers the typical consideration period passes. A window shorter than the typical consideration period, or longer by a factor that has no reasonable basis in the sales cycle, is a fail recorded with the current window length and the recommended adjustment.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the current click-through window length and the advertiser's typical consideration period above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Floodlight lookback windows are not aligned with the advertiser's sales cycle. A click-through window that is shorter than the typical consideration period drops real conversions from the count, which weakens the bidding signals DV360 automated bidding uses and causes reported performance to appear lower than it is. {{voice_recommend}} reviewing the advertiser's path-to-purchase data, setting the click-through window to cover the typical consideration period, and confirming the change in the Floodlight Group configuration in Campaign Manager 360."
+      }
+    },
+    {
+      "id": "dv360-view-through-window-inflates-display-credit",
+      "title": "View-through attribution window is set so long it inflates credit to display impressions",
+      "category": "measurement",
+      "subcategory": "attribution_windows",
+      "impact_score": 3,
+      "impact_rationale": "A view-through window that runs close to the 90-day maximum attributes conversions to display impressions that may have had no relationship to the purchase decision. This overstates display's contribution, inflates reported return on investment for the channel, and can cause budget to shift toward display based on attributed performance that does not reflect real influence.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["attribution", "data-quality"],
+      "educate": {
+        "base": "The view-through attribution window in Floodlight counts a conversion whenever a user who was served an impression converts within the window period, even with no click. DV360 allows a view-through window of up to 90 days. At the 90-day maximum, any user who saw a display ad in the past three months and then converted on their own receives that conversion credited to the campaign, regardless of what drove the actual decision.<br><br>View-through credit has a role in measurement. Display advertising does influence awareness even without a click, and some conversions trace to that awareness. The question is whether the window is calibrated to a plausible influence period rather than set to maximize attributed volume. A 30-day view-through window for a product with a two-day consideration cycle is not evidence of display effectiveness. It is the result of a wide net.<br><br>A few signs that the view-through window is set too broadly:<ul><li>The view-through window is set to 30 days or longer for a product category with a short consideration cycle</li><li>Attributed view-through conversions make up a large share of total reported conversions, and the click-through rate on display is very low</li><li>Removing or shortening the view-through window in a test significantly reduces reported display conversions without any change in actual site traffic or revenue</li></ul>You may want to review the ratio of view-through to click-through conversions before accepting reported display return on investment at face value.",
+        "site_type_overlays": {
+          "ecommerce": "For ecommerce, a view-through window longer than seven days is worth examining unless the product category has a documented multi-week consideration cycle. Attributing a purchase made 60 days after a banner impression to that banner conflates brand awareness with conversion influence. You may want to compare assisted-conversion data in the analytics platform against DV360's attributed view-through count to sense-check the window.",
+          "lead_gen": "For lead generation, most form submissions happen within days of initial research. A view-through window longer than 14 days for a lead-gen advertiser assigns credit to display impressions that precede the research period by weeks, which overstates display's role. You may want to confirm the window is set to reflect how quickly prospects move from awareness to inquiry for this specific offer."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 Help",
+            "source_title": "About Floodlight conversion counting",
+            "source_url": "https://support.google.com/displayvideo/answer/2697116"
+          },
+          {
+            "source_type": "DV360 API Reference",
+            "source_title": "FloodlightGroups: impressionDays lookback window field",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v4/floodlightGroups"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the view-through window in CM360 and compare it against the advertiser's consideration cycle and the ratio of view-through to click-through conversions in DV360.",
+        "tools": {
+          "free": {
+            "campaign_manager_360_ui": {
+              "label": "Campaign Manager 360 UI",
+              "steps": [
+                "In CM360, open 'Advertiser settings' and navigate to 'Floodlight configuration'.",
+                "Note the view-through (impression) lookback window in days.",
+                "Compare the number to the advertiser's typical consideration cycle for their product or offer."
+              ]
+            },
+            "dv360_reporting": {
+              "label": "DV360 Reporting",
+              "steps": [
+                "In DV360, pull a performance report that breaks out click-through conversions and view-through conversions separately.",
+                "Calculate what share of total attributed conversions are view-through. A very high view-through share relative to click-through conversions is a sign the window is wider than the real influence period.",
+                "Note the display campaign click-through rate alongside the view-through conversion count. A very low click-through rate combined with a high view-through count points to a window that captures coincidental visits rather than influenced conversions."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the current view-through window and calculates the ratio of view-through conversions to total conversions in the reporting period. A view-through window calibrated to the product's consideration cycle and a view-through conversion share below 50% of total attributed conversions passes. A window set at or near the 90-day maximum for a product with a short consideration cycle, or a view-through conversion share that exceeds the click-through share by a wide margin without a documented rationale, is a fail.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the current view-through window and the view-through versus click-through conversion breakdown above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Floodlight view-through attribution window is set longer than the advertiser's consideration cycle warrants, which inflates the conversions attributed to display impressions. A view-through window that spans weeks or months for a product with a short purchase cycle assigns credit to impressions that preceded the actual decision by far too wide a margin, overstating display's reported contribution. {{voice_recommend}} shortening the view-through window to reflect the realistic influence period for this product category and reviewing the ratio of view-through to click-through conversions after the change to confirm the reported mix reflects real influence."
+      }
+    },
+    {
+      "id": "dv360-attribution-model-left-at-default-without-deliberate-review",
+      "title": "Attribution model is at the default setting rather than a deliberately chosen configuration",
+      "category": "measurement",
+      "subcategory": "attribution_windows",
+      "impact_score": 3,
+      "impact_rationale": "DV360's default attribution model gives full credit to the last impression or click before a conversion. This under-values touchpoints earlier in a multi-touch path and can cause budget to concentrate on retargeting channels that appear just before conversion while awareness and prospecting inventory that preceded them receives no credit. The mismatch between actual contribution and reported contribution shapes media mix decisions over time.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["attribution", "bidding"],
+      "educate": {
+        "base": "DV360 uses Floodlight attribution, which by default assigns all conversion credit to the last click or, absent a click, the last impression before the conversion. This last-touch model is simple to implement and easy to explain, but it systematically under-credits the impressions and clicks that appeared earlier in the path and contributed to the user's consideration.<br><br>Advertisers who run display, video, and retargeting together in DV360 are running a multi-touch campaign whether or not they measure it that way. Under a last-touch model, retargeting line items look efficient because they appear just before conversion. Prospecting and awareness line items look weak because they appear earlier and receive no credit. Budget pressure then moves toward retargeting, which shrinks the pool of users entering consideration and eventually reduces the number of users retargeting can find.<br><br>DV360 offers path-based attribution reports and, through its integration with Campaign Manager 360, access to data-driven attribution (DDA) for eligible advertisers. DDA uses observed path data to assign fractional credit to touchpoints based on their actual association with conversion. Not every account qualifies for DDA, but accounts with sufficient conversion volume can request it through the CM360 attribution modeling feature.<br><br>A few signs that the default model has not been reviewed deliberately:<ul><li>The advertiser has never discussed attribution model choice during campaign setup or account review</li><li>Retargeting line items consistently show very high attributed conversion rates while prospecting line items show near zero</li><li>The account has sufficient conversion volume to qualify for data-driven attribution but the setting has not been evaluated</li></ul>You may want to confirm whether the account qualifies for DDA and whether the current model reflects a deliberate choice or an inherited default.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser running prospecting, remarketing, and dynamic product ads together in DV360, last-touch attribution attributes most conversions to the dynamic product ad shown on the day of purchase, regardless of the prospecting display or video that introduced the brand. You may want to review the path report in CM360 to see how many converting paths include multiple DV360 touchpoints before deciding whether the current model reflects real performance.",
+          "lead_gen": "For a lead-generation advertiser, the conversion path is often shorter, which reduces the gap between last-touch and more distributed models. If most leads convert after a single search-driven visit with no prior display exposure, last-touch may be accurate. If display is part of an awareness push that precedes search, the model is still under-crediting that work."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 Help",
+            "source_title": "About attribution models in Display & Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/9799888"
+          },
+          {
+            "source_type": "CM360 Help",
+            "source_title": "Data-driven attribution in Campaign Manager 360",
+            "source_url": "https://support.google.com/campaignmanager/answer/9049951"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm the current attribution model setting and review whether the account qualifies for data-driven attribution or path-based analysis.",
+        "tools": {
+          "free": {
+            "campaign_manager_360_ui": {
+              "label": "Campaign Manager 360 UI",
+              "steps": [
+                "In CM360, open the Advertiser and navigate to attribution modeling settings.",
+                "Note the current model in use. Confirm whether it is last-click, last-touch (impression or click), or a distributed model.",
+                "Check whether the advertiser's conversion volume meets the minimum threshold CM360 requires to qualify for data-driven attribution. CM360 typically requires several hundred to several thousand conversions over a recent period."
+              ]
+            },
+            "dv360_path_reporting": {
+              "label": "DV360 Path Reporting",
+              "steps": [
+                "In DV360, pull an Attributed Conversions report or a Path to Conversion report if available for the account.",
+                "Look for converting paths that include multiple DV360 touchpoints, such as a display impression followed days later by a retargeting click.",
+                "A high share of multi-touch paths relative to single-touch paths points to an account where the attribution model choice has a real effect on how credit is distributed."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the current attribution model setting and checks whether the account qualifies for data-driven attribution. An account whose model was reviewed deliberately, documented, and whose conversion volume does not qualify for DDA passes. An account using the default last-touch model without a documented rationale, or an account with sufficient volume for DDA that has never evaluated the option, is a fail noted with the current model name and the qualification status.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the current attribution model and the DDA qualification status above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s DV360 attribution model is at its default last-touch setting and has not been deliberately reviewed. Under last-touch attribution, prospecting and awareness placements that appear earlier in the conversion path receive no credit, while retargeting placements that appear just before purchase receive all of it. Over time this shapes media mix decisions in favor of retargeting at the expense of the upper-funnel activity that feeds it. {{voice_recommend}} reviewing the account's conversion volume to confirm whether it qualifies for data-driven attribution in Campaign Manager 360, pulling a path-to-conversion report to understand how often multiple DV360 touchpoints appear on converting paths, and documenting the attribution model choice and its rationale in the account notes."
+      }
+    }
+  ]
+}

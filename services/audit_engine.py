@@ -271,6 +271,11 @@ CATEGORY_METADATA = {
             "icon_class": "fa-solid fa-scale-balanced",
             "description": "Account structure, access, linking, and naming conventions",
         },
+        "campaigns": {
+            "display_name": "Campaigns",
+            "icon_class": "fa-solid fa-rectangle-list",
+            "description": "Campaign types, search terms, and Performance Max",
+        },
         "bidding": {
             "display_name": "Bidding",
             "icon_class": "fa-solid fa-gavel",

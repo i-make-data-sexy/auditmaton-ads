@@ -38,12 +38,127 @@ DEFAULT_PLATFORM = "google-ads"
 # Platforms the dashboard chip strip can toggle between. Order = display
 # order in the chip strip. Add a tuple here when content for a new platform
 # ships under json/<slug>/.
-# Auditmaton: Ads platform registry. The full demand/supply, type-grouped
-# registry is a follow-up build. For the calibration sample only google-ads
-# is wired so the chip strip has no dead (content-less) entries.
-AVAILABLE_PLATFORMS = [
-    ("google-ads", "Google Ads"),
-]
+# Auditmaton: Ads platform registry, loaded from json/_platforms.json (the
+# single source of truth the app and the editorial linter both read). Each
+# record is {slug, name, side, type}; side is demand|supply, type is the
+# single-concept class used to group the intake and dashboard pickers.
+def _load_platforms():
+    """
+    Loads the platform registry from json/_platforms.json.
+
+    Returns:
+        list[dict]: Platform records, or [] if the file is missing/unparseable.
+    """
+
+    path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "json", "_platforms.json")
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f).get("platforms", [])
+    except (IOError, json.JSONDecodeError):
+        logger.error("Could not load platform registry: %s", path)
+        return []
+
+
+PLATFORMS = _load_platforms()
+
+# slug -> platform record
+PLATFORM_BY_SLUG = {p["slug"]: p for p in PLATFORMS}
+
+# Derived flat (slug, name) list. Kept so the existing validator call sites
+# that build a slug set from AVAILABLE_PLATFORMS keep working unchanged.
+AVAILABLE_PLATFORMS = [(p["slug"], p["name"]) for p in PLATFORMS]
+
+
+def get_platform(slug):
+    """
+    Returns the platform record for a slug, or None.
+
+    Args:
+        slug (str): Platform slug.
+
+    Returns:
+        dict or None: The {slug, name, side, type} record.
+    """
+
+    return PLATFORM_BY_SLUG.get(slug)
+
+
+def platform_side(slug):
+    """
+    Returns the side ("demand" / "supply") for a platform slug, or None.
+
+    Args:
+        slug (str): Platform slug.
+
+    Returns:
+        str or None: The platform's side.
+    """
+
+    p = PLATFORM_BY_SLUG.get(slug)
+    return p["side"] if p else None
+
+
+def platform_has_content(slug):
+    """
+    Returns True if json/<slug>/ holds at least one category directory with a
+    JSON file. Used to mark content-less platforms in the picker.
+
+    Args:
+        slug (str): Platform slug.
+
+    Returns:
+        bool: Whether the platform has authored content.
+    """
+
+    base = os.path.join(os.path.dirname(os.path.dirname(__file__)), "json", slug)
+    if not os.path.isdir(base):
+        return False
+    for entry in os.listdir(base):
+        sub = os.path.join(base, entry)
+        if os.path.isdir(sub) and any(fn.endswith(".json") for fn in os.listdir(sub)):
+            return True
+    return False
+
+
+def platforms_grouped_by_type(side, slugs=None):
+    """
+    Groups a side's platforms by type for the picker, preserving registry
+    order across types and within each type. Each platform record is
+    augmented with a `has_content` flag.
+
+    Args:
+        side (str): "demand" or "supply".
+        slugs (set[str], optional): When given, restrict to these platform
+            slugs (e.g., the stack the practitioner selected at intake).
+
+    Returns:
+        list[tuple[str, list[dict]]]: (type_label, [platform records]).
+    """
+
+    groups = []
+    index = {}
+    for p in PLATFORMS:
+        if p.get("side") != side:
+            continue
+        if slugs is not None and p["slug"] not in slugs:
+            continue
+        t = p.get("type", "")
+        if t not in index:
+            index[t] = []
+            groups.append((t, index[t]))
+        index[t].append({**p, "has_content": platform_has_content(p["slug"])})
+    return groups
+
+
+def get_active_side():
+    """
+    Returns the side of the active platform, or None.
+
+    Returns:
+        str or None: "demand" / "supply".
+    """
+
+    return platform_side(get_active_platform())
 
 PLATFORM_COOKIE_NAME = "active_platform"
 PLATFORM_COOKIE_MAX_AGE = 60 * 60 * 24 * 365  # 1 year

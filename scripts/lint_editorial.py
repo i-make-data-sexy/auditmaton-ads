@@ -749,6 +749,78 @@ def check_duplicate_acronym_expansion(data, file_path):
     return findings
 
 
+# Topic registries for the theme_tags check. The same json/_themes.json
+# (valid topic slugs + their sides) and json/_platforms.json (platform ->
+# side) that services/audit_engine.py reads. Loaded once at import.
+def _load_registry(name, key):
+    path = Path(__file__).resolve().parent.parent / "json" / name
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f).get(key, [])
+    except (OSError, json.JSONDecodeError):
+        return []
+
+
+_THEMES = {t["slug"]: t for t in _load_registry("_themes.json", "themes")}
+_PLATFORM_SIDE = {p["slug"]: p.get("side") for p in _load_registry("_platforms.json", "platforms")}
+
+
+def _platform_side_from_path(file_path):
+    """
+    Derives a content file's platform side from its path
+    (json/<platform>/<category>/<subcat>.json), or None.
+    """
+
+    parts = Path(file_path).parts
+    if "json" in parts:
+        i = parts.index("json")
+        if i + 1 < len(parts):
+            return _PLATFORM_SIDE.get(parts[i + 1])
+    return None
+
+
+def check_theme_tags(data, file_path):
+    """
+    File-level check: every audit check must carry at least one theme_tag,
+    each tag must be a slug defined in json/_themes.json, and each tag must be
+    valid on the platform's side (json/_platforms.json). Keeps the topic
+    system first-class across every platform from the first check.
+
+    Args:
+        data (dict): Parsed audit-content JSON.
+        file_path (Path): Source file (its path encodes the platform).
+
+    Returns:
+        list[dict]: Findings in the same shape lint_text yields.
+    """
+
+    findings = []
+    if not isinstance(data, dict) or "audit_checks" not in data or not _THEMES:
+        return findings
+    side = _platform_side_from_path(file_path)
+    for i, check in enumerate(data.get("audit_checks", []) or []):
+        if not isinstance(check, dict):
+            continue
+        label = f"audit_checks[{i}].theme_tags"
+        base = {"file": str(file_path), "json_path": label, "severity": "medium", "snippet": ""}
+        tags = check.get("theme_tags")
+        if not tags:
+            findings.append({**base, "rule_id": "missing-theme-tags", "match": "",
+                "description": "Check has no theme_tags. Every check must carry at least one topic from json/_themes.json.",
+                "suggest": "Add a theme_tags array with one or more valid topic slugs."})
+            continue
+        for tag in tags:
+            if tag not in _THEMES:
+                findings.append({**base, "rule_id": "invalid-theme-tag", "match": tag,
+                    "description": f'theme_tag "{tag}" is not defined in json/_themes.json.',
+                    "suggest": "Use a topic slug defined in json/_themes.json."})
+            elif side and side not in _THEMES[tag].get("sides", []):
+                findings.append({**base, "rule_id": "theme-tag-wrong-side", "match": tag,
+                    "description": f'theme_tag "{tag}" is not valid on the {side} side (this platform is {side}).',
+                    "suggest": f'Use a topic whose sides include "{side}".'})
+    return findings
+
+
 def lint_file(file_path, rules):
     """
     Lints a single JSON file.
@@ -795,6 +867,8 @@ def lint_file(file_path, rules):
             findings.append(v)
     # File-level check: abbreviation expanded twice on one rendered page.
     findings.extend(check_duplicate_acronym_expansion(data, file_path))
+    # File-level check: every check carries valid, side-appropriate theme_tags.
+    findings.extend(check_theme_tags(data, file_path))
     return findings
 
 

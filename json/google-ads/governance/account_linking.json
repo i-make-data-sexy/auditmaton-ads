@@ -1,0 +1,136 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/google-ads/answer/7519537",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The links between Google Ads and the rest of Google's measurement tools are what let conversions, audiences, and click data flow into the account. When a link is missing or auto-tagging is off, features that depend on it fail quietly: imported conversions never arrive, remarketing lists do not build, and offline conversion uploads cannot match. The check is a quick read of the account's connections and the auto-tagging setting. The fix is a configuration change, not a rebuild, and it restores measurement that the account is otherwise paying for without receiving.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Google Ads connects to Google Analytics 4 (GA4), Merchant Center, Search Console, and other tools through account links, and it stamps each ad click with an identifier through auto-tagging. Those connections feed imported conversions, remarketing audiences, and the click data that offline conversion imports match against. When a link is missing or auto-tagging is off, the features that depend on it stop working without an error. These checks confirm that the account is linked to the tools it relies on and that auto-tagging is on so the click identifier is captured.",
+  "audit_checks": [
+    {
+      "id": "ga4-not-linked-to-google-ads",
+      "title": "Google Analytics 4 is not linked to the Google Ads account",
+      "category": "governance",
+      "subcategory": "account_linking",
+      "impact_score": 3,
+      "impact_rationale": "Without the link, Google Ads cannot import key events from Google Analytics 4 as conversions, and it cannot build remarketing audiences from Analytics. The account loses a measurement and audience source it would otherwise have, and any reporting that compares the two tools cannot be set up.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "conversion-tracking"],
+      "educate": {
+        "base": "Linking a Google Analytics 4 (GA4) property to Google Ads connects the two tools so data can pass between them. The link lets Google Ads import GA4 key events as conversions, build remarketing audiences from Analytics segments, and show Analytics engagement metrics such as bounce-equivalent measures alongside campaign data.<br><br>When the link is absent, none of that is available. The account can still track conversions through its own tag, but it forfeits the GA4 import path, the audiences Analytics could supply, and the cross-tool reporting that helps explain a gap between what Google Ads and Analytics each report. For an account that already runs GA4, the link is measurement and audience reach left on the table.<br><br>The link lives under 'Tools', then 'Data manager', under connected products. A few signs point to a missing or broken link:<ul><li>No conversion actions in Google Ads show a source of Google Analytics 4</li><li>The account has no Analytics-sourced remarketing audiences in the audience manager</li><li>The data manager shows GA4 as available to connect rather than already linked</li></ul>Linking requires administrative access to the Google Ads account and edit access to the GA4 property. You may want to confirm the business runs a GA4 property before treating the absence of a link as a gap. An account with no Analytics has nothing to link.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the GA4 link also lets Google Ads use Analytics purchase events and audiences built from shopping behavior, such as cart abandoners. You may want to confirm the link is in place so those audiences are available for remarketing."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "Link Google Analytics 4 properties and Google Ads",
+            "source_url": "https://support.google.com/google-ads/answer/7519537"
+          },
+          {
+            "source_type": "Analytics Help",
+            "source_title": "Connect Google Ads to Google Analytics",
+            "source_url": "https://support.google.com/analytics/answer/9379420"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether the Google Ads account is linked to its Google Analytics 4 property.",
+        "tools": {
+          "free": {
+            "google_ads_ui": {
+              "label": "Google Ads UI",
+              "steps": [
+                "Open 'Tools', then 'Data manager', and review the connected products.",
+                "Find 'Google Analytics (GA4) and Firebase' and check whether a property is linked or whether it is offered as a product to connect.",
+                "If no property is linked, confirm with the client whether they run a GA4 property. A live GA4 property with no link to Google Ads is the gap to flag."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner confirms whether a Google Analytics 4 property is linked to the Google Ads account and whether the business runs such a property. A linked property passes. A live GA4 property that is not linked is a fail recorded with the property name. No GA4 property in use is noted rather than failed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a Google Analytics 4 property is linked, and whether the business runs one, to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Google Analytics 4 (GA4) property is not linked to the Google Ads account. The missing link means Google Ads cannot import GA4 key events as conversions or build remarketing audiences from Analytics, so a measurement and audience source the account already pays to collect never reaches the campaigns. {{voice_recommend}} linking the GA4 property under Tools, then Data manager, then confirming that GA4 conversions and audiences become available to import once the link is live."
+      }
+    },
+    {
+      "id": "auto-tagging-disabled",
+      "title": "Auto-tagging is disabled, so the click identifier is not captured",
+      "category": "governance",
+      "subcategory": "account_linking",
+      "impact_score": 4,
+      "impact_rationale": "Auto-tagging appends the Google Click Identifier to ad destination URLs. With it off, conversion tracking and Analytics attribution lose the reliable identifier, offline conversion imports have no key to match against, and the link between a click and what it produced weakens across every tool that depends on it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "Auto-tagging is the account setting that appends the Google Click Identifier (GCLID) to the destination URL of every ad click. That identifier is the key that ties a click to what happened after it. Conversion tracking uses it, the Google Analytics link uses it to attribute sessions to campaigns, and offline conversion imports use it to match a closed deal back to the click that produced the lead.<br><br>When auto-tagging is off, the GCLID is not added, and every feature that relies on it degrades. Conversion attribution falls back to weaker signals, the Analytics integration cannot tie sessions to specific campaigns, and offline conversion uploads have nothing to match, so they import nothing. The setting is a single switch, but turning it off undermines measurement across the whole account.<br><br>Auto-tagging lives in the account settings. A few signs point to it being off:<ul><li>The account settings show auto-tagging set to off</li><li>Landing page URLs from ad clicks arrive without a gclid parameter</li><li>An offline conversion import returns no matches despite stored click identifiers</li></ul>Turning auto-tagging on is the fix, and it applies going forward. You may want to confirm the landing pages preserve the gclid parameter rather than stripping it in a redirect. A redirect that drops the parameter defeats auto-tagging even when the setting is on.",
+        "site_type_overlays": {
+          "lead_gen": "On a lead-generation account, the GCLID captured by auto-tagging is what an offline conversion import later matches to credit a closed deal. You may want to confirm auto-tagging is on before relying on offline conversion data. Without it the upload has no key to match."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ads Help",
+            "source_title": "About auto-tagging",
+            "source_url": "https://support.google.com/google-ads/answer/3095550"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that auto-tagging is on and that the click identifier survives to the landing page.",
+        "tools": {
+          "free": {
+            "google_ads_ui": {
+              "label": "Google Ads UI",
+              "steps": [
+                "Open the account settings and find the auto-tagging option.",
+                "Note whether it is on or off. Auto-tagging set to off is the setting to flag."
+              ]
+            },
+            "browser": {
+              "label": "Browser",
+              "steps": [
+                "Click a live ad, or build a destination URL test, and inspect the landing page address.",
+                "Confirm a 'gclid' parameter is present in the URL after the click. If the parameter is missing on arrival, either auto-tagging is off or a redirect is stripping it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether auto-tagging is on in the account settings and whether the gclid parameter reaches the landing page after a click. Auto-tagging on with the gclid present passes. Auto-tagging off, or on but with the gclid stripped before the landing page, is a fail recorded with the observation.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether auto-tagging is on and whether the gclid parameter reaches the landing page to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that auto-tagging is disabled on {{site_name}}'s Google Ads account, so the Google Click Identifier (GCLID) is not appended to ad clicks. Without that identifier, conversion attribution weakens, the Google Analytics link cannot tie sessions to campaigns, and offline conversion imports have no key to match, so measurement degrades across every tool that depends on it. {{voice_recommend}} turning auto-tagging on in the account settings and confirming the gclid parameter survives to the landing page rather than being stripped by a redirect."
+      }
+    }
+  ]
+}

@@ -266,6 +266,11 @@ CATEGORY_METADATA = {
             "icon_class": "fa-solid fa-bullseye",
             "description": "Whether conversions are captured accurately, deduplicated, and durable as cookies erode",
         },
+        "governance": {
+            "display_name": "Governance",
+            "icon_class": "fa-solid fa-scale-balanced",
+            "description": "Account structure, access, linking, and naming conventions",
+        },
     },
     "google-tag-manager": {
         "container-structure": {

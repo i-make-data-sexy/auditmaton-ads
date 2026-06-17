@@ -1,15 +1,15 @@
 /* intake.css
-   Styles for the 2-step intake wizard modal.
-   Step 1 captures scope (side + platforms); Step 2 captures details
-   (audit name, site name, site type, voice, account ID).
-   Layers on top of styles.css and uses the brand variables defined there.
-   Info-icon tooltip styles live in styles.css (.info-icon[data-tooltip]). */
+   Styles for the intake modal wizard (Auditmaton: Ads). Ported from the
+   Analytics edition's intake so the form matches the suite's branding:
+   a centered modal, a numbered progress indicator, fuscia section titles
+   (h3) and green group titles (h4), and card-style options in a grid.
+   Layers on top of base.css. Info-icon tooltip behavior lives in styles.css
+   (.info-icon[data-tooltip]); this file only pins their size down. */
 
 
 /* ========================================================================
-   Modal overlay
+   Modal Overlay + Dialog
    ======================================================================== */
-
 .intake-overlay {
     position: fixed;
     top: 0;
@@ -21,44 +21,21 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
-    box-sizing: border-box;
 }
-
-
-/* ========================================================================
-   Modal dialog
-   ======================================================================== */
 
 .intake-modal {
     background-color: var(--color-white);
     border-radius: 16px;
     box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
-    width: 100%;
-    max-width: 640px;
-    max-height: 92vh;
+    width: 90%;
+    max-width: 780px;
+    max-height: 90vh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     position: relative;
 }
 
-/* Scrollable inner body so a tall form never overflows the viewport */
-.intake-modal-body {
-    padding: 28px 44px 8px;
-    overflow-y: auto;
-    flex: 1;
-    min-height: 0;
-}
-
-.intake-modal-title {
-    margin: 0 0 8px;
-    font-family: "Elms Sans", "EkMukta-Light", Helvetica, sans-serif;
-    color: var(--color-brand-fuscia);
-    font-size: 1.4em;
-}
-
-/* Close button */
 .intake-modal-close {
     position: absolute;
     top: 16px;
@@ -74,9 +51,9 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
+    text-decoration: none;
     transition: color 0.2s ease, background-color 0.2s ease;
     z-index: 1;
-    text-decoration: none;
 }
 
 .intake-modal-close:hover {
@@ -87,19 +64,16 @@
 
 
 /* ========================================================================
-   Step progress indicator
+   Step Progress Indicator
    ======================================================================== */
-
 .intake-progress {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0;
-    padding: 28px 48px 16px;
+    padding: 32px 48px 0 48px;
     flex-shrink: 0;
 }
 
-/* Individual step circle */
 .intake-progress-step {
     width: 36px;
     height: 36px;
@@ -116,21 +90,18 @@
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
-/* Active step: brand blue fill */
 .intake-progress-step.active {
     background-color: var(--color-brand-blue);
     border-color: var(--color-brand-blue);
     color: var(--color-white);
 }
 
-/* Completed step: brand green fill */
 .intake-progress-step.done {
     background-color: var(--color-brand-green);
     border-color: var(--color-brand-green);
     color: var(--color-white);
 }
 
-/* Connecting line between steps */
 .intake-progress-line {
     flex: 1;
     height: 2px;
@@ -139,95 +110,66 @@
     transition: background-color 0.3s ease;
 }
 
-/* Filled line when step 1 is complete */
 .intake-progress-line.done {
     background-color: var(--color-brand-green);
 }
 
 
 /* ========================================================================
-   Wizard steps
+   Step Panels + Sections
    ======================================================================== */
-
-/* Each step is a flex column filling the remaining modal height */
-.wizard-step {
+.intake-panel {
     display: none;
-    flex-direction: column;
+    padding: 32px 48px;
+    overflow-y: auto;
     flex: 1;
     min-height: 0;
-    overflow: hidden;
 }
 
-.wizard-step.active {
-    display: flex;
+.intake-panel.active {
+    display: block;
 }
-
-
-/* ========================================================================
-   Lede
-   ======================================================================== */
 
 .intake-lede {
-    margin: 0 0 20px;
-    line-height: 1.4;
     color: var(--color-secondary-text);
-    font-size: 15px;
+    margin-top: 0;
+    margin-bottom: 1.5em;
 }
 
-.intake-form {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
+.intake-section {
+    margin-bottom: 28px;
+}
+
+.intake-section:last-child {
+    margin-bottom: 0;
+}
+
+/* Fuscia section title (the Ads app's default h3 is orange, so set it
+   explicitly to match the suite's intake look). */
+.intake-section-title {
+    margin-top: 0;
+    margin-bottom: 0.25em;
+    color: var(--color-brand-fuscia);
+}
+
+.intake-section-desc {
+    color: var(--color-secondary-text);
+    margin-bottom: 1.25em;
 }
 
 
 /* ========================================================================
-   Fields
+   Form Inputs
    ======================================================================== */
-
-.intake-field {
-    margin-bottom: 22px;
-}
-
-/* Reset fieldset used for radio groups */
-.intake-fieldset {
-    border: none;
-    padding: 0;
-    margin-inline: 0;
-}
-
-.intake-label {
-    display: block;
-    font-weight: var(--font-weight-bolder);
-    color: var(--color-dark-gray);
-    margin-bottom: 4px;
-}
-
-.intake-optional {
-    font-weight: var(--font-weight-normal);
-    color: #777;
-}
-
-.intake-help {
-    font-size: 14px;
-    color: #777;
-    margin: 0 0 10px;
-    line-height: var(--line-height-normal);
-}
-
-/* Text inputs and selects share one look */
 .intake-input {
     width: 100%;
-    box-sizing: border-box;
-    padding: 12px 14px;
-    font-size: 16px;
+    padding: 12px 16px;
+    font-size: 1em;
     font-family: var(--font-family-main);
-    color: var(--color-dark-gray);
-    background-color: #fff;
     border: 1px solid var(--color-light-gray);
-    border-radius: 6px;
+    border-radius: 8px;
+    color: var(--color-dark-gray);
+    box-sizing: border-box;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -237,75 +179,71 @@
     box-shadow: 0 0 0 3px rgba(2, 115, 190, 0.15);
 }
 
+.intake-input::placeholder {
+    color: var(--color-muted);
+}
+
 
 /* ========================================================================
-   Radio cards (side + voice)
+   Checkbox / Radio Grid (card-style options)
    ======================================================================== */
-
-.intake-radio-group {
-    display: flex;
-    flex-direction: column;
+.intake-checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 10px;
 }
 
-/* Each option is a card whose whole row is clickable */
-.intake-radio {
+.intake-checkbox-grid-compact {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+}
+
+.intake-checkbox-card {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
+    gap: 8px;
+    padding: 10px 14px;
     border: 1px solid var(--color-light-gray);
     border-radius: 8px;
     cursor: pointer;
     transition: border-color 0.2s ease, background-color 0.2s ease;
+    position: relative;
 }
 
-.intake-radio:hover {
+.intake-checkbox-card:hover {
+    border-color: var(--color-brand-blue-light);
+    background-color: rgba(2, 115, 190, 0.04);
+}
+
+.intake-checkbox-card:has(input:checked) {
     border-color: var(--color-brand-blue);
-    background-color: rgba(2, 115, 190, 0.03);
+    background-color: rgba(2, 115, 190, 0.08);
 }
 
-/* Highlight the selected card */
-.intake-radio:has(input:checked) {
-    border-color: var(--color-brand-blue);
-    background-color: rgba(2, 115, 190, 0.06);
-}
-
-.intake-radio input {
-    margin: 0;
-    accent-color: var(--color-brand-blue);
-    flex-shrink: 0;
-}
-
-.intake-radio-text {
-    display: flex;
-    flex-direction: column;
-}
-
-.intake-radio-label {
-    font-weight: var(--font-weight-bold);
+.intake-checkbox-label {
+    font-size: 0.95em;
     color: var(--color-dark-gray);
-    line-height: 1.3;
 }
 
-.intake-radio-example {
-    font-size: 13px;
-    color: #777;
-    margin-top: 2px;
+.intake-checkbox-card-compact {
+    padding: 8px 12px;
+}
+
+.intake-checkbox-card-compact .intake-checkbox-label {
+    font-size: 0.9em;
 }
 
 
 /* ========================================================================
-   Site type — card grid (Step 2)
+   Radio Groups
    ======================================================================== */
-
-.intake-sitetype-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-    gap: 8px;
+.intake-radio-group {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
 }
 
-.intake-sitetype-card {
+.intake-radio-option {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -316,137 +254,95 @@
     transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
-.intake-sitetype-card:hover {
-    border-color: var(--color-brand-blue);
+.intake-radio-option:hover {
+    border-color: var(--color-brand-blue-light);
     background-color: rgba(2, 115, 190, 0.04);
 }
 
-.intake-sitetype-card:has(input:checked) {
+.intake-radio-option:has(input:checked) {
     border-color: var(--color-brand-blue);
     background-color: rgba(2, 115, 190, 0.08);
 }
 
-.intake-sitetype-card input[type="radio"] {
-    margin: 0;
-    accent-color: var(--color-brand-blue);
-    flex-shrink: 0;
-}
-
-.intake-sitetype-label {
-    font-size: 14px;
+.intake-radio-option span {
+    font-size: 0.95em;
     color: var(--color-dark-gray);
-    line-height: 1.3;
 }
 
 
 /* ========================================================================
-   Platform picker (grouped checkboxes, demand/supply blocks)
+   Platform groups (per type, green title to match schema groups)
    ======================================================================== */
+.intake-schema-group {
+    margin-bottom: 1.25em;
+}
 
-/* Utility class toggled by intake.js to hide a side's block */
+.intake-schema-group-title {
+    font-size: 1.1em;
+    margin-top: 0;
+    margin-bottom: 0.5em;
+    color: var(--color-brand-green);
+}
+
+/* The demand and supply platform blocks; only one shows at a time, driven
+   by the side radio in intake.js. */
 .intake-platform-block.is-hidden {
     display: none;
 }
 
-/* Small uppercase type label that groups platforms within a side block */
-.intake-platform-type-label {
-    font-size: 11px;
+/* Platforms without authored content yet: still selectable (the user is
+   declaring their stack), just muted with a 'soon' badge. */
+.intake-checkbox-card.intake-platform-soon .intake-checkbox-label {
+    color: var(--color-muted);
+}
+
+.intake-soon-badge {
+    margin-left: auto;
+    font-size: 0.65em;
     font-weight: var(--font-weight-bolder);
-    letter-spacing: 0.07em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
-    color: var(--color-brand-fuscia);
-    margin: 16px 0 6px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.intake-platform-type-label:first-child {
-    margin-top: 4px;
-}
-
-/* Info icons inside type-label inherit the label's size, override
-   the global vertical-super offset so they sit inline */
-.intake-platform-type-label .info-icon {
-    vertical-align: baseline;
-    font-size: 1.5em;
-    text-transform: none;
-    letter-spacing: 0;
-}
-
-/* Flex row that wraps individual platform checkboxes */
-.intake-platform-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 4px;
-}
-
-/* Each platform is a pill-shaped checkbox label */
-.intake-platform-check {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 7px 14px;
-    border: 1px solid var(--color-light-gray);
-    border-radius: 999px;
-    background: #fafafa;
-    cursor: pointer;
-    font-size: 14px;
-    color: var(--color-dark-gray);
-    transition: border-color 0.15s ease, background 0.15s ease;
-}
-
-.intake-platform-check:hover {
-    border-color: var(--color-brand-blue);
-    background: #f0f7fd;
-}
-
-/* Highlight the pill when checked */
-.intake-platform-check:has(input:checked) {
-    border-color: var(--color-brand-blue);
-    background: rgba(2, 115, 190, 0.08);
-}
-
-.intake-platform-check input[type="checkbox"] {
-    margin: 0;
-    accent-color: var(--color-brand-blue);
-}
-
-.intake-platform-name {
-    line-height: 1.3;
-}
-
-/* Muted hint next to platforms without authored content */
-.intake-platform-coming {
-    font-size: 11px;
-    color: #aaa;
-    font-style: italic;
-    margin-left: 2px;
+    color: var(--color-muted);
+    background-color: var(--color-app-bg);
+    border-radius: 10px;
+    padding: 2px 7px;
 }
 
 
 /* ========================================================================
-   Navigation bar (bottom of each step)
+   Info icons (pin to a small fixed size; the global .info-icon is 0.6em of
+   the parent, which balloons inside the large section/group headings)
    ======================================================================== */
+.intake-modal .info-icon {
+    font-size: 13px;
+    vertical-align: middle;
+    padding: 0;
+    margin-left: 6px;
+    color: var(--color-brand-blue-light);
+}
 
+.intake-modal .info-icon:hover {
+    color: var(--color-brand-blue);
+}
+
+/* Tooltip below-right so it does not clip at the top of the modal. */
+.intake-modal .info-icon[data-tooltip]:before {
+    top: 22px;
+    left: 0;
+}
+
+
+/* ========================================================================
+   Modal Navigation
+   ======================================================================== */
 .intake-modal-nav {
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
-    padding: 16px 44px 28px;
+    padding: 20px 48px 32px 48px;
     flex-shrink: 0;
-    gap: 12px;
 }
 
-/* Warning text shown when advancing without a required selection */
-.intake-step-warning {
-    font-size: 14px;
-    color: var(--color-brand-fuscia);
-    margin-right: auto;
-}
-
-/* Back button */
 .intake-modal-back {
     background-color: var(--color-secondary-text);
     color: var(--color-white);
@@ -454,94 +350,63 @@
     font-size: 15px;
     font-weight: var(--font-weight-bold);
     cursor: pointer;
-    padding: 12px 24px;
+    padding: 12px 28px;
     border-radius: 8px;
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    text-decoration: none;
-    margin-right: auto;
 }
 
 .intake-modal-back:hover {
     background-color: var(--color-dark-gray);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    color: var(--color-white);
-    text-decoration: none;
 }
 
-/* Next / Submit button */
+.intake-modal-back.hidden {
+    visibility: hidden;
+}
+
 .intake-modal-next {
+    margin-left: auto;
     background-color: var(--color-brand-blue);
     color: var(--color-white);
     border: none;
     font-size: 15px;
     font-weight: var(--font-weight-bold);
-    padding: 12px 24px;
+    padding: 12px 28px;
     border-radius: 8px;
     cursor: pointer;
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    text-decoration: none;
 }
 
 .intake-modal-next:hover {
     background-color: var(--color-brand-blue-light);
     box-shadow: 0 4px 12px rgba(2, 115, 190, 0.3);
-    color: var(--color-white);
-    text-decoration: none;
 }
 
-/* Start Audit variant: brand green */
-.intake-modal-next--green {
+.intake-modal-next.start-audit {
     background-color: var(--color-brand-green);
 }
 
-.intake-modal-next--green:hover {
+.intake-modal-next.start-audit:hover {
     background-color: var(--color-brand-green-light);
     box-shadow: 0 4px 12px rgba(139, 180, 45, 0.3);
 }
 
-
-/* ========================================================================
-   Info-icon adjustments scoped to intake context
-   (base .info-icon rule lives in styles.css)
-   ======================================================================== */
-
-/* Inline with form labels: sit at middle rather than superscript */
-.intake-label .info-icon,
-legend.intake-label .info-icon {
-    vertical-align: middle;
-    font-size: 0.95em;
-    margin-left: 4px;
-}
-
-/* Tooltip for intake info-icons: position below-right to avoid clipping
-   at the top of the modal where the title sits. */
-.intake-label .info-icon[data-tooltip]:before,
-legend.intake-label .info-icon[data-tooltip]:before {
-    top: auto;
-    bottom: calc(100% + 4px);
-    left: 0;
-    transform: none;
+/* Generic hide helper for the swap between Next and Start Audit. */
+.intake-hidden {
+    display: none !important;
 }
 
 
 /* ========================================================================
    Responsive
    ======================================================================== */
-
 @media only screen and (max-width: 800px) {
-
-    .intake-overlay {
-        padding: 0;
-        align-items: flex-end;
-    }
-
-    /* Full-screen sheet on mobile */
     .intake-modal {
         width: 100%;
         height: 100%;
@@ -549,50 +414,30 @@ legend.intake-label .info-icon[data-tooltip]:before {
         border-radius: 0;
     }
 
-    .intake-modal-body {
-        padding: 20px 24px 8px;
-    }
-
     .intake-progress {
-        padding: 20px 24px 12px;
+        padding: 24px 24px 0 24px;
     }
 
-    /* Smaller step circles */
+    .intake-panel {
+        padding: 24px;
+    }
+
+    .intake-modal-nav {
+        padding: 16px 24px 24px 24px;
+    }
+
     .intake-progress-step {
         width: 30px;
         height: 30px;
         font-size: 12px;
     }
 
-    .intake-progress-line {
-        max-width: 50px;
-    }
-
-    .intake-modal-nav {
-        padding: 12px 24px 20px;
-    }
-
-    /* Site type grid collapses to 2 columns */
-    .intake-sitetype-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media only screen and (max-width: 500px) {
-
-    .intake-modal-body {
-        padding: 16px 16px 8px;
-    }
-
-    .intake-progress {
-        padding: 16px 16px 10px;
-    }
-
-    .intake-modal-nav {
-        padding: 10px 16px 16px;
-    }
-
-    .intake-sitetype-grid {
+    .intake-checkbox-grid,
+    .intake-checkbox-grid-compact {
         grid-template-columns: 1fr;
+    }
+
+    .intake-radio-group {
+        flex-direction: column;
     }
 }

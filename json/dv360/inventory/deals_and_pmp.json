@@ -1,0 +1,200 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/displayvideo/answer/6380183",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Private marketplace (PMP) and programmatic guaranteed (PG) deals represent negotiated inventory with premium publishers, but the deal ID must be correctly assigned to a line item (LI) for that inventory to deliver. A dormant deal or a misrouted deal ID means the negotiated inventory does not run, the publisher does not recognize the relationship as active, and the impressions go to other buyers. These checks are fast: the Deals view in Display and Video 360 (DV360) shows spend, status, and the line items linked to each deal at a glance.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Deals in DV360 let an advertiser buy inventory directly from a publisher at negotiated terms, bypassing the open auction. A private marketplace deal offers the inventory at a priority that a floor price protects. A programmatic guaranteed deal commits both parties to a fixed volume at a fixed cost per thousand impressions (CPM). For either type to deliver, the deal must be active, the deal ID must be assigned to a line item configured to use it, and the line item must be in a state that can actually serve. These checks confirm that negotiated deals are spending as expected and that the account does not carry overlapping deals that compete with each other.",
+  "audit_checks": [
+    {
+      "id": "dv360-pmp-pg-deals-not-spending",
+      "title": "PMP and PG deals are active in DV360 but show no spend",
+      "category": "inventory",
+      "subcategory": "deals_and_pmp",
+      "impact_score": 4,
+      "impact_rationale": "A PG deal commits both the advertiser and the publisher to a fixed impression volume. When the deal does not spend, the advertiser loses the negotiated inventory while the publisher may still invoice against the guaranteed commitment. A PMP deal that does not spend means the reserved priority inventory goes to other buyers.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "governance"],
+      "educate": {
+        "base": "A deal in DV360 can show a status of 'Active' at the inventory source level and still deliver zero impressions. Active status means DV360 has accepted the deal and it is eligible to serve. It does not mean a line item is actually targeting it or that the line item is in a state that can serve.<br><br>Three configuration gaps cause an active deal to spend nothing:<br><br>The deal ID is not assigned to any line item. A deal created in the inventory source library stays unspent until a line item targets it. It is possible to negotiate a deal with a publisher, have DV360 accept it, and never attach it to a campaign.<br><br>The deal ID is assigned to a line item, but the line item is paused, ended, or has no remaining budget. DV360 shows the deal as active because the deal itself is eligible. The block is in the line item, not the deal.<br><br>For programmatic guaranteed deals specifically, the line item must be the <a href='https://support.google.com/displayvideo/answer/6380183' class='tools-link-no-padding' target='_blank'>correct type</a> to target a PG deal. A standard display or video line item cannot target a PG deal. If the line item type is wrong, the deal never bids even though both the deal and the line item appear active.<br><br>A few signs point to a deal that is accepted but not running:<ul><li>The Deals view shows the deal with no impressions or spend over the flight period</li><li>The deal is not listed under any line item in the Inventory Targeting section</li><li>The line item linked to a PG deal is a standard type rather than a programmatic guaranteed type</li></ul>You may want to cross-reference the deal's flight dates and the line item's campaign calendar before escalating to the publisher. A deal that appears dormant may simply be outside its negotiated window.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser, PG deals are used to lock in premium placements around product launches or seasonal peaks, such as holiday shopping windows. You may want to confirm that the line item's flight dates align with the deal's start and end dates. A PG deal that starts after the campaign ends will never deliver.",
+          "lead_gen": "For a lead-generation advertiser, PMP deals on contextually relevant publisher sites can target in-market audiences that open auction buying does not reach as precisely. You may want to confirm that the line item's audience or contextual targeting layers are not so narrow that they exclude most of the publisher's traffic the deal was meant to capture."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Developers",
+            "source_title": "DV360 API: inventorySources resource (deals and inventory source types)",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v4/inventorySources"
+          },
+          {
+            "source_type": "DV360 Help",
+            "source_title": "About inventory sources in Display and Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/6380183"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm each active deal has spend over its flight period, is assigned to at least one active line item, and that any programmatic guaranteed deal is assigned to a PG-type line item.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Navigate to the advertiser and open 'Inventory', then 'My Inventory'. Filter by deal type (Preferred Deal, Private Auction, Programmatic Guaranteed) and review the 'Impressions' and 'Spend' columns for each deal over the relevant date range.",
+                "For any deal showing zero impressions, open the deal and review the 'Assigned Line Items' section. Note whether the deal is assigned to any line item at all.",
+                "For each assigned line item, navigate to that line item's detail view and confirm its status. Check whether the line item is active, within its flight dates, and has remaining budget.",
+                "For programmatic guaranteed deals specifically, confirm the assigned line item's type is 'Programmatic Guaranteed' rather than a standard display or video type. A type mismatch prevents the deal from bidding."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per deal, whether it shows impressions and spend over its flight period, whether it is assigned to at least one active line item, and whether any PG deal is assigned to a PG-type line item. A deal with spend and a correctly configured active line item passes. A deal with zero spend is a fail, recorded with the deal name, its flight dates, and the status of any assigned line items (or a note that no line items are assigned).",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the deal name, deal type, impression count, and assigned line item status for each deal above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more PMP or PG deals on {{site_name}}'s account are active but show no spend over their flight period. In at least one case, the deal is not assigned to any line item, meaning the negotiated inventory is available but no campaign is targeting it. For PG deals, a commitment to the publisher exists regardless of whether the line item delivers. {{voice_recommend}} reviewing each unspent deal, assigning it to the correct line item, confirming the line item is active and within its flight dates, and verifying that any PG deal is assigned to a programmatic guaranteed line item type rather than a standard one."
+      }
+    },
+    {
+      "id": "dv360-deal-ids-not-mapped-to-correct-line-items",
+      "title": "Deal IDs are not mapped to the line items intended to use the negotiated inventory",
+      "category": "inventory",
+      "subcategory": "deals_and_pmp",
+      "impact_score": 3,
+      "impact_rationale": "When a deal ID is assigned to the wrong line item, the negotiated inventory delivers against an audience or creative that was not intended for that publisher placement. The intended line item, meanwhile, buys from open auction instead of the negotiated deal, paying potentially higher CPMs for less premium inventory.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "brand-safety"],
+      "educate": {
+        "base": "A deal ID in DV360 connects a line item to a publisher's specific inventory source. The connection is made in the line item's Inventory Targeting settings. If the connection is made to the wrong line item, the targeting, creative, audience, and bid strategy of that line item govern how the deal delivers, not the intended one.<br><br>This mismatch can arise when a DV360 account manages deals for multiple brands, product lines, or campaigns, and deal IDs are assigned by copy-pasting from a prior insertion order (IO) without updating the targeting. It can also arise when a trafficking team assigns a deal at the advertiser level in the inventory source library and then individual campaign managers create line items without checking which deal IDs are already present.<br><br>The result is that the publisher's premium inventory runs against whatever line item happens to have the deal ID, which may carry generic creatives, broad audience targeting, or a bid strategy calibrated for open auction rather than guaranteed inventory.<br><br>A few signs point to a deal mapped to the wrong line item:<ul><li>A line item with a narrow audience or specific product focus shows unexpectedly high impression volume from a single publisher</li><li>A line item explicitly built for a deal placement shows no impressions from the publisher domain associated with the deal</li><li>The inventory source appears in a line item's targeting when that line item's campaign brief does not reference that publisher</li></ul>You may want to compare the line item names and their associated campaigns against the deal names and the publishers they represent before concluding a mapping error exists. Some accounts intentionally assign a deal to a broad line item as a fallback.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser, a deal negotiated for a high-intent shopping or product-review publisher that lands on a brand-awareness line item means the publisher's ready-to-buy audience sees awareness creatives rather than a direct response offer. You may want to confirm the line item assigned to each deal carries the appropriate creative and conversion goal for that publisher's audience.",
+          "lead_gen": "For a lead-generation advertiser, a deal negotiated with a B2B publisher that lands on a consumer-audience line item means the publisher's professional audience receives messaging calibrated for a different segment. You may want to confirm the assigned line item's audience targeting and creative align with the publisher's reader profile."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Developers",
+            "source_title": "DV360 API: inventorySourceGroups resource",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v4/inventorySourceGroups"
+          },
+          {
+            "source_type": "DV360 Help",
+            "source_title": "About inventory sources in Display and Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/6380183"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "For each active deal, confirm the line item it is assigned to matches the campaign intent, audience, and creative associated with that publisher relationship.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Navigate to 'Inventory', then 'My Inventory'. Open each active deal and review the 'Assigned Line Items' list.",
+                "For each assigned line item, note the parent campaign and insertion order name. Confirm the campaign and IO name reference the publisher or deal purpose that matches the deal name.",
+                "Open the line item and review its Inventory Targeting section. Confirm the deal ID appears there, and review the line item's audience targeting and creatives to confirm they align with the publisher's inventory and audience.",
+                "If a deal appears in a line item whose campaign does not reference that publisher or deal, document the deal name, the mismatched line item name, and the IO it belongs to."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per active deal, whether the assigned line item's campaign and IO align with the deal's publisher and negotiated purpose. A deal whose line item name, audience targeting, and creatives are consistent with the publisher relationship passes. A deal assigned to a line item in a campaign or IO that does not reference that publisher, or whose audience and creative are inconsistent with the deal's intent, is a fail recorded with the deal name, the mismatched line item, and the parent campaign.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each deal name, its assigned line item, and the parent campaign name above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more deal IDs on {{site_name}}'s account are assigned to line items whose campaign context does not align with the publisher relationship the deal represents. The negotiated inventory is running against the targeting, creatives, and bid strategy of the wrong line item, while the intended line item is buying from open auction instead. {{voice_recommend}} reviewing each deal's assigned line items, correcting the inventory targeting to assign each deal to the line item built for that publisher relationship, and confirming the creative and audience on that line item align with the deal's intent before the next flight period."
+      }
+    },
+    {
+      "id": "dv360-overlapping-deals-competing-for-same-inventory",
+      "title": "Multiple deals from the same publisher target the same line items, creating overlap",
+      "category": "inventory",
+      "subcategory": "deals_and_pmp",
+      "impact_score": 2,
+      "impact_rationale": "When two deals from the same publisher are both assigned to the same line item, DV360 bids on whichever deal is available at impression time without a defined preference. The account may win inventory at a higher cost than the lower-floor deal would have required, and reporting splits the publisher's impressions across two deal IDs, making analysis harder.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "brand-safety"],
+      "educate": {
+        "base": "An advertiser may hold more than one deal with the same publisher: a private auction deal negotiated for one product line, a preferred deal for another, and a programmatic guaranteed deal for a specific flight. If two or more of these deals are all assigned to the same line item, DV360 treats them as equivalent inventory sources. It bids on whichever is available without a preference for the lower-cost or higher-priority option.<br><br>The outcome depends on deal type. Two private auction deals from the same publisher assigned to one line item means the line item bids on both, potentially winning the higher-floor deal when the lower-floor deal would have been sufficient. A PG deal and a PMP deal assigned to the same line item creates a priority conflict: the PG deal carries a delivery commitment, but the line item may fulfill its impression goal through the PMP deal first, leaving the PG deal underdelivering against its guarantee.<br><br>Overlapping deals also fragment reporting. Impressions from the same publisher domain appear under multiple deal IDs rather than one, which makes it harder to evaluate that publisher's performance as a whole.<br><br>A few signs point to overlapping deals on a single line item:<ul><li>A line item's Inventory Targeting section lists more than one deal from the same publisher domain</li><li>Reporting for a campaign shows impressions split across multiple deal IDs that share the same site domain</li><li>A PG deal assigned alongside a PMP deal from the same publisher underdelivers against its guaranteed volume</li></ul>You may want to confirm with the publisher whether the multiple deals are intended to run simultaneously before consolidating them. In some cases, separate deals cover distinct ad formats (display versus video) and the overlap is by design.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser running deals across seasonal flights, overlapping deals from the same publisher can arise when a prior campaign's deal IDs were not removed before a new flight's deals were assigned to the same line item. You may want to review deal assignments at the start of each new flight to confirm stale deal IDs from prior periods are not still present in the line item's inventory targeting.",
+          "lead_gen": "For a lead-generation advertiser, overlapping deals from the same B2B publisher can dilute the audience signal if the deals cover different audience segments on the same site. You may want to confirm that each deal is assigned to the line item whose audience parameters most closely match the audience the deal covers."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Developers",
+            "source_title": "DV360 API: inventorySources resource (deals and inventory source types)",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v4/inventorySources"
+          },
+          {
+            "source_type": "DV360 Help",
+            "source_title": "About inventory sources in Display and Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/6380183"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "For each line item that uses deal targeting, confirm that no two deals from the same publisher domain are both assigned to the same line item.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Open each active line item that uses inventory source targeting. In the Inventory Targeting section, list all assigned deal IDs.",
+                "For each set of deal IDs, note the publisher name or domain associated with each deal. If two or more deal IDs share the same publisher, record the line item name, the overlapping deal names, and their deal types.",
+                "In the Deals view under 'My Inventory', compare the impression breakdown across the overlapping deals to assess whether the split is intentional (e.g., separate formats) or a configuration artifact from a prior campaign."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per line item using deal targeting, whether more than one deal from the same publisher is assigned. A line item with one deal per publisher passes. A line item with two or more deals from the same publisher is a potential fail; the practitioner notes the deal types, checks whether the overlap covers different ad formats, and records it as a confirmed fail if the overlap is not format-based. The fail is recorded with the line item name, the publisher domain, and the deal names involved.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each line item's assigned deal IDs and their publisher domains above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more line items on {{site_name}}'s account have multiple deals from the same publisher assigned simultaneously. DV360 bids on whichever deal is available at impression time, which can result in winning higher-cost inventory when a lower-floor deal would have sufficed, and it splits reporting across deal IDs in a way that makes publisher-level performance harder to read. Where a programmatic guaranteed deal and a private marketplace deal from the same publisher share a line item, the PG deal's delivery commitment is at risk if the line item fulfills impressions through the PMP deal first. {{voice_recommend}} reviewing each line item's inventory targeting, consolidating deals from the same publisher unless the deals cover distinct ad formats, and removing any stale deal IDs carried over from prior campaign flights."
+      }
+    }
+  ]
+}

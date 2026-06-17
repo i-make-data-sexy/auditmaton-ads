@@ -1,0 +1,209 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://www.linkedin.com/help/lms/answer/a425606",
+  "worth_it": "Yes",
+  "worth_it_explanation": "How a conversion is defined decides what the account reports and what its bidding optimizes toward, so a conversion built the wrong way distorts both. The checks are quick. Each conversion's settings in Campaign Manager show the tracking method, whether a value is attached, and which campaigns the conversion feeds. The fixes are configuration changes, not a rebuild, and they improve the data from the day they are live.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "In Campaign Manager, a website conversion is defined as either a page load, which counts a visit to a chosen URL, or an event-specific action, which counts a click on a button or a form submission. Each conversion can carry a value and has to be associated with the campaigns it is meant to measure. These checks confirm that conversions use the method that matches the action, that revenue-bearing conversions carry a value, and that each conversion feeds the campaigns it belongs to.",
+  "audit_checks": [
+    {
+      "id": "linkedin-ads-conversions-page-load-only",
+      "title": "Conversions are tracked on page load instead of the specific action",
+      "category": "conversion-tracking",
+      "subcategory": "conversion_setup",
+      "impact_score": 3,
+      "impact_rationale": "A page-load conversion counts every visit to the chosen URL, including visits that did not complete the action, so the count drifts away from the real number of actions. Bidding then optimizes toward an inflated or ambiguous signal, and the reported cost per acquisition reflects pageviews rather than conversions.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "Campaign Manager offers two ways to track an Insight Tag conversion. A page-load conversion fires when a LinkedIn member visits a URL you specify, such as a thank-you page. An event-specific conversion fires when a member clicks a button or submits a form, using a snippet of code attached to that element. The two methods count different things, and the right choice depends on whether reaching the page is the same as completing the action.<br><br>A page-load conversion is accurate when the URL is reached only by completing the action, for example a confirmation page that loads only after a purchase. It drifts when the page can be reached without completing the action, for example a thank-you page a user can bookmark and revisit, or a single-page application where the URL does not change on submission. In those cases the page load counts visits that are not conversions.<br><br>An event-specific conversion ties the count to the action itself, so it counts the click or the submission rather than the arrival at a page. It is the closer match when the page alone is ambiguous about whether the action happened.<br><br>A few signs point to a page-load conversion that should be event-specific:<ul><li>The conversion's tracking method is page load, but the target URL can be reached without completing the action</li><li>The action happens on a single-page application where the URL does not change on submission</li><li>The reported conversion count runs noticeably higher than the back-end record of the action</li></ul>You may want to confirm, for each meaningful conversion, that the tracking method matches how the action actually completes. Where the page alone does not confirm the action, an event-specific rule is the closer match.",
+        "site_type_overlays": {
+          "ecommerce": "On a B2B or considered-purchase store, a purchase confirmation page that loads only after checkout is a reasonable page-load conversion since reaching it means the order completed. You may want to confirm the confirmation URL cannot be reached by revisiting or bookmarking. If it can, an event-specific conversion on the purchase action is the closer match.",
+          "lead_gen": "On a lead-capture site, the dominant case for LinkedIn, the action is usually a form submission rather than a purchase. You may want to confirm that form-fill conversions fire on submission, through an event-specific rule, rather than on the load of a thank-you page that a user could reach without submitting."
+        },
+        "learn_more": [
+          {
+            "source_type": "LinkedIn Marketing Solutions Help",
+            "source_title": "Set up Conversion Tracking for Insight Tag conversions in Campaign Manager",
+            "source_url": "https://www.linkedin.com/help/lms/answer/a425606"
+          },
+          {
+            "source_type": "LinkedIn Marketing Solutions Help",
+            "source_title": "Use event-specific conversion tracking with Google Tag Manager",
+            "source_url": "https://www.linkedin.com/help/lms/answer/a417886"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm, for each meaningful conversion, whether its tracking method is page load or event-specific and whether that method matches how the action completes.",
+        "tools": {
+          "free": {
+            "linkedin_campaign_manager": {
+              "label": "LinkedIn Campaign Manager",
+              "steps": [
+                "Open the account in Campaign Manager, select 'Analyze' in the left navigation, and choose 'Conversion tracking'.",
+                "Open each conversion and note its tracking method, listed as page load or event-specific, along with the target URL or event it tracks.",
+                "For each page-load conversion, check whether the target URL can be reached without completing the action, for example by revisiting or bookmarking the page. A URL that is reachable on its own points to a conversion that may overcount."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the site's conversion page in a browser and open DevTools, then the Network tab.",
+                "Complete the action, such as submitting the form, and watch for the LinkedIn conversion request firing on the action rather than only on the page load.",
+                "Confirm whether the same request also fires on a plain visit to the page without completing the action, which would indicate page-load tracking where event-specific is the closer fit."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per meaningful conversion, the tracking method and whether the target URL can be reached without completing the action. A conversion whose method matches how the action completes, an event-specific rule for an ambiguous page or a page-load rule for a confirmation URL that is reachable only on completion, passes. A page-load conversion whose URL can be reached without completing the action is a fail recorded with the conversion name.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the tracking method and the URL reachability for each meaningful conversion above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more meaningful conversions on {{site_name}} are tracked on page load rather than on the specific action. The target URL can be reached without completing the action, so the conversion counts visits that are not conversions, and the bidding optimizes toward that inflated signal. {{voice_recommend}} switching the affected conversions to event-specific tracking, tied to the button click or form submission, so the count reflects the action itself. After the change, confirm in the browser's network activity that the conversion fires on the action and not on a plain visit to the page."
+      }
+    },
+    {
+      "id": "linkedin-ads-conversion-value-missing",
+      "title": "Conversion actions carry no value, so return cannot be measured",
+      "category": "conversion-tracking",
+      "subcategory": "conversion_setup",
+      "impact_score": 2,
+      "impact_rationale": "Without a value on the conversion, Campaign Manager reports a conversion count but no revenue, so cost per acquisition cannot be weighed against what the conversion is worth. Conversions of very different value look identical in reporting, and value-based optimization has nothing to work from.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "attribution"],
+      "educate": {
+        "base": "When you define a conversion in Campaign Manager, you choose how it is valued. You can apply the same fixed value to every conversion of that type, pass a variable value from the page or tag for conversions whose worth differs, or select no value. A conversion set to no value still counts, but it reports a count with no revenue attached.<br><br>Without a value, the account can tell how many conversions a campaign produced but not what they were worth. Cost per acquisition has no worth to weigh against, and two conversions of very different value, for example a small order and a large one, contribute the same zero to revenue reporting. The account cannot tell which campaigns drive the more valuable conversions.<br><br>A fixed value fits a conversion that is worth roughly the same each time, such as a lead with a known average worth. A variable value fits a conversion whose worth changes per transaction, such as a purchase, and depends on the page or tag passing the amount to LinkedIn. You may want to confirm that revenue-bearing conversions carry a value, and that a variable value is actually populated rather than arriving empty.<br><br>A few signs point to a missing or empty value:<ul><li>A revenue-bearing conversion is set to no value</li><li>A conversion is set to use a variable value, but reporting shows revenue at or near zero against a healthy conversion count</li><li>Conversions of clearly different worth all report the same value</li></ul>You may want to confirm both the value setting and, for variable values, that the amount reaches LinkedIn on each conversion.",
+        "site_type_overlays": {
+          "ecommerce": "On a B2B or considered-purchase store, purchases vary in size, so a variable value passed from the order is the closer fit than a single fixed value. You may want to confirm the order total reaches LinkedIn with the conversion rather than arriving empty, which would report the purchase with no revenue.",
+          "lead_gen": "On a lead-capture site, leads often share a known average worth, so a fixed value can stand in for revenue and let the account compare cost per lead against it. You may want to confirm that lead conversions carry at least a fixed value, even where exact per-lead revenue is not known at submission."
+        },
+        "learn_more": [
+          {
+            "source_type": "LinkedIn Marketing Solutions Help",
+            "source_title": "Set up Conversion Tracking for Insight Tag conversions in Campaign Manager",
+            "source_url": "https://www.linkedin.com/help/lms/answer/a425606"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm, for each revenue-bearing conversion, whether a value is set and, where the value is variable, whether the amount reaches LinkedIn.",
+        "tools": {
+          "free": {
+            "linkedin_campaign_manager": {
+              "label": "LinkedIn Campaign Manager",
+              "steps": [
+                "Open the account in Campaign Manager, select 'Analyze', and choose 'Conversion tracking'.",
+                "Open each conversion and read its value setting, noting whether it uses a fixed value, a variable value, or no value.",
+                "For conversions set to a variable value, open the conversion's reporting and compare reported revenue against the conversion count. Revenue at or near zero against a healthy count points to a value that is not reaching LinkedIn."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the site's conversion page in a browser and open DevTools, then the Network tab.",
+                "Complete the action and inspect the LinkedIn conversion request for a populated value parameter where a variable value is expected.",
+                "Confirm the value matches the order total or lead worth shown on the page rather than arriving empty or as zero."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per revenue-bearing conversion, the value setting and, for variable values, whether reported revenue tracks the conversion count. A revenue-bearing conversion with a fixed value, or a variable value confirmed to populate, passes. A revenue-bearing conversion set to no value, or set to a variable value that reports near-zero revenue against a healthy count, is a fail recorded with the conversion name.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the value setting and, for variable values, the reported revenue against the conversion count for each revenue-bearing conversion above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more revenue-bearing conversions on {{site_name}} carry no value, so Campaign Manager reports the conversion count without any revenue behind it. Cost per acquisition has nothing to weigh against, and conversions of different worth report the same zero, which hides which campaigns drive the more valuable actions. {{voice_recommend}} adding a value to the affected conversions, a fixed value where each conversion is worth roughly the same and a variable value passed from the page where the worth differs per transaction. After the change, confirm in reporting that revenue tracks the conversion count rather than staying at zero."
+      }
+    },
+    {
+      "id": "linkedin-ads-conversions-not-linked-campaigns",
+      "title": "Conversions are not associated with the campaigns meant to drive them",
+      "category": "conversion-tracking",
+      "subcategory": "conversion_setup",
+      "impact_score": 3,
+      "impact_rationale": "A conversion only appears in a campaign's reporting and feeds that campaign's optimization when it is associated with the campaign. An unassociated conversion is invisible to the campaign meant to drive it, so the campaign looks like it produced nothing and its bidding has no conversion signal to learn from.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "governance"],
+      "educate": {
+        "base": "In Campaign Manager, a conversion has to be associated with a campaign before that campaign can report or optimize toward it. LinkedIn states that conversions are tracked only when attached to a campaign. The association is set when the conversion is created and can be edited later, and it is what connects the action on the site to the campaign meant to produce it.<br><br>When a conversion is not associated with a campaign, the campaign cannot report it. The campaign appears to have produced no conversions even when the action happened, and the cost per acquisition reads as undefined or far worse than reality. If the campaign uses conversion-based optimization, it also has no conversion signal to bid toward, so the bidding works blind.<br><br>This gap usually comes from a new campaign launched after the conversion was created, where the association was not extended to it, or a new conversion that was created without being attached to the running campaigns. Either way, the action and the campaign exist but are not connected.<br><br>A few signs point to a missing association:<ul><li>A campaign that should produce a known conversion reports none of it</li><li>A conversion exists in the account but is not listed against the campaigns meant to drive it</li><li>A recently launched campaign reports clicks and spend but no conversions, while the conversion itself records on the site</li></ul>You may want to confirm, for each campaign, that the conversions it is meant to produce are associated with it, and that new campaigns inherit the right associations when they launch.",
+        "site_type_overlays": {
+          "ecommerce": "On a B2B or considered-purchase store, the purchase conversion needs to be associated with the campaigns driving traffic to the store, not only with the campaign that existed when the conversion was created. You may want to confirm that newer campaigns carry the purchase association so their contribution to sales is visible.",
+          "lead_gen": "On a lead-capture site, the form-fill conversion needs to be associated with each campaign meant to generate leads. You may want to confirm that every lead campaign, including recently launched ones, lists the lead conversion among its associated conversions so its leads are reported and its bidding has a signal."
+        },
+        "learn_more": [
+          {
+            "source_type": "LinkedIn Marketing Solutions Help",
+            "source_title": "Get started with LinkedIn Conversion Tracking",
+            "source_url": "https://www.linkedin.com/help/lms/answer/a420536"
+          },
+          {
+            "source_type": "LinkedIn Marketing Solutions Help",
+            "source_title": "Set up Conversion Tracking for Insight Tag conversions in Campaign Manager",
+            "source_url": "https://www.linkedin.com/help/lms/answer/a425606"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm, for each campaign, that the conversions it is meant to produce are associated with it in Campaign Manager.",
+        "tools": {
+          "free": {
+            "linkedin_campaign_manager": {
+              "label": "LinkedIn Campaign Manager",
+              "steps": [
+                "Open the account in Campaign Manager, select 'Analyze', and choose 'Conversion tracking'.",
+                "Open each conversion and review its list of associated campaigns, noting which campaigns are attached and which are not.",
+                "Cross-check against the active campaigns. For each campaign that should drive a given conversion, confirm the campaign appears in that conversion's association list, and note any campaign that is meant to produce the conversion but is missing from it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per active campaign, the conversions it is meant to produce and whether each is associated with it. A campaign whose intended conversions are all associated passes. A campaign meant to drive a conversion that is not associated with it is a fail recorded with the campaign name and the missing conversion.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record, for each active campaign, the conversions it is meant to produce and whether each is associated above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more conversions on {{site_name}} are not associated with the campaigns meant to drive them. A conversion is reported and optimized toward only when it is attached to a campaign, so the affected campaigns appear to produce no conversions even though the action records on the site, and any conversion-based bidding on them works without a signal. {{voice_recommend}} associating each conversion with the campaigns intended to produce it, and confirming that newly launched campaigns inherit the right associations. After the change, confirm that the affected campaigns begin reporting the conversion they were meant to drive."
+      }
+    }
+  ]
+}

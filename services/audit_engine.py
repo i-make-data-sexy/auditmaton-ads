@@ -278,7 +278,7 @@ CATEGORY_METADATA = {
         },
         "bidding": {
             "display_name": "Bidding",
-            "icon_class": "fa-solid fa-gavel",
+            "icon_class": "fa-solid fa-hand-holding-dollar",
             "description": "Bid strategy fit, budgets, and pacing",
         },
         "targeting": {
@@ -310,7 +310,7 @@ CATEGORY_METADATA = {
         },
         "bidding": {
             "display_name": "Bidding",
-            "icon_class": "fa-solid fa-gavel",
+            "icon_class": "fa-solid fa-hand-holding-dollar",
             "description": "Bid strategy, optimization event, and the learning phase",
         },
         "targeting": {
@@ -347,7 +347,7 @@ CATEGORY_METADATA = {
         },
         "bidding": {
             "display_name": "Bidding",
-            "icon_class": "fa-solid fa-gavel",
+            "icon_class": "fa-solid fa-hand-holding-dollar",
             "description": "Bid strategy, budget sizing, and pacing across campaigns",
         },
         "targeting": {

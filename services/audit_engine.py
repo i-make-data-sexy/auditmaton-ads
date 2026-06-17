@@ -371,6 +371,48 @@ CATEGORY_METADATA = {
             "description": "Consent signaling before the Insight Tag fires, and member-data handling",
         },
     },
+    "dv360": {
+        "governance": {
+            "display_name": "Governance",
+            "icon_class": "fa-solid fa-scale-balanced",
+            "description": "Partner and advertiser structure, user access, and CM360/Floodlight linking",
+        },
+        "campaigns": {
+            "display_name": "Campaigns",
+            "icon_class": "fa-solid fa-rectangle-list",
+            "description": "Insertion order and line item structure, line item types, and budget pacing",
+        },
+        "inventory": {
+            "display_name": "Inventory",
+            "icon_class": "fa-solid fa-boxes-stacked",
+            "description": "Inventory sources, deals and private marketplace, and inventory quality",
+        },
+        "targeting": {
+            "display_name": "Targeting",
+            "icon_class": "fa-solid fa-crosshairs",
+            "description": "Audience setup, frequency management, and targeting exclusions",
+        },
+        "bidding": {
+            "display_name": "Bidding",
+            "icon_class": "fa-solid fa-hand-holding-dollar",
+            "description": "Bid strategy, custom bidding, and optimized targeting",
+        },
+        "creative": {
+            "display_name": "Creative",
+            "icon_class": "fa-solid fa-palette",
+            "description": "Creative formats, QA, and video and connected TV creative",
+        },
+        "brand-safety": {
+            "display_name": "Brand Safety",
+            "icon_class": "fa-solid fa-shield-halved",
+            "description": "Brand safety controls, third-party verification, and invalid traffic",
+        },
+        "measurement": {
+            "display_name": "Measurement",
+            "icon_class": "fa-solid fa-chart-line",
+            "description": "Floodlight conversions, attribution windows, and brand lift reporting",
+        },
+    },
     "google-tag-manager": {
         "container-structure": {
             "display_name": "Container Structure",

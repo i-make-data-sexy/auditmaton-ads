@@ -1,0 +1,203 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://www.facebook.com/business/help/355670007911605",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The optimization event an ad set targets decides which action Meta's delivery system tries to find more of, and the choice drives both how the ad set learns and what the spend produces. A deep event such as Purchase that fires too rarely keeps the ad set stuck in learning, where delivery is unstable and cost per result runs high. A shallow event such as Landing Page View that fires constantly exits learning fast but optimizes toward traffic that may never convert. The check reads from the ad set's performance goal and the delivery status already visible in Ads Manager, so it takes minutes per ad set and the fix is a setting change rather than a rebuild.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "The optimization event is the action a Meta ad set asks the delivery system to maximize, set through the ad set's performance goal. The system spends the budget finding people likely to take that specific action, so the event choice shapes who sees the ads and what the campaign returns. Two failure modes sit at opposite ends. A deep event such as Purchase carries real value but can fire too rarely for the ad set to gather the signal it needs, which leaves it stuck in the learning phase. A shallow event such as Landing Page View fires often enough to stabilize delivery but tells the system to chase clicks rather than buyers. These checks read the performance goal and delivery status on each ad set and weigh the event against the volume it actually produces.",
+  "audit_checks": [
+    {
+      "id": "deep-optimization-event-below-learning-volume",
+      "title": "Ad sets optimize for a deep event that fires too rarely to exit the learning phase",
+      "category": "bidding",
+      "subcategory": "optimization_event",
+      "impact_score": 4,
+      "impact_rationale": "An ad set that cannot gather enough optimization events stays in the learning phase, where delivery is unstable and cost per result runs higher than the steady state. Budget spent in this state buys volatile performance rather than the efficient delivery the spend should produce.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "conversion-tracking"],
+      "educate": {
+        "base": "When a Meta ad set targets a conversion event such as Purchase, the delivery system needs a steady stream of that event to learn who to show the ads to. Meta describes a target of roughly 50 optimization events in the week after the last significant edit for an ad set to leave the learning phase. An ad set that fires fewer events than that stays in a state Meta labels 'Learning limited', where delivery and cost per result swing more than they do once the ad set stabilizes.<br><br>Optimizing for a deep event sits in tension with this volume requirement. A purchase is the action worth the most to the advertiser, so it is the natural goal, but it also fires the least often of the events in a typical funnel. A small budget, a narrow audience, or a high price point can each hold the weekly purchase count below the threshold the ad set needs. The result is an ad set chasing the right action with too little data to deliver it efficiently.<br><br>A few signs point to this mismatch:<ul><li>The ad set's Delivery column reads 'Learning limited' and the performance goal is a deep event such as Purchase</li><li>The weekly count of the optimization event sits well below roughly 50 for that ad set</li><li>Cost per result swings widely week to week rather than settling</li></ul>Meta names a few ways out. You may want to consider consolidating ad sets so the budget and conversions pool into fewer learning instances, raising the budget if the audience can support it, or moving the optimization to an earlier event that still reflects intent, such as Add to Cart or Initiate Checkout, when the purchase volume cannot reach the threshold on its own.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the purchase event usually fires often enough on high-volume products but falls short on premium or low-traffic lines, so a per-product or per-collection ad set built around Purchase can sit below the learning threshold even when the account overall converts well. You may want to consider grouping low-volume products into a single ad set, or optimizing those ad sets toward Add to Cart or Initiate Checkout while reserving Purchase optimization for the lines that clear the threshold on their own.",
+          "lead_gen": "On a lead-generation account, the deep event is often a qualified lead or a submitted application that fires far less than a form view, so an ad set optimizing for that deep event can struggle to reach the weekly volume needed to exit learning. You may want to consider optimizing toward the form submission Meta can observe in volume, then using offline event uploads or the Conversions API to feed back the qualified-lead signal once it is known, rather than asking delivery to learn from a rare event alone."
+        },
+        "learn_more": [
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "About the learning phase",
+            "source_url": "https://www.facebook.com/business/help/112167992830700"
+          },
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "About performance goals",
+            "source_url": "https://www.facebook.com/business/help/355670007911605"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm, per ad set, which optimization event the performance goal targets, whether the Delivery column reads 'Learning limited', and how many of that event the ad set produced in the past week.",
+        "tools": {
+          "free": {
+            "meta_ads_manager": {
+              "label": "Meta Ads Manager",
+              "steps": [
+                "Open Ads Manager and switch to the ad set level. Add the 'Delivery' column if it is not shown, and look for ad sets reading 'Learning' or 'Learning limited'.",
+                "For each such ad set, open its settings and note the performance goal, which names the optimization event the delivery system is targeting.",
+                "Set the date range to the last 7 days and read the count of that optimization event for the ad set. Compare it against the rough target of 50 events Meta cites for exiting the learning phase.",
+                "Note any ad set whose optimization event is a deep action such as Purchase and whose weekly count sits well below 50 while Delivery still reads 'Learning limited'."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad set still in learning, the optimization event from the performance goal and the weekly count of that event. An ad set optimizing for a deep event such as Purchase with a weekly count well below roughly 50 and a Delivery status of 'Learning limited' is a fail recorded with the ad set name and the event count. An ad set that either clears the volume threshold or already optimizes for an appropriately frequent event passes.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the optimization event, the Delivery status, and the weekly event count for each ad set still in learning above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} ad sets on {{site_name}} optimizing for a deep event such as Purchase that fires too rarely to leave the learning phase. Meta's delivery system targets roughly 50 optimization events a week to stabilize an ad set, and these ad sets sit well below that, so they stay learning limited with volatile delivery and a higher cost per result than they would reach once settled. {{voice_recommend}} either consolidating ad sets so conversions pool into fewer learning instances, raising the budget where the audience supports it, or moving the optimization to an earlier intent event such as Add to Cart until the deep event clears the volume threshold on its own. After the change, watch the Delivery column for each ad set to leave the learning state."
+      }
+    },
+    {
+      "id": "shallow-optimization-event-misaligned-with-value",
+      "title": "Ad sets optimize for a shallow event that does not reflect real value",
+      "category": "bidding",
+      "subcategory": "optimization_event",
+      "impact_score": 3,
+      "impact_rationale": "An ad set optimizing for a shallow event such as Landing Page View tells Meta to find people likely to click through, not people likely to buy. Delivery stabilizes quickly on the abundant event, so the setup looks healthy, while the spend trends toward cheap traffic that converts at a lower rate than a deeper event would.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "conversion-tracking"],
+      "educate": {
+        "base": "The delivery system optimizes for exactly the event the performance goal names, so a shallow event produces shallow optimization. An ad set set to Landing Page View asks Meta to find people likely to load the page, which is a far easier prediction than finding people likely to purchase. Delivery stabilizes fast because the event fires in volume, and the reports fill with a low cost per landing page view, but the action being optimized is several steps short of the outcome the account is paid on.<br><br>The pull toward a shallow event usually traces back to a real constraint. A deep event that could not reach the weekly volume the learning phase needs gets swapped for an abundant one to keep delivery stable. That trade buys a clean delivery status at the cost of optimization that points away from revenue. The ad set is no longer learning who buys, it is learning who clicks.<br><br>A few signs point to a shallow event working against value:<ul><li>The performance goal is Landing Page View, Link Click, or another upper-funnel event on an ad set whose real objective is sales or leads</li><li>Cost per landing page view looks healthy while cost per purchase or cost per qualified lead is weak</li><li>The ad set exited learning quickly, which a deep-event ad set rarely does</li></ul>You may want to consider moving the optimization to the deepest event the ad set can support at volume, such as Add to Cart or Initiate Checkout, rather than leaving it on a view-level event when the goal is revenue. Where the deep event genuinely cannot reach the threshold, an intent event sits closer to value than a view does."
+      ,
+        "site_type_overlays": {
+          "ecommerce": "On a store, a shallow optimization event such as Landing Page View can post an attractive cost per click while the return on ad spend stays weak because the system is finding browsers rather than buyers. You may want to consider optimizing toward Add to Cart or Initiate Checkout, both of which carry purchase intent and tend to fire often enough to keep an ad set out of the learning limited state.",
+          "lead_gen": "On a lead-generation account, optimizing for Landing Page View or Link Click fills the top of the funnel with traffic that may never submit a form, so the lead volume lags the click volume. You may want to consider optimizing toward the lead or form submission event the pixel and the Conversions API can observe, which points delivery at people likely to convert rather than people likely to land on the page."
+        },
+        "learn_more": [
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "Optimization events",
+            "source_url": "https://www.facebook.com/business/help/139628083350822"
+          },
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "Troubleshoot conversion optimization",
+            "source_url": "https://www.facebook.com/business/help/197634954160445"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm, per ad set, the optimization event the performance goal targets and whether it matches the account's revenue or lead objective, then compare the cost of the shallow event against the cost of the deeper outcome.",
+        "tools": {
+          "free": {
+            "meta_ads_manager": {
+              "label": "Meta Ads Manager",
+              "steps": [
+                "Open Ads Manager at the ad set level and add a column for the performance goal so each ad set's optimization event is visible in one view.",
+                "Flag any ad set whose optimization event is an upper-funnel action such as Landing Page View or Link Click while the campaign objective is sales or leads.",
+                "Customize the columns to show both the shallow event's cost and the deeper outcome's cost, for example cost per landing page view alongside cost per purchase, and read them together for each flagged ad set.",
+                "Note ad sets where the shallow event looks cheap while the deeper outcome is weak, which signals delivery is optimizing for traffic rather than value."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad set, the optimization event and the campaign objective. An ad set whose objective is sales or leads but whose optimization event is an upper-funnel action such as Landing Page View or Link Click is a fail recorded with the ad set name and both costs. An ad set optimizing for the deepest event it can support at volume, or one whose objective genuinely is traffic, passes.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the optimization event, the campaign objective, and the cost of both the shallow event and the deeper outcome for each ad set above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} ad sets on {{site_name}} optimizing for a shallow event such as Landing Page View while the objective is sales or leads. The delivery system maximizes whatever event the performance goal names, so these ad sets are learning who clicks through rather than who converts, which shows up as a healthy cost per view alongside a weak cost per purchase or qualified lead. {{voice_recommend}} moving the optimization to the deepest event each ad set can support at volume, such as Add to Cart or Initiate Checkout, so delivery points at value rather than traffic. After the change, allow the ad set to relearn and compare the cost per deeper outcome against the prior setup."
+      }
+    },
+    {
+      "id": "optimization-event-not-received-from-dataset",
+      "title": "The chosen optimization event is not arriving in the dataset at usable quality",
+      "category": "bidding",
+      "subcategory": "optimization_event",
+      "impact_score": 3,
+      "impact_rationale": "If the event an ad set optimizes for reaches Meta sparsely or with weak signal, delivery learns from a fraction of the conversions that occurred. The performance goal reads as set correctly, so the gap hides in the measurement layer while the ad set behaves as though the event is rare.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "data-quality"],
+      "educate": {
+        "base": "An ad set can only optimize toward an event the delivery system actually receives. The performance goal names the event, but the count Meta learns from comes from the dataset fed by the Meta Pixel and the Conversions API (CAPI). If the event arrives sparsely, is poorly deduplicated between the browser and the server, or carries weak customer information, the system sees fewer usable events than really occurred and optimizes as though the event is rarer than it is.<br><br>This produces a problem that looks like the first check, an ad set short on optimization events, but the cause is measurement rather than the event choice. The purchase volume on the site may be healthy while the volume Meta can act on is thin. An ad set then behaves as though the deep event is too rare to optimize for, when the events are simply not reaching the dataset in usable form.<br><br>Meta exposes signal health for a dataset in Events Manager, including the Event Match Quality score and whether browser and server events deduplicate against each other. A few signs point to an optimization event arriving degraded:<ul><li>The site records more conversions than Events Manager attributes to the matching event</li><li>The Event Match Quality score for the optimization event is low</li><li>Browser and server events for the same conversion are not deduplicating, so Meta either double-counts or discards them</li></ul>You may want to confirm the optimization event arrives at usable quality before concluding an ad set's volume problem is about the event choice. A configuration fix in the Conversions API setup or the customer information sent with each event can restore the signal the delivery system needs."
+      ,
+        "site_type_overlays": {
+          "ecommerce": "On a store, the purchase event commonly flows through both the browser pixel and a server-side Conversions API integration, so a deduplication gap between the two can either inflate or suppress the count Meta optimizes against. You may want to confirm the purchase event sends a matching event ID from both sources so Meta deduplicates correctly, and check the Event Match Quality score for the purchase event in Events Manager.",
+          "lead_gen": "On a lead-generation account, the lead event often originates server-side after a form is qualified, so a thin or delayed Conversions API feed can starve the optimization event even when leads are coming in. You may want to confirm the lead event reaches the dataset promptly and carries enough customer information for a usable match, rather than assuming the ad set's volume problem is about the event choice."
+        },
+        "learn_more": [
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "Troubleshoot conversion optimization",
+            "source_url": "https://www.facebook.com/business/help/197634954160445"
+          },
+          {
+            "source_type": "Meta for Developers",
+            "source_title": "Conversions API",
+            "source_url": "https://developers.facebook.com/docs/marketing-api/conversions-api/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that the event each ad set optimizes for arrives in the dataset at usable quality by comparing the on-site conversion count against Events Manager and reading the event's signal health.",
+        "tools": {
+          "free": {
+            "meta_events_manager": {
+              "label": "Meta Events Manager",
+              "steps": [
+                "Open Events Manager and select the dataset that feeds the ad sets in question.",
+                "Find the event each ad set optimizes for, for example Purchase or Lead, and read its received-event count against the conversion count recorded on the site for the same window.",
+                "Open the event's details and read the Event Match Quality score and the deduplication status between browser and server events.",
+                "Note any optimization event whose received count trails the on-site count, whose match quality is low, or whose browser and server events are not deduplicating."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad set, the optimization event, the count Events Manager received for that event, the on-site count for the same window, and the Event Match Quality score. An optimization event whose received count materially trails the on-site count, or whose match quality is low, or whose browser and server events are not deduplicating, is a fail recorded with the dataset and event named. An event arriving in volume at usable quality passes.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the optimization event, the Events Manager received count, the on-site count, and the Event Match Quality score for each ad set above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the optimization event on some of {{site_name}}'s ad sets is not arriving in the dataset at usable quality, so Meta's delivery system learns from fewer conversions than the site actually records. The performance goal is set correctly, but the events reach Meta sparsely, with a low Event Match Quality score, or without deduplicating between the browser and the server, which makes a deep event look rarer than it is. {{voice_recommend}} confirming the Conversions API integration sends the optimization event in volume with a matching event ID and enough customer information for a strong match, then rechecking the event in Events Manager. After the fix, compare the received count against the on-site count to confirm the gap has closed."
+      }
+    }
+  ]
+}

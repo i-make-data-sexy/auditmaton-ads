@@ -1,0 +1,217 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://developers.facebook.com/docs/meta-pixel/implementation/gdpr",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Consent handling sits at the start of every measurement signal Meta receives, so a gap here cascades into both data quality and legal exposure. The Meta Pixel and the Conversions API (CAPI) keep sending events when a consent management platform (CMP) is misconfigured, which either ships data Meta cannot lawfully use for people who declined or starves optimization of data from people who agreed. The checks are inspection-only inside the browser and Business Settings, no rebuild required, and the fix is usually a configuration change in the CMP wiring or the tag rather than new code.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Consent governs whether the Meta Pixel and the Conversions API may send a person's event data to Meta, and how Meta is permitted to use it. A consent management platform collects the choice and is meant to pass that signal to every tag on the page, but the wiring breaks in ways that are invisible in normal reporting. These checks confirm that consent signals reach the pixel and CAPI, that nothing fires before a European Economic Area (EEA) visitor has chosen, and that the account's data-use settings match the regulatory basis the audit assumes.",
+  "audit_checks": [
+    {
+      "id": "consent-signal-not-passed-to-pixel-and-capi",
+      "title": "Consent signals from the CMP are not passed to the Meta Pixel and the Conversions API",
+      "category": "privacy",
+      "subcategory": "consent_and_cmp",
+      "impact_score": 4,
+      "impact_rationale": "When the consent management platform collects a choice but never relays it to Meta, the pixel and the Conversions API run on their own defaults. Events for people who declined may still be sent, and events for people who agreed may be paused, so the account carries both a legal exposure and a measurement gap at the same time.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "A consent management platform (CMP) is the banner and back end that records whether a visitor agreed to tracking. For that choice to matter, the CMP has to relay the signal to every tool on the page that processes personal data, including the Meta Pixel and any server-side Conversions API (CAPI) events tied to the same visit. The pixel reads consent through the <a href='https://developers.facebook.com/docs/meta-pixel/implementation/gdpr' class='tools-link-no-padding' target='_blank'>fbq consent commands</a>, where 'fbq(consent, revoke)' holds events until the visitor agrees and 'fbq(consent, grant)' releases them. CAPI events carry the equivalent choice in the parameters the server sends.<br><br>When the CMP records a choice but never passes it through, the pixel and CAPI fall back to their own behavior rather than the visitor's. Two failures follow from the same gap. Events for people who declined keep flowing to Meta, which is the data the consent step was meant to stop. Events for people who agreed may stay paused if the grant signal never arrives, so optimization loses data it was allowed to use.<br><br>A second visitor sends the matching server event through CAPI, and the same logic applies there. If the browser honored the choice but the server did not, the two halves disagree and Meta receives a mixed picture for the same person.<br><br>A few signs point to consent signals not reaching Meta:<ul><li>The pixel fires with no consent state attached, so Meta applies a default rather than the visitor's choice</li><li>The CMP integration lists tag managers or other vendors but not the Meta Pixel</li><li>Server-side CAPI events carry no consent or data-use parameters that match the browser choice</li></ul>You may want to confirm the signal on both the browser side and the server side. A CMP that gates the pixel but leaves CAPI ungated still sends declined data through the back door.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the pixel and the Conversions API both fire on high-value steps such as add-to-cart, checkout, and purchase, so a missing consent signal multiplies across the funnel. You may want to confirm that the consent choice reaches the purchase event specifically. That is the event feeding value-based optimization and the one most likely to carry an email and order data.",
+          "lead_gen": "On a lead-generation site, the lead event often fires on a form submission that also collects an email and phone number, so an absent consent signal sends contact data Meta may not be allowed to use. You may want to confirm the consent state is attached before the lead event fires, rather than relying on a banner that records the choice without relaying it."
+        },
+        "learn_more": [
+          {
+            "source_type": "Meta for Developers",
+            "source_title": "General Data Protection Regulation - Meta Pixel",
+            "source_url": "https://developers.facebook.com/docs/meta-pixel/implementation/gdpr"
+          },
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "Privacy and data use requirements for Meta Business Tools",
+            "source_url": "https://www.facebook.com/business/help/363303621411154"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that the consent management platform relays the visitor's choice to the Meta Pixel in the browser and that server-side Conversions API events carry the matching signal.",
+        "tools": {
+          "free": {
+            "meta_pixel_helper": {
+              "label": "Meta Pixel Helper",
+              "steps": [
+                "Install the Meta Pixel Helper extension in Chrome and load a page that fires the pixel.",
+                "Decline tracking in the consent banner, reload, and check whether the helper still reports pixel events firing. Events that fire after a decline point to a consent signal that is not reaching the pixel.",
+                "Accept tracking, reload, and confirm the pixel now fires. A pixel that stays silent after acceptance points to a grant signal that never arrives."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the Network tab and filter for requests to 'facebook.com/tr', the pixel endpoint.",
+                "Decline consent, reload, and watch whether any 'tr' requests fire. Note the timing relative to the consent banner appearing.",
+                "In Events Manager, open the dataset and review the server-side Conversions API events for the same visit to confirm they carry a consent or data-use parameter that matches the browser choice."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a declined visit and an accepted visit, whether the pixel fired and whether the Conversions API event carried a matching consent signal. A declined visit with no pixel fire and no ungated server event passes. An accepted visit with the pixel firing and the server event carrying the matching signal passes. A declined visit where the pixel or the server event still sends data is a fail recorded with the event name and the side, browser or server, where the signal was missing.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the pixel and Conversions API behavior for a declined visit and an accepted visit above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the consent management platform on {{site_name}} records each visitor's choice but does not relay it to the Meta Pixel and the Conversions API. Events for people who declined still reach Meta, and events for people who agreed may stay paused, so the account carries a legal exposure and a measurement gap from the same gap in the wiring. {{voice_recommend}} connecting the consent signal to both the pixel, through the fbq consent commands, and the server-side Conversions API events, then confirming with the Meta Pixel Helper that a declined visit sends nothing and an accepted visit fires as expected."
+      }
+    },
+    {
+      "id": "pixel-fires-before-consent-in-eea",
+      "title": "The Meta Pixel fires before an EEA visitor has made a consent choice",
+      "category": "privacy",
+      "subcategory": "consent_and_cmp",
+      "impact_score": 4,
+      "impact_rationale": "A pixel that fires on page load, before the consent banner is answered, sends data for European Economic Area visitors who have not agreed and may decline. The event is already gone by the time the choice is recorded, so the banner provides no protection for the first hit of every session.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "In the European Economic Area (EEA), tracking that uses cookies or processes personal data generally needs the visitor's consent before it runs. A consent management platform shows the banner and waits for the answer, but the timing only holds if the Meta Pixel waits with it. When the pixel is set to fire on page load, the first event leaves the browser before the visitor has touched the banner, so the choice arrives too late to govern that event.<br><br>This is a sequencing problem rather than a missing integration. The banner exists, the consent signal may even be wired up, but the pixel runs first and the signal applies only to events that follow. The opening hit of every session, the one that often carries the page view and the strongest first-party context, is sent regardless of what the visitor later chooses.<br><br>The recommended pattern holds the pixel in a revoked state until consent is granted. Meta documents this with 'fbq(consent, revoke)' placed before the pixel initializes, followed by 'fbq(consent, grant)' once the visitor agrees. A pixel that initializes and fires its first event without that hold is firing before consent.<br><br>A few signs point to the pixel firing ahead of the choice:<ul><li>The pixel sends a PageView the instant the page loads, before the banner is answered</li><li>A request to the pixel endpoint appears in the Network tab while the consent banner is still open</li><li>The consent revoke command is absent or sits after the pixel base code rather than before it</li></ul>You may want to test from an EEA context specifically. Some setups gate the pixel only when they detect a European visitor and let it fire freely elsewhere.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, a pixel that fires before consent captures the landing PageView and any view-content event on the first product a visitor sees, so the early hit carries shopping intent that should have waited for the choice. You may want to confirm the pixel holds until consent on category and product pages, not only on the home page where the banner is most often tested.",
+          "lead_gen": "On a lead-generation site, an early pixel fire is most exposed on the pages where a visitor arrives from an ad and may submit a form within the same session. You may want to confirm the pixel waits for consent on landing pages and form pages. Those are where personal data and tracking intent overlap."
+        },
+        "learn_more": [
+          {
+            "source_type": "Meta for Developers",
+            "source_title": "General Data Protection Regulation - Meta Pixel",
+            "source_url": "https://developers.facebook.com/docs/meta-pixel/implementation/gdpr"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether the Meta Pixel holds its first event until an EEA visitor answers the consent banner, or whether it fires on page load ahead of the choice.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the Network tab, filter for 'facebook.com/tr', and load a page in a fresh session, ideally from an EEA context such as a VPN exit in Europe.",
+                "Watch whether a 'tr' request fires while the consent banner is still open and unanswered. A request that appears before the choice is the pixel firing ahead of consent.",
+                "Inspect the page source or tag setup for an 'fbq(consent, revoke)' call placed before the pixel initialization. Its absence, or its placement after the base code, allows the early fire."
+              ]
+            },
+            "meta_pixel_helper": {
+              "label": "Meta Pixel Helper",
+              "steps": [
+                "Load a page in a fresh session and leave the consent banner unanswered.",
+                "Open the Meta Pixel Helper and check whether it already lists a fired event, such as PageView, before any consent choice was made.",
+                "Answer the banner with a decline and confirm whether the helper shows further events, which would point to a signal that is ignored as well as a timing problem."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a fresh EEA session, whether a pixel event fired before the consent banner was answered. No pixel request before the choice passes. A pixel request that fires while the banner is still open is a fail recorded with the event name and the page tested.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the pixel fired before the consent choice for a fresh EEA session above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Meta Pixel on {{site_name}} fires before an EEA visitor has answered the consent banner, so the first event of each session is sent regardless of the choice that follows. The banner is present, but the pixel runs ahead of it, which leaves the opening hit ungoverned for visitors who may decline. {{voice_recommend}} holding the pixel in a revoked state with the fbq consent commands until the visitor agrees, then confirming in the Network tab that a fresh EEA session sends no pixel request while the banner is still open."
+      }
+    },
+    {
+      "id": "restricted-data-use-not-configured",
+      "title": "Restricted data-use settings are not configured for visitors who decline tracking",
+      "category": "privacy",
+      "subcategory": "consent_and_cmp",
+      "impact_score": 3,
+      "impact_rationale": "Restricted data-use options tell Meta to limit how it processes a person's data when that person has not agreed to full tracking. With the option unset, declined and regulated visitors are processed under the account default, which may exceed the basis the audit assumes for them.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Beyond whether an event is sent at all, Meta offers controls over how it processes the data once received. The Limited Data Use (LDU) option, set through 'data_processing_options' on the pixel and the Conversions API, restricts how Meta uses a person's data and supports compliance with several United States state privacy regulations. It is the mechanism for sending an event while signaling that the person's data should be handled in a limited way rather than the account default.<br><br>The setting is documented in Meta's <a href='https://developers.facebook.com/docs/marketing-api/overview/data-processing-options/' class='tools-link-no-padding' target='_blank'>data processing options reference</a>. When it is left unconfigured, every event is processed under the account's standard terms, including events from people who opted out of sale or sharing under a state law that expects the limited path. The data still arrives, so reporting looks normal, but the processing does not reflect the choice those visitors made.<br><br>This control works alongside consent gating rather than replacing it. Consent decides whether the event is sent. The data-use option decides how Meta treats the event that is sent. A setup can gate the pixel correctly for the European Economic Area and still send United States opt-out visitors through full processing because the limited path was never wired in.<br><br>A few signs point to restricted data use being unconfigured:<ul><li>The pixel and the Conversions API send events with no 'data_processing_options' parameter for any visitor</li><li>The consent management platform distinguishes opt-out states but the tags do not carry a different data-use signal for them</li><li>The account assumes a limited-use basis for some visitors that the actual event payloads do not reflect</li></ul>You may want to map the data-use signal to the same opt-out logic the consent platform already tracks, so the choice the banner records is the choice Meta receives.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the purchase and add-to-cart events carry the most personal and transactional data, so an unconfigured data-use signal exposes the events that matter most for visitors in opt-out states. You may want to confirm the data-use parameter is applied to the purchase event for those visitors, not only to the PageView.",
+          "lead_gen": "On a lead-generation site, the lead event submits contact details directly, so a missing data-use signal sends that data under full processing for visitors who opted out. You may want to confirm the lead event carries the limited data-use signal whenever the visitor falls under a state regulation that expects it."
+        },
+        "learn_more": [
+          {
+            "source_type": "Meta for Developers",
+            "source_title": "Data Processing Options for US Users",
+            "source_url": "https://developers.facebook.com/docs/marketing-api/overview/data-processing-options/"
+          },
+          {
+            "source_type": "Meta for Developers",
+            "source_title": "Conversions API",
+            "source_url": "https://developers.facebook.com/docs/marketing-api/conversions-api/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether the pixel and the Conversions API carry a restricted data-use signal for visitors who opt out under a state regulation, or whether every event is processed under the account default.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the Network tab, filter for 'facebook.com/tr', and load a page as a visitor who would fall under a United States state opt-out, simulating the state where possible.",
+                "Inspect a pixel request and check the payload for a 'dpo' or 'data_processing_options' parameter that signals limited use. Its absence means the event is sent under full processing.",
+                "In Events Manager, review the server-side Conversions API events for the same visit to confirm whether they carry the matching data-use parameter."
+              ]
+            },
+            "events_manager": {
+              "label": "Meta Events Manager",
+              "steps": [
+                "Open the dataset in Events Manager and use the test events or event details view to inspect recent events.",
+                "Check whether incoming events record a data-processing option for opt-out visitors, or whether the field is empty across the board.",
+                "Compare the data-use behavior against the opt-out states the consent management platform claims to handle, and note any state the tags do not reflect."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a visitor who would opt out under a state regulation, whether the pixel and the Conversions API events carry a restricted data-use signal. Events that carry the limited data-use parameter for those visitors pass. Events sent under the account default with no data-use signal, where a limited basis was expected, are a fail recorded with the event name and the regulation that applies.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the pixel and Conversions API events carry a restricted data-use signal for an opt-out visitor above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sends Meta Pixel and Conversions API events without a restricted data-use signal for visitors who opt out under a United States state regulation. The events arrive under the account default, so the processing does not reflect the choice those visitors made, even where consent gating is otherwise in place. {{voice_recommend}} mapping the Limited Data Use option to the same opt-out logic the consent platform already tracks, applying it through the data processing options on the pixel and the Conversions API, then confirming in the event payloads that opt-out visitors carry the limited signal."
+      }
+    }
+  ]
+}

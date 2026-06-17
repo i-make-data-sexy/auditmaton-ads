@@ -1,0 +1,222 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://developers.facebook.com/docs/marketing-api/conversions-api/deduplicate-pixel-and-server-events/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "When the Meta Pixel and the Conversions API both send the same conversion, Meta only collapses the pair into one event if the two carry a matching deduplication key. Get the key wrong and the same purchase counts twice, which inflates reported volume and feeds a doubled signal into Advantage+ bidding. Reuse a key across different conversions and Meta drops events that were real, which deflates the count. The check reads from Events Manager and the tag configuration, so it takes a short look at the dedup key on each shared event rather than a rebuild. Correcting the key changes the count from the next events onward.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "When a website sends the same conversion through both the Meta Pixel and the Conversions API (CAPI), Meta needs a way to tell that the two messages describe one event rather than two. It does that by matching on a deduplication key, which is the combination of a shared event ID and the event name. These checks confirm that browser and server events carry the same event ID and the same event name, that the ID is unique per conversion rather than reused, and that Events Manager reports the pair as deduplicated rather than counted twice.",
+  "audit_checks": [
+    {
+      "id": "meta-dedup-missing-shared-event-id",
+      "title": "Pixel and Conversions API events are sent without a shared event ID",
+      "category": "measurement",
+      "subcategory": "event_deduplication",
+      "impact_score": 4,
+      "impact_rationale": "Without a shared event ID, Meta cannot tell the browser event and the server event apart, so it counts both. Reported conversions run high, and the doubled signal feeds Advantage+ bidding, which can pull spend toward conversions that are not really there.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "When you connect a website with both the Meta Pixel and the Conversions API (CAPI), Meta receives the same conversion from two places, the browser and your server. To collapse that pair into one event, Meta matches on a deduplication key. The key is the combination of an event ID and an event name that both messages share. The browser sets the ID through the optional fourth parameter of the pixel's 'track' call (the 'eventID' field), and the server sets the same value in the event's 'event_id' field on the CAPI request.<br><br>When the ID is missing from one side or the two sides generate different values, Meta has no way to recognize the events as the same conversion, so it keeps both. The reported conversion volume runs higher than the real number, and that inflated count is what Advantage+ and other automated bidding learn from. The bidding then chases a signal that overstates performance.<br><br>The deduplication window is 7 days, so a browser event and a server event for one conversion can arrive minutes or days apart and still deduplicate as long as they carry the same key. A missing or mismatched ID breaks that match no matter how close together the two events land.<br><br>A few signs point to a missing shared event ID:<ul><li>The Event Deduplication view in Events Manager shows a low share of events received with a deduplication key</li><li>Reported conversions are close to double the orders recorded in the store or back end</li><li>The server CAPI payload carries no 'event_id', or carries a value the pixel never sent</li></ul>You may want to confirm that the same event ID value is generated once per conversion and passed to both the pixel and the server before treating the count as trustworthy.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the value to deduplicate is the Purchase event on the order confirmation page, where one transaction can fire from the browser and from the server at checkout. You may want to confirm that the order or transaction ID, or a single generated event ID tied to it, is passed as the event ID to both the pixel and the Conversions API so the two purchase messages match.",
+          "lead_gen": "On a lead-generation site, the event to deduplicate is usually a Lead or CompleteRegistration that fires both in the browser on form submission and from the server when the lead is written to the back end. You may want to confirm that a single event ID is generated at submission and carried to both the pixel call and the server event. A separately generated server ID will not match the browser one."
+        },
+        "learn_more": [
+          {
+            "source_type": "Meta for Developers",
+            "source_title": "Handling Duplicate Pixel and Conversions API Events",
+            "source_url": "https://developers.facebook.com/docs/marketing-api/conversions-api/deduplicate-pixel-and-server-events/"
+          },
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "About Deduplication for Meta Pixel and Conversions API Events",
+            "source_url": "https://www.facebook.com/business/help/823677331451951"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm in Events Manager whether shared events carry a deduplication key, then trace a single conversion to check that the same event ID reaches both the pixel and the server.",
+        "tools": {
+          "free": {
+            "events_manager": {
+              "label": "Meta Events Manager",
+              "steps": [
+                "Open Events Manager, select the dataset for the site, and open the 'Overview' for the connected pixel and Conversions API.",
+                "Open the 'Event Deduplication' view and read the share of events received with a deduplication key for the conversion event you care about, for example Purchase or Lead.",
+                "A low share of events carrying a key, paired with a Conversions API source that is active, points to events arriving without a shared event ID."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the browser's developer tools, go to the 'Network' tab, and trigger one conversion so the pixel fires.",
+                "Find the request to Meta's tracking endpoint and read the 'eventID' parameter on the conversion event.",
+                "Note that value, then check the matching server event for the same conversion to confirm the server sends the same string in its 'event_id' field. Different values, or a value on only one side, confirm the events cannot deduplicate."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each conversion event sent by both the pixel and the Conversions API, whether the Event Deduplication view reports a healthy share of events with a deduplication key and whether the browser 'eventID' and server 'event_id' carry the same value for one traced conversion. A matching key on both sides with a healthy deduplication share passes. A missing key on either side, or two different values, is a fail recorded with the event name.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the deduplication share and the browser-versus-server event ID observation for each shared conversion event above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sends the same conversions through both the Meta Pixel and the Conversions API without a shared event ID, so Meta counts the browser event and the server event as two separate conversions. The reported conversion volume runs higher than the real number, and that inflated signal feeds the automated bidding, which can steer spend toward performance that is overstated. {{voice_recommend}} generating one event ID per conversion and passing the same value to the pixel's eventID parameter and the server event's event_id field, then confirming in the Event Deduplication view that the share of events carrying a deduplication key rises and the reported count settles to the real number."
+      }
+    },
+    {
+      "id": "meta-dedup-event-name-mismatch",
+      "title": "Browser and server events share an event ID but use different event names",
+      "category": "measurement",
+      "subcategory": "event_deduplication",
+      "impact_score": 3,
+      "impact_rationale": "The deduplication key is the event ID together with the event name, so two messages that share an ID but disagree on the name do not match. The conversion counts twice even though the IDs line up, which inflates the count while looking correctly configured.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "Meta deduplicates a browser event against a server event when both halves of the key agree. The key is the event ID and the event name together. A setup can pass a matching event ID on both sides and still fail to deduplicate when the pixel and the Conversions API label the same conversion with different event names.<br><br>This happens when the two integrations are built separately. The browser pixel might fire a standard event such as 'Purchase' while the server sends a custom name such as 'purchase_complete', or the casing differs between the two. Meta treats those as different events, so the shared ID never gets a chance to collapse the pair. The result looks like the missing-ID problem, a doubled count, even though the IDs are present and correct.<br><br>Standard event names are case-sensitive and have to match the documented spelling for Meta to recognize them, so 'Purchase' and 'purchase' are not interchangeable across the two sources. The fix lines up the event name as well as the ID, rather than touching the ID alone.<br><br>A few signs point to an event-name mismatch:<ul><li>The browser and server send the same event ID, but Events Manager still reports the conversion as not deduplicated</li><li>The pixel fires a standard event name while the server sends a custom or differently cased name for the same action</li><li>Reported conversions are roughly double the back-end record despite event IDs matching</li></ul>You may want to compare the exact event name string on both sides for one conversion before concluding the IDs are the problem.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the mismatch usually sits on the Purchase event, where the browser pixel sends the standard 'Purchase' and a separately built server integration sends something like 'purchase' or a custom name. You may want to confirm both sources label the checkout conversion with the identical standard event name. The event ID alone will not deduplicate them.",
+          "lead_gen": "On a lead-generation site, the mismatch can sit on a Lead or CompleteRegistration event that the browser sends under the standard name while the server uses an internal label. You may want to confirm the form-submission conversion carries the same event name on both the pixel and the server event so the shared event ID can take effect."
+        },
+        "learn_more": [
+          {
+            "source_type": "Meta for Developers",
+            "source_title": "Handling Duplicate Pixel and Conversions API Events",
+            "source_url": "https://developers.facebook.com/docs/marketing-api/conversions-api/deduplicate-pixel-and-server-events/"
+          },
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "View Server Event Details in Meta Events Manager",
+            "source_url": "https://www.facebook.com/business/help/1541268312717919"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Trace one conversion that carries a shared event ID and compare the exact event name string the pixel and the server each send.",
+        "tools": {
+          "free": {
+            "events_manager": {
+              "label": "Meta Events Manager",
+              "steps": [
+                "Open Events Manager, select the dataset, and open the 'Event Deduplication' view for the conversion in question.",
+                "Read whether the event reports as deduplicated even though the browser and server both send an ID. A shared ID with no deduplication points to a key that disagrees on the event name.",
+                "Open the event details and compare the event name recorded for the pixel source against the name recorded for the Conversions API source."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open developer tools, go to the 'Network' tab, and fire one conversion so the pixel request appears.",
+                "Read the event name in the pixel request, for example the 'ev' field, and note its exact spelling and casing.",
+                "Compare that string against the 'event_name' in the matching server event. Any difference in spelling or casing confirms the names do not match even when the IDs do."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each conversion sent by both sources, whether the browser event name and the server event name are byte-for-byte identical for a traced conversion that already shares an event ID. Identical event names that produce a deduplicated result pass. A shared ID paired with differing event names is a fail recorded with the event and the two names observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the browser event name and the server event name for each shared conversion above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes a matching event ID from the Meta Pixel and the Conversions API but labels the same conversion with different event names, so the deduplication key does not match and the conversion counts twice. The setup looks correct because the IDs line up, yet the reported volume runs high and the automated bidding learns from the inflated number. {{voice_recommend}} aligning the event name across both sources so the pixel and the server send the identical standard name, then confirming in the Event Deduplication view that the conversion collapses to a single event."
+      }
+    },
+    {
+      "id": "meta-dedup-reused-event-id-undercounts",
+      "title": "A single event ID is reused across conversions, so real events are deduplicated away",
+      "category": "measurement",
+      "subcategory": "event_deduplication",
+      "impact_score": 3,
+      "impact_rationale": "When the same event ID lands on more than one genuine conversion, Meta treats the later ones as duplicates of the first and drops them. Real conversions disappear from the count, and the automated bidding optimizes toward a signal that is now lower than the real performance.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "Deduplication is meant to remove the second copy of one conversion. It does the opposite kind of damage when the same event ID is attached to more than one real conversion. Meta keeps the first event it sees with a given ID and drops the later ones that share it, regardless of which source they came from, within the 7-day deduplication window. If the ID is not unique per conversion, genuine sales or leads get discarded as if they were duplicates.<br><br>This usually traces to how the ID is generated. A value derived from something that is not unique per conversion, such as a product ID, a page URL, or a timestamp truncated to the minute, repeats across separate conversions. A hardcoded or cached ID does the same. The browser and server still agree on the value, so the setup passes the matching-key tests, yet it removes real events because the value collides.<br><br>The symptom is the mirror image of double counting. Reported conversions read lower than the orders or leads recorded in the back end, and the gap widens on high-traffic days when collisions are more frequent. Because the events deduplicate cleanly, Events Manager shows a healthy deduplication rate, which can make the undercount look like correct behavior.<br><br>A few signs point to a reused event ID:<ul><li>Reported conversions sit below the back-end record of orders or leads</li><li>The deduplication rate looks high while the absolute conversion count looks low</li><li>The event ID is derived from a value that is not unique to a single conversion, such as a product or page identifier</li></ul>You may want to confirm that each conversion generates a fresh, unique event ID rather than reusing a value tied to the product, page, or session.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, a reused ID often comes from building the event ID off a product or SKU value rather than the order. Two buyers purchasing the same product then share an ID, and Meta drops the second purchase. You may want to confirm the event ID is built from the unique order or transaction ID so each sale carries its own value.",
+          "lead_gen": "On a lead-generation site, a reused ID often comes from a value tied to the form or the page rather than the individual submission, so two leads from the same form collide. You may want to confirm each submission generates its own unique event ID rather than reusing a form-level or page-level value."
+        },
+        "learn_more": [
+          {
+            "source_type": "Meta for Developers",
+            "source_title": "Handling Duplicate Pixel and Conversions API Events",
+            "source_url": "https://developers.facebook.com/docs/marketing-api/conversions-api/deduplicate-pixel-and-server-events/"
+          },
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "Differences between event counts in Meta Ads Manager, Ads Reporting and Events Manager",
+            "source_url": "https://www.facebook.com/business/help/337196340694086"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Compare reported conversions against the back-end record, then inspect how the event ID is generated to confirm it is unique per conversion.",
+        "tools": {
+          "free": {
+            "events_manager": {
+              "label": "Meta Events Manager",
+              "steps": [
+                "Open Events Manager, select the dataset, and read the conversion count for the event over a recent window alongside the deduplication rate.",
+                "Compare that count against the orders or leads recorded in the store or back end for the same window.",
+                "A reported count that sits below the back-end record while the deduplication rate looks healthy points to an event ID that is colliding across real conversions."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open developer tools, go to the 'Network' tab, and fire two separate conversions of the same type, for example two purchases of the same product.",
+                "Read the 'eventID' value on each pixel request and compare them.",
+                "An identical event ID across two genuinely different conversions confirms the value is being reused, so the second event will deduplicate away."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each conversion event, whether two separate conversions produce two distinct event IDs and whether the reported count aligns with the back-end record. Distinct IDs per conversion with a reported count that tracks the back end pass. An event ID repeated across separate conversions, or a reported count sitting below the back-end record with a high deduplication rate, is a fail recorded with the event name.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether two separate conversions produce distinct event IDs, and how the reported count compares to the back-end record, for each event above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} reuses the same event ID across separate conversions, so Meta treats the later ones as duplicates and drops them. Real sales or leads fall out of the reported count, and the automated bidding learns from a number that is lower than the true performance, which can hold back spend on campaigns that are actually converting. {{voice_recommend}} generating a unique event ID for every conversion, built from the order or submission rather than a product or page value, then confirming that two separate conversions produce two distinct IDs and that the reported count rises to match the back-end record."
+      }
+    }
+  ]
+}

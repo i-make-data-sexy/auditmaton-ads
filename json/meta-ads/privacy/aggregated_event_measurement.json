@@ -1,0 +1,206 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://www.facebook.com/business/help/223073145946545",
+  "worth_it": "Yes",
+  "worth_it_explanation": "AEM is how Meta reports web conversions from iOS users who opted out under App Tracking Transparency, so a misconfiguration here suppresses the conversions Meta can attribute and feeds Advantage+ and the bid optimization a thinner signal. The checks are quick. Domain verification status and the event configuration both read directly in Business Settings, and the prioritized-event order is a drag-and-drop list. The fixes are configuration changes, not a rebuild, and they take effect from the next configuration the account publishes.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Aggregated Event Measurement (AEM) is Meta's answer to Apple's App Tracking Transparency (ATT). When an iOS user opts out of tracking, Meta cannot use the standard pixel signal to attribute that user's web conversions, so it reports those conversions through AEM instead, within a limited and prioritized set of events. AEM depends on three things being in place. The website domain has to be verified to the business that owns the event configuration, up to eight conversion events have to be configured for the domain, and those events have to be ranked so the most valuable action sits at the top. These checks confirm each of the three.",
+  "audit_checks": [
+    {
+      "id": "aem-domain-not-verified",
+      "title": "The website domain is not verified in Business Settings",
+      "category": "privacy",
+      "subcategory": "aggregated_event_measurement",
+      "impact_score": 4,
+      "impact_rationale": "Without a verified domain, Meta will not let the business configure or prioritize the eight web events for Aggregated Event Measurement, so conversions from App Tracking Transparency opted-out iOS users cannot be reported through the only channel built to carry them. The account can still run ads, but the measurement that ATT broke stays broken.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "conversion-tracking"],
+      "educate": {
+        "base": "Domain verification tells Meta which business has the authority to edit a website's web event configuration. It is the gate in front of Aggregated Event Measurement (AEM). Until the domain is verified to the business that owns the events, Meta will not allow that business to configure or prioritize the eight web events the domain is allowed under AEM, and the conversions from App Tracking Transparency (ATT) opted-out iOS users have no configured events to report against.<br><br>Verification happens in Business Settings under 'Brand safety and suitability', then 'Domains'. Meta offers three methods to prove ownership: a DNS TXT record added at the domain registrar, an HTML file uploaded to the site's root, or a meta-tag added to the home page's head. The verification is per domain at the primary-domain level, meaning the effective top-level domain plus one (eTLD+1), so verifying 'example.com' covers its subdomains for AEM purposes.<br><br>A subtle failure mode is a domain that shows as added but not verified. Adding the domain to the list and completing the ownership check are two separate steps, and a configuration that stops after the first leaves the events locked. Another is a domain verified to the wrong business, common after an agency handoff or a Business Manager consolidation, where the events sit under a business that no longer manages the ads.<br><br>A few signs point to a domain verification gap:<ul><li>The domain appears in the 'Domains' list with a status other than 'Verified'</li><li>The Aggregated Event Measurement event configuration screen will not let the business add or reorder events for the domain</li><li>The domain is verified, but under a different business than the one that owns the ad account</li></ul>You may want to confirm both that the domain is verified and that it is verified to the business that actually runs the ads before treating this as resolved.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the domain that needs verification is the one where the purchase completes, which is not always the marketing domain. A site that sells on a 'shop.example.com' subdomain or a separate checkout domain has to have that primary domain verified because AEM keys to the effective top-level domain plus one. You may want to confirm the verified domain matches the one in the URL at the moment the purchase event fires.",
+          "lead_gen": "On a lead-generation site, the conversion often completes on a thank-you page under the same domain as the rest of the site, so one verified primary domain usually covers it. If the form posts to a third-party domain (e.g., a hosted form or a separate booking subdomain), that domain is the one Meta needs verified for AEM. You may want to confirm the domain that renders the conversion page is the verified one."
+        },
+        "learn_more": [
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "About Domain Verification in Meta Business Suite",
+            "source_url": "https://www.facebook.com/business/help/286768115176155"
+          },
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "Key Concepts for Meta's Aggregated Event Measurement and Apple's SKAdNetwork",
+            "source_url": "https://www.facebook.com/business/help/387440828988900"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that the conversion domain is verified in Business Settings and that it is verified to the business that owns the ad account.",
+        "tools": {
+          "free": {
+            "business_settings": {
+              "label": "Meta Business Settings",
+              "steps": [
+                "Open Business Settings, then 'Brand safety and suitability', then 'Domains'.",
+                "Find the domain where conversions complete and read its status. A status of 'Verified' confirms ownership is proven; any other status means the verification step is incomplete.",
+                "Note which business the domain sits under. If the ad account is managed by a different business than the one holding the verified domain, the events are configured under the wrong owner."
+              ]
+            },
+            "events_manager": {
+              "label": "Meta Events Manager",
+              "steps": [
+                "Open Events Manager and select the dataset for the property.",
+                "Open the Aggregated Event Measurement event configuration for the domain.",
+                "If the screen will not let you add or reorder events and points to verification, the domain is not verified to this business."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per conversion domain, the verification status from Business Settings and the business the domain is verified under. A domain with a 'Verified' status under the same business that owns the ad account passes. A domain that is not verified, or verified under a different business, is a fail recorded with the domain name and the status observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the verification status and the owning business for each conversion domain above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s conversion domain is not verified to the business that runs the ads, which blocks Aggregated Event Measurement. Until the domain is verified, Meta will not let the account configure or prioritize the web events it needs, so conversions from App Tracking Transparency opted-out iOS users cannot be reported. {{voice_recommend}} verifying the domain in Business Settings under 'Domains', using the DNS, HTML file, or meta-tag method, and confirming it is verified under the business that owns the ad account. After verification, confirm the event configuration screen lets the account add and order events for the domain."
+      }
+    },
+    {
+      "id": "aem-eight-events-not-configured",
+      "title": "Fewer than eight web events are configured for the domain",
+      "category": "privacy",
+      "subcategory": "aggregated_event_measurement",
+      "impact_score": 3,
+      "impact_rationale": "Each domain is allowed up to eight prioritized web events under Aggregated Event Measurement. Leaving slots empty or configuring only a single event narrows what can be optimized toward and reported for App Tracking Transparency opted-out iOS users, so campaigns optimizing for an unconfigured event lose that signal entirely on iOS.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "conversion-tracking"],
+      "educate": {
+        "base": "Aggregated Event Measurement (AEM) caps each primary domain at eight conversion events that can be configured and prioritized. The cap is per domain at the effective top-level domain plus one (eTLD+1), so whether the account runs one dataset or several, the eight slots are shared across the whole domain. Only events that occupy a slot can be optimized toward or reported for the iOS users who opted out under App Tracking Transparency (ATT).<br><br>The configuration lives in Events Manager, in the Aggregated Event Measurement section for the domain. A common shortfall is a domain with one or two events configured (e.g., 'Purchase' alone) while the account actively optimizes campaigns toward events that were never added, such as 'Add to cart', 'Lead', or 'Complete registration'. A campaign optimizing for an unconfigured event still works for users who allowed tracking, but it has no AEM slot to fall back on for the opted-out iOS share, so that portion of the signal is lost.<br><br>Custom conversions and standard events both consume slots, so an account that relies heavily on custom conversions can run out of room. You may want to map every event your live campaigns optimize for against the eight configured slots. An optimization event with no slot is the gap to close first, ahead of filling slots with events no campaign uses.<br><br>Two checks confirm whether the eight slots are being used well:<ul><li>Whether every event a live campaign optimizes for occupies one of the eight slots</li><li>Whether empty slots could hold an event the account reports on for iOS, rather than sitting unused</li></ul>You may want to prioritize giving each active optimization event a slot before adding lower-value events to fill the remaining room.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the high-value path runs 'View content', 'Add to cart', 'Initiate checkout', 'Add payment info', and 'Purchase', which already fills five of the eight slots before any custom conversion. You may want to confirm each event a live campaign optimizes for has a slot because a catalog or Advantage+ shopping campaign optimizing for 'Purchase' loses its iOS fallback if 'Purchase' was never configured.",
+          "lead_gen": "On a lead-generation site, the slots often hold fewer events (e.g., 'Lead', 'Complete registration', and a 'Contact' or 'Schedule' custom conversion), so the eight-event cap is rarely the constraint. The risk is the opposite, a campaign optimizing for a custom conversion that was never added to the AEM configuration. You may want to confirm the form-submission event your campaigns optimize for occupies one of the slots."
+        },
+        "learn_more": [
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "Best practices for web event configuration for Meta's Aggregated Event Measurement",
+            "source_url": "https://www.facebook.com/business/help/223073145946545"
+          },
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "How Meta's Aggregated Event Measurement may affect the Meta Pixel",
+            "source_url": "https://www.facebook.com/business/help/126789292407737"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm how many of the eight web event slots are configured and whether every event your live campaigns optimize for occupies one.",
+        "tools": {
+          "free": {
+            "events_manager": {
+              "label": "Meta Events Manager",
+              "steps": [
+                "Open Events Manager, select the dataset for the property, and open the Aggregated Event Measurement event configuration for the domain.",
+                "Count how many of the eight slots hold an event, and write down which events are configured.",
+                "Open Ads Manager and list the optimization event for each active campaign. Compare that list against the configured slots, and flag any optimization event that has no slot."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the events configured in the eight slots and the optimization event for each active campaign. A configuration where every active optimization event occupies a slot passes, regardless of how many slots are filled. A configuration where a live campaign optimizes for an event that has no slot is a fail recorded with the campaign name and the missing event.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the configured events and each active campaign's optimization event above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has not configured a web event for every action its live campaigns optimize toward. Aggregated Event Measurement allows up to eight prioritized events per domain, and a campaign optimizing for an event with no slot loses that signal for the iOS users who opted out under App Tracking Transparency. {{voice_recommend}} mapping each active campaign's optimization event against the eight configured slots and adding any that are missing, prioritizing the events campaigns actually optimize for over lower-value events. After the change, confirm in Events Manager that each active optimization event occupies a slot."
+      }
+    },
+    {
+      "id": "aem-most-valuable-event-not-ranked-first",
+      "title": "The most valuable event is not ranked first in the priority order",
+      "category": "privacy",
+      "subcategory": "aggregated_event_measurement",
+      "impact_score": 3,
+      "impact_rationale": "Aggregated Event Measurement reports only the single highest-priority event a user completes in the conversion window. If a lower-value event sits above the most valuable one in the priority order, Meta reports the lower-value action and the purchase or qualified lead goes unreported for App Tracking Transparency opted-out iOS users, understating both value-based reporting and the bid signal.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "conversion-tracking"],
+      "educate": {
+        "base": "Under Aggregated Event Measurement (AEM), the order of the eight configured events is not cosmetic. When an App Tracking Transparency (ATT) opted-out iOS user completes several actions in one conversion window, Meta reports only the single event that sits highest in the priority order. The events below it in that session are dropped from AEM reporting. The priority list is a drag-and-drop ranking in Events Manager, with the top event counting as the highest priority.<br><br>The failure here is an order that does not match business value. If 'Add to cart' or 'View content' sits above 'Purchase', a user who views, adds to cart, and then buys is reported as an 'Add to cart', and the purchase, the action the campaign exists to drive, never reaches AEM for that user. The reporting understates revenue, and a value-optimized or 'Purchase' campaign loses the signal it needs from the opted-out iOS share.<br><br>The fix is to rank events by what they are worth to the business, with the most valuable conversion at the top, then work down through the funnel. Value-set events for value optimization add a wrinkle because the value buckets are tied to a single event configured for value, so that event's placement matters for both attribution and value reporting. You may want to read the order top to bottom and confirm that a user completing the full funnel would be reported as the highest-value action, not an earlier step.<br><br>A few signs point to a priority order that needs attention:<ul><li>A mid-funnel event (e.g., 'Add to cart' or 'View content') sits above the final conversion</li><li>The order looks like the sequence events were added rather than a value ranking</li><li>A value-optimized campaign's value event is not the top-ranked event</li></ul>You may want to confirm the order reflects business value rather than the order events happened to be configured.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, 'Purchase' is almost always the action with the most value, so it belongs at the top of the priority order, above 'Add to cart', 'Initiate checkout', and 'View content'. A shopper who adds to cart and then buys should be reported as a 'Purchase', not an 'Add to cart'. You may want to confirm 'Purchase' is ranked first and, if you run value optimization, that the value-configured event is the top one.",
+          "lead_gen": "On a lead-generation site, value runs by lead quality rather than a transaction, so a qualified-lead or booked-appointment event usually belongs above a generic 'Lead' or 'Complete registration'. A visitor who registers and then books should be reported as the booking. You may want to confirm the highest-intent action sits at the top of the order rather than the first form a visitor fills out."
+        },
+        "learn_more": [
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "About event priority",
+            "source_url": "https://www.facebook.com/business/help/193250612476055"
+          },
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "Best practices for web event configuration for Meta's Aggregated Event Measurement",
+            "source_url": "https://www.facebook.com/business/help/223073145946545"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the priority order of the configured events and confirm the most valuable conversion sits at the top.",
+        "tools": {
+          "free": {
+            "events_manager": {
+              "label": "Meta Events Manager",
+              "steps": [
+                "Open Events Manager, select the dataset for the property, and open the Aggregated Event Measurement event configuration for the domain.",
+                "Read the events from top to bottom and write down the order. The top event is the highest priority.",
+                "Identify the action with the most business value (e.g., 'Purchase' for a store or a booked appointment for lead generation) and note its position. If a lower-value event sits above it, the order does not match value."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the priority order of the configured events and identifies the most valuable conversion. An order where the most valuable event sits at the top, with the remaining events ranked by descending value, passes. An order where a lower-value event sits above the most valuable conversion is a fail recorded with the two events and their positions.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the priority order of the configured events above and mark the most valuable conversion to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Aggregated Event Measurement priority order does not place the most valuable conversion first. Meta reports only the single highest-priority event a user completes in a window, so a lower-value event ranked above the purchase or qualified lead means that final action goes unreported for App Tracking Transparency opted-out iOS users. {{voice_recommend}} reordering the events in Events Manager so the most valuable conversion sits at the top, with the rest ranked by descending value. After the change, confirm the order reads from highest value down and that any value-optimized campaign's value event is the top-ranked one."
+      }
+    }
+  ]
+}

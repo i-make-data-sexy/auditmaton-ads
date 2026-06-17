@@ -1,0 +1,206 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://www.facebook.com/business/help/AboutConversionsAPI",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Browser tracking loses conversions to App Tracking Transparency (ATT), ad blockers, and cookie restrictions, and the Conversions API is the server-side path that recovers them. When the Conversions API is missing or sending events Meta cannot match to a person, the optimization the account runs on is working from an undercount, so the bidding spends against fewer signals than the traffic actually produced. The check reads the dataset's setup and its Event Match Quality score in Events Manager, both of which are visible without code, and the fixes are configuration changes rather than a rebuild.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "The Conversions API (CAPI) sends conversion events to Meta from a server rather than from the browser, alongside or in place of the Meta Pixel. It addresses the events that browser tracking misses as ATT, ad blockers, and cookie limits remove a share of pixel hits. These checks confirm that CAPI is sending events, that those events carry the customer-information parameters Meta needs to match them to a person, and that the dataset's Event Match Quality score reflects a usable level of matching.",
+  "audit_checks": [
+    {
+      "id": "conversions-api-not-implemented",
+      "title": "The Conversions API is not implemented, so browser-blocked conversions are lost",
+      "category": "measurement",
+      "subcategory": "conversions_api",
+      "impact_score": 4,
+      "impact_rationale": "With browser tracking as the only path, conversions blocked by ATT, ad blockers, and cookie restrictions never reach Meta. The reported volume runs lower than the real performance, and Advantage+ and other automated delivery optimize toward that undercount, which can starve campaigns that are converting.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "privacy"],
+      "educate": {
+        "base": "The Conversions API (CAPI) sends conversion events to Meta directly from a server, rather than relying on the browser to fire the Meta Pixel. Browser-side tracking loses events for reasons outside the advertiser's control. App Tracking Transparency (ATT) limits what can be tracked for users who opt out, ad blockers strip the pixel before it loads, and browsers shorten or remove the cookies the pixel depends on. A server-side event does not pass through the browser, so it survives those conditions.<br><br>When a dataset has only the pixel and no server events, the conversions that the browser drops are gone. Meta never receives them, so they do not appear in reporting and they do not feed delivery. Advantage+ and other automated delivery learn from the events Meta receives, and an undercounted signal teaches the system that converting traffic is converting less than it is.<br><br>Setup happens at the dataset level in Meta Events Manager, through a direct server integration, a partner integration such as a tag manager or commerce platform, or the Conversions API Gateway. The recommended approach sends the same events from both the browser and the server and lets Meta deduplicate them, so a single conversion is counted once while gaining the coverage of the server path.<br><br>A few signs point to the Conversions API being absent:<ul><li>The dataset in Events Manager shows events from the browser only, with no server-received events</li><li>The connection methods for the dataset list a pixel but no server integration or gateway</li><li>Event volume tracks closely with pixel-eligible sessions and drops where ATT or ad-blocker rates are high</li></ul>You may want to confirm the dataset's connection methods in Events Manager before deciding CAPI is missing. A partner integration can send server events without an obvious server of the advertiser's own.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the purchase event is the one most worth protecting because it carries revenue and feeds value-based optimization. You may want to confirm the server sends Purchase events with the same event data the browser sends, so Meta can deduplicate the pair and the recovered purchases still carry their order value.",
+          "lead_gen": "On a lead-generation site, the conversion is a form submission rather than a purchase, and the lead's contact details are captured at that moment. You may want to confirm the server sends the Lead event with the hashed email and phone from the form, which both recovers blocked leads and improves how well Meta matches them."
+        },
+        "learn_more": [
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "About Conversions API",
+            "source_url": "https://www.facebook.com/business/help/AboutConversionsAPI"
+          },
+          {
+            "source_type": "Meta for Developers",
+            "source_title": "Conversions API documentation",
+            "source_url": "https://developers.facebook.com/docs/marketing-api/conversions-api/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Open the dataset in Meta Events Manager and confirm whether server events are being received alongside the pixel.",
+        "tools": {
+          "free": {
+            "meta_events_manager": {
+              "label": "Meta Events Manager",
+              "steps": [
+                "Open Meta Events Manager from Meta Business Suite and select the dataset tied to the ad account you are auditing.",
+                "Open the 'Data sources' or connection details for the dataset and note which connection methods are active. Look for a server integration, a partner integration, or the Conversions API Gateway in addition to the pixel.",
+                "Open the 'Overview' for the dataset and check the recent events for a server-received source. A dataset receiving browser events only, with no server entries, points to the Conversions API being absent."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for the dataset, whether any server connection method is active and whether server-received events appear in the recent event activity. A dataset with an active server integration and server events arriving passes. A dataset with the pixel only and no server events is a fail recorded with the dataset name.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the dataset's connection methods and whether server events are arriving to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sends conversion events to Meta from the browser only, with no Conversions API in place. Browser tracking loses events to App Tracking Transparency, ad blockers, and cookie restrictions, so a share of real conversions never reaches Meta. The reported volume runs lower than actual performance, and automated delivery optimizes toward that undercount. {{voice_recommend}} adding a server-side integration for the dataset, sending the key conversion events from both the browser and the server, and relying on Meta's deduplication so each conversion is counted once. After the change, confirm in Events Manager that server-received events are arriving for the dataset."
+      }
+    },
+    {
+      "id": "conversions-api-events-missing-customer-information",
+      "title": "Conversions API events arrive without the customer-information parameters Meta needs to match them",
+      "category": "measurement",
+      "subcategory": "conversions_api",
+      "impact_score": 3,
+      "impact_rationale": "A server event that carries no matchable identifiers reaches Meta but cannot be tied to a person, so it does not attribute to an ad or feed delivery the way a matched event does. The dataset looks active, which hides the gap, and the coverage the Conversions API is meant to add is largely lost.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "A Conversions API event reaches Meta from a server, but reaching Meta is not the same as being usable. Meta has to match the event to a person before it can attribute the conversion to an ad or feed it into delivery. Matching depends on the customer-information parameters the event carries, such as a hashed email, a hashed phone number, an external identifier, the click identifier 'fbc', and the browser identifier 'fbp'. An event sent without these arrives, registers as received, and still cannot be matched.<br><br>This failure mode is harder to spot than a missing integration because the dataset shows events flowing. The events are simply thin. A server payload built to fire the event but not to carry the identifiers, a backend that has the email but does not pass it, or fields dropped during a platform migration all produce events that are present but unmatchable.<br><br>Meta requires that contact information such as email and phone be hashed with SHA-256 before it is sent, and it expects values to be normalized first, for example lowercased and trimmed. A value hashed without normalizing, or sent in the wrong field, matches as poorly as a value left out. The server payload is where this is set, so the check is about what the events contain rather than whether they arrive.<br><br>A few signs point to events missing the parameters Meta can match:<ul><li>The dataset's Event Match Quality score is rated 'Poor' or 'Ok' despite a healthy event volume</li><li>The event details in Events Manager show few or no customer-information parameters received</li><li>The server has access to an email or phone at conversion time but the event payload does not include it</li></ul>You may want to inspect a recent event's received parameters in Events Manager before deciding the data is matchable. A high event count with thin parameters is the pattern to look for.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the checkout already holds the customer's email, phone, and often a name and address, so a Purchase event has matchable identifiers available at the moment it fires. You may want to confirm the server payload passes the hashed email and phone from checkout, rather than sending a Purchase with the order value but no customer information.",
+          "lead_gen": "On a lead-generation site, the form captures the email and phone directly, which gives the Lead event strong identifiers to send. You may want to confirm the backend passes those hashed fields into the server event because a Lead sent without them recovers volume but cannot be matched to the people who submitted."
+        },
+        "learn_more": [
+          {
+            "source_type": "Meta for Developers",
+            "source_title": "Customer Information Parameters",
+            "source_url": "https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters/"
+          },
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "Best practices for Conversions API",
+            "source_url": "https://www.facebook.com/business/help/308855623839366"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect a recent Conversions API event in Meta Events Manager and read which customer-information parameters it carries.",
+        "tools": {
+          "free": {
+            "meta_events_manager": {
+              "label": "Meta Events Manager",
+              "steps": [
+                "Open Meta Events Manager, select the dataset, and open a recent server-received conversion event, for example a Purchase or a Lead.",
+                "Read the parameters the event received and note which customer-information fields are present, such as a hashed email, a hashed phone, an external identifier, 'fbc', or 'fbp'.",
+                "Use the 'Test events' tab to send or watch a live server event and confirm the same parameters are present in real traffic, not only in a sample."
+              ]
+            },
+            "meta_payload_helper": {
+              "label": "Meta Payload Helper",
+              "steps": [
+                "Open the Payload Helper in the Conversions API developer tools and paste a copy of a recent server event payload.",
+                "Check that contact fields such as email and phone are hashed and normalized rather than sent in plain text, and that they sit in the correct user-data fields.",
+                "Confirm the payload includes the identifiers the server has access to, so an event with an available email is not sent without it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per key server event, which customer-information parameters are received as seen in Events Manager and whether contact fields are hashed and normalized. An event carrying at least one strong matchable identifier, correctly hashed, passes. An event arriving with no matchable customer information, or with contact fields unhashed or misplaced, is a fail recorded with the event name and the missing or malformed field.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the customer-information parameters received for each key server event above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Conversions API events reach Meta without the customer-information parameters needed to match them to a person. The events register as received, but Meta cannot tie them to an account, so they do not attribute to ads or feed delivery the way matched events do, and the coverage the server path should add is largely lost. {{voice_recommend}} updating the server payload to pass the identifiers available at conversion time, such as a hashed email and phone, hashing and normalizing contact fields as Meta requires, and placing each value in its correct user-data field. After the change, confirm in Events Manager that recent events carry the expected parameters."
+      }
+    },
+    {
+      "id": "conversions-api-low-event-match-quality",
+      "title": "Event Match Quality is low because the dataset sends few hashed identifiers",
+      "category": "measurement",
+      "subcategory": "conversions_api",
+      "impact_score": 3,
+      "impact_rationale": "Event Match Quality measures how well Meta can match events to people, and a low score means a smaller share of events attribute and inform delivery. The dataset is configured and sending data, so the score is the only signal that the matching is weak, and the lost matching limits attributed conversions and optimization.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "Event Match Quality (EMQ) is a score Meta reports for each event in a dataset, rated from 'Poor' to 'Great', that reflects how well Meta can match the events to people using the customer information sent with them. A higher score means more events match to a Meta account, which can raise attributed conversions and improve how delivery optimizes. The score reads the identifiers received, their quality, and the share of events that match.<br><br>A dataset can be sending the Conversions API and still score low. EMQ does not measure whether events arrive. It measures how matchable they are. Sending only one identifier where several are available, sending an email but never a phone, or sending identifiers that are stale or malformed all hold the score down even when event volume looks healthy.<br><br>The score rises as the dataset adds strong, correctly formatted identifiers. A hashed email, a hashed phone, an external identifier, the click identifier 'fbc' captured from the ad click, and the browser identifier 'fbp' each contribute, and sending more of them for each event gives Meta more ways to match. The goal is not a perfect score on every event but a usable rating because each step up adds matched conversions the account can act on.<br><br>A few signs point to a low Event Match Quality score worth addressing:<ul><li>The dataset's diagnostics in Events Manager show a 'Poor' or 'Ok' rating for key events</li><li>The dataset sends a single identifier where the email, phone, and click data are all available</li><li>The browser pixel sends 'fbc' and 'fbp' but the server events do not include them</li></ul>You may want to compare the identifiers each event sends against the identifiers the page and backend actually hold. The gap between the two is where the score has room to rise.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, checkout gives a Purchase event access to email, phone, name, and address all at once, so a low score usually means the payload sends a subset of what is available. You may want to confirm the Purchase event includes each hashed field checkout holds because adding phone and address alongside email raises the match rate.",
+          "lead_gen": "On a lead-generation site, the form provides email and phone, and the click that drove the visit provides 'fbc', so a Lead event can carry several identifiers. You may want to confirm the server event sends the click identifier captured at landing along with the hashed contact fields, rather than the email alone."
+        },
+        "learn_more": [
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "About Event Match Quality",
+            "source_url": "https://www.facebook.com/business/help/765081237991954"
+          },
+          {
+            "source_type": "Meta for Developers",
+            "source_title": "Customer Information Parameters",
+            "source_url": "https://developers.facebook.com/docs/marketing-api/conversions-api/parameters/customer-information-parameters/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the Event Match Quality rating in Meta Events Manager and compare the identifiers each event sends against what is available.",
+        "tools": {
+          "free": {
+            "meta_events_manager": {
+              "label": "Meta Events Manager",
+              "steps": [
+                "Open Meta Events Manager, select the dataset, and open the diagnostics or the detail view for a key server event such as Purchase or Lead.",
+                "Read the Event Match Quality rating and note which customer-information parameters Meta reports as received for that event.",
+                "List the identifiers the page and backend actually hold at conversion time, such as email, phone, 'fbc', and 'fbp', and compare them against what the event sends to find the parameters that could be added."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per key server event, the Event Match Quality rating and the set of identifiers sent versus the set available at conversion time. An event rated 'Good' or 'Great', or one sending the identifiers it has access to, passes. An event rated 'Poor' or 'Ok' while strong identifiers go unsent is a fail recorded with the event name and the identifiers that could be added.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the Event Match Quality rating and the identifiers sent versus available for each key event above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s dataset reports a low Event Match Quality score, so a smaller share of its events match to people on Meta. The Conversions API is sending data, but each event carries fewer matchable identifiers than the page and backend hold, which limits attributed conversions and the signal that feeds delivery. {{voice_recommend}} adding the available identifiers to each event, such as a hashed phone alongside the email and the 'fbc' click identifier captured at landing, and confirming each value is hashed and formatted as Meta requires. After the change, watch the Event Match Quality rating in Events Manager rise toward 'Good' or 'Great'."
+      }
+    }
+  ]
+}

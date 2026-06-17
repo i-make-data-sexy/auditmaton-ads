@@ -1,0 +1,222 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://www.facebook.com/business/help/750785952855662",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The Meta Pixel and its dataset are the foundation every other measurement check sits on. When the pixel is missing, firing only a generic page view, or passing the wrong parameters, the account has no Purchase or Lead signal to optimize toward, so Advantage+ campaigns and automated bidding learn from a thin or empty data feed. The checks here are fast. Events Manager and the Meta Pixel Helper show within minutes whether the pixel fires, which events it sends, and whether the value and currency arrive. The fixes are configuration changes in the tag or in Events Manager, not a rebuild, and they improve the signal from the moment they go live.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "The Meta Pixel is the snippet that records what visitors do on a site, and the dataset in Meta Events Manager is where those events land. Together they feed the Purchase, Lead, and AddToCart signals that Advantage+ and automated bidding optimize toward. These checks confirm that a pixel is installed and firing, that it sends the standard events that match the site's real conversions rather than only a generic page view, and that each event carries the parameters Meta needs to value it correctly.",
+  "audit_checks": [
+    {
+      "id": "meta-pixel-not-installed-or-not-firing",
+      "title": "No Meta Pixel is installed or the pixel is not firing on the site",
+      "category": "measurement",
+      "subcategory": "pixel_setup",
+      "impact_score": 4,
+      "impact_rationale": "With no pixel firing, the account records no website events at all. Automated bidding has no conversion signal to optimize toward, remarketing audiences cannot be built from site visitors, and reporting shows zero conversions regardless of how the campaigns actually perform.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "The Meta Pixel is a piece of code placed on a website that sends events to a dataset in Meta Events Manager. Each event records something a visitor did, such as viewing a page, adding to cart, or completing a purchase. Those events are what Advantage+ campaigns and automated bidding read when they decide which users to show ads to and how much to bid.<br><br>When no pixel is installed, or the pixel code is present but never fires, the dataset receives nothing. Meta has no website signal, so bidding falls back to optimizing for clicks or reach rather than conversions, remarketing audiences built from site activity stay empty, and the conversions column in Ads Manager reports zero even on a campaign that is driving sales.<br><br>A pixel can be absent for a setup reason, or it can break after it was installed without surfacing an error. A few situations produce an empty dataset:<ul><li>The pixel was never added to the site, or was added to a staging build that never shipped to production</li><li>A tag manager holds the pixel but the tag is paused, or its trigger never matches a live page</li><li>A consent banner blocks the pixel before consent is granted, and the event is dropped rather than queued</li><li>The pixel base code is present but a recent template change removed it from a key page such as the checkout</li></ul>Meta also recommends pairing the browser pixel with the Conversions API (CAPI), a server-side path that sends the same events directly from the site's server. The Conversions API recovers events the browser pixel loses to ad blockers, connectivity drops, or page-load failures. You may want to confirm a pixel fires at all before judging whether the Conversions API is also needed.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the events that matter most are the ones near the bottom of the funnel, so a missing pixel on the cart or purchase confirmation page is the costly case even when the pixel fires fine on the homepage. You may want to load a product page, an add-to-cart action, and a test checkout while watching Events Manager, so you confirm the pixel fires on the pages that carry revenue rather than only on the entry pages.",
+          "lead_gen": "On a lead-generation site, the conversion is a form submission rather than a purchase, so a pixel that fires on every page but not on the thank-you page leaves the account with traffic signals and no lead signal. You may want to confirm an event fires at the moment the form is submitted since a single-page form that never changes URL can hide a missing event behind a page view that looks healthy."
+        },
+        "learn_more": [
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "About datasets in Meta Events Manager",
+            "source_url": "https://www.facebook.com/business/help/750785952855662"
+          },
+          {
+            "source_type": "Meta for Developers",
+            "source_title": "Conversion Tracking with the Meta Pixel",
+            "source_url": "https://developers.facebook.com/docs/meta-pixel/implementation/conversion-tracking/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that a pixel is installed, that it fires on real pages including the conversion page, and that the events reach the dataset in Meta Events Manager.",
+        "tools": {
+          "free": {
+            "meta_pixel_helper": {
+              "label": "Meta Pixel Helper",
+              "steps": [
+                "Install the Meta Pixel Helper Chrome extension and open the site you are auditing.",
+                "Open a typical entry page and check whether the extension reports a pixel and at least a PageView event. If it reports no pixel, the base code is missing or blocked on that page.",
+                "Walk through the conversion path, for example a product page, an add-to-cart action, and a checkout, watching the extension on each step. Note any page in the path where the pixel does not fire."
+              ]
+            },
+            "meta_events_manager": {
+              "label": "Meta Events Manager",
+              "steps": [
+                "Open Events Manager and select the dataset connected to the ad account.",
+                "Open the 'Test events' tab, enter the site URL, and walk through the same path. Confirm the events arrive in the live feed as you trigger them.",
+                "Check the dataset overview for recent activity. A dataset showing no events in the last several days, or events only from a server source and none from the browser, points to a pixel that is not firing on the site."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per key page in the conversion path, whether the pixel fired as seen in the Meta Pixel Helper and whether the event reached the dataset in Test events. A site where the pixel fires on entry pages and on the conversion page, with events confirmed in Events Manager, passes. A site where no pixel is detected, or where the pixel is missing on the conversion page, is a fail recorded with the pages where it did not fire.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the pixel-firing result for each key page in the conversion path above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} is not sending website events to Meta. The pixel is either absent or not firing on the pages that matter, so the dataset receives no conversion signal. Automated bidding has nothing to optimize toward, remarketing audiences cannot be built from site visitors, and the conversions reported in Ads Manager do not reflect real performance. {{voice_recommend}} installing the Meta Pixel across the site, confirming it fires on the conversion page as well as entry pages, and pairing it with the Conversions API so events lost in the browser are recovered server-side. After the change, confirm in Meta Events Manager that events arrive from both the browser and the server."
+      }
+    },
+    {
+      "id": "meta-pixel-only-pageview-no-standard-events",
+      "title": "The pixel fires only a generic PageView and sends no standard conversion events",
+      "category": "measurement",
+      "subcategory": "pixel_setup",
+      "impact_score": 3,
+      "impact_rationale": "A pixel that sends only PageView gives Meta page traffic but no Purchase, Lead, or AddToCart signal. Conversion-optimized campaigns and Advantage+ have no bottom-funnel event to bid toward, so they fall back to weaker proxies, and the account cannot report or value its real conversions.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "bidding"],
+      "educate": {
+        "base": "The Meta Pixel base code fires a PageView event on every page it loads. PageView records that a visit happened, and on its own it gives Meta traffic data with no record of what visitors actually did. Standard events are the named events Meta defines for the actions that carry business value, such as 'Purchase', 'Lead', 'AddToCart', 'InitiateCheckout', and 'CompleteRegistration'.<br><br>When a pixel fires only PageView and no standard events, conversion-optimized campaigns have no bottom-funnel signal to bid toward. Meta cannot tell a checkout completion apart from a bounce, so automated bidding optimizes toward whatever proxy it can find, and Advantage+ campaigns learn from page traffic rather than from conversions. The conversions column stays empty even when the campaigns drive sales.<br><br>This happens when the base code was installed but the event code was never added, or when a tag manager fires the base pixel globally but has no separate tags for the conversion actions. The base pixel looking healthy in the Meta Pixel Helper can mask the gap since PageView fires correctly while the events that matter are absent.<br><br>The fix is to map the site's real conversions to Meta's standard events and fire each one at the right moment, for example 'Purchase' on the order confirmation and 'Lead' on the form thank-you step. You may want to start from the actions the business actually counts as conversions, then confirm each one has a matching standard event, rather than firing every event Meta offers whether the site supports it or not.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the standard events follow the shopping steps, so a healthy setup fires 'ViewContent' on a product page, 'AddToCart' on the cart action, 'InitiateCheckout' at the start of checkout, and 'Purchase' on the confirmation. You may want to confirm the 'Purchase' event in particular fires on the confirmation page since that is the event automated bidding and reporting depend on most.",
+          "lead_gen": "On a lead-generation site, the conversion is usually a 'Lead' or 'CompleteRegistration' event fired on form submission rather than a 'Purchase'. You may want to confirm that event fires at the moment the form is submitted, and that a multi-step or single-page form, which may never change URL, still triggers the standard event rather than relying on a page view."
+        },
+        "learn_more": [
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "Specifications for Meta Pixel Standard Events",
+            "source_url": "https://www.facebook.com/business/help/402791146561655"
+          },
+          {
+            "source_type": "Meta for Developers",
+            "source_title": "Conversion Tracking with the Meta Pixel",
+            "source_url": "https://developers.facebook.com/docs/meta-pixel/implementation/conversion-tracking/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Map the site's real conversions, then confirm a matching Meta standard event fires for each one rather than only a PageView.",
+        "tools": {
+          "free": {
+            "meta_pixel_helper": {
+              "label": "Meta Pixel Helper",
+              "steps": [
+                "Open the site with the Meta Pixel Helper and note the events it reports on the homepage. A setup that shows only PageView there is expected.",
+                "Walk through the conversion path and watch the events list change. On the conversion page, confirm the extension reports a standard event such as 'Purchase' or 'Lead', not another PageView.",
+                "List any conversion step where the only event reported is PageView. Those are the actions Meta cannot see as conversions."
+              ]
+            },
+            "meta_events_manager": {
+              "label": "Meta Events Manager",
+              "steps": [
+                "Open Events Manager, select the dataset, and review the list of events it has received in the last several days.",
+                "Confirm the list includes the standard events that match the site's conversions, not PageView alone.",
+                "Use 'Test events' to walk the conversion path and watch which event name arrives at each step. A step that produces only PageView is a missing standard event."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner lists the site's real conversions and records, for each one, whether a matching standard event fires as seen in the Meta Pixel Helper and Events Manager. A site where every counted conversion has a matching standard event passes. A site where one or more conversions produce only a PageView is a fail recorded with the conversions that have no standard event.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "List the site's conversions and record whether a matching standard event fires for each one above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s pixel fires only a generic PageView and sends no standard conversion events. Meta receives page traffic but no record of purchases, leads, or other actions the business counts, so conversion-optimized campaigns have no bottom-funnel signal to bid toward and the conversions column does not reflect real results. {{voice_recommend}} mapping the site's real conversions to Meta's standard events and firing each one at the right moment, for example 'Purchase' on the order confirmation and 'Lead' on the form thank-you step. After the change, confirm in Meta Events Manager that the standard events arrive as visitors complete each action."
+      }
+    },
+    {
+      "id": "meta-pixel-purchase-missing-value-currency-content-ids",
+      "title": "Purchase and ecommerce events are missing the value, currency, or content_ids parameters",
+      "category": "measurement",
+      "subcategory": "pixel_setup",
+      "impact_score": 3,
+      "impact_rationale": "Without value and currency, Meta cannot tie a monetary amount to a conversion, so value-based bidding and return on ad spend reporting have nothing to work from. Without content_ids and content_type, dynamic catalog ads cannot match the event to a product, which breaks remarketing on the items a visitor viewed.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "A Meta standard event can carry parameters that describe the conversion. The most important for an advertiser are 'value' and 'currency', which together tell Meta how much a conversion was worth, and 'content_ids' with 'content_type', which identify the specific products involved. A 'Purchase' event that fires with no parameters records that a purchase happened but says nothing about its amount or its contents.<br><br>When 'value' and 'currency' are missing, Meta cannot attach a monetary amount to the conversion. Value-based bidding strategies such as highest-value and return on ad spend (ROAS) targets have no revenue figure to optimize toward, and the ROAS and conversion-value columns in Ads Manager stay empty or wrong. A value sent without a currency, or with a currency that does not match the store, produces a number Meta cannot interpret correctly.<br><br>When 'content_ids' and 'content_type' are missing, the event cannot be matched to items in a Meta catalog. Dynamic ads that retarget a visitor with the exact products they viewed or added to cart depend on those identifiers, and without them the catalog has no event to react to. The product IDs sent in the event also have to match the IDs in the catalog since a mismatch matches nothing.<br><br>A few parameter problems are worth confirming on the conversion event:<ul><li>'value' is missing, hardcoded to a fixed number, or read from the page after the event has already fired</li><li>'currency' is missing, or set to a default such as 'USD' on a store that sells in another currency</li><li>'content_ids' is absent on a store that runs dynamic catalog ads, or uses IDs that do not match the catalog</li><li>'content_type' does not match the catalog, for example 'product' versus 'product_group'</li></ul>You may want to read the actual parameter values in the Meta Pixel Helper or the Test events feed rather than trusting that the tag template fills them since an empty or zero value often passes a quick glance.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the 'Purchase' event should carry the real order total in 'value', the store's currency in 'currency', and the purchased items in 'content_ids' with a 'content_type' that matches the catalog. You may want to compare the value the event sends against the order total shown on the confirmation page for a few test orders, so you catch a value that reads the subtotal, omits tax or shipping, or fires before the total renders.",
+          "lead_gen": "On a lead-generation site, a 'Lead' event often has no natural order value, so value-based bidding is usually not the goal, and a missing 'value' is expected rather than a fault. You may want to confirm whether the business assigns an estimated value to a lead. If it does, the 'Lead' or a custom event should carry that estimated 'value' and 'currency' so value-based strategies have a figure to use."
+        },
+        "learn_more": [
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "Set the value and currency of your Meta Pixel standard events",
+            "source_url": "https://www.facebook.com/business/help/392174274295227"
+          },
+          {
+            "source_type": "Meta Business Help Center",
+            "source_title": "Specifications for Meta Pixel Standard Events",
+            "source_url": "https://www.facebook.com/business/help/402791146561655"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the parameter values on the conversion event and confirm value, currency, and where relevant content_ids arrive correctly rather than empty or hardcoded.",
+        "tools": {
+          "free": {
+            "meta_pixel_helper": {
+              "label": "Meta Pixel Helper",
+              "steps": [
+                "Complete a test conversion, for example a purchase, with the Meta Pixel Helper open.",
+                "Expand the conversion event and read its parameters. Confirm 'value' holds the real amount, 'currency' matches the store, and on a catalog store that 'content_ids' and 'content_type' are present.",
+                "Note any parameter that is missing, empty, zero, or hardcoded to the same number across different orders."
+              ]
+            },
+            "meta_events_manager": {
+              "label": "Meta Events Manager",
+              "steps": [
+                "Open Events Manager, select the dataset, and use 'Test events' to walk the conversion path.",
+                "Open the received conversion event and read its parameters in the event detail. Confirm value, currency, and content identifiers are present and correct.",
+                "Check the dataset's diagnostics for warnings about missing or malformed parameters, which flag value and currency problems across live traffic rather than a single test."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per revenue or catalog event, whether 'value' matches the real amount, whether 'currency' matches the store, and whether 'content_ids' and 'content_type' are present and match the catalog where dynamic ads run. An event that carries a correct value, the right currency, and matching content identifiers passes. An event missing or misreporting any of these is a fail recorded with the parameter at fault.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the value, currency, and content identifier observations for each conversion event above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s conversion events are missing parameters Meta needs to value and match them. Without 'value' and 'currency', value-based bidding and ROAS reporting have no revenue figure to work from, and without 'content_ids' and 'content_type', dynamic catalog ads cannot retarget visitors with the products they viewed. {{voice_recommend}} configuring the conversion events to pass the real order value, the correct currency, and matching content identifiers, then confirming the values arrive correctly in Meta Events Manager. After the change, compare the value the event reports against the actual order total for a few test conversions to confirm it reads the full amount."
+      }
+    }
+  ]
+}

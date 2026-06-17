@@ -297,6 +297,43 @@ CATEGORY_METADATA = {
             "description": "Consent Mode, first-party data, and measurement durability",
         },
     },
+    "meta-ads": {
+        "governance": {
+            "display_name": "Governance",
+            "icon_class": "fa-solid fa-scale-balanced",
+            "description": "Business Manager access, asset ownership, and account structure",
+        },
+        "campaigns": {
+            "display_name": "Campaigns",
+            "icon_class": "fa-solid fa-rectangle-list",
+            "description": "Objective fit, Advantage+ Shopping, and budget optimization",
+        },
+        "bidding": {
+            "display_name": "Bidding",
+            "icon_class": "fa-solid fa-gavel",
+            "description": "Bid strategy, optimization event, and the learning phase",
+        },
+        "targeting": {
+            "display_name": "Targeting",
+            "icon_class": "fa-solid fa-crosshairs",
+            "description": "Custom Audiences, Lookalikes, Advantage+ Audience, and exclusions",
+        },
+        "creative": {
+            "display_name": "Creative",
+            "icon_class": "fa-solid fa-palette",
+            "description": "Format coverage, Advantage+ creative, testing, and policy",
+        },
+        "measurement": {
+            "display_name": "Measurement",
+            "icon_class": "fa-solid fa-chart-line",
+            "description": "Pixel, Conversions API, deduplication, and attribution",
+        },
+        "privacy": {
+            "display_name": "Privacy",
+            "icon_class": "fa-solid fa-user-shield",
+            "description": "Aggregated Event Measurement, consent, and first-party data",
+        },
+    },
     "google-tag-manager": {
         "container-structure": {
             "display_name": "Container Structure",

@@ -1,0 +1,201 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/displayvideo/answer/6154874",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Bid strategy is the lever that connects line item spend to campaign goals, so a mismatch between the chosen strategy and the available conversion data costs money quietly. The check is fast: the line item's settings surface the strategy type and the target, and the IO's performance data shows whether delivery is throttling or spending freely at a cost that misses the goal. Finding a fixed bid where automated bidding has enough data to improve performance, or catching a target CPA set so low it prevents delivery, is the kind of structural finding that changes account trajectory.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Display and Video 360 (DV360) offers two broad bid strategy approaches at the line item level: automated strategies that adjust bids based on a performance goal, and fixed bids that spend at a static price regardless of predicted outcome. Automated strategies include 'Maximize spend', which optimizes toward a performance goal while exhausting the budget, and goal-based variants that target a specific cost per action (CPA) or return on ad spend (ROAS). Fixed bids work in contexts where the signal needed to drive automated bidding is absent or where a precise price cap is required. These checks confirm that the strategy in place fits the goal, that automated strategies have enough conversion volume to make good decisions, and that any goal target set is realistic enough to allow delivery.",
+  "audit_checks": [
+    {
+      "id": "dv360-bid-strategy-automation-without-signal",
+      "title": "Automated bid strategy is active on a line item with insufficient conversion volume",
+      "category": "bidding",
+      "subcategory": "bid_strategy",
+      "impact_score": 4,
+      "impact_rationale": "Automated bidding that lacks adequate conversion signal makes uninformed bid adjustments. The line item may underspend as the algorithm withholds bids waiting for data that rarely arrives, or overpay as it miscalibrates on a handful of events. Either way, the campaign goal goes unmet and budget is wasted on a strategy that cannot function.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "conversion-tracking"],
+      "educate": {
+        "base": "Display and Video 360 (DV360) automated bid strategies, such as 'Maximize spend' optimizing toward a CPA goal or a target ROAS goal, rely on Floodlight conversion data to predict which impressions are worth more or less. When that conversion data is thin, the algorithm has little to learn from. It cannot reliably distinguish high-value placements from low-value ones, and it may either throttle delivery while it waits for signal or bid inconsistently across the available inventory.<br><br>Google's guidance for automated conversion-based bidding across its platforms recommends a minimum of roughly 30 to 50 conversions in a recent 30-day window before a strategy can optimize with confidence. DV360 line items that run with fewer conversions than that in the lookback window are asking the algorithm to generalize from too few data points. The result is often delivery that paces erratically, a realized cost that drifts far from the target, or impressions that spend without converting.<br><br>A few signs point to this problem:<ul><li>The line item uses a goal-based automated strategy such as 'Maximize spend' toward CPA, or a target CPA or ROAS goal, but the Floodlight activity it optimizes toward records fewer than 30 conversions in the past 30 days</li><li>The line item paces unevenly or goes through long stretches without spend despite a budget that should support delivery</li><li>The realized CPA or ROAS at the line item level drifts far from the target over multiple weeks</li></ul>You may want to consider switching a thin-signal line item to a fixed CPM bid while you build conversion volume, then revisiting the automated strategy once the Floodlight activity shows a consistent event rate. Consolidating multiple small line items that share a goal into fewer, larger line items is another approach that concentrates signal.",
+        "site_type_overlays": {
+          "ecommerce": "On a retail advertiser's account, purchase and add-to-cart Floodlight activities are the most common optimization signals. If a DV360 line item optimizes toward purchase but the product category it covers only converts a few times per month, the line item does not have enough data to make automated bidding reliable. You may want to consider using a higher-funnel Floodlight activity, such as add-to-cart, as a proxy signal while purchase volume grows.",
+          "lead_gen": "On a lead-generation advertiser's account, form submissions and phone-call Floodlight activities drive the automated strategy. Lead-gen conversion volumes can be lower than retail, so the 30-conversion threshold may be harder to reach on individual line items. You may want to consider consolidating insertion order (IO) or line item structure so that the Floodlight activity accumulates enough events across fewer items to give the algorithm workable data."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Display & Video 360 Help",
+            "source_title": "About automated bidding in Display & Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/6154874"
+          },
+          {
+            "source_type": "Google DV360 API Reference",
+            "source_title": "BiddingStrategy resource — Display & Video 360 API",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v3/BiddingStrategy"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Identify which line items use automated goal-based bid strategies and check the conversion volume of the Floodlight activity each one optimizes toward.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Open the advertiser, navigate to 'Line items', and add the 'Bid strategy' column to the table view if it is not already visible. Filter or sort to surface line items using automated strategies such as 'Maximize spend toward CPA', 'Target CPA', or 'Target ROAS'.",
+                "For each automated line item, note the Floodlight activity it optimizes toward. Navigate to 'Floodlight' under the advertiser and open the activity's conversion report for the past 30 days. Record the total conversion count.",
+                "Flag any line item whose optimizing Floodlight activity recorded fewer than 30 conversions in the past 30 days. Note the line item name, the strategy type, and the conversion count.",
+                "Check the pacing graph for flagged line items. Erratic pacing or long flat stretches alongside a low conversion count strengthens the case that the strategy is underperforming due to thin signal."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per automated line item, the strategy type, the optimizing Floodlight activity, and its 30-day conversion count. A line item whose Floodlight activity recorded 30 or more conversions in the past 30 days passes. A line item with fewer than 30 conversions in that window is a fail recorded with the line item name, strategy type, and conversion count.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the bid strategy type, the Floodlight activity, and the 30-day conversion count for each automated line item above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more line items in {{site_name}}'s Display and Video 360 (DV360) account are running automated bid strategies against Floodlight activities with insufficient conversion volume to support reliable optimization. Automated bidding needs a consistent conversion signal to predict which impressions are worth more; without it, the algorithm makes adjustments based on too few data points, which leads to erratic pacing and a realized cost that drifts from the goal. {{voice_recommend}} switching the affected line items to a fixed CPM bid while conversion volume builds, consolidating line item structure to concentrate signal on fewer items, or selecting a higher-funnel Floodlight activity as a proxy optimization event until the primary goal event reaches a sustainable rate."
+      }
+    },
+    {
+      "id": "dv360-bid-strategy-fixed-bid-where-automation-viable",
+      "title": "Line item uses a fixed bid where conversion volume supports automated bidding",
+      "category": "bidding",
+      "subcategory": "bid_strategy",
+      "impact_score": 3,
+      "impact_rationale": "A fixed bid treats every impression as equal regardless of the predicted conversion probability. When the Floodlight data is there to support automation, a fixed bid leaves measurable performance on the table: the algorithm would outperform the static price by weighting toward the impressions most likely to convert, reducing cost per action without reducing reach.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "data-quality"],
+      "educate": {
+        "base": "A fixed bid in DV360 sets a single price for every impression a line item competes for, regardless of signals such as time of day, device, audience segment, or the user's prior interaction with the advertiser's Floodlight tags. Fixed bids are a sensible default when conversion data is too thin to drive automated optimization, or when buying a guaranteed deal at a negotiated rate requires a precise, stable price.<br><br>When a line item has adequate conversion history and runs against open exchange or preferred deal inventory, a fixed bid is no longer the best choice. DV360's automated strategies use that conversion history to bid more on impressions the algorithm predicts will convert and less on impressions that show weaker signals. Over time, this produces a lower cost per action (CPA) or higher return on ad spend (ROAS) than a flat static price that treats all inventory identically.<br><br>A few signs point to this situation:<ul><li>The line item uses a fixed CPM or fixed CPC bid and the Floodlight activity it could optimize toward shows a steady 30 or more conversions per month</li><li>The line item's realized CPA, tracked outside the bid strategy, is meaningfully higher than the account's goal across similar line items using automated strategies</li><li>The campaign objective is performance-oriented, such as driving purchases or leads, rather than reach or brand awareness, where impression-level efficiency matters less</li></ul>You may want to consider testing an automated strategy on a line item that already has sufficient Floodlight signal. Running an automated variant alongside the fixed-bid line item for four to six weeks, with comparable budgets, gives a directional read on whether automation improves CPA without needing to commit the full flight budget.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser, purchase and cart events from Floodlight are exactly the signal that automated bidding needs. A fixed bid on a line item that runs against open exchange inventory, while the same account has Floodlight purchase data available, is a gap worth closing. You may want to consider moving the line item to 'Maximize spend' optimizing toward the purchase activity and comparing the realized CPA over a test period.",
+          "lead_gen": "For a lead-generation advertiser, form submission Floodlight events are the natural optimization target. If a line item runs a fixed bid but the form submission activity has been recording events consistently for several months, the signal base may support automated bidding. You may want to consider a 'Maximize spend toward CPA' strategy with a CPA goal derived from recent historical performance."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Display & Video 360 Help",
+            "source_title": "About automated bidding in Display & Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/6154874"
+          },
+          {
+            "source_type": "Google DV360 API Reference",
+            "source_title": "BiddingStrategy resource — Display & Video 360 API",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v3/BiddingStrategy"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Find line items using fixed bids and check whether the Floodlight activities the advertiser has available would support automated bidding on those line items.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "In the advertiser's line item list, add the 'Bid strategy' column. Filter for line items using a fixed CPM or fixed CPC strategy.",
+                "For each fixed-bid line item with a performance-oriented goal (purchase, lead, or similar), navigate to 'Floodlight' under the advertiser and check whether any activity records a consistent 30 or more conversions per month.",
+                "Compare the fixed-bid line item's realized CPA, calculated from the line item's cost and Floodlight conversion count in the reporting tab, against the advertiser's CPA goal or against comparable line items using automated strategies.",
+                "Note the line item name, the fixed bid amount, the comparable Floodlight activity and its monthly conversion count, and the realized CPA for flagging."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per fixed-bid line item, the bid amount, the campaign objective, and whether a Floodlight activity with 30 or more monthly conversions exists that the line item could optimize toward. A fixed-bid line item on a reach or brand-awareness campaign, or one without sufficient Floodlight signal, passes. A fixed-bid line item on a performance campaign where adequate Floodlight signal exists is flagged as an opportunity, recorded with the line item name, the bid amount, and the available conversion volume.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the bid strategy, campaign objective, and available Floodlight conversion volume for each fixed-bid line item above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Display and Video 360 (DV360) account includes line items running fixed bids on performance-oriented campaigns where Floodlight conversion data is sufficient to support automated bidding. A fixed bid treats every impression as equally valuable, while the available conversion history would allow DV360's automated strategies to weight bids toward impressions more likely to convert, reducing the cost per action over time. {{voice_recommend}} testing an automated strategy, such as 'Maximize spend' toward the relevant Floodlight activity, on the flagged line items alongside a fixed-bid control for four to six weeks to quantify the performance difference before committing the full budget."
+      }
+    },
+    {
+      "id": "dv360-bid-strategy-target-unrealistic",
+      "title": "Bid strategy goal target is set at a level that throttles delivery",
+      "category": "bidding",
+      "subcategory": "bid_strategy",
+      "impact_score": 3,
+      "impact_rationale": "An automated strategy with a target set too aggressively causes the algorithm to restrict bids to the point where the line item wins too few auctions to pace. The budget goes unspent, impressions are lost, and the campaign underdelivers against its goals, not because the inventory is unavailable but because the bid target prevents the line item from competing.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "data-quality"],
+      "educate": {
+        "base": "DV360 automated strategies that target a specific cost per action (CPA) or return on ad spend (ROAS) use the target as a ceiling on how much the algorithm will effectively bid. A line item told to achieve a $5 CPA will restrict bids to the range it estimates is consistent with that goal. If the actual market price needed to win the relevant inventory is higher, the line item loses most auctions and underdelivers.<br><br>Setting a target that is tighter than what the market supports is one of the most direct ways to strangle a DV360 line item's delivery. The algorithm is not broken and the audience is not too small. The line item simply cannot afford to bid at the prices the auction requires to win impressions. This is distinct from a budget that is too small: even a generously funded line item underdelivers if the target constrains the bid before the budget is reached.<br><br>A few signs point to this problem:<ul><li>The line item has a healthy budget but consistently paces below 70% of the daily budget, with no frequency cap or audience size explanation</li><li>The automated strategy is a goal-based type (CPA or ROAS target), and the target is tighter than the account's realized CPA or ROAS over the prior 90 days</li><li>The impression share or auction win rate is low relative to comparable line items in the same account that use looser targets</li></ul>You may want to consider setting the initial target at or slightly above the account's recent historical CPA or ROAS for similar campaigns, then tightening it incrementally over several weeks as the algorithm finds efficient supply. Moving the target more than 15 to 20 percent from current performance in a single change often resets the algorithm's learning and can prolong the delivery problem.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser with a purchase CPA goal, a target set below the product category's average order value-to-conversion-rate ratio may be structurally unachievable on the available open exchange inventory. You may want to compare the CPA target against the past 90-day realized CPA at the line item or insertion order (IO) level before assuming the inventory or audience is the problem.",
+          "lead_gen": "For a lead-generation advertiser with a cost-per-lead target, aggressive targets are a frequent cause of underdelivery because lead events are lower volume than retail events and the algorithm needs margin to test placements. You may want to start with a target 20 to 30 percent above the desired long-run goal, confirm delivery is healthy, then adjust the target downward in small steps."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Display & Video 360 Help",
+            "source_title": "About automated bidding in Display & Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/6154874"
+          },
+          {
+            "source_type": "Google DV360 API Reference",
+            "source_title": "BiddingStrategy resource — Display & Video 360 API",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v3/BiddingStrategy"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Identify goal-based automated line items where the target is tighter than recent historical performance and where delivery pacing suggests the target is restricting bids.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "In the line item list, filter for automated strategies using a CPA or ROAS target. Add the 'Bid strategy goal' column to see the target value alongside each line item.",
+                "Open the 'Pacing' report for the campaign or IO flight period. Note any line items that consistently spend below 70 to 75 percent of the daily budget without a frequency cap, audience depletion, or creative disapproval as an alternative explanation.",
+                "For each underpacing line item with a goal target, pull the realized CPA or ROAS from the Floodlight conversion report for the prior 90 days. Compare that historical figure against the current target. A target more than 20 percent tighter than the 90-day realized performance is a candidate for adjustment.",
+                "Record the line item name, the target value, the 90-day realized CPA or ROAS, and the average daily pacing percentage."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per goal-based automated line item, the strategy target, the 90-day realized CPA or ROAS, and the average daily pacing as a percentage of the budget. A line item whose target is within 20 percent of the 90-day realized performance and whose pacing exceeds 80 percent of daily budget passes. A line item whose target is more than 20 percent tighter than the 90-day realized performance AND whose pacing is below 70 percent of daily budget is a fail recorded with the line item name, the target, the realized performance figure, and the pacing percentage.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the strategy target, the 90-day realized CPA or ROAS, and the average daily pacing percentage for each goal-based line item above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more line items in {{site_name}}'s Display and Video 360 (DV360) account have automated bid strategy targets set at a level that is restricting delivery. The targets are tighter than what the account's historical performance on similar campaigns supports, so the algorithm withholds bids to stay within the goal ceiling and the line items consistently underpace against their budgets. The budget is not being spent, and the campaign goal is not being met, not because of audience or inventory limits but because the target prevents the line item from winning auctions at the market price. {{voice_recommend}} resetting the target to a level at or slightly above the account's 90-day realized cost per action (CPA) or return on ad spend (ROAS), confirming that delivery normalizes over the following two weeks, and then adjusting the target downward in increments of 10 to 15 percent at a time toward the desired long-run goal."
+      }
+    }
+  ]
+}

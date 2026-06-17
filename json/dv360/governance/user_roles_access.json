@@ -1,0 +1,187 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/displayvideo/answer/2723011",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Display and Video 360 (DV360) access sprawl is an account control problem, not a budget or creative one, but it carries real downstream exposure. A departed employee who still holds Standard or Admin access can view active deals, audiences, and campaign budgets, or continue making changes. An agency user scoped at the partner level sees every advertiser under that partner, including clients they have no business relationship with. These checks are fast to run, the fix is a user deletion or a role downgrade, and the resulting access model is one that reflects who actually needs to do what.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "DV360 uses a role-based access model that assigns each user one role per partner or advertiser they can reach. The available roles, 'Admin', 'Standard', 'Read only', 'Reporting only', and 'Planner', carry meaningfully different permissions. Admin exists only at the partner level and controls user management, billing, and the full campaign hierarchy. Standard handles day-to-day campaign work without touching billing or other users. Read only and Reporting only grant visibility without edit rights. These checks confirm that the roles in use match the work each person actually performs, that no stale users retain access after leaving a team, and that agency and client users are scoped to the advertisers they own rather than the full partner.",
+  "audit_checks": [
+    {
+      "id": "dv360-user-roles-overprivileged",
+      "title": "Users hold broader roles than their work requires",
+      "category": "governance",
+      "subcategory": "user_roles_access",
+      "impact_score": 3,
+      "impact_rationale": "When Standard or Admin access is assigned as the default rather than the minimum needed, the result is a group of users who can edit campaigns, budgets, creatives, and Floodlight configurations they are not responsible for. An accidental change in a shared partner is harder to trace and harder to reverse than one made by a user whose scope matches their role.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "Display and Video 360 (DV360) assigns each user exactly one role per partner or advertiser. The role determines what that user can create, edit, or delete within that scope. At the partner level, Admin is the most permissive role: it covers campaign management, user management, billing, and exchange settings. Standard sits below Admin and handles campaign work without touching billing or other users. Read only and Reporting only limit a user to viewing and reporting without edit rights.<br><br>Assigning Standard or Admin broadly, rather than to the users whose jobs require those permissions, creates a wider surface for unintentional or unauthorized edits. An analyst who needs to pull reports does not need Standard access. A media planner who reviews campaign pacing does not need Admin. When roles are set to the minimum needed for each user's actual responsibilities, a mistake by one person stays contained to the scope their role allows.<br><br>DV360 applies roles at either the partner level or the advertiser level, and the level matters as much as the role name. A user with Standard access at the partner level can edit all advertisers under that partner. The same user with Standard access scoped to a single advertiser can edit only that advertiser. Granting partner-level access when advertiser-level access would do the same job expands the blast radius of any change that user makes.<br><br>A few signs suggest roles may be broader than needed:<ul><li>Multiple users hold Admin access at the partner level, but only one or two perform user management or billing tasks</li><li>Users who pull reports or review pacing have Standard access rather than Read only or Reporting only</li><li>Contractors or agency contacts are scoped at the partner level rather than to the specific advertisers they manage</li></ul>You may want to review the user list against each person's actual job function before adjusting roles. A mismatch between role and responsibility is the signal, not the role name by itself.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser, a campaign manager running Performance Max, Standard Shopping, or display retargeting needs Standard access at the advertiser level. A merchandising analyst reviewing conversion data typically needs Read only or Reporting only. You may want to confirm that warehouse or inventory system contacts who review campaign reports do not hold Standard access that lets them edit campaigns.",
+          "lead_gen": "For a lead-generation advertiser, the person setting up Floodlight activities for form submissions needs Standard access at the advertiser level. A sales team contact reviewing lead volume in reports needs Reporting only. You may want to confirm that sales or CRM contacts are not scoped at Standard or Admin when their task is reading data."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 Help",
+            "source_title": "Manage users in Display and Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/2723011"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the full user list at the partner level and at each advertiser, then compare each user's role against their actual job function.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Sign in to DV360 with Admin access. In the left navigation, open the partner you are auditing and click 'Settings', then 'Users'.",
+                "Export or note the full list of users, their assigned roles, and the scope at which each role is assigned (partner level or a specific advertiser). Note any user with Admin or Standard access at the partner level.",
+                "For each Admin-level user, confirm whether they perform user management or billing tasks. If a user's role is Admin but they only manage campaigns, that is a candidate for downgrade to Standard.",
+                "For each Standard-level user, confirm whether they create or edit campaigns, line items (LIs), or insertion orders (IOs). A user whose work is limited to reviewing pacing or pulling reports is a candidate for Read only or Reporting only.",
+                "Repeat the review at the advertiser level. Note any user scoped to all advertisers under the partner when their responsibilities are limited to one or two advertisers."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each user flagged during the review, record their name, current role, scope (partner or advertiser), and whether the role matches their actual responsibilities. A user whose role matches their job function passes. A user whose role grants more access than their job requires is a fail, recorded with the user's name, the current role, and the recommended adjustment.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each user's name, current role, scope, and whether the role matches their responsibilities to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that several users in {{site_name}}'s Display and Video 360 (DV360) partner hold roles broader than their actual responsibilities require. Users who pull reports or review pacing hold Standard access, which also lets them edit campaigns, insertion orders (IOs), and line items (LIs) they are not responsible for. {{voice_recommend}} reviewing the full user list against each person's job function and downgrading users whose work is limited to reporting or review to Read only or Reporting only. For users who manage a specific advertiser, {{voice_recommend}} scoping their role at the advertiser level rather than at the partner level, which limits any change they make to the advertiser they own."
+      }
+    },
+    {
+      "id": "dv360-stale-users-retain-access",
+      "title": "Departed or inactive users still hold partner or advertiser access",
+      "category": "governance",
+      "subcategory": "user_roles_access",
+      "impact_score": 4,
+      "impact_rationale": "A user account that remains active after the person leaves a team retains full access to campaign data, audience lists, Floodlight configurations, and in the Admin case, user management. The account can be used deliberately or compromised without the current team being aware, and DV360 does not expire access automatically.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "DV360 does not remove or expire user access when an employee leaves, a contract ends, or a vendor relationship changes. The user record remains active at whatever role and scope it was last set to, and those credentials remain usable until an Admin explicitly removes the user from the partner or advertiser.<br><br>A former team member who held Standard access at the partner level retains the ability to edit campaigns, creatives, audiences, and Floodlight configurations. One who held Admin access retains the ability to modify other users' access or change billing settings. The account stays fully functional regardless of whether the person is still with the organization.<br><br>Stale access surfaces in several ways. An offboarding process that covers the corporate email or VPN but does not include an explicit DV360 user removal leaves the access open. An agency roster change that removes someone from the agency's internal systems does not propagate to the DV360 user list. A vendor contact who rotated off the account months ago still appears in the partner's user list with the same scope they held at the start of the engagement.<br><br>A few patterns point to stale access in the user list:<ul><li>User accounts associated with email addresses at former agencies or vendors that no longer hold the business</li><li>User accounts for email addresses that no longer exist in the client's identity provider</li><li>User accounts that show no recent activity but hold Standard or Admin access at the partner level</li></ul>You may want to cross-reference the DV360 user list against the client's current roster of active employees, current agency contacts, and current vendor relationships before removing anyone. A user who appears inactive may still hold a legitimate role.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser, stale agency contacts who ran past Shopping or display campaigns may still hold Standard access to the advertiser, including visibility into product feed configurations and conversion values. You may want to confirm that access for past agencies was removed when the relationship ended.",
+          "lead_gen": "For a lead-generation advertiser, a former agency contact with Standard access can view lead volume, Floodlight configurations, and audience lists built from form submissions. You may want to confirm that Floodlight access is not readable by contacts who are no longer part of the engagement."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 Help",
+            "source_title": "Manage users in Display and Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/2723011"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Pull the full user list at the partner and each active advertiser, then cross-reference against the client's current roster of employees, agency contacts, and vendor relationships.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "In the partner's 'Settings', open 'Users' and export the complete user list: name, email, role, and scope.",
+                "Review each email domain against the client's current agency roster and vendor list. Flag any domain that belongs to an agency or vendor the client no longer works with.",
+                "For each flagged user, confirm with the client's account owner whether the person still has a legitimate reason to hold access. Remove users the client confirms are no longer active.",
+                "Repeat at the advertiser level under 'Settings' for each advertiser. Note any user scoped to an advertiser who is no longer associated with that advertiser's campaigns."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each flagged user, record their name, email domain, current role, scope, and whether the client confirms they are still active. A user confirmed as currently active passes. A user the client cannot confirm, or who is associated with a former agency or vendor, is a fail recorded with the user's name, email, role, and scope.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each flagged user's name, email, role, scope, and active-or-departed status to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} user accounts in {{site_name}}'s DV360 partner that belong to contacts who are no longer part of the account team or whose association with the account cannot be confirmed. These accounts retain the access level they were assigned when the relationship was active, which in some cases includes Standard access at the partner level. {{voice_recommend}} cross-referencing the full user list against the client's current employee and agency roster, removing any account the client confirms is no longer active, and establishing an offboarding step that includes explicit DV360 user removal whenever a team member, agency contact, or vendor rotates off the account."
+      }
+    },
+    {
+      "id": "dv360-access-scoped-too-broadly",
+      "title": "Agency or client users are scoped at the partner level instead of to specific advertisers",
+      "category": "governance",
+      "subcategory": "user_roles_access",
+      "impact_score": 3,
+      "impact_rationale": "A user scoped at the partner level can see every advertiser under that partner regardless of which advertisers they manage. For agencies that run multiple client accounts under one DV360 partner, partner-level access for one client's contacts exposes another client's campaign data, audience lists, and Floodlight configurations to an account team with no legitimate need to see them.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "privacy"],
+      "educate": {
+        "base": "In DV360, access scope and role name are two separate settings. A user's role, for example Standard, determines what actions they can take. The scope, partner level or a specific advertiser, determines which accounts those actions reach. A Standard user at the partner level can edit any advertiser under that partner. The same Standard user scoped to a single advertiser can edit only that advertiser.<br><br>For agencies that manage multiple clients under one DV360 partner, partner-level access creates a visibility problem. One client's contacts, scoped at the partner level, can see every other advertiser under that partner, including competitors if the agency happens to manage competing brands, or clients whose campaigns contain proprietary audience or conversion data. Nothing in the DV360 UI prompts users to stay within their assigned accounts. The data simply becomes visible.<br><br>The correct configuration is to scope each user to the specific advertisers they manage. If a user manages two out of eight advertisers under the partner, they receive Standard or Read only access scoped to those two advertisers only. Partner-level access is appropriate for the agency's own team members who need to manage the account structure, add new advertisers, or configure exchange and Floodlight settings that apply across all clients.<br><br>A few patterns point to scope being set too broadly:<ul><li>Client-side marketing contacts hold access at the partner level, giving them visibility into other advertisers they are not associated with</li><li>Agency contacts who manage a subset of advertisers are scoped at the partner level rather than to their assigned advertisers</li><li>Third-party measurement or creative contacts who need to reach a single advertiser are scoped at the partner level</li></ul>You may want to confirm the intended scope for each user with the agency's account lead before adjusting. Some partner-level users are legitimately there; the question is whether every partner-level user needs that scope.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser inside a multi-client partner, the client's in-house marketing team often receives partner-level access during onboarding because it is faster to configure. You may want to confirm whether the client's contacts need visibility into the agency's other advertiser accounts, and if not, rescope them to their own advertiser.",
+          "lead_gen": "For a lead-generation advertiser, third-party contacts such as a CRM integration vendor or a form analytics provider who need Floodlight access are often granted partner-level Standard access because that is the access level where Floodlight settings live. You may want to confirm whether each such contact needs the full partner scope or whether advertiser-level access covers their task."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 Help",
+            "source_title": "Manage users in Display and Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/2723011"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "For each user in the partner, confirm whether their scope matches the advertisers they are actually responsible for managing or viewing.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "In the partner's 'Settings', open 'Users' and review the scope column for each user. Note every user whose scope is listed at the partner level rather than at a specific advertiser.",
+                "For each partner-level user, identify their organization: agency staff, client-side contacts, or third-party vendors.",
+                "Confirm with the agency account lead which advertisers each partner-level user is responsible for. A user responsible for fewer than all advertisers under the partner is a candidate for rescoping to their specific advertisers.",
+                "Check the advertiser-level user settings under each advertiser's 'Settings' to confirm that users scoped to that advertiser cannot reach the other advertisers in the partner."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each partner-level user, record their name, organization, the advertisers they are responsible for, and whether their partner-level scope is justified. A partner-level user whose responsibilities span all advertisers, or who is an agency staff member with cross-account duties, passes. A user who manages a subset of advertisers but is scoped at the partner level is a fail, recorded with the user's name, organization, current scope, and the advertisers they should be rescoped to.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each partner-level user's name, organization, responsibilities, and whether partner-level scope is justified to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s DV360 partner includes users, specifically client-side contacts and third-party vendors, scoped at the partner level whose responsibilities are limited to specific advertisers. Partner-level scope gives these users visibility into every advertiser under the partner, including accounts they are not responsible for. {{voice_recommend}} rescoping each of these users to the specific advertisers they manage or review, and reserving partner-level access for agency staff with cross-account responsibilities. For users who currently hold partner-level access for Floodlight configuration tasks, {{voice_recommend}} confirming whether advertiser-level access covers that task before removing the partner-level scope."
+      }
+    }
+  ]
+}

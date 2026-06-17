@@ -1,0 +1,201 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/displayvideo/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "DV360 enforces isolation at the advertiser level. Audiences, Floodlight configurations, and brand-safety controls do not cross advertiser boundaries unless they are deliberately shared, so a poorly scoped advertiser structure contaminates the measurement data and audience pools the account depends on without any warning. Fixing the structure is a one-time configuration effort that makes every subsequent campaign cleaner and easier to audit.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "In Display & Video 360 (DV360), a partner account holds one or more advertisers, and each advertiser maintains its own Floodlight configuration, audience lists, and brand-safety controls. When advertisers are set up without a coherent organizing principle, Floodlight activity from unrelated brands or business units lands in the same conversion pool, audiences built from one brand's traffic become visible to an unrelated brand's campaigns, and partner-level brand-safety defaults may not flow through to advertisers that need them. These checks confirm that the advertiser structure reflects a defensible logic, that Floodlight is scoped at the right level, and that partner defaults are configured and inherited consistently.",
+  "audit_checks": [
+    {
+      "id": "dv360-advertiser-structure-no-coherent-logic",
+      "title": "Advertisers are not organized by a coherent principle, mixing unrelated brands or business units",
+      "category": "governance",
+      "subcategory": "partner_advertiser_structure",
+      "impact_score": 3,
+      "impact_rationale": "When unrelated brands or business units share a single advertiser, their Floodlight activity, audience lists, and targeting exclusions intermingle. The conversion data becomes harder to attribute to the correct entity, and audience segments built from one brand's site traffic become accessible to campaigns for a different brand with different privacy and brand considerations.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "A Display & Video 360 (DV360) advertiser is the unit of isolation for audiences, Floodlight configurations, and content-exclusion settings. Two campaigns belonging to the same advertiser share the same Floodlight configuration and can access each other's audience lists. Two campaigns belonging to different advertisers under the same partner are isolated by default, and data only crosses that boundary when a configuration explicitly allows it.<br><br>When a partner runs media for multiple brands, regions, or business units, the advertiser layer is where those entities get separated. A single catch-all advertiser that holds every brand's campaigns collapses that isolation. Floodlight activity from one brand gets counted alongside another's, audience segments built from Brand A's purchasers appear in Brand B's remarketing lists, and a budget or pacing issue on one brand's line item affects reporting visibility for all of them in the same view.<br><br>The organizing principle can be brand, region, or business unit. Any of these creates a defensible boundary. The relevant test is whether two things that share an advertiser would reasonably be expected to share their conversion data and audience pools. A few signs suggest the structure needs review:<ul><li>A single advertiser holds campaigns for products or brands with different websites, different Floodlight tags, or different reporting ownership</li><li>Audience lists in the advertiser mix site visitors from two separate domains</li><li>The advertiser name is generic (for example, the agency name or the holding company name) with no reference to a specific brand or business unit</li></ul>You may want to list the active advertisers in the partner and confirm each one maps to a single brand, region, or business unit before evaluating the campaigns underneath them.",
+        "site_type_overlays": {
+          "ecommerce": "For a retailer with multiple store brands or a marketplace with distinct product categories, one advertiser per brand keeps purchase Floodlight activity, remarketing lists, and revenue reporting cleanly separated. You may want to confirm that an advertiser holding retail campaigns matches a single brand's domain and checkout flow rather than a mix of storefronts.",
+          "lead_gen": "For a lead-generation business with multiple service lines or regional offices, an advertiser structured around a specific service line or region keeps the lead Floodlight activity and audience segments from the relevant funnel in one place. You may want to confirm the advertiser's Floodlight tags match the conversion points for the service line it represents."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 API Reference",
+            "source_title": "Advertiser resource — Display & Video 360 API v4",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v4/advertisers"
+          },
+          {
+            "source_type": "DV360 Help",
+            "source_title": "About advertisers in Display & Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/2696478"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "List the active advertisers in the partner and evaluate whether each one maps to a single brand, region, or business unit.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Open the partner-level view in DV360 and navigate to 'Advertisers'. List every active advertiser.",
+                "For each advertiser, open its settings and note the domain URL listed under general settings. Compare this domain to the campaigns running under that advertiser. A mismatch, or multiple domains, points to a structural problem.",
+                "Check whether any advertiser name is generic, such as the agency name, the holding company name, or a year without a brand reference. Generic names often indicate that unrelated entities share the advertiser.",
+                "If two advertisers appear to represent the same brand, check whether they were created for a specific time-bound purpose (for example, a test) or whether they represent a genuine structural split."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per advertiser, whether it maps to a single coherent entity (brand, region, or business unit) and whether its domain setting matches its active campaigns. An advertiser that maps to a single entity and whose domain matches its campaigns passes. An advertiser whose campaigns represent more than one brand, whose domain is absent or generic, or whose audience lists contain site visitors from multiple domains is a fail, recorded with the advertiser name and the specific concern.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "List the active advertisers and their domain settings above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the advertiser structure in the DV360 partner account does not follow a coherent organizing principle, with campaigns for different brands or business units sharing a single advertiser. This collapses the isolation that the advertiser layer is meant to provide. Floodlight activity, audience lists, and targeting exclusions from unrelated entities intermingle, making it harder to attribute conversions or build clean audience segments. {{voice_recommend}} restructuring the advertiser layer so each advertiser maps to a single brand, region, or business unit, and confirming that each advertiser's domain setting matches the site whose Floodlight tags run under it."
+      }
+    },
+    {
+      "id": "dv360-floodlight-scope-misaligned",
+      "title": "Floodlight configuration is scoped at the wrong level, causing conversions or audiences to cross advertiser boundaries",
+      "category": "governance",
+      "subcategory": "partner_advertiser_structure",
+      "impact_score": 4,
+      "impact_rationale": "When Floodlight is configured at too broad a scope, conversion activity from one brand counts toward another brand's campaign results, and remarketing audiences built from one brand's site visitors appear in a different brand's targeting. The conversion data in both advertisers becomes unreliable, and audiences may contain users who never interacted with the brand targeting them.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "In DV360, Floodlight is the conversion-tracking and audience-building system that DV360 shares with Campaign Manager 360 (CM360). A Floodlight configuration belongs to a single CM360 advertiser and is linked to one or more DV360 advertisers. All DV360 advertisers linked to the same Floodlight configuration share the same conversion activity and the same Floodlight-based audiences.<br><br>This shared-by-default behavior is the source of a structural risk. When a partner links multiple unrelated DV360 advertisers to a single Floodlight configuration, the conversion pools and audience lists merge. A purchase tag firing on Brand A's checkout page creates a 'purchasers' audience that Brand B's campaigns can target. A Floodlight activity that CM360 records for Brand A's display impression shows in Brand B's conversion reporting if they share the configuration.<br><br>The correct scope depends on whether the advertisers represent the same business entity. Advertisers for the same brand, shared by the same marketing team, with the same measurement owner, can share a Floodlight configuration and benefit from consolidated audiences. Advertisers that represent separate brands, separate clients, or entities with different reporting ownership should each have their own Floodlight configuration.<br><br>A few signs point to a misaligned scope:<ul><li>Two DV360 advertisers representing different brands are linked to the same Floodlight configuration in DV360's advertiser settings</li><li>Floodlight audience lists in one advertiser contain site visitors from a different brand's domain</li><li>Campaign Manager 360 shows Floodlight activity tagged to one brand appearing in cross-channel reports for a different brand</li></ul>You may want to confirm which CM360 advertiser owns the Floodlight configuration each DV360 advertiser links to, and whether the entities sharing that configuration share a measurement owner.",
+        "site_type_overlays": {
+          "ecommerce": "For a retailer operating multiple store brands, each brand's purchase Floodlight activity and customer audience should stay within that brand's advertiser. You may want to confirm that a 'purchasers' audience built from one brand's checkout confirmation page is not reachable by campaigns running under a separate brand in the same partner.",
+          "lead_gen": "For a business with multiple service lines, a lead Floodlight activity and the remarketing audience it feeds should belong to the advertiser running campaigns for that service line. You may want to confirm that lead audiences from one service line's forms are not showing up in targeting options for a different service line's advertiser."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 Help",
+            "source_title": "About Floodlight in Display & Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/2876037"
+          },
+          {
+            "source_type": "Campaign Manager Help",
+            "source_title": "About Floodlight configuration",
+            "source_url": "https://support.google.com/campaignmanager/answer/2438531"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm which Floodlight configuration each active advertiser links to, and whether that scope is appropriate given the entities sharing the configuration.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Open each active advertiser in DV360 and navigate to its settings. Under the 'Ad server' section, note the CM360 advertiser the DV360 advertiser is linked to. The linked CM360 advertiser owns the Floodlight configuration.",
+                "For each pair of DV360 advertisers that are linked to the same CM360 advertiser, confirm whether they represent the same business entity. If they represent separate brands or separate clients, the shared Floodlight scope is a finding.",
+                "Within each advertiser, open 'Audiences' and review the Floodlight-based audience lists available for targeting. Note whether any audience name, or any domain referenced in its description, points to a brand different from the advertiser you are reviewing.",
+                "If access to Campaign Manager 360 is available, open the CM360 advertiser that owns the Floodlight configuration and review its Floodlight activities. Confirm each activity tag is deployed on a domain belonging to the brand the CM360 advertiser represents."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per DV360 advertiser, the linked CM360 advertiser that owns its Floodlight configuration, and whether that configuration is shared with any other DV360 advertiser representing a different brand or entity. An advertiser whose Floodlight configuration is either standalone or shared only with advertisers representing the same brand passes. An advertiser whose Floodlight configuration is shared with an unrelated brand's advertiser is a fail, recorded with both advertiser names and the shared CM360 configuration owner.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the Floodlight configuration owner for each advertiser above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Floodlight configuration in {{site_name}}'s DV360 partner account is scoped at the wrong level, linking DV360 advertisers that represent separate brands or business units to the same Campaign Manager 360 (CM360) configuration. This causes conversion activity and Floodlight-based audience lists to cross advertiser boundaries: a purchase or lead recorded for one brand shows up in the conversion reporting and audience pools available to a separate brand's campaigns. The measurement and the audience targeting for both advertisers are affected. {{voice_recommend}} separating the Floodlight configurations so that each brand's or business unit's DV360 advertiser links to a CM360 advertiser that owns a distinct Floodlight configuration, and auditing the Floodlight audience lists in each advertiser to confirm they contain only that brand's site visitors."
+      }
+    },
+    {
+      "id": "dv360-partner-defaults-not-configured",
+      "title": "Partner-level brand-safety and verification defaults are absent or not flowing through to advertisers",
+      "category": "governance",
+      "subcategory": "partner_advertiser_structure",
+      "impact_score": 3,
+      "impact_rationale": "Partner-level defaults set a baseline that every new advertiser and campaign inherits. When those defaults are absent, each new advertiser starts with no brand-safety controls, and campaigns can serve in content categories or on exchanges that the brand would not approve if reviewed manually. The gap grows with each new advertiser created without deliberate configuration.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "brand-safety"],
+      "educate": {
+        "base": "DV360 allows brand-safety controls to be set at the partner level, the advertiser level, and the campaign or line-item level. Controls set at the partner level act as a baseline that every advertiser created under the partner inherits by default. Controls set at the advertiser level apply to all campaigns under that advertiser and can add to, but not remove, the partner-level baseline.<br><br>When a partner account has no brand-safety defaults configured, every new advertiser starts without content exclusions, without a verification integration, and without digital content label restrictions. A campaign launched from that advertiser can serve anywhere the exchange allows. The practitioner managing the advertiser may add controls when they build campaigns, but there is no enforcement of a floor, and campaigns launched quickly may go live with no controls at all.<br><br>Partner defaults typically include digital content label exclusions (marking content rated for mature audiences as off by default), sensitive category blocks, and an active integration with a third-party verification vendor such as DoubleVerify or Integral Ad Science (IAS). Some partners also configure default exchange settings that limit buying to a curated set of exchanges rather than the full open market.<br><br>A few signs point to missing partner defaults:<ul><li>The partner settings in DV360 show no digital content label exclusions</li><li>No third-party verification integration is linked at the partner level</li><li>Advertisers created recently show no inherited content exclusions in their settings</li></ul>You may want to review the partner settings and compare them to the brand-safety requirements the account's campaigns are expected to meet.",
+        "site_type_overlays": {
+          "ecommerce": "For a retailer, partner defaults that block mature content and app-games categories are a reasonable floor. You may want to confirm the defaults cover the content categories the brand's legal or marketing team would flag as inappropriate, so new campaigns do not need those exclusions configured manually every time.",
+          "lead_gen": "For a lead-generation advertiser, partner defaults that block low-quality made-for-advertising (MFA) inventory and enforce a viewability floor are practical starting points. You may want to confirm the partner-level settings include at least a digital content label exclusion for DL-MA and an active verification vendor integration."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 API Reference",
+            "source_title": "Partner resource — Display & Video 360 API v4",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v4/partners"
+          },
+          {
+            "source_type": "DV360 Help",
+            "source_title": "Set up brand safety targeting in Display & Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/9017352"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the partner-level brand-safety and verification settings and confirm whether they reflect the account's baseline requirements.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Open the partner-level settings in DV360. Navigate to 'Brand safety' to see the digital content label exclusions and sensitive category blocks currently set as defaults.",
+                "Check whether any third-party verification vendor is integrated at the partner level. This is typically listed under the partner's 'Integrations' or 'Measurement' settings. Note whether DoubleVerify, IAS, or another vendor is active.",
+                "Open one or two recently created advertisers and navigate to their brand-safety settings. Confirm whether the partner's defaults are visible as inherited settings or whether the advertiser started with no controls.",
+                "If a default exchange list is expected, review the partner's exchange settings to confirm whether buying is limited to a curated set or open to all exchanges."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the partner settings include digital content label exclusions, at least one sensitive category block, and a linked third-party verification vendor. A partner with all three configured passes. A partner missing any of the three, or a partner whose advertiser-level settings show no inherited controls from the partner, is a fail recorded with the specific gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the partner-level brand-safety settings and verification integration status above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the DV360 partner account does not have brand-safety defaults configured at the partner level, so advertisers created under the partner inherit no baseline content exclusions and no verification integration. Campaigns launched from those advertisers can serve in content categories or on exchanges that do not meet the account's brand requirements unless a practitioner adds controls manually at the campaign or line-item level. {{voice_recommend}} configuring partner-level digital content label exclusions, sensitive category blocks, and a third-party verification integration as a baseline, then reviewing recently created advertisers to confirm they inherit those defaults or have equivalent controls set at the advertiser level."
+      }
+    }
+  ]
+}

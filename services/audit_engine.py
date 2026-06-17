@@ -267,6 +267,43 @@ CATEGORY_METADATA = {
             "description": "Whether conversions are captured accurately, deduplicated, and durable as cookies erode",
         },
     },
+    "linkedin-ads": {
+        "conversion-tracking": {
+            "display_name": "Conversion Tracking",
+            "icon_class": "fa-solid fa-bullseye",
+            "description": "Whether the Insight Tag, conversions, and Lead Gen Forms capture results accurately",
+        },
+        "attribution": {
+            "display_name": "Attribution",
+            "icon_class": "fa-solid fa-route",
+            "description": "Which touchpoint gets credit, and how the conversion windows shape the count",
+        },
+        "bidding": {
+            "display_name": "Bidding",
+            "icon_class": "fa-solid fa-gavel",
+            "description": "Bid strategy, budget sizing, and pacing across campaigns",
+        },
+        "targeting": {
+            "display_name": "Targeting",
+            "icon_class": "fa-solid fa-crosshairs",
+            "description": "Audience build, Matched Audiences, and the LinkedIn Audience Network",
+        },
+        "creative": {
+            "display_name": "Creative",
+            "icon_class": "fa-solid fa-palette",
+            "description": "Ad format choice, creative testing, and Thought Leader Ads",
+        },
+        "governance": {
+            "display_name": "Governance",
+            "icon_class": "fa-solid fa-scale-balanced",
+            "description": "Account structure, user access, and naming conventions",
+        },
+        "privacy": {
+            "display_name": "Privacy",
+            "icon_class": "fa-solid fa-user-shield",
+            "description": "Consent signaling before the Insight Tag fires, and member-data handling",
+        },
+    },
     "google-tag-manager": {
         "container-structure": {
             "display_name": "Container Structure",

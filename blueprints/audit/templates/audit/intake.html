@@ -47,16 +47,73 @@
                 </div>
 
                 <!--===============================================
-                     Platform
+                     Which side are you auditing?
+                     =============================================== -->
+                <fieldset class="intake-field intake-fieldset" id="intake-side-field">
+                    <legend class="intake-label">Which side are you auditing?</legend>
+                    <p class="intake-help">Choose your role. This determines which platforms appear in the next step.</p>
+                    <div class="intake-radio-group">
+                        <label class="intake-radio">
+                            <input type="radio" name="side" value="demand" id="intake-side-demand"
+                                   {% if saved.side == 'demand' %}checked{% endif %}>
+                            <span class="intake-radio-text">
+                                <span class="intake-radio-label">Demand &mdash; you run ads <span class="intake-radio-example">(advertiser)</span></span>
+                            </span>
+                        </label>
+                        <label class="intake-radio">
+                            <input type="radio" name="side" value="supply" id="intake-side-supply"
+                                   {% if saved.side == 'supply' %}checked{% endif %}>
+                            <span class="intake-radio-text">
+                                <span class="intake-radio-label">Supply &mdash; you monetize inventory <span class="intake-radio-example">(publisher)</span></span>
+                            </span>
+                        </label>
+                    </div>
+                </fieldset>
+
+                <!--===============================================
+                     Platforms — grouped by type, toggled by side
                      =============================================== -->
                 <div class="intake-field">
-                    <label class="intake-label" for="intake-platform">Platform you are auditing</label>
-                    <p class="intake-help">Sets which platform's checks load. You can switch platforms later from the dashboard.</p>
-                    <select class="intake-input" id="intake-platform" name="platform" required>
-                        {% for slug, label in platforms %}
-                        <option value="{{ slug }}"{% if slug == saved.platform %} selected{% endif %}>{{ label }}</option>
+                    <p class="intake-label">Platforms you are auditing</p>
+                    <p class="intake-help">Select every platform in scope. You can switch the active platform from the dashboard.</p>
+
+                    {# Demand-side block: visible when side === "demand" #}
+                    <div class="intake-platform-block" id="intake-platforms-demand">
+                        {% for type_label, group_platforms in demand_groups %}
+                        <p class="intake-platform-type-label">{{ type_label }}</p>
+                        <div class="intake-platform-group">
+                            {% for p in group_platforms %}
+                            <label class="intake-platform-check">
+                                <input type="checkbox" name="platforms" value="{{ p.slug }}"
+                                       {% if p.slug in saved.platforms %}checked{% endif %}>
+                                <span class="intake-platform-name">{{ p.name }}</span>
+                                {% if not p.has_content %}
+                                <span class="intake-platform-coming">content coming</span>
+                                {% endif %}
+                            </label>
+                            {% endfor %}
+                        </div>
                         {% endfor %}
-                    </select>
+                    </div>
+
+                    {# Supply-side block: visible when side === "supply" #}
+                    <div class="intake-platform-block" id="intake-platforms-supply">
+                        {% for type_label, group_platforms in supply_groups %}
+                        <p class="intake-platform-type-label">{{ type_label }}</p>
+                        <div class="intake-platform-group">
+                            {% for p in group_platforms %}
+                            <label class="intake-platform-check">
+                                <input type="checkbox" name="platforms" value="{{ p.slug }}"
+                                       {% if p.slug in saved.platforms %}checked{% endif %}>
+                                <span class="intake-platform-name">{{ p.name }}</span>
+                                {% if not p.has_content %}
+                                <span class="intake-platform-coming">content coming</span>
+                                {% endif %}
+                            </label>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
 
                 <!--===============================================

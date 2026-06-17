@@ -23,18 +23,28 @@
 </div>
 
 <!--===================================================================
-     Platform Strip — clickable toggle. Each chip links to
-     /dashboard/<slug>/, which sets the active platform and renders that
-     platform's categories. The active chip carries .is-active.
+     Platform Picker — grouped by type. Each chip links to
+     /dashboard/<slug>/, which sets the active platform and renders
+     that platform's categories. The active chip carries .is-active.
+     Platforms without authored content render as greyed, non-interactive
+     chips. picker_groups comes from the dashboard route and is scoped
+     to the practitioner's intake-selected platforms (or the full side
+     when no intake selection exists).
      =================================================================== -->
 <div class="wrap">
-    <div class="platform-strip" role="region" aria-label="Tag-management platforms">
-        <span class="platform-strip-label">Platforms</span>
-        {% for slug, label in available_platforms %}
-        <a class="platform-chip {% if slug == active_platform %}is-active{% endif %}"
-           href="{{ app_root }}/dashboard/{{ slug }}/">
-            {{ label }}
-        </a>
+    <div class="platform-strip" role="region" aria-label="Ad-audit platforms">
+        <span class="platform-strip-label">Platform</span>
+        {% for type_label, group_platforms in picker_groups %}
+        <span class="platform-strip-type-label">{{ type_label }}</span>
+        {% for p in group_platforms %}
+        {% if p.has_content %}
+        <a href="{{ app_root }}/dashboard/{{ p.slug }}/"
+           class="platform-chip{% if p.slug == active_platform %} is-active{% endif %}">{{ p.name }}</a>
+        {% else %}
+        <span class="platform-chip is-disabled"
+              title="Content coming soon">{{ p.name }}</span>
+        {% endif %}
+        {% endfor %}
         {% endfor %}
     </div>
 </div>

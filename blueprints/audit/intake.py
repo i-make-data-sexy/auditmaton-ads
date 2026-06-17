@@ -23,7 +23,14 @@
 from flask import Blueprint, render_template, request, session, redirect, url_for
 from flask_login import login_required, current_user
 
-from services.audit_engine import AVAILABLE_PLATFORMS, DEFAULT_PLATFORM, set_active_platform
+from services.audit_engine import (
+    AVAILABLE_PLATFORMS,
+    DEFAULT_PLATFORM,
+    set_active_platform,
+    platform_side,
+    platform_has_content,
+    platforms_grouped_by_type,
+)
 from services.site_type_suggestions import append_suggestion
 
 
@@ -104,11 +111,35 @@ def intake_start():
 
     if request.method == "POST":
 
-        # Resolve the chosen platform, falling back to the default if missing
-        # or tampered
-        platform = request.form.get("platform", "").strip()
-        if platform not in valid_platforms:
-            platform = DEFAULT_PLATFORM
+        # Resolve the side (demand / supply), defaulting to demand
+        side = request.form.get("side", "demand").strip()
+        if side not in {"demand", "supply"}:
+            side = "demand"
+
+        # Collect platform slugs from the checkboxes; keep only slugs that
+        # belong to the chosen side and exist in the registry
+        raw_platforms = request.form.getlist("platforms")
+        platforms = [
+            s for s in raw_platforms
+            if s in valid_platforms and platform_side(s) == side
+        ]
+
+        # Fall back to content-bearing platforms for the side when nothing
+        # valid was submitted; then to the first platform on that side
+        if not platforms:
+            fallback = [s for s, _ in AVAILABLE_PLATFORMS
+                        if platform_side(s) == side and platform_has_content(s)]
+            if not fallback:
+                fallback = [s for s, _ in AVAILABLE_PLATFORMS
+                            if platform_side(s) == side]
+            platforms = fallback or [DEFAULT_PLATFORM]
+
+        # The active platform is the first selected platform that has
+        # authored content; else the first selected; else the default
+        active = next(
+            (s for s in platforms if platform_has_content(s)),
+            platforms[0] if platforms else DEFAULT_PLATFORM,
+        )
 
         # Normalize the narrative voice to a known value (default solo)
         voice = request.form.get("voice", "solo").strip()
@@ -121,7 +152,11 @@ def intake_start():
         site_type_suggestion = request.form.get("site_type_suggestion", "").strip()
 
         session["intake_audit_name"] = audit_name
-        session["intake_platform"] = platform
+        # intake_platform is kept for backward compatibility (single active slug)
+        session["intake_platform"] = active
+        # intake_side and intake_platforms carry the Demand/Supply fork choices
+        session["intake_side"] = side
+        session["intake_platforms"] = platforms
         session["intake_site_name"] = request.form.get("site_name", "").strip()
         session["intake_site_type"] = site_type
         session["intake_site_type_suggestion"] = site_type_suggestion
@@ -137,24 +172,32 @@ def intake_start():
                 site_type_suggestion,
                 user_email=email,
                 audit_name=audit_name,
-                platform=platform,
+                platform=active,
             )
 
         # Set the active platform on the redirect response (cookie + session)
-        # so the dashboard lands on the audited platform
+        # so the dashboard lands on the first content-bearing audited platform
         response = redirect(url_for("dashboard_home"))
-        set_active_platform(response, platform)
+        set_active_platform(response, active)
         return response
 
-    # GET: render the form prefilled with any previously saved values
+    # GET: build grouped picker data for both sides
+    demand_groups = platforms_grouped_by_type("demand")
+    supply_groups = platforms_grouped_by_type("supply")
+
+    # Render the form prefilled with any previously saved values
     return render_template(
         "audit/intake.html",
         platforms=AVAILABLE_PLATFORMS,
+        demand_groups=demand_groups,
+        supply_groups=supply_groups,
         site_types=get_site_types(),
         voice_options=get_voice_options(),
         saved={
             "audit_name": session.get("intake_audit_name", ""),
             "platform": session.get("intake_platform", DEFAULT_PLATFORM),
+            "side": session.get("intake_side", "demand"),
+            "platforms": session.get("intake_platforms", []),
             "site_name": session.get("intake_site_name", ""),
             "site_type": session.get("intake_site_type", "general"),
             "site_type_suggestion": session.get("intake_site_type_suggestion", ""),

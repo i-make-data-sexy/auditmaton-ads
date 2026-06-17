@@ -554,7 +554,12 @@ def create_app(config_class=None):
             Rendered dashboard.html with the platform cookie set so the choice
             persists across browser sessions.
         """
-        from services.audit_engine import AVAILABLE_PLATFORMS, set_active_platform
+        from services.audit_engine import (
+            AVAILABLE_PLATFORMS,
+            set_active_platform,
+            get_active_side,
+            platforms_grouped_by_type,
+        )
 
         valid_slugs = {s for s, _ in AVAILABLE_PLATFORMS}
         if platform not in valid_slugs:
@@ -569,11 +574,24 @@ def create_app(config_class=None):
         # Audit finding #7: Apply intake session data to lock/unlock sections
         categories = apply_intake_overrides(categories)
 
+        # Build the grouped picker for the dashboard chip strip. Use the
+        # side from the intake session if present; fall back to the side of
+        # the active platform, then to demand. Restrict to the platforms the
+        # practitioner selected at intake when a non-empty selection exists.
+        active_side = session.get("intake_side") or get_active_side() or "demand"
+        selected = set(session.get("intake_platforms") or [])
+        picker_groups = platforms_grouped_by_type(
+            active_side,
+            slugs=(selected if selected else None),
+        )
+
         rendered = render_template(
             "dashboard.html",
             categories=categories,
             active_platform=platform,
             available_platforms=AVAILABLE_PLATFORMS,
+            picker_groups=picker_groups,
+            active_side=active_side,
         )
 
         # Cache-control headers (dashboard reflects in-progress audit state)

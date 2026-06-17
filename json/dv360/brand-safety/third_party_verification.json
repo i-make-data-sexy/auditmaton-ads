@@ -1,0 +1,224 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/displayvideo/answer/3032482",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Third-party verification in Display and Video 360 (DV360) operates at two points in the buying cycle: pre-bid, where the DV360 platform avoids unsafe or unviewable impressions before the bid is placed, and post-bid, where the verification vendor reports on what was bought. Many DV360 accounts have a verification vendor integrated but leave it in monitoring-only mode, so the vendor counts the bad impressions without blocking them. Switching from monitoring to active pre-bid avoidance stops spend from reaching fraud, low-viewability placements, and unsafe content. Each check in this section is a configuration audit, not a rebuild, and the settings live in the line item's brand safety and targeting sections.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "DoubleVerify (DV) and Integral Ad Science (IAS) integrate with DV360 at the line-item level. Each vendor provides two distinct modes: a pre-bid avoidance segment that prevents the DV360 bidder from competing for impressions that fail the brand-safety, viewability, or fraud criteria, and a post-bid measurement tag that runs on delivered impressions and generates reporting. These two modes are not interchangeable. These checks confirm that the right mode is active, that the segment selection reflects the brand's actual risk tolerance, and that discrepancies between DV360's native delivery numbers and the verification vendor's counts are reconciled rather than ignored.",
+  "audit_checks": [
+    {
+      "id": "dv360-verification-monitoring-only-not-prebid",
+      "title": "Third-party verification is in monitoring-only mode, not pre-bid avoidance",
+      "category": "brand-safety",
+      "subcategory": "third_party_verification",
+      "impact_score": 4,
+      "impact_rationale": "Monitoring-only mode records brand-unsafe, fraudulent, or unviewable impressions after they are bought and billed. Pre-bid avoidance stops the bid before it happens. An account in monitoring mode spends against placements it has already chosen to flag as unacceptable, and the vendor report shows the exposure rather than preventing it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "fraud"],
+      "educate": {
+        "base": "When a verification vendor such as DoubleVerify (DV) or Integral Ad Science (IAS) is connected to a DV360 account, its segments are available for use in two ways. The first is a post-bid measurement tag, sometimes called a monitoring segment, that the vendor fires on delivered impressions to classify content and measure fraud and viewability after the fact. The second is a pre-bid avoidance segment, a targeting exclusion applied in the line item before DV360 places the bid, so the platform never competes for impressions the vendor would flag.<br><br>The distinction matters because billing happens at the point of delivery. An impression served against fraudulent or brand-unsafe inventory is billed whether or not the verification tag later identifies it as a problem. Post-bid reporting surfaces the exposure, but the spend is already gone. Pre-bid avoidance prevents the bid from entering the auction in the first place, so the spend never reaches the flagged impression.<br><br>In DV360, pre-bid avoidance is configured by attaching the vendor's pre-bid segment directly to the line item as a targeting exclusion, separate from and in addition to the measurement tag. A line item can have both, but many are set up with only the measurement tag, which means the vendor is watching but not blocking.<br><br>A few signs point to a line item being in monitoring-only mode:<ul><li>The verification vendor dashboard shows impression volume with brand-safety or fraud flags but no pre-bid segment appears in the line item's targeting settings</li><li>The line item's targeting section shows a verification vendor tag but no exclusion segment from that vendor</li><li>The verification vendor's account manager confirms the integration is set to 'verification' rather than 'avoidance'</li></ul>You may want to confirm the line item targeting setup directly in DV360 rather than relying on the vendor dashboard label. Both modes generate data in the vendor's reporting interface, so the dashboard alone does not distinguish them.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser running DV360 display or video, fraudulent impressions inflate delivery counts without producing any shopping signal. Pre-bid avoidance keeps that traffic out of the auction entirely, so the viewability and engagement numbers that feed line-item optimization reflect real users.",
+          "lead_gen": "For a lead-generation advertiser, brand-unsafe placements carry reputational risk beyond the wasted spend. A lead captured alongside harmful content reflects on the brand. Pre-bid avoidance removes those placements before the bid rather than identifying them in a post-campaign report."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 Help",
+            "source_title": "Brand safety and suitability in Display & Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/3032482"
+          },
+          {
+            "source_type": "DoubleVerify",
+            "source_title": "DoubleVerify Verify for Advertisers",
+            "source_url": "https://doubleverify.com/products/advertisers/verify"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm, for each active line item running with a verification vendor, whether a pre-bid avoidance segment is attached as a targeting exclusion or whether only a measurement tag is present.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Open the advertiser, navigate to the campaign, then to the line item you want to check.",
+                "Open the line item's targeting settings. Look for a brand safety section or a third-party verification section. Confirm whether a pre-bid segment from your verification vendor (e.g., DoubleVerify or IAS) appears there as an exclusion, or whether the integration appears only as a tag in the tracking section.",
+                "If only a tag is present in the tracking section and no pre-bid exclusion segment is listed in targeting, the line item is in monitoring-only mode.",
+                "Repeat for each active line item. Line items within the same insertion order may have different configurations if they were set up at different times."
+              ]
+            },
+            "verification_vendor_dashboard": {
+              "label": "Verification vendor dashboard (DoubleVerify or IAS)",
+              "steps": [
+                "Log in to your verification vendor's platform and navigate to the DV360 integration settings.",
+                "Confirm whether pre-bid avoidance is enabled for the relevant advertisers and line items, or whether the setup is labeled as verification or measurement only.",
+                "Note the distinction in the vendor interface: pre-bid configurations typically appear under 'Pre-Bid Targeting' or 'Avoidance', while post-bid setups appear under 'Verification' or 'Measurement'."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per active line item, whether a pre-bid avoidance segment from the verification vendor is attached in the line item's targeting. A line item with a pre-bid segment actively applied as a targeting exclusion passes. A line item with only a measurement tag and no pre-bid avoidance segment is a fail recorded with the line item name and the insertion order it belongs to.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the targeting configuration for each active line item above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that third-party verification for {{site_name}}'s DV360 line items is configured in monitoring-only mode rather than pre-bid avoidance. The verification vendor is recording brand-unsafe, fraudulent, and low-viewability impressions after delivery, but the pre-bid segment that would prevent the bid from entering those auctions is not attached to the line item targeting. Every flagged impression in the vendor report represents spend that has already been billed. {{voice_recommend}} attaching the verification vendor's pre-bid avoidance segment as a targeting exclusion on each affected line item, and confirming the segment type in both the DV360 targeting settings and the vendor's platform, to block unsafe and fraudulent inventory before the bid rather than report it afterward."
+      }
+    },
+    {
+      "id": "dv360-verification-segments-not-calibrated",
+      "title": "Verification vendor segments are set to maximum restriction rather than calibrated to the brand",
+      "category": "brand-safety",
+      "subcategory": "third_party_verification",
+      "impact_score": 2,
+      "impact_rationale": "Maximum-restriction settings block a larger share of available inventory than the brand's actual risk profile requires. This reduces reach and raises effective cost per impression without delivering additional protection beyond what the brand needs. The segments are doing more than they need to, at a measurable cost to delivery.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "targeting"],
+      "educate": {
+        "base": "DoubleVerify and IAS each offer tiered segment settings for brand safety, viewability, and fraud. Brand safety segments typically run from a floor (blocking only egregious content, such as adult content and hate speech) through a mid tier (also blocking controversial news and mature topics) to a maximum tier that excludes a wide range of content including news, politics, and sensitive categories that a given brand may find perfectly acceptable. Viewability thresholds similarly range from a low floor (blocking only the least viewable placements) to a high setting that excludes a significant share of real, measurable inventory.<br><br>The segments a brand uses should reflect its own content adjacency standards, not a default that every advertiser shares. A consumer packaged goods brand and a financial services firm have different adjacency risk profiles. A campaign optimizing for reach behaves differently than one narrowly targeting a specific audience. Setting every line item to maximum restriction resolves the configuration question quickly, but it reduces the eligible impression pool more than the brand's actual standards require, which shows up as lower reach, higher cost per thousand impressions (CPM), and slower pacing at the same budget.<br><br>A few signs suggest the segments may not be calibrated to the brand:<ul><li>All line items use the same verification vendor tier regardless of campaign objective or audience</li><li>The vendor account shows the most restrictive tier applied across every line item without a documented review</li><li>Delivery or pacing issues trace to low bid win rates on impression pools that the brand has not actually reviewed for suitability</li></ul>You may want to confirm the segment tier selected against the brand's documented content adjacency guidelines, if those exist, rather than defaulting to the highest available restriction.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser, maximum viewability thresholds may exclude lower-funnel placements, such as below-the-fold product listing pages, that convert well despite lower measured viewability. You may want to compare conversion rates across viewability tiers before tightening the threshold on performance-focused line items.",
+          "lead_gen": "For a lead-generation advertiser, aggressive brand-safety tiers on content categories such as news and politics may exclude placements where the target audience is actively engaged. You may want to review which content categories the brand's guidelines actually prohibit rather than blocking categories the platform flags as sensitive by default."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAS",
+            "source_title": "IAS Brand Safety and Suitability Solutions",
+            "source_url": "https://integralads.com/solutions/brand-safety-suitability/"
+          },
+          {
+            "source_type": "DoubleVerify",
+            "source_title": "DoubleVerify Brand Suitability",
+            "source_url": "https://doubleverify.com/products/advertisers/verify/brand-suitability"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm the tier and threshold settings applied to each verification segment in use, and compare them against any documented brand content adjacency guidelines.",
+        "tools": {
+          "free": {
+            "verification_vendor_dashboard": {
+              "label": "Verification vendor dashboard (DoubleVerify or IAS)",
+              "steps": [
+                "Log in to the verification vendor platform and navigate to the segment settings for the DV360 integration.",
+                "For each active segment, note the tier applied: the brand-safety category level (floor, standard, or maximum restriction), the viewability threshold (e.g., 40%, 60%, or 70%+ in-view), and the fraud avoidance level.",
+                "Compare the selected tier against the brand's content adjacency guidelines or brand safety policy, if one exists. Note any tier set to maximum restriction without a documented rationale."
+              ]
+            },
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Open the line item targeting settings and review which verification vendor segment is applied.",
+                "Cross-reference the segment name against the vendor dashboard to identify which tier it corresponds to.",
+                "Check whether different line items within the same insertion order use different tiers, which would indicate the settings were reviewed per line item, or whether all use the same default."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per line item, the verification segment tier applied and whether a documented brand guideline exists to support that tier. A line item whose tier matches a documented content adjacency policy passes. A line item using maximum restriction without a documented rationale for that level of exclusion is a note, not a hard fail, recorded with the line item name and the segment tier applied.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the segment tier and any supporting brand guideline for each line item above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that verification vendor segments on {{site_name}}'s DV360 line items are set to maximum restriction across the board rather than calibrated to the brand's documented content adjacency standards. Maximum-restriction tiers block a larger share of available inventory than the brand's actual risk profile requires, which reduces reach and raises the effective cost per thousand impressions without delivering additional safety that the brand's guidelines would call for. {{voice_recommend}} reviewing the segment tier applied to each line item against the brand's content adjacency policy, adjusting tiers to the level the policy actually requires, and documenting the rationale for each tier selection so future campaign builds have a reference to start from."
+      }
+    },
+    {
+      "id": "dv360-verification-discrepancy-not-reconciled",
+      "title": "Discrepancies between DV360 delivery counts and verification vendor counts are not reconciled",
+      "category": "brand-safety",
+      "subcategory": "third_party_verification",
+      "impact_score": 3,
+      "impact_rationale": "When DV360 and the verification vendor report different impression counts, one of three things is happening: the verification tag is not firing on all delivered impressions, the vendor's filtration is removing invalid traffic that DV360 counted, or there is a tracking configuration problem. Each cause has a different fix. Leaving the discrepancy unexamined means the account does not know whether its delivery numbers are accurate or whether invalid traffic is passing through uncounted.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "data-quality"],
+      "educate": {
+        "base": "DV360 reports delivery from its own ad server, counting impressions at the point the creative is served. A third-party verification vendor such as DoubleVerify or IAS counts impressions when its tag loads on the page. These two counts rarely match exactly, and some discrepancy is expected: the verification tag fires slightly after the creative, so page abandonments between the two events produce a gap. Industry benchmarks typically treat a discrepancy of up to 10% as within normal range.<br><br>A discrepancy that exceeds that range, or that changes materially from one reporting period to the next, points to a specific problem worth tracing. Three causes account for most large discrepancies:<ul><li>The verification tag is not attached to all creatives, so some delivery never reaches the vendor's counter at all</li><li>The vendor's invalid traffic (IVT) filtration is removing a share of impressions that DV360 counted, which means DV360's impression total includes impressions the vendor has classified as invalid</li><li>A tag configuration error, such as a macro that does not pass correctly, is causing the vendor tag to fire but not record the impression to the right campaign or line item</li></ul>Reconciling the discrepancy requires pulling matching date ranges from both DV360 and the verification vendor, computing the percentage difference at the campaign and line-item level, and tracing the cause. A vendor-side IVT filter is a different fix from a missing tag on a creative. You may want to start with the creative-level tag audit before assuming the discrepancy reflects invalid traffic removal.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser with multiple creative formats and sizes running across DV360, a missing verification tag on one creative format, such as HTML5 display or video, can produce a discrepancy that looks small at the campaign level but is large within that specific format. You may want to check tag coverage by creative type, not only by campaign total.",
+          "lead_gen": "For a lead-generation advertiser running a small number of high-value placements, a discrepancy of even a few percentage points may warrant investigation. Each impression represents a meaningful targeting opportunity. You may want to review tag firing at the individual placement level rather than only at the line-item aggregate."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 Help",
+            "source_title": "About third-party impression discrepancies in Display & Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/3032484"
+          },
+          {
+            "source_type": "IAS",
+            "source_title": "IAS Ad Verification",
+            "source_url": "https://integralads.com/solutions/ad-verification/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Pull matching date-range reports from DV360 and the verification vendor, compute the discrepancy at the campaign and line-item level, and identify whether it is within the expected range or warrants further investigation.",
+        "tools": {
+          "free": {
+            "dv360_reporting": {
+              "label": "DV360 Reporting",
+              "steps": [
+                "In DV360, navigate to Reports and create a report segmented by campaign, insertion order, and line item. Set the date range to the same period you will pull from the verification vendor.",
+                "Pull impression counts from DV360's ad server column, not the verification vendor's column within DV360 reporting. That column may already reflect the vendor's filtration and would understate the raw delivery count.",
+                "Export the report to a spreadsheet for comparison."
+              ]
+            },
+            "verification_vendor_dashboard": {
+              "label": "Verification vendor dashboard (DoubleVerify or IAS)",
+              "steps": [
+                "Log in to the verification vendor platform and pull an impressions report for the same date range, segmented by the same campaign and line-item breakdown.",
+                "Compare the vendor's total measured impression count against the DV360 delivery count for each line item.",
+                "Compute the percentage difference: (DV360 count minus vendor count) divided by DV360 count. A result above 10% warrants investigation.",
+                "If the vendor dashboard separates total measured impressions from IVT-filtered impressions, compare both to DV360's total to identify whether the gap is explained by IVT removal, tag coverage, or something else."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the discrepancy percentage per line item. A line item with a discrepancy below 10% passes. A line item with a discrepancy of 10% or more is a fail recorded with the line item name, the DV360 impression count, the vendor impression count, and the percentage gap. The practitioner also notes whether the vendor dashboard attributes the gap to IVT filtration, tag coverage, or an unidentified cause.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the DV360 impression count, the verification vendor count, and the percentage discrepancy for each line item above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that discrepancies between DV360 delivery counts and the verification vendor's counts on {{site_name}}'s campaigns exceed the expected range without a documented explanation. When DV360 and the verification vendor report materially different impression totals, the account does not have a reliable picture of how much of its delivery reached real users or whether the verification tag is covering all delivered impressions. {{voice_recommend}} pulling matching date-range reports from both DV360 and the verification vendor, computing the discrepancy at the line-item level, and tracing whether the gap reflects invalid traffic filtration, missing tag coverage on specific creatives, or a tag configuration error. Each cause requires a different correction, and the reconciliation should be documented so future reporting periods can be compared against a known baseline."
+      }
+    }
+  ]
+}

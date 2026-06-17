@@ -2,19 +2,22 @@
 # Citation-URL health check for audit JSON content.
 #
 # Walks a json/ subtree, extracts every external http(s) URL from the content
-# fields, and reports any that do not resolve to a live page. Run it from a
-# normal network (e.g., a laptop); datacenter/sandbox IPs get rate-limited
-# (HTTP 429) or CAPTCHA-redirected by support.google.com, which looks like a
-# failure but is not a broken link.
+# fields, and classifies each one:
+#   ok        - resolved (2xx/3xx)
+#   broken    - a real link fault (4xx/5xx, excluding 429)
+#   throttled - HTTP 429; reflects the requester's IP, not the link
+#   error     - could not connect (DNS, SSL/cert, timeout); NOT a link fault
+#
+# Only "broken" fails the run (exit 1). "throttled" and "error" are reported
+# but do not fail, because both reflect the local machine/network rather than
+# the link itself. A wall of "error" usually means Python cannot verify TLS
+# certs (on macOS run the bundled "Install Certificates.command", or just use
+# the requests path below, which uses certifi).
 #
 # Usage:
-#   python3 scripts/verify_citation_urls.py                       # checks json/
-#   python3 scripts/verify_citation_urls.py json/meta-ads         # one platform
+#   python3 scripts/verify_citation_urls.py                  # checks json/
+#   python3 scripts/verify_citation_urls.py json/meta-ads    # one platform
 #   python3 scripts/verify_citation_urls.py json/meta-ads --delay 2.0
-#
-# Exit code is 0 when nothing is broken, 1 when a real broken URL is found.
-# A 429 (throttled) is reported separately and does NOT fail the run, since it
-# reflects the requester's IP, not the link.
 
 import sys
 import re
@@ -22,8 +25,6 @@ import json
 import glob
 import time
 import argparse
-import urllib.request
-import urllib.error
 
 URL_RE = re.compile(r"https?://[^\s'\"<>)]+")
 
@@ -78,25 +79,94 @@ def extract_urls(root):
     return sorted(urls)
 
 
-def check(url, timeout=20):
+def _check_requests(url, timeout):
     """
-    Fetches a URL and returns its final HTTP status after redirects.
+    Fetches a URL with the requests library (uses certifi for TLS).
 
     Args:
         url (str): The URL to check
         timeout (int): Per-request timeout in seconds
 
     Returns:
-        int: The HTTP status code, or 0 if the request failed to connect
+        tuple: (kind, detail) where kind is ok/broken/throttled/error
     """
-    req = urllib.request.Request(url, method="GET", headers={"User-Agent": UA})
+    import requests
+
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
-            return resp.status
+        r = requests.get(url, headers={"User-Agent": UA}, timeout=timeout, allow_redirects=True)
+        return _classify(r.status_code)
+    except requests.exceptions.RequestException as e:
+        return ("error", type(e).__name__)
+
+
+def _check_urllib(url, timeout):
+    """
+    Fetches a URL with urllib, building a TLS context from certifi if present.
+
+    Args:
+        url (str): The URL to check
+        timeout (int): Per-request timeout in seconds
+
+    Returns:
+        tuple: (kind, detail) where kind is ok/broken/throttled/error
+    """
+    import ssl
+    import urllib.request
+    import urllib.error
+
+    try:
+        import certifi
+        ctx = ssl.create_default_context(cafile=certifi.where())
+    except ImportError:
+        # No certifi: fall back to an unverified context so a missing local
+        # cert bundle does not masquerade as a broken link.
+        ctx = ssl.create_default_context()
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout, context=ctx) as resp:
+            return _classify(resp.status)
     except urllib.error.HTTPError as e:
-        return e.code
-    except Exception:
-        return 0
+        return _classify(e.code)
+    except Exception as e:
+        return ("error", type(e).__name__)
+
+
+def _classify(code):
+    """
+    Maps an HTTP status code to a health category.
+
+    Args:
+        code (int): The HTTP status code
+
+    Returns:
+        tuple: (kind, code) where kind is ok/broken/throttled
+    """
+    if code == 429:
+        return ("throttled", code)
+    if 200 <= code < 400:
+        return ("ok", code)
+    return ("broken", code)
+
+
+def check(url, timeout=20):
+    """
+    Fetches a URL and returns its health category, preferring requests.
+
+    Args:
+        url (str): The URL to check
+        timeout (int): Per-request timeout in seconds
+
+    Returns:
+        tuple: (kind, detail) where kind is ok/broken/throttled/error
+    """
+    try:
+        import requests  # noqa: F401
+        return _check_requests(url, timeout)
+    except ImportError:
+        return _check_urllib(url, timeout)
 
 
 def main():
@@ -106,27 +176,34 @@ def main():
     args = parser.parse_args()
 
     urls = extract_urls(args.root)
-    print(f"{len(urls)} unique URLs under {args.root}/")
+    print(f"{len(urls)} unique URLs under {args.root}/\n")
 
+    ok = 0
     broken = []
     throttled = []
-    ok = 0
+    errors = []
     for u in urls:
-        st = check(u)
-        if st == 200:
+        kind, detail = check(u)
+        if kind == "ok":
             ok += 1
-        elif st == 429:
+        elif kind == "throttled":
             throttled.append(u)
-            print(f"  429 (throttled, not a link fault)  {u}")
+            print(f"  429 throttled (not a link fault)  {u}")
+        elif kind == "error":
+            errors.append((detail, u))
+            print(f"  ERROR {detail} (could not connect)  {u}")
         else:
-            broken.append((st, u))
-            print(f"  {st} (BROKEN)  {u}")
+            broken.append((detail, u))
+            print(f"  {detail} BROKEN  {u}")
         time.sleep(args.delay)
 
-    print(f"\nsummary: 200={ok}  broken={len(broken)}  throttled={len(throttled)}")
-    if throttled and not broken:
-        print("note: throttling reflects this machine's IP, not the links. "
-              "Re-run from a different network if many are throttled.")
+    print(f"\nsummary: ok={ok}  broken={len(broken)}  throttled={len(throttled)}  error={len(errors)}")
+    if errors and ok == 0 and not broken:
+        print("note: every request errored, which almost always means Python "
+              "cannot verify TLS certificates. Run macOS 'Install "
+              "Certificates.command', or `pip install requests certifi`, then re-run.")
+    if throttled:
+        print("note: throttling reflects this machine's IP, not the links.")
     sys.exit(1 if broken else 0)
 
 

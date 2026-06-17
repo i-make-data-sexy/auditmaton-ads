@@ -365,6 +365,29 @@ RULES = [
         "suggest": 'Drop the colon: "Verify A, B, C." not "Verify: A; B; C."',
         "autofix": None,
     },
+    {
+        "id": "fragment-list-intro",
+        "severity": "medium",
+        "description": "List introduced by a fragment, not a complete standalone sentence.",
+        # Two high-confidence fragment shapes immediately before a <ul>:
+        #   1. a lead-in ending in a weak connector whose object IS the list
+        #      ("X include:", "X are:", "as follows:" before <ul>).
+        #   2. a bare noun phrase ("Signs that X:", "Ways to confirm X:")
+        #      that opens at a sentence boundary, has no main verb, and ends
+        #      in a colon before the list. The boundary + relative-marker
+        #      requirement keeps the complete-sentence pattern ("A few signs
+        #      point to X:") from matching, since there the subject is
+        #      preceded by "A few" and followed by a finite verb.
+        "pattern": re.compile(
+            r"\b(?:include|includes|are|following|below)\s*:\s*<ul>"
+            r"|(?:^|[.>]\s*)(?:Signs|Patterns|Reasons|Conditions|Cases|Factors|"
+            r"Symptoms|Ways|Indicators|Examples)\s+(?:that|of|which|to|for)\b"
+            r"[^.<]{0,100}:\s*<ul>",
+            re.IGNORECASE,
+        ),
+        "suggest": 'Introduce the list with a complete standalone sentence, e.g. "A few signs point to X:".',
+        "autofix": None,
+    },
 ]
 
 
@@ -639,6 +662,93 @@ def lint_text(text, rules, json_path=""):
             }
 
 
+# Acronym-expansion pattern: an abbreviation spelled out in parentheses,
+# e.g. "(GA4)", "(GTM)", "(ROAS)". Two or more of the SAME expansion on one
+# rendered page is a double-expansion (see check_duplicate_acronym_expansion).
+ACRONYM_EXPANSION_RE = re.compile(r"\(([A-Z][A-Za-z0-9]{1,7})\)")
+
+
+def _page_groups(data):
+    """
+    Groups an audit-content file's prose fields into the units that render
+    together on one page, so the abbreviation rule can enforce "expand at
+    most once per rendered page".
+
+    The subcategory Overview renders important_note + intro +
+    worth_it_explanation together. Each check's educate step renders its
+    impact_rationale + base + site_type_overlays together; each generate
+    step renders its narrative_template alone.
+
+    Args:
+        data (dict): Parsed audit-content JSON (or any dict; non-audit
+            files simply yield empty groups).
+
+    Returns:
+        list[tuple[str, str]]: (json_path_label, combined_text) per page.
+    """
+
+    def s(v):
+        return v if isinstance(v, str) else ""
+
+    pages = [(
+        "overview",
+        " ".join(s(data.get(k)) for k in ("important_note", "intro", "worth_it_explanation")),
+    )]
+    for i, check in enumerate(data.get("audit_checks", []) or []):
+        if not isinstance(check, dict):
+            continue
+        edu = check.get("educate", {}) or {}
+        overlays = edu.get("site_type_overlays", {}) or {}
+        pages.append((
+            f"audit_checks[{i}].educate",
+            " ".join([s(check.get("impact_rationale")), s(edu.get("base"))]
+                     + [s(v) for v in overlays.values()]),
+        ))
+        gen = check.get("generate", {}) or {}
+        pages.append((
+            f"audit_checks[{i}].generate.narrative_template",
+            s(gen.get("narrative_template")),
+        ))
+    return pages
+
+
+def check_duplicate_acronym_expansion(data, file_path):
+    """
+    File-level check: flags an abbreviation spelled out in parentheses more
+    than once within a single rendered page (per _page_groups). Mirrors the
+    per-page abbreviation rule in the authoring brief, which the per-field
+    RULES engine cannot see because it spans sibling fields.
+
+    Args:
+        data (dict): Parsed JSON content.
+        file_path (Path): Source file, for the finding record.
+
+    Returns:
+        list[dict]: Findings in the same shape lint_text yields.
+    """
+
+    findings = []
+    if not isinstance(data, dict):
+        return findings
+    for label, text in _page_groups(data):
+        counts = {}
+        for acr in ACRONYM_EXPANSION_RE.findall(text):
+            counts[acr] = counts.get(acr, 0) + 1
+        for acr, n in counts.items():
+            if n > 1:
+                findings.append({
+                    "file": str(file_path),
+                    "json_path": label,
+                    "rule_id": "duplicate-acronym-expansion",
+                    "severity": "medium",
+                    "description": f'Abbreviation "{acr}" is spelled out more than once on the same rendered page.',
+                    "suggest": f'Expand "{acr}" once at its first occurrence on this page; use the bare form elsewhere.',
+                    "snippet": f"({acr}) appears {n} times on this page",
+                    "match": f"({acr})",
+                })
+    return findings
+
+
 def lint_file(file_path, rules):
     """
     Lints a single JSON file.
@@ -683,6 +793,8 @@ def lint_file(file_path, rules):
             v["file"] = str(file_path)
             v["json_path"] = json_path
             findings.append(v)
+    # File-level check: abbreviation expanded twice on one rendered page.
+    findings.extend(check_duplicate_acronym_expansion(data, file_path))
     return findings
 
 

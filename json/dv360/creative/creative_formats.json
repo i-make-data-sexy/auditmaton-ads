@@ -1,0 +1,191 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/displayvideo/answer/6274216",
+  "worth_it": "Yes",
+  "worth_it_explanation": "A line item that lacks a required size does not enter the auction for that placement. The gap costs impressions silently, with no error in the interface, and the line item appears to be pacing normally while losing a share of the available inventory. Checking format and size coverage is a read-only audit against what is already uploaded, so the effort is low relative to finding the gap before the flight ends.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Display and Video 360 (DV360) assigns creatives to line items, and a line item only enters an auction when it holds a creative that satisfies the placement's size requirement. Standard display campaigns typically need a set of IAB core sizes, video campaigns specify aspect ratio and duration, native campaigns require headline and image assets in a fixed schema, and responsive display ads (RDAs) let Google derive multiple sizes from a single asset set. These checks confirm that the formats and sizes assigned to each line item cover the inventory the line item is targeting, that high-volume standard sizes are not missing from the creative library, and that responsive or data-driven creatives are used where they would widen the eligible auction pool.",
+  "audit_checks": [
+    {
+      "id": "dv360-creative-size-gaps-for-targeted-placements",
+      "title": "Creative sizes do not cover the targeted placements, causing the line item to miss auctions",
+      "category": "creative",
+      "subcategory": "creative_formats",
+      "impact_score": 3,
+      "impact_rationale": "A line item that lacks the size a publisher's placement requires is ineligible for that auction. The campaign spends its budget on the placements it does match while the uncovered inventory goes uncontested. The line item does not surface an error, so the gap can persist for an entire flight.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "data-quality"],
+      "educate": {
+        "base": "Display and Video 360 (DV360) enters a line item into an auction only when it holds a creative that matches the placement's declared size. If the advertiser uploads a 728x90 leaderboard and a 300x250 medium rectangle but the campaign's private marketplace (PMP) deal includes 160x600 wide skyscrapers and 320x50 mobile banners, the line item sits out those auctions without generating a warning in the interface.<br><br>The IAB core sizes that account for the majority of open-exchange and deal inventory are the 300x250 medium rectangle, 728x90 leaderboard, 160x600 wide skyscraper, 300x600 half-page, 320x50 mobile banner, and 320x100 large mobile banner. Missing one or more of these from the creative rotation leaves the line item uncompetitive on a meaningful share of available impressions.<br><br>The gap between what is uploaded and what the placements require is visible in two places. The line item's 'Creatives' tab shows which sizes are assigned. The deal's or exchange's impression log, visible in a custom report, shows the sizes where the line item received no bid response. Comparing the two surfaces the missing sizes without any additional tooling.<br><br>A few signs point to a size gap:<ul><li>The line item's assigned creatives list fewer than four of the standard IAB sizes above</li><li>A PMP deal or preferred deal was added to the line item after creative assignment and the newly required sizes were never uploaded</li><li>The line item paces slowly despite a high budget, with win rate data in the insights tab showing low bid eligibility</li></ul>You may want to cross-reference the targeted inventory types against the uploaded sizes before a flight begins rather than after the pacing data surfaces the gap.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser running prospecting or retargeting campaigns in DV360, the 300x250 and 300x600 sizes carry the highest impression volume on retail-adjacent content and news placements. You may want to confirm both are uploaded and assigned before the line item goes live, as they are the sizes most likely to appear in the deals a retail DV360 campaign targets.",
+          "lead_gen": "For a lead-generation advertiser, 300x250 and 728x90 are the sizes that appear on the professional and informational content categories where lead-gen line items typically buy. You may want to confirm those two sizes are assigned in addition to any mobile sizes. The audience is likely split across desktop and mobile browsing."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 API Reference",
+            "source_title": "Creative resource: DV360 API v4",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v4/advertisers.creatives"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm the sizes assigned to the line item, then compare them against the sizes the targeted inventory requires.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Open the campaign, then the insertion order (IO), then the line item you want to check.",
+                "Click the 'Creatives' tab. Note every size listed under assigned creatives.",
+                "Return to the line item's targeting tab and review the exchanges, deals, and environment types targeted. Note the standard sizes those inventory sources require.",
+                "Compare the assigned sizes against the required sizes. Record any sizes that appear in the inventory requirements but not in the assigned creatives list.",
+                "In the line item's 'Insights' tab, check bid eligibility. A consistently low eligibility rate alongside a short creative list points to a size gap rather than a pricing issue."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per line item checked, the sizes assigned and the sizes required by the targeted inventory. A line item that carries all required sizes passes. A line item missing one or more required sizes is a fail, recorded with the line item name and the missing size or sizes.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the assigned sizes and the required sizes for each line item above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more line items in {{site_name}}'s Display and Video 360 (DV360) campaigns are missing creative sizes required by their targeted placements. A line item that lacks a matching size is ineligible for the corresponding auctions, so the campaign is not competing for all the inventory its targeting would otherwise reach. {{voice_recommend}} auditing the assigned creative sizes against the inventory requirements for each affected line item and uploading the missing sizes before the next flight begins."
+      }
+    },
+    {
+      "id": "dv360-high-volume-standard-sizes-absent",
+      "title": "High-volume standard display sizes are absent from the creative library",
+      "category": "creative",
+      "subcategory": "creative_formats",
+      "impact_score": 3,
+      "impact_rationale": "The six IAB core display sizes (300x250, 728x90, 160x600, 300x600, 320x50, 320x100) account for the majority of available display impressions across open exchanges. A creative library that omits more than one or two of them limits the auction pool available to every display line item in the advertiser's account.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "data-quality"],
+      "educate": {
+        "base": "DV360 holds creatives at the advertiser level and assigns them to line items. When an advertiser's creative library is built around a narrow set of sizes, every display line item launched from that advertiser is constrained from the start. Adding a missing size to the library once is enough to make it available to all current and future line items, so the fix is a one-time asset production effort that improves auction eligibility across the account.<br><br>The six IAB standard display sizes that carry the highest impression volume are listed here:<ul><li>300x250: medium rectangle, the highest-volume size on most desktop and mobile exchanges</li><li>728x90: leaderboard, dominant on desktop news and content sites</li><li>160x600: wide skyscraper, common on sidebar placements</li><li>300x600: half-page, a premium desktop placement</li><li>320x50: mobile banner, the baseline mobile size</li><li>320x100: large mobile banner, a taller mobile alternative</li></ul>A creative library that covers all six enters auctions across a broad range of publisher environments. A library built around only 300x250 and 728x90 is competitive on those two sizes but sits out every auction that specifies one of the other four.<br><br>You may want to treat a missing size as a production priority when it appears in the inventory the advertiser's line items are targeting, rather than waiting for spend data to reveal the gap after the fact.",
+        "site_type_overlays": {
+          "ecommerce": "Retail and ecommerce advertisers buying display inventory in DV360 tend to place high value on mobile banner sizes because a significant portion of retail browsing happens on mobile. You may want to confirm that 320x50 and 320x100 are in the creative library alongside the desktop sizes. The mobile gap is often the one that goes unnoticed when desktop performance looks normal.",
+          "lead_gen": "Lead-generation advertisers running DV360 display campaigns on professional or financial content tend to see strong returns on 300x600 half-page placements, which carry higher viewability on desktop news and industry publications. You may want to confirm the half-page is in the creative library if the campaign targets that type of content."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 API Reference",
+            "source_title": "CreativeType enum: DV360 API v4",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v4/advertisers.creatives#CreativeType"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Audit the advertiser's creative library against the six standard IAB sizes and note which are absent.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Navigate to the advertiser level in DV360 and open 'Creative' from the left navigation.",
+                "Set the 'Type' filter to 'Display' and review the size column. Note which sizes from the six standard IAB sizes (300x250, 728x90, 160x600, 300x600, 320x50, 320x100) appear in the library.",
+                "Record each size that is absent. A size missing entirely from the library cannot be assigned to any line item, so the gap applies to all current and future display campaigns in the advertiser."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records which of the six standard IAB sizes (300x250, 728x90, 160x600, 300x600, 320x50, 320x100) are present and which are absent from the advertiser's creative library. An advertiser with all six present passes. An advertiser missing one or more is a fail, recorded with the missing sizes.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which of the six standard IAB sizes are present and which are absent from the creative library above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s DV360 creative library is missing one or more of the six standard IAB display sizes that account for the majority of open-exchange and deal inventory. A size absent from the library cannot be assigned to any line item, so the gap limits auction eligibility across every display campaign in the account. {{voice_recommend}} producing and uploading the missing sizes to close the inventory gap, prioritizing the sizes that appear most frequently in the exchanges and deals the account's line items target."
+      }
+    },
+    {
+      "id": "dv360-responsive-display-ads-not-used-where-applicable",
+      "title": "Responsive display ads are not used where they would widen eligible inventory",
+      "category": "creative",
+      "subcategory": "creative_formats",
+      "impact_score": 2,
+      "impact_rationale": "Responsive display ads (RDAs) let Google derive creatives in more than 20 sizes from a single asset set. A line item that uses only fixed-size creatives misses inventory that RDAs would reach without additional production work. The impact is incremental rather than catastrophic. The line item is still entering auctions on its fixed sizes.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "targeting"],
+      "educate": {
+        "base": "RDAs in DV360 are built from a set of uploaded assets: headlines, a long headline, descriptions, images, and a logo. Google assembles them into creatives sized to fit whatever placement is available at auction time. An advertiser that provides the required asset set can reach placements that do not accept any of the fixed sizes in the creative library, without producing a new sized asset for each one.<br><br>RDAs are not a replacement for fixed-size creatives in all contexts. Private marketplace (PMP) deals often specify an exact size and will not accept a responsive creative, so fixed-size creatives remain necessary for deal-based buying. For open-exchange display buying, RDAs complement the fixed-size library by covering the long tail of placement sizes that would otherwise be ineligible.<br><br>The asset requirements for an RDA in DV360 are a landscape image (1.91:1), a square image (1:1), a logo, at least one headline (25 characters or fewer), a long headline (90 characters or fewer), and at least one description (90 characters or fewer). The same asset set that supports a Google Ads RDA can typically be adapted for DV360 with minor resizing.<br><br>A few signs point to a campaign that would benefit from adding RDAs:<ul><li>The line item targets open-exchange inventory and carries only three or fewer fixed sizes</li><li>The line item's impression volume is low relative to its budget despite a broad audience</li><li>The advertiser's asset library already includes landscape and square image variants sized near the RDA requirements</li></ul>You may want to treat the open-exchange display line items as the primary candidates for RDAs and keep fixed-size creatives for the PMP line items.",
+        "site_type_overlays": {
+          "ecommerce": "Ecommerce advertisers running open-exchange prospecting or retargeting in DV360 benefit from RDAs because retail content and lifestyle placements span a wide range of sizes. You may want to confirm the advertiser has a landscape image, a square image, and a logo ready for the asset set. Those are the assets most often missing when an RDA setup stalls.",
+          "lead_gen": "Lead-generation advertisers buying open-exchange display in DV360 can use RDAs to reach B2B and professional content placements that carry non-standard sizes. You may want to check that the headline and description copy used in the RDA asset set matches the offer on the landing page. Google's automated assembly can pair any headline with any description."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 Help",
+            "source_title": "YouTube and partners ad formats: Display and Video 360 Help",
+            "source_url": "https://support.google.com/displayvideo/answer/6274216"
+          },
+          {
+            "source_type": "DV360 API Reference",
+            "source_title": "Creative resource: DV360 API v4",
+            "source_url": "https://developers.google.com/display-video/api/reference/rest/v4/advertisers.creatives"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Identify open-exchange display line items that carry only fixed-size creatives and confirm whether the advertiser's asset library is ready to support an RDA.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Open the advertiser's creative library and filter by 'Type: Display'. Check whether any creatives are labeled 'Responsive' in the type column.",
+                "For each open-exchange display line item, open its 'Creatives' tab and note whether it includes any responsive display creatives alongside its fixed-size ones.",
+                "If no RDAs are present, check whether the advertiser's asset library includes a landscape image at roughly 1.91:1 ratio, a square image at 1:1, and a logo. These three assets are the minimum required to build an RDA.",
+                "Record each open-exchange line item that has no RDA assigned and note whether the required assets are available to build one."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per open-exchange display line item, whether at least one responsive display creative is assigned. A line item with an RDA assigned passes. A line item with only fixed-size creatives is noted as a candidate for RDA addition, recorded with the line item name and whether the required assets are already available in the library.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the creative types assigned to each open-exchange display line item above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that several open-exchange display line items in {{site_name}}'s DV360 campaigns use only fixed-size creatives and do not include responsive display ads (RDAs). RDAs let Google assemble creatives from a single asset set to match more than 20 placement sizes, so the affected line items are missing auction eligibility they could reach without producing additional sized assets. {{voice_recommend}} building RDAs for the open-exchange line items using the advertiser's existing landscape image, square image, and logo assets, and assigning the RDAs alongside the existing fixed-size creatives rather than replacing them."
+      }
+    }
+  ]
+}

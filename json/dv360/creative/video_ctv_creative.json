@@ -1,0 +1,209 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/displayvideo/answer/3129957",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Video and connected TV (CTV) creatives fail silently. A video that does not match the duration or skippability requirements of its placement either does not serve or falls back to a lower-quality rendering, and the campaign continues spending without surfacing the mismatch. CTV adds a second layer: most CTV publishers reject Video Ad Serving Template (VAST) tag wrapping and VPAID entirely, so a creative that works on desktop stops delivering the moment it hits a CTV publisher. Companion banners and audio settings add a third layer that practitioners frequently configure once and never revisit. The checks here are quick, each one in the creative library or the line item settings, and each one closes a gap that would otherwise drain budget quietly.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Display and Video 360 (DV360) routes video and CTV creatives through a strict format and specification chain. An in-stream video must declare the right duration, skippability, and VAST compliance. A CTV creative must meet resolution and bitrate minimums that standard video does not enforce. Companion banners require explicit hosting inside DV360 and are not served by publishers that lack the ad slot space. These checks confirm that each creative in the library is configured to serve in the environments the line items target.",
+  "audit_checks": [
+    {
+      "id": "dv360-video-vast-duration-skippability-mismatch",
+      "title": "Video creative duration or skippability does not match the line item placement type",
+      "category": "creative",
+      "subcategory": "video_ctv_creative",
+      "impact_score": 4,
+      "impact_rationale": "A creative that mismatches the placement type, for example a 35-second video assigned to a non-skippable line item capped at 30 seconds, either does not serve at all or defaults to a lower-priority fallback. The line item continues pacing against budget while delivering no impressions on that creative, which inflates spend on other creatives and distorts performance reporting.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "ad-experience"],
+      "educate": {
+        "base": "Display and Video 360 (DV360) supports VAST 2.0, 3.0, and 4.0 and maps each video creative to a placement type at the line item level. The placement type determines the duration ceiling and whether a skip button is available. In-stream skippable placements require VAST 3.0 or 4.0 to surface a skip button and only show the button when the video runs longer than 7 seconds. Non-skippable in-stream placements accept videos between 5 and 30 seconds. Bumper placements accept videos up to 6 seconds and carry no skip option. A creative that exceeds the duration ceiling for its placement type does not serve on that publisher's inventory.<br><br>The <a href='https://support.google.com/displayvideo/answer/3129957' class='tools-link-no-padding' target='_blank'>DV360 video creative guidelines</a> describe the accepted file formats, resolution tiers, and duration flexibility rules. DV360 transcodes uploaded files into multiple renditions, but it does not change the declared duration. A creative declared as 32 seconds stays 32 seconds even after transcoding, which means it exceeds the 30-second ceiling for non-skippable placements.<br><br>A few signs point to a duration or skippability mismatch:<ul><li>A creative is assigned to a line item whose placement type has a shorter maximum duration than the creative declares</li><li>A skippable line item runs a video shorter than 7 seconds, so the skip button never appears and the placement behaves like a non-skippable even though the inventory was sold as skippable</li><li>Impression delivery on a creative is zero despite the line item pacing normally on other creatives</li></ul>You may want to audit the creative library against every active line item's placement type before the campaign launches rather than after spend has accumulated.",
+        "site_type_overlays": {
+          "ecommerce": "For a store running promotional video, non-skippable 6-second bumper creatives are a common choice for retargeting because they guarantee full delivery to users who have already visited. You may want to confirm that bumper creatives are kept to 6 seconds or shorter and are not accidentally assigned to skippable in-stream placements where the short duration provides no skip benefit.",
+          "lead_gen": "Lead-generation campaigns often use longer-form video to walk through a product or service. You may want to confirm that any creative longer than 30 seconds is assigned only to skippable in-stream line items, where viewers can exit but the full message is available to those who stay."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 Help",
+            "source_title": "Guidelines for video creatives",
+            "source_url": "https://support.google.com/displayvideo/answer/3129957"
+          },
+          {
+            "source_type": "DV360 Help",
+            "source_title": "Video creatives",
+            "source_url": "https://support.google.com/displayvideo/answer/6086451"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm each video creative's declared duration and skippability setting, then cross-reference those values against the placement type configured on the line item it serves.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Open the advertiser and navigate to 'Creatives'. Filter to video creatives. For each active creative, note the declared duration shown in the creative card.",
+                "For each video creative, open the creative details and check the skippability setting: 'Skippable', 'Non-skippable', or 'Bumper'.",
+                "Open the 'Line Items' view and filter to line items that reference the creatives reviewed above. For each line item, check the placement type under the video settings. Compare the creative's declared duration against the duration ceiling for that placement type: bumper accepts up to 6 seconds, non-skippable accepts 5 to 30 seconds, skippable requires more than 7 seconds for the skip button to appear.",
+                "Flag any creative whose duration exceeds the ceiling for its assigned placement type, and any skippable placement assigned a video shorter than 7 seconds."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each active video creative's declared duration, skippability setting, and the placement type of each line item it is assigned to. A creative passes when its duration falls within the ceiling for the placement type and the skippability setting matches the placement type. A creative fails when its duration exceeds the ceiling, or when a skippable placement is assigned a video shorter than 7 seconds. Record the creative name, declared duration, placement type, and the specific mismatch for each failure.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each creative's duration, skippability setting, and the placement type of the line item it serves to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more video creatives assigned to {{site_name}}'s active line items do not match the duration or skippability requirements of their placement types. A creative that exceeds its placement's duration ceiling does not serve, so the line item continues pacing against budget while that creative contributes no impressions. {{voice_recommend}} auditing every active video creative against its assigned placement type, trimming or replacing creatives that exceed the duration ceiling, and confirming that skippable placements carry videos longer than 7 seconds so the skip button appears as the publisher expects."
+      }
+    },
+    {
+      "id": "dv360-ctv-creative-vpaid-or-tag-wrapping",
+      "title": "Connected TV creatives use VPAID or tag wrapping, which most CTV publishers reject",
+      "category": "creative",
+      "subcategory": "video_ctv_creative",
+      "impact_score": 4,
+      "impact_rationale": "A connected TV (CTV) creative that relies on VPAID or a wrapped VAST tag stops serving on most CTV publishers because those publishers do not support either format. The line item targets CTV inventory but the creative is ineligible, so impressions drop to zero on those publishers while budget continues to pace. The problem is invisible in the creative library because the creative passes standard validation.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "ad-experience"],
+      "educate": {
+        "base": "CTV inventory sits on smart TVs, streaming sticks, and set-top boxes running apps rather than a browser. These environments do not run JavaScript, so they cannot execute VPAID, the JavaScript-based video player API that desktop browsers support. MRAID, which serves a similar role in mobile app environments, is also unsupported on CTV. When a creative tag relies on VPAID for rendering or measurement, the CTV publisher's player receives a tag it cannot execute and the creative does not serve.<br><br>Tag wrapping compounds the problem. Many desktop video setups route the VAST tag through a chain of redirects, with each link passing the call to the next until a final asset URL is reached. CTV publishers impose strict limits on redirect depth, and many reject wrapped tags entirely to reduce latency on large-screen experiences. The <a href='https://support.google.com/displayvideo/answer/14175098' class='tools-link-no-padding' target='_blank'>DV360 Connected TV creatives guide</a> recommends VAST 2.0 for the broadest CTV scale, with a direct asset URL rather than a wrapped tag, and notes that VAST 3.0 and 4.0 have more limited CTV reach.<br><br>The recommended setup for CTV uses a direct MP4 asset hosted in DV360 at 1920x1080 resolution with a bitrate at or above 15 Mbps. DV360 generates multiple renditions from this source file at lower bitrates for publishers that request them. Using a hosted asset eliminates both the VPAID dependency and the redirect chain in one step.<br><br>A few signs point to a CTV delivery problem caused by VPAID or wrapping:<ul><li>A line item targeting CTV inventory shows low or zero impression delivery despite normal pacing on other environments</li><li>The creative uses a third-party VAST tag rather than a DV360-hosted asset</li><li>The VAST tag chain includes more than one redirect before reaching the final media file</li></ul>You may want to check the impression breakdown by environment, specifically desktop versus CTV, for any line item that targets both, before assuming the line item is pacing normally on CTV.",
+        "site_type_overlays": {
+          "ecommerce": "Retail and consumer brands increasingly run CTV line items to reach streaming audiences during purchase consideration. A CTV creative hosted directly in DV360 as an MP4 at 1920x1080 avoids the VPAID and wrapping issues and gives the campaign the best chance of delivering across the full range of CTV publishers, including streaming services and connected TV platforms.",
+          "lead_gen": "Lead-generation advertisers running awareness video on CTV benefit from the same direct-hosted approach. You may want to confirm that creatives built for CTV do not include interactive overlays or click-to-action elements that rely on VPAID. CTV viewers cannot interact with those elements the way desktop users can."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 Help",
+            "source_title": "Connected TV creatives",
+            "source_url": "https://support.google.com/displayvideo/answer/14175098"
+          },
+          {
+            "source_type": "DV360 Help",
+            "source_title": "About Connected TV in Display & Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/9262161"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether CTV line items are assigned DV360-hosted assets or third-party VAST tags, and check whether any third-party tags use VPAID or multi-level redirect wrapping.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Open the advertiser and navigate to 'Line Items'. Filter to line items with 'Connected TV' in their environment targeting.",
+                "For each CTV line item, open the creative assignments and note whether each assigned creative uses a DV360-hosted asset or a third-party VAST tag.",
+                "For any creative using a third-party VAST tag, open the creative and check the tag URL. Note whether the tag URL itself contains a redirect or wrapping parameter that points to another tag URL rather than a direct media file.",
+                "In the creative library, check whether any creative assigned to CTV line items is of type 'VPAID'. Flag those creatives for replacement."
+              ]
+            },
+            "campaign_manager_360": {
+              "label": "Campaign Manager 360",
+              "steps": [
+                "If the campaign tracks impressions through Campaign Manager 360 (CM360), open the placement associated with the CTV line item in CM360.",
+                "Review the creative asset assigned to the placement. Confirm that any in-stream video creative uses a direct VAST URL pointing to an MP4 asset rather than a VPAID JavaScript URL or a multi-level wrapped tag.",
+                "Check the creative's serving file settings for the presence of a VPAID asset type. If one is listed, the creative is ineligible for most CTV publishers."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each CTV line item, its assigned creatives, and whether each creative uses a DV360-hosted asset or a third-party VAST tag. For third-party tags, the practitioner notes whether VPAID is present or whether the tag wraps another tag URL rather than pointing directly to a media file. A creative passes when it uses a DV360-hosted MP4 asset or a single-level VAST 2.0 tag with a direct media URL and no VPAID. A creative fails when it uses VPAID, a multi-level wrapped tag, or any JavaScript-dependent rendering mechanism. Record the creative name, tag type, and the specific issue for each failure.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each CTV line item's assigned creatives and note whether each uses a DV360-hosted asset or a third-party VAST tag with VPAID or wrapping to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more creatives assigned to CTV line items on {{site_name}}'s account use VPAID or multi-level VAST tag wrapping, which most CTV publishers do not support. These creatives do not serve on CTV inventory, so the line items pace normally on paper while delivering no impressions to the CTV environments they target. {{voice_recommend}} replacing the affected creatives with DV360-hosted MP4 assets at 1920x1080 resolution and a bitrate of 15 Mbps or higher, served through a direct single-level VAST tag rather than a wrapped or VPAID-dependent tag. This approach maximizes CTV publisher compatibility and removes the silent delivery gap."
+      }
+    },
+    {
+      "id": "dv360-video-companion-banner-not-configured",
+      "title": "Companion banners are not assigned to video creatives, leaving display inventory around the player unused",
+      "category": "creative",
+      "subcategory": "video_ctv_creative",
+      "impact_score": 2,
+      "impact_rationale": "When a companion banner is not assigned, publishers that offer a display slot adjacent to the video player serve the video alone. The display slot goes to another advertiser or runs a house ad. The impact is opportunity cost rather than delivery failure: the video still serves, but the additional brand impression the display slot would have provided is lost. Impact is capped at 2 because the video itself is unaffected.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "ad-experience"],
+      "educate": {
+        "base": "Companion banners are display creatives that serve alongside a video player in the display slot a publisher makes available next to or below the video. DV360 supports assigning companion banners directly to an in-stream video creative so that the two are delivered in the same VAST tag when the publisher has the inventory. When no companion is assigned, DV360 sends only the video asset, and the publisher fills the adjacent display slot independently.<br><br>The <a href='https://support.google.com/displayvideo/answer/6086451' class='tools-link-no-padding' target='_blank'>DV360 video creatives guide</a> notes that companions must be hosted in DV360, and that responsive, data-driven, and rich media creatives are not accepted as companions. Supported types are image and HTML5. Publishers control whether the slot exists and what dimensions it accepts, so companions do not serve on every impression, but they serve where the publisher makes room for them at no additional cost to the video placement.<br><br>A few conditions suggest a companion banner review is worthwhile:<ul><li>In-stream video creatives in the library show no companion assigned in the creative settings</li><li>The line item targets open-exchange inventory where publisher pages include a sidebar or banner slot adjacent to the video player</li><li>Brand awareness is a stated campaign goal, where the additional display impression reinforces the video message</li></ul>You may want to weigh the setup time against the incremental impression value for each campaign rather than assigning companions to every video creative by default. The benefit is higher on brand-awareness placements and lower on direct-response campaigns where the video itself carries the conversion intent.",
+        "site_type_overlays": {
+          "ecommerce": "For a store running product video on open-exchange inventory, a companion banner showing the product or a promotional offer can reinforce the video message in the display slot. You may want to confirm whether the campaign has a static product image available in the correct dimensions for the publishers the line item targets. That is often the fastest companion to configure.",
+          "lead_gen": "Lead-generation campaigns with a clear call to action benefit from a companion banner that restates the offer or the form URL. A static image with the headline and a short URL can serve as the companion without requiring a separate creative build cycle."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 Help",
+            "source_title": "Video creatives",
+            "source_url": "https://support.google.com/displayvideo/answer/6086451"
+          },
+          {
+            "source_type": "DV360 Help",
+            "source_title": "Guidelines for video creatives",
+            "source_url": "https://support.google.com/displayvideo/answer/3129957"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the companion banner assignment on each in-stream video creative associated with active line items that target open-exchange video inventory.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Open the advertiser and navigate to 'Creatives'. Filter to in-stream video creatives assigned to active line items.",
+                "For each creative, open the creative details and look for the 'Companion banner' section. Note whether a companion is assigned or whether the field is empty.",
+                "For line items where brand awareness is the primary goal, flag any in-stream video creative that has no companion banner assigned.",
+                "If companion banners exist in the creative library as standalone display creatives, confirm they are in one of the accepted formats: image or HTML5, hosted in DV360, and sized to match common companion dimensions such as 300x250 or 728x90."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner reviews each in-stream video creative assigned to active line items targeting open-exchange video inventory. A creative passes when a companion banner is assigned in the creative settings, or when the line item is a direct-response campaign where the companion is not a priority. A creative is flagged when no companion is assigned and the line item targets brand awareness or reach objectives on publishers known to offer display slots alongside video. Record the creative name, the campaign objective, and whether a companion exists or is absent for each flagged creative.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Review each in-stream video creative's companion banner assignment and note the campaign objective to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that several in-stream video creatives on {{site_name}}'s account are running without companion banners assigned. Publishers that offer a display slot adjacent to the video player fill that slot independently when no companion is provided, so the adjacent impression goes to another advertiser rather than reinforcing the video message. {{voice_recommend}} assigning companion banners to the in-stream video creatives running on brand-awareness and reach line items, using image or HTML5 creatives hosted in DV360 at dimensions that match the publishers the line items target. The companions deliver at no additional media cost and extend the reach of each video impression where publishers make the slot available."
+      }
+    }
+  ]
+}

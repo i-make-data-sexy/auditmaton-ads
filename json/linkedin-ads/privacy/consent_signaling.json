@@ -1,0 +1,143 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://www.linkedin.com/help/lms/answer/a1444756",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Consent handling for the Insight Tag sits where a configuration choice becomes a compliance exposure, so the checks are worth doing even though they are quick. You can confirm in the page's tag behavior and the consent platform's settings whether the Insight Tag waits for a choice and whether a signal reaches LinkedIn, without touching account data. The fix is usually a setting in the consent management platform or the tag manager rather than a rebuild, and getting it right protects the account from collecting data it was not permitted to collect.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "These checks look at how a visitor's consent choice is collected before the LinkedIn Insight Tag fires, and whether a consent signal reaches LinkedIn for regulated regions such as the European Union (EU). The Insight Tag sets a LinkedIn browser cookie and collects metadata, so in regions that require consent the tag should wait for a recorded choice rather than fire on load. They confirm that a consent management platform (CMP) gates the tag and that the consent state is passed to LinkedIn where it can be acted on.",
+  "audit_checks": [
+    {
+      "id": "linkedin-ads-insight-tag-fires-pre-consent",
+      "title": "The Insight Tag fires before consent is collected from regulated regions",
+      "category": "privacy",
+      "subcategory": "consent_signaling",
+      "impact_score": 4,
+      "impact_rationale": "An Insight Tag that fires on load in a region that requires consent collects data before the visitor agreed to it, which is a compliance exposure rather than a measurement gap. The data is gathered against the rule, so the risk sits with the account regardless of how the conversions report.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "The LinkedIn Insight Tag is a piece of JavaScript that sets a LinkedIn browser cookie and collects metadata such as the visitor's Internet Protocol (IP) address, a timestamp, and page events. In the European Union (EU) and similar regimes, tracking technology of this kind has to wait for the visitor to record a consent choice before it runs. A tag that fires the moment the page loads, ahead of any choice, collects data the visitor never agreed to.<br><br>A consent management platform (CMP), e.g., OneTrust or Cookiebot, is the layer that records the choice and decides which tags are allowed to run. When the Insight Tag is gated behind the CMP, it stays inactive until the visitor accepts the relevant category, usually advertising or marketing cookies. When it is not gated, it runs immediately, and the consent banner becomes decorative for that tag.<br><br>You may want to confirm how the tag is loaded. If it is placed directly in the page source rather than managed through a tag manager or the CMP, it almost always fires on load with no consent gate. A few signs point to this gap:<ul><li>The Insight Tag is hard-coded in the page head rather than fired through a consent-aware trigger</li><li>The LinkedIn cookie appears in the browser before any banner interaction</li><li>The CMP lists the advertising category but no LinkedIn tag is mapped to it</li></ul>Because the visitor's region determines whether consent is required, you may want to test from a regulated region or with a region-emulating tool rather than assuming the default behavior is compliant.",
+        "site_type_overlays": {
+          "ecommerce": "On a considered or business-to-business (B2B) store, the LinkedIn audience often includes EU buyers, so the Insight Tag should sit behind the consent gate on product and checkout pages just as it does elsewhere. You may want to confirm the tag stays inactive on those pages until the visitor accepts the advertising category.",
+          "lead_gen": "On a lead-capture site, which is the common LinkedIn case, the Insight Tag frequently lives on the same pages as the form. A tag that runs on load collects data ahead of the choice even when the form itself respects the visitor's preferences, so you may want to confirm it waits for consent before firing."
+        },
+        "learn_more": [
+          {
+            "source_type": "LinkedIn Marketing Solutions Help",
+            "source_title": "LinkedIn Marketing Solutions and The General Data Protection Regulation (GDPR)",
+            "source_url": "https://www.linkedin.com/help/lms/answer/a1444756"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm in Campaign Manager that the Insight Tag exists and is the one on the site, then watch the page to see whether the tag waits for a consent choice in a regulated region.",
+        "tools": {
+          "free": {
+            "linkedin_campaign_manager": {
+              "label": "LinkedIn Campaign Manager",
+              "steps": [
+                "Sign in to Campaign Manager and select the ad account you are auditing.",
+                "Click 'Data' in the left menu, then 'Signals manager', and open the Insight Tag to read its tag ID and installation status.",
+                "Note the tag ID so you can match it against the tag that actually loads on the site in the next tool."
+              ]
+            },
+            "browser_dev_tools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the site in a browser with DevTools, using a private window or a region-emulating setting so the consent banner appears as it would for a regulated visitor.",
+                "Before interacting with the banner, open the Application or Storage panel and check whether a LinkedIn cookie has already been set and whether a request to LinkedIn's collection endpoint has fired.",
+                "If the cookie or request appears before any consent choice, the tag fired pre-consent. If it appears only after the visitor accepts the advertising category, the gate is working."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a regulated-region session, whether the LinkedIn cookie or collection request appears before any consent choice. A tag that stays inactive until the visitor accepts the advertising category passes. A tag that sets the cookie or fires the request on load, before a choice is recorded, is a fail noted with the page where it was observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the Insight Tag fires before or after the consent choice in a regulated-region session to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the LinkedIn Insight Tag on {{site_name}} fires before a visitor records a consent choice in regulated regions such as the European Union. The tag sets a LinkedIn cookie and collects metadata on load, so it gathers data the visitor never agreed to, which is a compliance exposure rather than a measurement gap. {{voice_recommend}} gating the Insight Tag behind the consent management platform so it stays inactive until the visitor accepts the advertising category, and then testing from a regulated region to confirm the tag no longer fires on load."
+      }
+    },
+    {
+      "id": "linkedin-ads-no-consent-mode-signal",
+      "title": "No consent signal is passed to LinkedIn for restricted regions",
+      "category": "privacy",
+      "subcategory": "consent_signaling",
+      "impact_score": 3,
+      "impact_rationale": "Without a consent signal, the account neither documents the visitor's consent state to LinkedIn nor lets LinkedIn adjust how it uses the data. The setup may gate the tag locally and still leave LinkedIn with no record of the choice it should be acting on.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Gating the Insight Tag so it waits for consent is one half of the picture. The other half is passing a signal that describes the visitor's choice to LinkedIn, so LinkedIn can adjust how it uses the data it receives. A tag that only fires or does not fire tells LinkedIn nothing about the state behind that decision.<br><br>In a tag manager, a consent signal is carried through the consent settings attached to a tag, the same mechanism that maps a tag to categories such as ad_storage. Some advertising tags have built-in consent detectors, while others depend on the consent management platform (CMP) and the tag manager being wired together so the signal is set before the tag evaluates it. You may want to confirm the CMP and the tag manager are connected, rather than assuming the banner alone passes the state downstream.<br><br>When no signal is passed, two things are missing. The account has no documented record, on LinkedIn's side, of the consent state for restricted regions, and LinkedIn cannot modulate its data use based on a choice it never received. A tag that fires without that mapping is sending data with no consent context attached, so you may want to check whether the LinkedIn tag is mapped to the relevant consent categories in the tag manager.",
+        "site_type_overlays": {
+          "ecommerce": "On a considered or business-to-business (B2B) store, you may want to confirm the LinkedIn tag is mapped to the advertising consent category in the tag manager, so the signal travels with the conversion data rather than the tag firing with no consent context.",
+          "lead_gen": "On a lead-capture site, the dominant LinkedIn case, the Insight Tag and the form often share pages, and the consent signal still has to be wired through the tag manager to LinkedIn. You may want to confirm the CMP passes the choice to the tag rather than relying on the banner to handle it alone."
+        },
+        "learn_more": [
+          {
+            "source_type": "LinkedIn Marketing Solutions Help",
+            "source_title": "Enable first-party cookies on a LinkedIn Insight Tag",
+            "source_url": "https://www.linkedin.com/help/lms/answer/a423304"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm in Campaign Manager that the Insight Tag is the one in use, then check in the tag manager whether a consent signal is mapped to the LinkedIn tag and passed before it fires.",
+        "tools": {
+          "free": {
+            "linkedin_campaign_manager": {
+              "label": "LinkedIn Campaign Manager",
+              "steps": [
+                "Sign in to Campaign Manager and select the ad account you are auditing.",
+                "Click 'Data' in the left menu, then 'Signals manager', and open the Insight Tag to confirm its tag ID and that it is the active tag.",
+                "Note the tag ID so you can match it to the corresponding tag in the site's tag manager."
+              ]
+            },
+            "tag_manager": {
+              "label": "Website tag manager",
+              "steps": [
+                "Open the site's tag manager and find the LinkedIn Insight Tag by its tag ID.",
+                "Open the tag's consent settings and check whether it is mapped to the relevant consent categories, e.g., ad_storage, so a signal is required before the tag fires.",
+                "Confirm the consent management platform is connected to the tag manager so the signal is set before the tag evaluates it, rather than the tag firing with no consent context."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the LinkedIn Insight Tag is mapped to the relevant consent categories in the tag manager and whether the consent management platform sets the signal before the tag fires. A tag with the mapping in place and the signal connected passes. A tag that fires with no consent mapping or signal is a fail noted with where it was observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a consent signal is mapped to the LinkedIn tag and passed before it fires to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes no consent signal to LinkedIn for restricted regions, so the account neither documents the visitor's consent state on LinkedIn's side nor lets LinkedIn adjust how it uses the data. The Insight Tag may fire without any consent context attached. {{voice_recommend}} mapping the LinkedIn tag to the relevant consent categories in the tag manager and connecting the consent management platform so the signal is set before the tag evaluates it, then confirming the signal travels with the data."
+      }
+    }
+  ]
+}

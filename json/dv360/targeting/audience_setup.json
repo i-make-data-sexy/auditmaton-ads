@@ -1,0 +1,201 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/displayvideo/answer/2949947",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Audience setup errors are quiet spend problems. A first-party list that has fallen below the 100-cookie minimum simply stops serving without surfacing a clear error. A Google affinity segment stacked too broadly dilutes the precise intent signal the line item was built around. A membership duration set at the default 30 days may exclude high-value users who converted weeks ago and are now in a prime re-engagement window. Each of these is a configuration detail, not a rebuild, and each has a direct line to delivery efficiency.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Audience setup governs which users a Display and Video 360 (DV360) line item reaches and how well the targeting reflects the campaign goal. DV360 supports first-party audiences built from Floodlight activity data and Audience Manager combined lists, Google audiences such as affinity and in-market segments, and custom lists. These checks confirm that first-party lists are large enough to serve, that Google audience segments are layered with intent rather than stacked so broadly they lose relevance, and that membership duration settings match what the campaign is actually trying to accomplish.",
+  "audit_checks": [
+    {
+      "id": "dv360-first-party-audience-too-small-or-expired",
+      "title": "First-party audience lists are too small to serve or have exceeded their 540-day lifespan",
+      "category": "targeting",
+      "subcategory": "audience_setup",
+      "impact_score": 3,
+      "impact_rationale": "A first-party list below the 100-cookie threshold causes the line item to stop serving against that audience without an explicit error. A list past its 540-day maximum lifespan stops populating entirely, so the targeting falls away from the intended audience without an error and delivery shifts to whatever else the line item targets.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["targeting", "data-quality"],
+      "educate": {
+        "base": "Display and Video 360 (DV360) enforces a minimum size before a first-party audience list can serve. A list created from Floodlight activity data needs at least 100 matching cookies before it is eligible for delivery. Lists that fall below this threshold, whether because the Floodlight tag is firing inconsistently or because the advertiser's site traffic has dropped, will not serve on line items that target them. The line item stays active and shows no explicit error; it simply skips that audience segment.<br><br>DV360 also enforces a <a href='https://support.google.com/displayvideo/answer/2949947' class='tools-link-no-padding' target='_blank'>maximum lifespan of 540 days</a> on first-party audience lists. A list created more than 540 days ago stops accumulating new members. Cookies already on the list age out through their own membership duration setting, and the list eventually empties. Line items targeting an expired list continue to bid, but the audience targeting applies to no one.<br><br>A few signs point to this issue:<ul><li>An audience list in Audience Manager shows a size well below 1,000 or a size of zero</li><li>A list's creation date in Audience Manager is more than 540 days in the past</li><li>A line item with first-party audience targeting shows delivery but with reach that looks unexpectedly narrow</li></ul>You may want to check each first-party list attached to active line items for both its current size and its creation date before assuming the targeting is working as intended.",
+        "site_type_overlays": {
+          "ecommerce": "On a retail advertiser account, cart-abandonment and past-purchaser lists are the first-party audiences most directly tied to revenue recovery. You may want to confirm that the Floodlight tags firing on the cart and purchase confirmation pages are active and that the lists those tags populate remain above the minimum size threshold. A tag that was paused during a site migration can drain both lists without notice.",
+          "lead_gen": "On a lead-generation advertiser account, the most valuable first-party lists are typically built from Floodlight tags on the form submission confirmation page. You may want to confirm that the confirmation-page tag is firing and that the resulting list has enough members to serve. A form that was restructured or moved to a new URL may have broken the tag without a visible alert."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 Help",
+            "source_title": "Audience list targeting",
+            "source_url": "https://support.google.com/displayvideo/answer/2949947"
+          },
+          {
+            "source_type": "DV360 Help",
+            "source_title": "About audience lists",
+            "source_url": "https://support.google.com/displayvideo/answer/3423497"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Check the size and creation date of each first-party audience list attached to active line items in the advertiser's Audience Manager.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "In DV360, navigate to the advertiser, then open 'Audiences' under the advertiser menu.",
+                "For each first-party list used in active line items, note the current list size and the creation date. A size below 1,000 warrants closer review; a size of zero means the list will not serve.",
+                "Calculate whether the creation date is within the 540-day maximum lifespan. A list created before that window has stopped accumulating new members.",
+                "Open the Floodlight activity associated with each list and confirm it has recent activity. A tag with no recent hits is not populating its list."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per first-party audience list attached to active line items, the current list size and the creation date. A list with a size above 1,000 and a creation date within the past 540 days passes. A list below 100 cookies is a fail recorded as below minimum threshold. A list with a creation date more than 540 days in the past is a fail recorded as expired. A list between 100 and 1,000 is a flag for monitoring.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the audience list name, current size, and creation date for each first-party list on active line items above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more first-party audience lists attached to active line items on {{site_name}}'s DV360 advertiser are either below the 100-cookie minimum required for delivery or past the 540-day maximum lifespan. Line items targeting these lists continue to run but apply the audience targeting to no users, so delivery shifts to whatever other targeting the line item carries. {{voice_recommend}} reviewing each affected list in Audience Manager, confirming the Floodlight tags that populate them are firing correctly, and rebuilding or refreshing any list that has expired. Until the lists are healthy, you may want to consider pausing audience targeting on the affected line items to avoid misleading delivery data."
+      }
+    },
+    {
+      "id": "dv360-google-audiences-stacked-without-intent-layering",
+      "title": "Google affinity and in-market audiences are stacked broadly without intent layering",
+      "category": "targeting",
+      "subcategory": "audience_setup",
+      "impact_score": 2,
+      "impact_rationale": "Adding multiple affinity segments with 'OR' logic expands the addressable pool, but each segment individually is already broad. The line item ends up reaching a large general audience rather than a focused intent signal, which lowers the signal-to-noise ratio without a corresponding efficiency gain.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["targeting", "bidding"],
+      "educate": {
+        "base": "Display and Video 360 (DV360) offers two primary categories of Google-curated audience segments: affinity audiences, which reflect longer-term lifestyle interests, and in-market audiences, which reflect active purchase research behavior. Both are useful, but they work differently and carry different intent signals.<br><br>Affinity segments, such as 'Travel Buffs' or 'Cooking Enthusiasts', are broad by design. They describe who someone is rather than what they are actively researching. Adding several affinity segments to a single line item with OR logic, meaning the line item serves to anyone in any of the segments, produces an audience that can span tens of millions of users. That scale may suit a brand-awareness goal, but for a direct-response campaign it dilutes the intent signal the line item depends on.<br><br>In-market segments reflect active research. Layering an affinity segment with a matching in-market segment using AND logic, for example targeting users who are both interested in travel generally and actively researching flights, tightens the audience to users who have expressed both a long-term interest and a current purchase intent. This intersection is smaller but more aligned with direct-response goals.<br><br>A few signs point to broad stacking without intent layering:<ul><li>A line item targets three or more Google audience segments, all connected with OR logic</li><li>The segments include both affinity and in-market options but no intersection logic between them</li><li>The estimated reach for the audience targeting alone is in the tens of millions for a niche product category</li></ul>You may want to review whether the segment combination reflects the actual user the campaign is trying to reach, and whether AND logic between an affinity and a matching in-market segment would tighten the targeting to a more relevant pool.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser running a direct-response line item, in-market segments for the relevant product category paired with AND logic against a relevant affinity segment can produce a more efficient audience than stacking broad affinity segments alone. You may want to consider whether the current combination reflects a user actively researching a purchase rather than someone with a general lifestyle interest.",
+          "lead_gen": "For a lead-generation advertiser, in-market segments aligned with the service category are typically more productive than affinity-only targeting. You may want to confirm that the audience combination reflects active research intent rather than broad lifestyle categories, particularly for high-consideration services where the decision window is short."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 Help",
+            "source_title": "Audience list targeting",
+            "source_url": "https://support.google.com/displayvideo/answer/2949947"
+          },
+          {
+            "source_type": "DV360 Help",
+            "source_title": "Google audiences",
+            "source_url": "https://support.google.com/displayvideo/answer/6034610"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the audience targeting setup on each active line item that uses Google affinity or in-market segments, noting the segment combination logic.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Open the line item and navigate to its targeting settings. Find the 'Audiences' targeting section.",
+                "Note which Google audience segments are applied and whether they are joined with OR logic (any segment qualifies) or AND logic (user must be in all segments).",
+                "Count the number of affinity versus in-market segments. A line item with more than two affinity segments and no in-market overlay warrants review.",
+                "Check the estimated reach displayed in the targeting panel. A reach figure that seems disproportionately large relative to the campaign's product category is a signal that the combination is too broad."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per line item using Google audiences, the segment types applied, the combination logic, and the estimated reach. A line item that pairs an affinity segment with a matching in-market segment using AND logic and shows a reach proportionate to the product category passes. A line item that stacks three or more affinity segments with OR logic and no in-market layer for a direct-response goal is a flag for review. A line item with OR logic across both affinity and in-market segments where the estimated reach is in the tens of millions for a niche category is recorded as broad stacking.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the audience segments, combination logic, and estimated reach for each reviewed line item above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that several line items on {{site_name}}'s DV360 advertiser apply Google audience segments with broad OR logic rather than layering affinity and in-market segments with AND logic. The resulting audience pools are large enough to reduce the intent signal the line items depend on, particularly for direct-response goals. {{voice_recommend}} reviewing the segment combinations on the affected line items and, where the goal is direct response, testing an AND intersection between a relevant affinity segment and the corresponding in-market segment. The tighter pool may lower raw reach but can improve efficiency against cost-per-result targets."
+      }
+    },
+    {
+      "id": "dv360-membership-duration-misaligned-with-campaign-goal",
+      "title": "Audience membership duration does not match the campaign goal or conversion window",
+      "category": "targeting",
+      "subcategory": "audience_setup",
+      "impact_score": 2,
+      "impact_rationale": "A membership duration set shorter than the typical purchase decision window excludes users still in the research phase. A duration set far longer than the decision window keeps uninterested users in the audience after they have moved on, diluting the relevance of the targeting and increasing impressions against low-intent users.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["targeting", "attribution"],
+      "educate": {
+        "base": "Display and Video 360 (DV360) lets advertisers set the membership duration for each first-party audience list, which is how long a user remains in the list after the Floodlight tag fires for them. The default is 30 days and the maximum is 540 days. The right duration depends on the campaign goal and the typical length of the purchase decision for that product category.<br><br>A membership duration shorter than the actual decision window means the line item stops reaching users who are still actively considering. For high-consideration products with decision windows of 60, 90, or more days, a 30-day default leaves a large portion of in-market users unreachable. Conversely, a duration set to the maximum 540 days for a low-consideration product adds users from nearly 18 months ago who have long since made a decision and are no longer relevant to the campaign.<br><br>The Floodlight attribution window in Campaign Manager 360 (CM360) is a related setting but a different one. The Floodlight lookback window controls which clicks and impressions receive conversion credit; the audience membership duration controls who stays in the remarketing pool. Matching both to the actual decision window produces consistent signals across measurement and targeting.<br><br>A few signs point to a misaligned duration:<ul><li>The audience list uses the default 30-day duration without any documented reason for that choice</li><li>The campaign targets high-consideration products (vehicles, enterprise software, travel) but the list duration is set well below 90 days</li><li>The campaign targets repeat-purchase or subscription products but the list duration extends to hundreds of days, keeping churned users in the audience indefinitely</li></ul>You may want to confirm the membership duration for each first-party list against the product category's realistic decision window before treating the default as intentional.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser, the right membership duration varies by product category. Consumables with a short repurchase cycle may suit a 30-day duration. High-consideration products, such as appliances or furniture, may suit 60 to 90 days. You may want to review whether the current duration aligns with the average time between a first site visit and a completed purchase in the advertiser's analytics.",
+          "lead_gen": "For a lead-generation advertiser, the relevant window is the time between a first site visit and a form submission, which varies by how complex or high-stakes the service is. A B2B service with a multi-month evaluation cycle may warrant a 90-day or longer duration to keep prospects in the remarketing audience throughout the process. You may want to confirm the duration reflects the actual sales cycle rather than the default."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 Help",
+            "source_title": "Audience list targeting",
+            "source_url": "https://support.google.com/displayvideo/answer/2949947"
+          },
+          {
+            "source_type": "DV360 Help",
+            "source_title": "About audience lists",
+            "source_url": "https://support.google.com/displayvideo/answer/9017974"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Check the membership duration setting for each first-party audience list attached to active line items against the campaign goal and typical decision window for the product category.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Navigate to the advertiser's 'Audiences' section in DV360.",
+                "For each first-party list used in active line items, note the membership duration setting.",
+                "Compare the duration to the campaign goal. A brand-awareness line item may tolerate a short or long duration, but a direct-response remarketing line item should have a duration that reflects the actual time users spend in the consideration phase for that product category.",
+                "Note any lists using the default 30-day duration without documentation. Flag them for discussion with the advertiser about whether that duration reflects a deliberate choice."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per first-party audience list on active line items, the membership duration and the campaign goal the list supports. A duration that aligns with the product category's typical decision window and the campaign objective passes. A list using the default 30-day duration on a high-consideration campaign, or a list set to maximum duration on a low-consideration repeat-purchase campaign, is a flag for review recorded with the list name and the discrepancy.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the audience list name, membership duration, and the campaign goal it supports above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the audience membership duration settings on {{site_name}}'s DV360 first-party lists do not align with the campaign goals and product category decision windows. Lists set to the default 30-day duration are supporting remarketing campaigns for high-consideration products where the decision window is longer, which means the line items stop reaching users still actively in the consideration phase. {{voice_recommend}} reviewing the membership duration for each first-party list against the typical time between a first site visit and a conversion for that product category, and adjusting the duration to match. For high-consideration campaigns, a duration of 60 to 90 days or longer may keep the right users in the audience through the full decision window."
+      }
+    }
+  ]
+}

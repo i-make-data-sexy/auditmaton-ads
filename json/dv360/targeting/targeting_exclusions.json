@@ -1,0 +1,201 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/displayvideo/answer/2697881",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Exclusion gaps in Display and Video 360 (DV360) line items waste budget, suppress delivery, or serve ads in contexts the campaign was never meant to reach. An exclusion list that does not include recent converters keeps spending to reach people who already completed the goal. Contradictory targeting layers, such as a language inclusion paired with an incompatible device exclusion, can eliminate virtually all eligible inventory and leave a line item unable to pace. A device or environment exclusion set on a campaign intent it does not match sends video budgets to audio placements or desktop creative to mobile-only environments. These checks are fast to run against the DV360 line item settings and the problems they surface are correctable without a campaign rebuild.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Targeting exclusions in DV360 operate at the line item (LI) level and define the inventory, audiences, and contexts a line item will not bid on. They interact with positive targeting layers, so an exclusion that is too broad or contradicts an inclusion can reduce delivery as significantly as a misset bid floor. These checks confirm that converter exclusions are in place so budget goes toward new customers, that targeting layers do not combine in ways that shrink eligible inventory to near zero, and that device, environment, and language exclusions match what the campaign is actually built to achieve.",
+  "audit_checks": [
+    {
+      "id": "dv360-converter-exclusion-missing",
+      "title": "Recent converters are not excluded from line items targeting acquisition audiences",
+      "category": "targeting",
+      "subcategory": "targeting_exclusions",
+      "impact_score": 3,
+      "impact_rationale": "Serving acquisition-intent ads to users who already converted wastes impressions and budget on an audience that has already completed the goal, and it can degrade the measurement signal by mixing post-conversion touches into the attribution path.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["targeting", "data-quality"],
+      "educate": {
+        "base": "Acquisition line items in DV360 are designed to reach users who have not yet completed a conversion goal. Without an audience exclusion for recent converters, those line items continue to bid for and serve to users who already purchased, submitted a lead form, or completed whatever action the Floodlight activity tracks. The spend goes toward an audience that no longer needs to be persuaded.<br><br>DV360 supports audience exclusions at the line item level. A Floodlight-based audience of users who converted within the relevant window, typically 30 or 90 days depending on the purchase cycle, is the standard exclusion source. The same audience can be built from a first-party list uploaded to the platform if the Floodlight list is not yet large enough to be usable.<br><br>The check applies to line items targeting prospecting or new-customer audiences: lookalikes, in-market segments, affinity audiences, or Customer Match lists built from prospects. It does not apply to retention or upsell line items, where serving to past converters is the intent.<br><br>A few signs point to this exclusion being absent:<ul><li>The line item targeting section shows no audience exclusions in the audience tab</li><li>The campaign's Floodlight configuration includes conversion activities but no audience lists built from those activities appear in the advertiser's audience manager</li><li>Frequency reports show recent converters receiving multiple impressions from prospecting line items in the days after conversion</li></ul>You may want to confirm the Floodlight audience exists before flagging the line item. If the list has not been created, creating it is the first step before applying the exclusion.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser, a purchase Floodlight activity typically generates a 'recent purchasers' audience within days of the activity going live. You may want to confirm this audience exists in the advertiser's audience manager and is applied as an exclusion to any line items targeting new customer acquisition or upper-funnel prospecting. The lookback window should reflect the repurchase cycle: a consumable product with a short cycle warrants a shorter window than a durable good.",
+          "lead_gen": "For a lead-generation advertiser, the converter audience is built from the Floodlight activity that fires on form submission or lead confirmation. You may want to confirm this audience is applied as an exclusion on any prospecting or awareness line items so budget does not go toward users who already submitted their information. The exclusion window typically matches the sales cycle length for the product or service."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 Help",
+            "source_title": "Add audience targeting to a line item",
+            "source_url": "https://support.google.com/displayvideo/answer/2697881"
+          },
+          {
+            "source_type": "DV360 Help",
+            "source_title": "About Floodlight audiences in Display & Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/6371756"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Check the audience targeting settings on prospecting and acquisition line items for an exclusion that covers recent converters.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Open the advertiser, navigate to 'Campaigns', and open the insertion order (IO) containing the prospecting or acquisition line items you want to review.",
+                "Open each prospecting line item and click the 'Targeting' tab, then 'Audiences'. Review the 'Excluded audiences' section to see whether a converter or purchaser audience is listed there.",
+                "If no converter audience is listed as excluded, navigate to the advertiser's 'Audiences' page. Confirm whether a Floodlight-based audience for converters exists. Note the audience name, membership duration, and approximate size.",
+                "If the converter audience does not exist, navigate to 'Floodlight' settings and confirm whether a Floodlight activity fires on the conversion goal. A Floodlight activity that is live and collecting events can generate an audience list that is then applied as an exclusion."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each prospecting or acquisition line item reviewed, record whether a converter audience exclusion is present in the line item's audience targeting. A line item with a converter exclusion applied passes. A prospecting line item with no audience exclusions, or whose excluded audiences do not include a converter or purchaser list, is a fail recorded with the line item name and insertion order (IO).",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each prospecting line item's name, its insertion order (IO), and whether a converter exclusion audience is applied to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that acquisition and prospecting line items on {{site_name}} are not excluding recent converters. Budget allocated to new-customer acquisition is reaching users who have already completed the conversion goal, which reduces the efficiency of that spend and can affect the attribution signal by mixing post-conversion impressions into the prospecting path. {{voice_recommend}} building a Floodlight-based audience of recent converters with a lookback window that reflects the product's repurchase or sales cycle, and applying that audience as an exclusion to each prospecting and acquisition line item. If the Floodlight audience does not yet exist, {{voice_recommend}} creating it from the conversion activity before applying it."
+      }
+    },
+    {
+      "id": "dv360-contradictory-targeting-layers",
+      "title": "Overlapping or contradictory targeting layers reduce eligible inventory to near zero",
+      "category": "targeting",
+      "subcategory": "targeting_exclusions",
+      "impact_score": 4,
+      "impact_rationale": "A line item whose targeting layers exclude most of the inventory its inclusions would have reached cannot pace or spend. Budget goes undelivered, campaign goals are not met, and the issue can persist for days before pacing alerts surface it because the line item appears active rather than paused.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["targeting", "bidding"],
+      "educate": {
+        "base": "DV360 applies targeting at multiple levels. An insertion order (IO) can carry geography, device type, browser, language, and viewability targeting, and each line item (LI) can carry its own overlapping layers. When a line item adds exclusions that contradict what the IO or the line item's positive targeting already allows, the intersection of eligible inventory can drop well below what the budget requires to pace.<br><br>A few specific combinations create this problem reliably. A line item set to target desktop devices while the IO or line item also carries a mobile-only placement list means the line item bids only on the intersection of desktop devices and mobile placements, which is effectively nothing. A language inclusion set to English combined with a geo exclusion that removes every significant English-speaking market narrows the audience severely. An audience inclusion targeting users in a specific age range combined with an audience exclusion that contains a broadly defined 'all users' list can eliminate nearly everyone eligible.<br><br>DV360 does not warn about logical contradictions between layers during setup. The line item saves and activates normally. The signal that something is wrong is delivery data: a line item with a reasonable budget and bid that shows negligible impressions after 24 to 48 hours of a campaign that is otherwise delivering.<br><br>A few signs point to contradictory targeting:<ul><li>A line item shows a very low win rate or a near-zero impression count despite an active status and a competitive bid</li><li>The line item's targeting tab includes both a positive inclusion and an exclusion that covers the same dimension, such as a device inclusion for mobile and a placement exclusion list that is mobile-only</li><li>The insertion order's targeting contains a geo inclusion, and the line item adds geo exclusions that remove the same markets</li></ul>You may want to review the targeting tab at both the IO and the LI level together. The effective targeting is the intersection of both levels. A layer that looks reasonable at the line item level may cancel a layer set at the IO level.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser, a common contradiction is a Performance Max or display prospecting line item scoped to a geographic market, with a geo exclusion on the line item that removes the population centers that account for most of that market's online retail traffic. You may want to review whether geo exclusions are removing cities or regions that represent a disproportionate share of the target audience.",
+          "lead_gen": "For a lead-generation advertiser, a line item targeting a specific industry vertical via in-market audiences, with an audience exclusion applied from a lookalike list built on the same seed, can exclude the most conversion-likely users from the very audience the line item is meant to reach. You may want to confirm that exclusion audiences do not overlap substantially with the inclusion audiences on the same line item."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 Help",
+            "source_title": "Targeting options in Display & Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/3423645"
+          },
+          {
+            "source_type": "DV360 Help",
+            "source_title": "About insertion orders",
+            "source_url": "https://support.google.com/displayvideo/answer/11533604"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the targeting layers at both the insertion order (IO) and line item (LI) level together, looking for combinations that logically cancel each other.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Open the insertion order and click the 'Targeting' tab. Note all active targeting layers: geography, device type, language, browser, environment, and any audience inclusions or exclusions set at the IO level.",
+                "Open each line item within the IO and open its 'Targeting' tab. Compare the line item's layers against the IO's layers. Look for any dimension where the IO includes a set of values and the line item excludes the same or overlapping values.",
+                "Check the line item's delivery statistics: impressions served, win rate, and pacing over the past 7 days. A line item with an active status, a bid above the floor, and fewer than expected impressions is a signal of an inventory availability problem that may stem from contradictory targeting.",
+                "For any line item with low delivery, note which specific targeting dimensions combine in a way that reduces the eligible inventory. Record the IO-level layer, the LI-level layer, and the logical overlap."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each line item reviewed, record whether any targeting layer at the IO or LI level logically contradicts another layer. A line item with no contradictory combinations and normal delivery pacing passes. A line item with a targeting contradiction confirmed by delivery data showing negligible impressions relative to budget is a fail, recorded with the line item name, the contradicting layers, and the delivery data that confirms the issue.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each line item's name, insertion order (IO), any contradictory targeting layers identified, and the delivery impression count to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} line items on {{site_name}} where overlapping or contradictory targeting layers at the insertion order (IO) and line item (LI) level reduce eligible inventory to the point that the line items cannot pace against their allocated budgets. The combination of positive inclusions and exclusions on the same targeting dimension produces an intersection of eligible inventory that is too small to absorb the budget. {{voice_recommend}} reviewing the targeting tab at both the IO and LI levels together for each affected line item, identifying the specific layers that cancel each other, and removing or narrowing the exclusion so the remaining eligible inventory is large enough to support the intended delivery. {{voice_recommend}} confirming the fix by monitoring delivery and win rate in the 24 to 48 hours after the targeting adjustment."
+      }
+    },
+    {
+      "id": "dv360-device-environment-exclusion-mismatch",
+      "title": "Device, environment, or language exclusions do not match the campaign's creative and intent",
+      "category": "targeting",
+      "subcategory": "targeting_exclusions",
+      "impact_score": 3,
+      "impact_rationale": "When device or environment exclusions conflict with the format or intent of the creative, impressions serve in placements the campaign was not designed for. A video line item serving audio-only inventory, or a desktop-optimized display ad appearing in a connected TV (CTV) environment, produces impressions that do not contribute to campaign goals and may inflate viewability or engagement metrics with signals that do not reflect the intended experience.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["targeting", "creative"],
+      "educate": {
+        "base": "DV360 line items can target multiple environments: web, app, CTV, and out-of-home. They can also restrict by device type (desktop, mobile, tablet) and by language. These exclusions and inclusions are set independently of the creative format, so a line item whose creatives are desktop display HTML5 units can, without an explicit exclusion, also bid on CTV or app inventory where those units will not render as intended.<br><br>The mismatch surfaces in a few specific patterns. A video line item that does not exclude audio-only environments can win audio inventory where the video plays without being seen. A line item carrying desktop-optimized creatives that does not exclude mobile app environments may serve on small-screen app placements where the creative renders at a size that undermines the message. A language inclusion that allows multiple languages on a line item whose creatives are single-language means the ad serves to users in other languages with no appropriate creative to show them.<br><br>Environment exclusions in DV360 are set at the line item level under the 'Environment' targeting section. Device exclusions use the 'Device' section. Language targeting uses the 'Language' section. None of these settings validates against the uploaded creatives; the advertiser is responsible for keeping them aligned.<br><br>A few signs point to a mismatch:<ul><li>A display or HTML5 line item shows impression volume in the CTV environment column, where HTML5 units do not render as interactive formats</li><li>A CTV-specific line item serving video ads shows impression volume on mobile web or desktop, which may indicate the exclusion for non-CTV environments is absent</li><li>A line item with English-only creatives shows impression delivery in language segments other than English</li></ul>You may want to cross-reference the environment and device breakdown in the line item's delivery report against the formats of the creatives assigned to that line item before adjusting the exclusions.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser running both display retargeting and CTV prospecting, the device and environment exclusions on each line item type should be set to match: the retargeting line item carrying product-catalog display creatives should exclude CTV, and the CTV line item carrying video creatives should exclude web display environments. You may want to confirm that each line item's environment settings reflect where its creatives are actually designed to perform.",
+          "lead_gen": "For a lead-generation advertiser, a line item carrying form-extension or lead-gen display creatives should exclude CTV and app environments where those creatives cannot render interactively. You may want to confirm that impression volume from environments where the creative cannot perform is not inflating the line item's reported delivery."
+        },
+        "learn_more": [
+          {
+            "source_type": "DV360 Help",
+            "source_title": "Device targeting in Display & Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/2697881"
+          },
+          {
+            "source_type": "DV360 Help",
+            "source_title": "Environment targeting in Display & Video 360",
+            "source_url": "https://support.google.com/displayvideo/answer/3423645"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Compare each line item's device, environment, and language targeting settings against the creative formats assigned to it, then check the delivery report for impressions in environments where the creative cannot render as intended.",
+        "tools": {
+          "free": {
+            "dv360_ui": {
+              "label": "DV360 UI",
+              "steps": [
+                "Open the line item and review the creatives assigned to it. Note the format type: HTML5 display, video, native, or audio. Note the intended device experience based on the creative dimensions and format.",
+                "Open the line item's 'Targeting' tab and review the 'Environment', 'Device', and 'Language' sections. Note which environments and devices are included or excluded and whether any are left at the default (all environments or all devices).",
+                "Navigate to the line item's delivery report and break down impressions by environment and device type. Identify any environment or device segment that receives a meaningful share of impressions but whose format is incompatible with the assigned creatives.",
+                "For lines carrying CTV-specific video creatives, confirm that the line item's environment targeting excludes web and app, or includes only connected TV. For display lines with desktop-formatted creatives, confirm that the CTV environment is excluded."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each line item reviewed, record the creative format, the environment and device targeting settings, and whether the delivery report shows impressions in environments incompatible with the creative. A line item whose environment and device exclusions match its creative format and whose delivery data shows no meaningful impression volume in incompatible environments passes. A line item with no exclusion for an environment where its creative cannot render correctly, confirmed by delivery impression volume in that environment, is a fail recorded with the line item name, the incompatible environment, and the impression share going to that environment.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each line item's name, creative format, environment and device targeting settings, and whether delivery data shows impressions in incompatible environments to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} line items on {{site_name}} where device, environment, or language targeting exclusions do not match the format or intent of the assigned creatives. Impressions are serving in environments where the creative cannot render as designed, which means a portion of the delivered budget is reaching placements that cannot contribute to the campaign's goals. {{voice_recommend}} reviewing the environment and device targeting settings on each affected line item and adding exclusions for environments where the assigned creatives are not built to perform. For line items carrying connected TV (CTV) video creatives, {{voice_recommend}} restricting delivery to the CTV environment and excluding web and app. For line items carrying display or HTML5 creatives, {{voice_recommend}} excluding the CTV environment so budget stays on placements where those formats serve correctly."
+      }
+    }
+  ]
+}

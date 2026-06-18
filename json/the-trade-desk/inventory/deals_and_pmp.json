@@ -1,0 +1,199 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Private marketplace (PMP) and programmatic guaranteed deals represent negotiated buys where the advertiser expects something in return for the premium: a specific publisher, a specific audience, a specific placement, or guaranteed delivery at a fixed price. When deals sit dormant, over-target the same inventory as open-market campaigns, or route through the wrong ad groups, the negotiated value goes unrealized and spend does not perform the way the plan assumed. The audit confirms that each deal is wired correctly, spending, and not competing with itself.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Private marketplace deals and programmatic guaranteed contracts give buyers priority access to publisher inventory at negotiated terms. In The Trade Desk (TTD), deals are activated by attaching a deal ID to one or more ad groups, where the Kokai platform routes eligible impressions through that deal before falling back to open exchange. When a deal ID is attached to the wrong ad groups, never activates, or sits alongside a duplicate deal for the same publisher supply, delivery and performance both diverge from the plan. These checks confirm that active deals are spending, that deal IDs are mapped to the correct ad groups, and that the account does not carry duplicate deals that compete against each other.",
+  "audit_checks": [
+    {
+      "id": "ttd-deals-dormant-no-delivery",
+      "title": "Active deal IDs show no delivery over the campaign flight",
+      "category": "inventory",
+      "subcategory": "deals_and_pmp",
+      "impact_score": 3,
+      "impact_rationale": "A deal that was negotiated and activated but never delivers means the advertiser is paying for access to premium inventory they are not receiving. The campaign runs without the curated supply it was planned around, and the publisher relationship does not produce what was promised on either side.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "governance"],
+      "educate": {
+        "base": "In The Trade Desk, a PMP deal or programmatic guaranteed contract only delivers impressions when several conditions are met at the same time: the deal ID is attached to at least one active ad group, the ad group's targeting does not exclude the audience or geography the publisher's supply covers, the bid is high enough to win against the deal's floor price, and the creative assigned to that ad group meets the publisher's specifications.<br><br>A deal can appear active in the platform and still record zero impressions over the entire campaign flight. The most frequent reasons are a deal ID that was entered but never attached to a live ad group, a floor price the bids do not meet, creative specifications that reject every submitted ad, or a deal that the publisher set as inactive on their end after the insertion order was signed.<br><br>The OpenRTB specification encodes deal IDs in the <a href='https://iabtechlab.com/standards/openrtb/' class='tools-link-no-padding' target='_blank'>Deal object</a>, and a DSP like TTD honors the deal only when the bid request includes the matching deal ID in its PMP object. If the publisher is not sending deal ID traffic, no amount of correct configuration on the buy side recovers delivery.<br><br>A few signs point to a dormant deal:<ul><li>The deal ID appears in TTD's deal inventory section but the ad group it is attached to shows zero impressions attributable to it over the flight</li><li>The pacing report shows the campaign underpacing without an obvious budget or targeting explanation</li><li>The publisher or SSP reports that the deal is live on their side, but TTD reports no bid requests coming through on that deal ID</li></ul>You may want to pull delivery by supply source within the ad group before concluding the deal itself is the problem. A delivery gap can also come from targeting settings or creative rejection rather than a broken deal ID.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail or ecommerce advertiser, a dormant deal may be one negotiated for a commerce-adjacent publisher, such as a product review site or a deal tied to connected television (CTV) content about shopping. If that supply is not delivering, retargeting pools that depend on the publisher's reach will not fill, and the lower-funnel focus of the campaign loses the upper-funnel touch that was meant to precede it.",
+          "lead_gen": "For a lead-generation advertiser, deals are often sourced from publishers whose audiences match a specific profession or intent signal. A dormant deal leaves the campaign running exclusively on open-exchange supply, which may not reach the same audience at the same quality, even if the overall impression count looks healthy."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB specification — Deal object and PMP support",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json — Supply chain transparency for buyers",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that each deal ID attached to an ad group has delivered impressions during the campaign flight and identify whether zero delivery stems from the deal ID, the targeting, or the creative.",
+        "tools": {
+          "free": {
+            "ttd_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Navigate to the Campaigns tab, open the relevant campaign, and filter the ad group list by supply source to isolate the ad groups associated with deal inventory.",
+                "Check the impressions column for each ad group over the campaign flight dates. An ad group with zero impressions and an attached deal ID is a sign the deal is not delivering.",
+                "Open the deal inventory section (under Inventory > My Deals) and locate the deal ID. Confirm it is marked as active and that the listed SSP or publisher matches what was negotiated.",
+                "Review the ad group's floor price relative to the deal's minimum CPM. If the bid is set below the floor, TTD will not win impressions on that deal regardless of other settings.",
+                "Check that at least one creative assigned to the ad group matches the size and format the publisher specified for the deal. A mismatch causes every impression to be rejected before a bid is placed."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per deal ID, whether it delivered impressions during the flight, and if not, which of the following explains the gap: deal not attached to a live ad group, bid below deal floor, creative format mismatch, or publisher reporting the deal as inactive. A deal with confirmed delivery passes. A deal with zero delivery and an identified cause is a fail recorded with the deal ID and the cause.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the delivery status and identified cause for each deal ID above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more deal IDs active in {{site_name}}'s The Trade Desk account delivered no impressions during the campaign flight. The negotiated premium inventory was not reached, and the campaign ran without the curated supply the plan assumed. {{voice_recommend}} confirming that each deal ID is attached to a live ad group, that the bid exceeds the deal floor price, that at least one creative meets the publisher's format specification, and verifying with the SSP or publisher that the deal is sending bid requests. Any deal confirmed as non-functional on the publisher side should be renegotiated or replaced before the next flight."
+      }
+    },
+    {
+      "id": "ttd-deal-id-mapped-wrong-ad-group",
+      "title": "Deal IDs are attached to ad groups whose targeting does not match the deal's intended audience or format",
+      "category": "inventory",
+      "subcategory": "deals_and_pmp",
+      "impact_score": 3,
+      "impact_rationale": "A deal negotiated for a specific audience segment or placement type delivers nothing useful when the ad group it is attached to targets a different audience, geography, or device. Spend runs on the deal's supply but the resulting impressions do not match the plan, and the premium paid for the negotiated access goes toward misaligned delivery.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["targeting", "governance"],
+      "educate": {
+        "base": "In The Trade Desk's Kokai platform, a deal ID is attached at the ad group level. The ad group's targeting settings, including audience segments, geography, device type, and format, apply on top of whatever the deal provides. If a deal was sourced to reach a specific audience and the ad group targets a different one, TTD still bids on the deal's impressions, but only the ones that pass both the deal filter and the ad group's targeting. When the two are misaligned, the deal may deliver very little even though both the deal and the ad group appear correctly configured in isolation.<br><br>A programmatic guaranteed deal carries an additional constraint: it commits the buyer to a fixed number of impressions at a fixed price. If the ad group's targeting rejects most of what the publisher sends, the committed volume goes unmet and the advertiser either underspends the contract or receives impressions outside their intended parameters to fill it.<br><br>A few signs point to a deal attached to the wrong ad group:<ul><li>The deal was sourced for a specific demographic or contextual category, but the ad group it is attached to targets a different audience segment</li><li>The deal covers a specific format such as connected television (CTV) video, but the ad group's device or format targeting excludes that format</li><li>The deal delivers, but performance metrics for that supply source fall well below the campaign's other supply sources without a clear creative or audience explanation</li></ul>You may want to compare the deal's intended parameters with the ad group settings line by line before concluding the deal itself is underperforming.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser, a deal sourced to reach in-market shoppers on a product review publisher delivers less value when attached to a retargeting ad group whose audience is already defined by site visitors. The deal's supply and the ad group's audience may overlap only partially, leaving most of the negotiated inventory untouched.",
+          "lead_gen": "For a lead-generation advertiser, a deal negotiated to reach a professional audience on a vertical publication loses its purpose if the ad group uses broad demographic targeting rather than the contextual or keyword segment that defines the publisher's value."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB specification — Deal object and PMP support",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Compare each active deal's intended parameters against the targeting settings of the ad groups it is attached to, and confirm the two are compatible.",
+        "tools": {
+          "free": {
+            "ttd_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open Inventory > My Deals and review each active deal's description, including the publisher, the intended format (e.g., display, video, CTV), and any audience or contextual notes from the deal negotiation.",
+                "Navigate to the ad group each deal is attached to and open its targeting settings. Review the audience segments, device targeting, geography, and format settings.",
+                "Confirm that the ad group's targeting does not exclude the inventory the deal is meant to provide. For example, if the deal covers CTV supply, the ad group should not have CTV excluded under device targeting.",
+                "For programmatic guaranteed deals, check whether the ad group's audience restrictions reduce eligible impressions below the committed volume. If they do, the contract is at risk of underfulfillment.",
+                "Review performance by supply source within the ad group. If the deal's domain or SSP shows a cost-per-result that is far above the rest of the campaign, it may indicate the impressions are delivering to an unintended subset of the deal's supply."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per deal ID, whether the ad group it is attached to has targeting settings compatible with the deal's intended format and audience. A deal whose ad group targeting aligns with the deal's parameters passes. A deal attached to an ad group whose targeting excludes or significantly restricts the deal's intended supply is a fail recorded with the deal ID, the ad group name, and the specific targeting conflict.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the targeting alignment assessment for each deal ID above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more deal IDs in {{site_name}}'s The Trade Desk account are attached to ad groups whose targeting settings conflict with the deal's intended format or audience. The negotiated supply is eligible to deliver, but the ad group's targeting filters out most or all of it, so the premium paid for the deal does not translate into the inventory the plan called for. {{voice_recommend}} reviewing each deal's intended parameters and confirming that the ad group it is attached to does not exclude the deal's format, device type, or audience through its targeting settings. For programmatic guaranteed deals, confirming that the targeting leaves enough eligible impressions to meet the committed volume before the flight ends is also worth checking."
+      }
+    },
+    {
+      "id": "ttd-duplicate-deals-same-supply",
+      "title": "Multiple deal IDs targeting the same publisher supply run in the same campaign",
+      "category": "inventory",
+      "subcategory": "deals_and_pmp",
+      "impact_score": 2,
+      "impact_rationale": "When two or more deal IDs sourced from the same publisher or SSP run in the same campaign, they compete against each other in the auction. The self-competition can drive up the winning price without reaching more reach, and reporting splits across deal IDs in a way that makes each look smaller than the actual combined buy.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "data-quality"],
+      "educate": {
+        "base": "It is possible to hold more than one deal ID from the same publisher or supply-side platform (SSP). This happens when a previous deal is renewed under a new ID rather than extended, when two teams at the same agency negotiate separate deals without coordinating, or when an SSP packages overlapping inventory under different deal IDs for different campaign objectives.<br><br>When two deal IDs from the same publisher run in the same campaign in The Trade Desk, both ad groups bid on the same impression when it is eligible under both deals. The auction resolves to one winner, but both ad groups have burned a bid. Over the course of a campaign, the cost of the winning bid on that supply can be higher than it would have been if the buys were consolidated. The two bids train the system to compete for supply that is effectively the same pool.<br><br>Reporting also fragments. Each deal ID carries its own line in the supply source breakdown, so the full scope of the publisher relationship looks smaller than it is, and any frequency or reach calculation that relies on supply-source data understates how much of the audience the combined buy actually reached.<br><br>A few signs point to duplicate deals:<ul><li>Two or more deal IDs in the active inventory list name the same publisher or SSP with similar descriptions</li><li>The SSP confirms both deals represent the same inventory package, or their audience parameters overlap substantially</li><li>Delivery on the two deal IDs follows a pattern where one runs strongly and the other runs at a fraction of its pacing, which is consistent with one ad group losing most bids to the other</li></ul>You may want to confirm with the SSP whether the two deal IDs draw from the same pool of impressions before consolidating them. A deal that covers a distinct segment of the publisher's audience is not a duplicate even if the publisher name is the same.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser running both a prospecting campaign and a retargeting campaign through the same publisher deal, two separate deal IDs may be intentional if each covers a distinct audience segment the publisher offers. The audit question is whether the two deal IDs draw from the same impression pool or from genuinely different segments.",
+          "lead_gen": "For a lead-generation advertiser, a duplicate deal sourced from a vertical publisher may result in two ad groups competing for the same professional audience. The combined frequency on that audience can rise above the campaign's intended cap without any single ad group appearing to over-frequency on its own."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json — Supply chain transparency for buyers",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Authorized Digital Sellers — ads.txt",
+            "source_url": "https://iabtechlab.com/standards/ads-txt/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the active deal inventory list for deal IDs that point to the same publisher or SSP, confirm with the SSP whether they represent the same impression pool, and assess whether consolidation would reduce self-competition.",
+        "tools": {
+          "free": {
+            "ttd_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open Inventory > My Deals and sort or filter the list by publisher name or SSP. Look for more than one deal ID associated with the same publisher or SSP domain.",
+                "For each pair of potentially duplicate deal IDs, compare their descriptions, floor prices, audience notes, and format. Deals with identical or nearly identical descriptions are candidates for consolidation.",
+                "Pull a delivery report filtered to the campaign and broken down by deal ID. If two deal IDs from the same publisher show one delivering strongly and one at a fraction of pacing with similar overall budgets, self-competition may be the cause.",
+                "Contact the SSP or publisher account team and ask whether the two deal IDs represent the same impression pool or distinct inventory segments. The answer determines whether consolidation is appropriate.",
+                "If the deals draw from the same pool, consider deactivating one and routing the budget to the surviving deal ID, or ask the SSP to merge the deals under a single ID."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per pair of deal IDs from the same publisher or SSP, whether the SSP confirmed they draw from the same impression pool. A pair confirmed as distinct inventory segments passes. A pair confirmed as the same pool, or where SSP confirmation is not available and delivery patterns suggest self-competition, is a fail recorded with both deal IDs and the publisher name.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the SSP confirmation and delivery pattern assessment for each suspected duplicate deal pair above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s The Trade Desk account carries more than one deal ID from the same publisher or supply-side platform running within the same campaign. When both deal IDs target the same impression pool, the two ad groups bid against each other, which can inflate the winning price and fragment delivery reporting without reaching additional unique audience. {{voice_recommend}} confirming with the SSP whether each pair of deal IDs represents the same impression pool or genuinely distinct inventory segments, and consolidating any deals that draw from the same supply into a single deal ID. If the deals are confirmed as distinct, documenting that distinction in the naming convention will prevent the same question arising in future audits."
+      }
+    }
+  ]
+}

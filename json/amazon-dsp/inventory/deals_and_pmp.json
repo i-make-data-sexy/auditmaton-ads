@@ -1,0 +1,225 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://advertising.amazon.com/solutions/products/amazon-dsp",
+  "worth_it": "Yes",
+  "worth_it_explanation": "PMP deals represent negotiated access to inventory that open auction does not reach, and the checks here take a few minutes in the Amazon DSP console. A deal that is active in the system but never actually spending means the negotiated value of that inventory is zero. A deal ID mapped to the wrong line item means the deal inventory is either never targeted or competing with open-auction line items in ways the buyer did not intend. Catching these problems during an audit saves the cost of renewing a deal the account has never used.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Amazon DSP supports several programmatic buying types beyond real-time bidding (RTB) on open auction: private marketplace (PMP) deals, private auctions, and programmatic guaranteed buys. Each of these deal types is accessed through a deal ID, a string the publisher or SSP provides that the Amazon DSP console associates with one or more line items. The Inventory Hub inside the console centralizes all deals across Amazon properties and third-party inventory. These checks confirm that deals in the account are actually delivering, that deal IDs are mapped to the line items intended to use them, and that overlapping deals on the same inventory source are not competing with each other or inflating cost unnecessarily.",
+  "audit_checks": [
+    {
+      "id": "amazon-dsp-pmp-deals-not-spending",
+      "title": "Private marketplace deals are active in the account but not delivering impressions",
+      "category": "inventory",
+      "subcategory": "deals_and_pmp",
+      "impact_score": 3,
+      "impact_rationale": "A private marketplace deal that carries spend commitments or minimum volume expectations but delivers no impressions means the negotiated inventory is not being accessed. The line items targeting it are buying through other paths, and the deal value is not being realized. If the deal has a guaranteed volume commitment, the account may face underdelivery against that commitment without any visible signal in campaign-level reporting.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "performance"],
+      "educate": {
+        "base": "A private marketplace (PMP) deal in Amazon DSP gives a buyer access to a specific publisher's or inventory source's supply at a negotiated floor price, ahead of or in addition to open auction. The deal is identified by a deal ID the seller or supply-side partner provides. Once the deal ID is entered in the Amazon DSP console's Inventory Hub and associated with a line item, the line item is eligible to bid on that inventory when it becomes available.<br><br>A deal that shows as active in the Inventory Hub but records zero or near-zero impressions over a meaningful flight window has not delivered. Several configurations produce this outcome. The line item holding the deal ID may have targeting or audience settings that do not overlap with the inventory the deal covers, so eligible impressions are filtered out before a bid is placed. The deal floor price may exceed the line item's maximum CPM bid, so the line item never wins impressions even when the deal makes them available. The deal itself may have an inactive status on the publisher side that the Amazon DSP console does not reflect in real time. Or the deal ID may have been entered in the Inventory Hub but never associated with an actual line item, leaving it orphaned with no delivery path.<br><br>A few signs that a PMP deal is not spending:<ul><li>The Inventory Hub shows a deal with a valid date range, but its impression count in the deal-level report is zero or negligible across a week or more of flight</li><li>Line items associated with the deal show delivery, but the deal-attributed impression column is empty while open-auction impressions fill the line item's total</li><li>The deal ID appears in the Inventory Hub with no associated line items listed</li></ul>You may want to review both the deal status in the Inventory Hub and the line item's targeting settings together. A deal that is technically valid but whose inventory does not match the line item's audience or format targeting will not deliver, and the two views are needed to distinguish that from a deal that is simply broken on the publisher side.",
+        "site_type_overlays": {
+          "ecommerce": "For an endemic advertiser, a non-spending PMP deal is worth confirming against the inventory type it covers. A deal for streaming TV (STV) inventory associated with a display-only line item will never deliver because the format does not match. You may want to confirm that the line item targeting the deal is set up for the ad format the deal's inventory provides.",
+          "lead_gen": "For a non-endemic advertiser, PMP deals are often negotiated for premium placements or specific publisher environments that align with brand values. A non-spending deal on a premium publisher may indicate the deal's floor price exceeds what the line item's bid strategy will clear. You may want to compare the deal's floor price against the line item's target CPM or bid ceiling before assuming the deal is broken on the publisher side."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon DSP overview",
+            "source_url": "https://advertising.amazon.com/solutions/products/amazon-dsp"
+          },
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon Marketing Cloud",
+            "source_url": "https://advertising.amazon.com/solutions/products/amazon-marketing-cloud"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review deal-level delivery in the Inventory Hub alongside the line items associated with each deal to determine whether the deal is reaching the line items that are meant to use it and whether those line items are clearing bids on the deal inventory.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open the Amazon DSP console and navigate to the Inventory Hub. Review the list of active deals. For each deal with a current or recent flight window, note the impression count shown in the deal summary.",
+                "For any deal showing zero or negligible impressions over a period of seven or more days, open the deal detail and confirm which line items are associated with it. A deal with no associated line items is orphaned and will never spend.",
+                "Open each line item associated with a non-spending deal. Review the line item's ad format setting and confirm it matches the format the deal provides (e.g., a streaming TV deal requires a streaming TV or online video line item). Review the line item's maximum CPM bid and compare it to the deal floor price shown in the deal detail. A bid below the floor will not win impressions.",
+                "Review the line item's audience targeting. Confirm that the audience segments applied to the line item have enough addressable reach on the deal's specific inventory. A narrow retargeting audience combined with a niche publisher deal may have minimal overlap.",
+                "Contact the deal provider or the Amazon Ads account team to confirm the deal is active on the supply side if all line item settings appear correct and the deal still shows no delivery."
+              ]
+            },
+            "amazon_marketing_cloud": {
+              "label": "Amazon Marketing Cloud (AMC)",
+              "steps": [
+                "If Amazon Marketing Cloud (AMC) access is available, run a query filtering impressions by deal ID across the flight window. A deal ID that returns zero rows confirms no impressions were served through it, regardless of what the campaign-level totals show.",
+                "Compare deal-attributed impressions against open-auction impressions for the same line items to determine what share of delivery came through the deal versus the open exchange."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per deal reviewed, the deal ID, the flight window, the impression count observed in the Inventory Hub, the associated line items, and the most likely cause of non-delivery if impressions are zero or negligible. A deal with impressions delivering at a meaningful rate relative to the deal's negotiated volume passes. A deal with zero or negligible impressions over a week or more of active flight is a fail, recorded with the deal ID, the line items associated with it, and the identified cause (orphaned deal, format mismatch, bid below floor, or unknown requiring publisher confirmation).",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each deal's ID, flight window, impression count, associated line items, and likely cause of non-delivery above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more private marketplace deals in {{site_name}}'s Amazon DSP account are active in the Inventory Hub but have delivered zero or negligible impressions across a meaningful portion of the flight window. The deal inventory is not being accessed, which means the negotiated value of those placements is not being realized. In some cases the deal ID is not associated with any active line item. In others, the associated line item's format, bid ceiling, or audience targeting is incompatible with the inventory the deal provides. {{voice_recommend}} auditing each non-spending deal in the Inventory Hub to confirm it is associated with at least one active line item, that the line item's ad format matches the deal's inventory type, and that the line item's maximum CPM bid meets or exceeds the deal floor price. For deals where all settings appear correct but delivery remains at zero, {{voice_recommend}} confirming the deal's status directly with the supply-side partner or the Amazon Ads account team."
+      }
+    },
+    {
+      "id": "amazon-dsp-deal-id-mapped-to-wrong-line-item",
+      "title": "Deal IDs are mapped to line items that were not designed to use them",
+      "category": "inventory",
+      "subcategory": "deals_and_pmp",
+      "impact_score": 3,
+      "impact_rationale": "A deal ID associated with the wrong line item means the negotiated inventory flows to a line item whose targeting, creative, or audience strategy was built for a different purpose. The intended line item misses the deal inventory and buys through open auction instead, at potentially higher cost or lower quality placement. The mismatch can persist indefinitely because both the deal and the line item appear active in reporting.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "data-quality"],
+      "educate": {
+        "base": "In Amazon DSP, a deal ID is entered in the Inventory Hub and then associated with one or more line items. The association is a deliberate mapping: the line item tells the bidder that when an impression from that deal becomes available, it is eligible to bid on it. A deal ID that is mapped to a line item other than the one intended for it produces a misalignment. The deal delivers impressions to the wrong line item, and the line item that was supposed to benefit from the negotiated inventory continues buying through open auction without any error signal.<br><br>This situation arises when deal IDs are copied from one order to another during campaign duplication without verifying the line item mappings, when a campaign is restructured and line items are reorganized without updating the deal associations, or when multiple deal IDs are managed by different team members and the mapping is done in the Inventory Hub independently of the line item build. Because the Amazon DSP console shows deal delivery at the line item level only when you inspect the deal detail or the line item's inventory breakdown, a mismatch can go unnoticed for an entire flight.<br><br>A few signs that deal IDs may be mapped to the wrong line items:<ul><li>A line item intended for open-auction buying shows a deal ID in its inventory settings that was negotiated for a different campaign objective or audience strategy</li><li>A line item built specifically to use a premium publisher deal shows only open-auction impressions in its delivery breakdown, with no deal-attributed impressions</li><li>Deal impressions in the Inventory Hub are attributed to a line item that does not match the deal's intended audience or format</li></ul>You may want to cross-reference the deal ID list in the Inventory Hub against the line items within each order when reviewing an account that has been duplicated or restructured. The Inventory Hub shows which line items a deal is associated with, and the line item's settings show which deals are mapped to it.",
+        "site_type_overlays": {
+          "ecommerce": "For an endemic advertiser managing multiple product campaigns, deal IDs negotiated for a specific Amazon Stores or product detail page (PDP) adjacency placement may be copied into new order builds through campaign duplication. You may want to confirm that deals negotiated for a specific product or category context are mapped only to line items whose audience and creative align with that context.",
+          "lead_gen": "For a non-endemic advertiser managing campaigns across multiple audiences or funnel stages, a deal negotiated for a brand-safe premium environment may end up mapped to a performance retargeting line item through a careless duplication. You may want to confirm that premium placement deals are associated with the brand-building or awareness line items they were negotiated for, not performance or retargeting line items that were created later in the same order."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon DSP overview",
+            "source_url": "https://advertising.amazon.com/solutions/products/amazon-dsp"
+          },
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon Marketing Cloud",
+            "source_url": "https://advertising.amazon.com/solutions/products/amazon-marketing-cloud"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the deal ID associations in the Inventory Hub alongside the line items within each order to confirm that each deal is mapped to the line item it was designed to serve.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open the Amazon DSP console and navigate to the Inventory Hub. For each active deal, open the deal detail and note which line items it is currently associated with.",
+                "Open each of those line items and review the line item's campaign goal, audience strategy, and ad format. Confirm that the deal's inventory type and publisher context align with what those line items were built to do.",
+                "For any line item that appears to be mismatched with its deal (e.g., a retargeting line item holding a deal negotiated for a brand-awareness placement), note the discrepancy and the likely intended line item for that deal.",
+                "Review the same order structure for a line item that should be using the deal but shows no deal-attributed impressions in its inventory breakdown. Confirm whether that line item has the deal ID mapped to it or whether the mapping is missing entirely.",
+                "If a campaign was built through duplication of an earlier order, review all deal ID associations in the new order to confirm they were updated to match the new order's intent rather than inherited from the source."
+              ]
+            },
+            "amazon_marketing_cloud": {
+              "label": "Amazon Marketing Cloud (AMC)",
+              "steps": [
+                "If AMC access is available, run a query that returns impressions broken out by deal ID and line item ID. Review whether deal impressions are attributed to the expected line items or whether they are flowing to line items with different audience profiles or campaign objectives.",
+                "Compare the audience overlap between the deal's delivery and the line item's intended audience segment. A deal delivering to a broad audience on a line item built for a narrow retargeting segment is a signal of a mapping error."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per deal reviewed, the deal ID, the line items it is currently mapped to, and whether those line items' campaign objectives and audience strategies align with the deal's intended use. A deal mapped to the correct line item, with deal-attributed impressions visible in that line item's delivery breakdown, passes. A deal mapped to a line item whose goal or audience does not match the deal's intended use, or a line item that should be using a deal but has no deal mapped to it, is a fail, recorded with the deal ID, the incorrectly mapped line item, and the intended line item if it can be identified.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each deal ID, its currently mapped line items, and whether the mapping aligns with the deal's intended use above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more deal IDs in {{site_name}}'s Amazon DSP account are mapped to line items that do not match the deal's intended purpose. In some cases a premium placement deal negotiated for a brand-building line item is associated with a retargeting or performance line item instead. In others, the line item built to use the deal has no deal ID mapped to it and is buying the same inventory type through open auction. The inventory is not being targeted intentionally, and the line item that was meant to benefit from the negotiated deal is not receiving it. {{voice_recommend}} reviewing the deal ID associations in the Inventory Hub for each active deal, confirming the associated line items align with the deal's intended audience and campaign objective, remapping any deals that are incorrectly assigned, and auditing deal associations after any campaign duplication to confirm mappings were updated rather than inherited from the source order."
+      }
+    },
+    {
+      "id": "amazon-dsp-overlapping-deals-inflate-cost",
+      "title": "Overlapping deal IDs on the same inventory source create redundant competition or inflated CPMs",
+      "category": "inventory",
+      "subcategory": "deals_and_pmp",
+      "impact_score": 2,
+      "impact_rationale": "When multiple deal IDs from the same publisher or the same line item are active simultaneously without a clear segmentation reason, the line item bids on the same impressions through more than one deal path. This creates internal competition that can push the effective cost per thousand impressions (CPM) above the negotiated floor without delivering any additional reach, and it complicates deal performance attribution because the same impression can appear to be counted under multiple deal IDs.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "performance"],
+      "educate": {
+        "base": "Amazon DSP allows a single line item to be associated with more than one deal ID. This is intentional when the deals cover meaningfully different inventory: one deal for display placements and a separate deal for streaming TV (STV) on the same publisher, for example, or a deal covering the publisher's homepage versus a deal covering a specific content vertical. In those cases the two deal IDs are genuinely different supply paths and the line item needs both.<br><br>The problem arises when two deal IDs from the same publisher overlap in the inventory they make available, or when a line item accumulates deal IDs over time through successive campaign builds without anyone reviewing whether earlier deals are still valid or still necessary. A line item with four deal IDs, all from the same SSP covering the same display inventory, is bidding on the same impressions through multiple paths simultaneously. The supply side sees multiple bids from the same advertiser on the same impression, which can inflate the effective CPM the buyer pays without increasing the reach. It also makes it harder to read deal performance reports cleanly because impressions may shift between deal IDs in ways that reflect bidding mechanics rather than actual changes in deal quality.<br><br>Duplicate deal IDs from a prior campaign that was duplicated to create a new one are a frequent cause. The original deals remain in the Inventory Hub and are carried into the new line items through the duplication, even if those deals were negotiated for a flight that has already ended or for a campaign that no longer runs the same inventory strategy.<br><br>A few signs of deal overlap worth reviewing:<ul><li>A single line item is associated with more than two deal IDs from the same publisher or supply partner</li><li>The deal list in the Inventory Hub includes deal IDs whose flight windows have expired but which remain associated with active line items</li><li>Deal-attributed CPMs on a line item are noticeably higher than the negotiated floor prices shown on the individual deals, with no clear explanation from targeting changes</li></ul>You may want to review the full deal ID list on any line item that has been running for more than one flight cycle or that was created by duplicating an earlier campaign.",
+        "site_type_overlays": {
+          "ecommerce": "For an endemic advertiser running always-on product campaigns, deal IDs accumulate across quarterly or seasonal flights as new deals are negotiated without retiring older ones. You may want to confirm that any deal ID associated with an always-on line item is still within its active negotiated window and still covers inventory that differs meaningfully from other deals on the same line item.",
+          "lead_gen": "For a non-endemic advertiser running brand campaigns across multiple publisher environments, overlapping deals are more likely when a media plan includes a primary premium deal and a backup open-PMP deal from the same publisher. If both are mapped to the same line item, the line item bids on the same impressions through both paths. You may want to confirm that backup deals are removed or paused once the primary deal is confirmed active."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon DSP overview",
+            "source_url": "https://advertising.amazon.com/solutions/products/amazon-dsp"
+          },
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon Marketing Cloud",
+            "source_url": "https://advertising.amazon.com/solutions/products/amazon-marketing-cloud"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the deal ID associations on each line item to identify cases where multiple deals from the same publisher or supply partner are active simultaneously without a clear segmentation reason, and confirm that expired deal IDs have been removed.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open the Amazon DSP console and navigate to the Inventory Hub. Review the full list of deals associated with the account. Note any deal IDs whose negotiated date range has expired. These can remain associated with line items after the deal window closes.",
+                "For each line item with more than one deal ID associated, open the line item and review the list of deals. Note which publisher or supply partner each deal comes from and what inventory type it covers.",
+                "For any line item with multiple deal IDs from the same publisher, open each deal's detail and compare the inventory description, ad formats covered, and floor price. If the inventory descriptions overlap substantially, the deals are likely covering the same supply.",
+                "Review the effective CPM reported for the line item in the delivery report and compare it to the floor prices shown on the individual deals. A CPM that consistently runs above all deal floors may reflect the bidding pressure from competing deal paths.",
+                "Note any deal IDs that appear in the line item's association list but whose flight windows in the Inventory Hub ended more than 30 days ago. These are candidates for removal."
+              ]
+            },
+            "amazon_marketing_cloud": {
+              "label": "Amazon Marketing Cloud (AMC)",
+              "steps": [
+                "If AMC access is available, run a query that breaks out impressions and spend by deal ID for line items with multiple deal associations. Review whether the impression volume shifts between deal IDs on the same line item in ways that suggest the bidder is routing between overlapping paths.",
+                "Compare the CPMs observed through each deal ID on the same line item. If one deal ID consistently clears at a higher CPM than its floor, and a second deal ID on the same line item covers similar inventory at a lower floor, the two deals may be competing for the same impressions."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per line item with multiple deal IDs, the list of deals, the publisher or supply partner for each, the inventory type each covers, whether any deal windows have expired, and whether two or more deals appear to cover overlapping inventory. A line item with multiple deal IDs that cover genuinely distinct inventory types or publishers passes. A line item with expired deal IDs still active, or with two or more deals from the same publisher covering the same inventory type, is a fail recorded with the line item name, the overlapping or expired deal IDs, and the CPM observation if it suggests inflated cost.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each line item's deal ID list, the publisher and inventory type for each deal, any expired deal IDs, and the CPM observation above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more line items in {{site_name}}'s Amazon DSP account carry multiple deal IDs from the same publisher or supply partner covering overlapping inventory. In some cases deal IDs from prior flights remain associated with active line items past their negotiated windows. Where multiple deals cover the same supply path, the line item bids on the same impressions through more than one route, which can push the effective CPM above the negotiated floor without adding reach, and makes it harder to read which deal is delivering value. {{voice_recommend}} reviewing the deal ID associations on each affected line item, removing expired deal IDs that are no longer within their negotiated window, and confirming that each remaining deal ID covers inventory that differs meaningfully from the others on the same line item. For line items where CPMs are running above deal floor prices without a clear explanation, {{voice_recommend}} checking whether competing deal paths on the same line item are a contributing factor."
+      }
+    }
+  ]
+}

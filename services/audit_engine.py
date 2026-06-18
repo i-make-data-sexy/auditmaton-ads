@@ -581,6 +581,33 @@ CATEGORY_METADATA = {
             "description": "Viewability measurement against the MRC standard, and attention metrics",
         },
     },
+    "ias": {
+        "governance": {
+            "display_name": "Governance",
+            "icon_class": "fa-solid fa-scale-balanced",
+            "description": "IAS Signal setup, platform integration, and user access",
+        },
+        "coverage": {
+            "display_name": "Coverage",
+            "icon_class": "fa-solid fa-chart-pie",
+            "description": "Measured rate and coverage across channels and formats",
+        },
+        "brand-safety": {
+            "display_name": "Brand Safety",
+            "icon_class": "fa-solid fa-shield-halved",
+            "description": "Suitability tiers, block and allow controls, and pre-bid suitability",
+        },
+        "fraud": {
+            "display_name": "Fraud",
+            "icon_class": "fa-solid fa-robot",
+            "description": "IVT and SIVT detection, and pre-bid fraud avoidance",
+        },
+        "viewability": {
+            "display_name": "Viewability",
+            "icon_class": "fa-solid fa-eye",
+            "description": "Viewability measurement against the MRC standard, and attention metrics",
+        },
+    },
     "google-tag-manager": {
         "container-structure": {
             "display_name": "Container Structure",

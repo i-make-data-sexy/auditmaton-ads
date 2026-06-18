@@ -460,6 +460,53 @@ CATEGORY_METADATA = {
             "description": "Conversion tracking, attribution, and the measurement marketplace",
         },
     },
+    "amazon-dsp": {
+        "governance": {
+            "display_name": "Governance",
+            "icon_class": "fa-solid fa-scale-balanced",
+            "description": "Account structure, user access, and account linking (Seller/Vendor Central, Brand Registry, AMC)",
+        },
+        "campaigns": {
+            "display_name": "Campaigns",
+            "icon_class": "fa-solid fa-rectangle-list",
+            "description": "Order and line item structure, budget pacing, and campaign objective fit",
+        },
+        "inventory": {
+            "display_name": "Inventory",
+            "icon_class": "fa-solid fa-boxes-stacked",
+            "description": "Amazon-owned inventory, third-party supply, and deals and private marketplace",
+        },
+        "targeting": {
+            "display_name": "Targeting",
+            "icon_class": "fa-solid fa-crosshairs",
+            "description": "Amazon audiences, advertiser audiences, and frequency and exclusions",
+        },
+        "bidding": {
+            "display_name": "Bidding",
+            "icon_class": "fa-solid fa-hand-holding-dollar",
+            "description": "Bid optimization, bid strategy goal fit, and supply source bidding",
+        },
+        "creative": {
+            "display_name": "Creative",
+            "icon_class": "fa-solid fa-palette",
+            "description": "Creative formats, QA, and video and streaming TV creative",
+        },
+        "retail": {
+            "display_name": "Retail",
+            "icon_class": "fa-solid fa-bag-shopping",
+            "description": "Retail readiness, retail conversions, and new-to-brand",
+        },
+        "brand-safety": {
+            "display_name": "Brand Safety",
+            "icon_class": "fa-solid fa-shield-halved",
+            "description": "Brand safety controls, third-party verification, and invalid traffic",
+        },
+        "measurement": {
+            "display_name": "Measurement",
+            "icon_class": "fa-solid fa-chart-line",
+            "description": "Amazon Marketing Cloud, attribution, and brand lift and reach",
+        },
+    },
     "google-tag-manager": {
         "container-structure": {
             "display_name": "Container Structure",

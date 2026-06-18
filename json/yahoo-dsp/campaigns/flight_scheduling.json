@@ -1,0 +1,173 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Flight date and scheduling misconfigurations on Yahoo DSP can shorten or lengthen a campaign's delivery window with no warning in the interface, spread budget across hours when the target audience does not convert, and shift pacing and reporting day boundaries by misaligning the campaign's time zone with the target market. Each of these issues is a configuration check inside the Yahoo DSP UI, not a rebuild. A Line whose flight runs outside the parent Campaign window cannot deliver at all. Dayparting left at always-on without reviewing conversion timing distributes a fixed budget evenly across hours with uneven conversion value. These checks take minutes to verify and the fixes are date or setting changes.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "In Yahoo DSP, a Campaign defines the flight window, time zone, and budget envelope for all Lines beneath it. A Line is the unit where channel type, targeting, dayparting, and creative assignments live. Lines inherit the Campaign's flight window and cannot extend beyond it. When flight dates at the Line level fall inside but misalign with the Campaign's intent, or when the time zone on the Campaign does not match the target market's local clock, delivery and pacing drift in ways the reporting does not immediately surface. These checks confirm that Campaign and Line flight dates reflect the intended delivery window, that the Campaign time zone matches the market being reached, and that dayparting on each Line reflects when the audience converts rather than defaulting to always-on without review.",
+  "audit_checks": [
+    {
+      "id": "ydsp-line-flight-dates-misaligned-with-campaign",
+      "title": "Line flight dates fall outside or do not match the parent Campaign flight window",
+      "category": "campaigns",
+      "subcategory": "flight_scheduling",
+      "impact_score": 3,
+      "impact_rationale": "A Line whose start date falls after the Campaign's end date, or whose end date extends past the Campaign's close, cannot deliver during those periods regardless of budget availability. A Line that starts later than intended within the Campaign window loses delivery days that pacing cannot recover.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "performance"],
+      "educate": {
+        "base": "In Yahoo DSP, the Campaign sets the outer flight boundary. A Line is a subcomponent of the Campaign that specifies its own advertising strategy, including its own start and end dates, but those dates must fall within the Campaign's flight window. Yahoo DSP enforces this constraint: a Line cannot be set with a start date or end date outside the Campaign's dates. The enforcement is a safeguard, but it does not prevent subtler misalignments where a Line's dates are technically inside the Campaign window but do not reflect the intended delivery period.<br><br>Two misalignments account for most of what surfaces here. The first is a Line that starts several days after the Campaign opens, so the campaign runs its early days with no active Lines and no delivery. The second is a Line that ends several days before the Campaign closes, leaving budget in the Campaign that no active Line can spend during the tail of the flight.<br><br>Each Line's flight dates are set in the Line editor. The Campaign's flight dates appear at the Campaign level. Comparing them directly is the fastest way to confirm alignment before the campaign launches.<br><br>A few signs point to a date misalignment:<ul><li>The Campaign's delivery report shows zero impressions during the first or last days of the flight despite the Campaign being active</li><li>A Line's start date in the Line editor is later than the Campaign's start date without a documented reason for the delayed launch</li><li>A Line's end date in the Line editor closes earlier than the Campaign's end date, leaving the final days of the Campaign without an active Line</li></ul>You may want to review the dates on all Lines before a Campaign launches, particularly when Lines were created or edited close to the flight start.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser, Line flight dates often correspond to a specific promotional period or product launch. You may want to confirm that each Line's start date opens on the day the promotion goes live and that the Line's end date matches the last day the offer is valid, so no promotional day is left without an active Line.",
+          "lead_gen": "For a lead-generation campaign, Line flight dates may map to a specific intake window or a sales team's availability to follow up. You may want to confirm that each Line's end date matches the actual intake close date, so the Campaign does not run Lines after the intake period ends."
+        },
+        "learn_more": [],
+        "learn_more_note": "Yahoo DSP's detailed documentation for campaign and line flight date configuration is in the Yahoo DSP Help Center, which requires a logged-in seat and is not publicly accessible. Microsoft Learn publishes a <a href='https://learn.microsoft.com/en-us/xandr/bidders/yahoo-buying-guide' class='tools-link-no-padding' target='_blank'>Yahoo Buying Guide</a> in collaboration with the Yahoo DSP team that confirms the campaign-to-line hierarchy and the flight date constraint. For full configuration guidance, practitioners with platform access can consult the Yahoo DSP Help Center directly.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Compare each Line's flight start and end dates against the parent Campaign's flight window to identify gaps at the beginning or end of the Campaign.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Navigate to the Advertisers section, select the advertiser, and open the Campaigns page. Locate the Campaign you are auditing and note its flight start date and end date.",
+                "On the Campaign's Lines page, open each Line and navigate to the Line settings. Note each Line's start date and end date.",
+                "Compare each Line's start date against the Campaign's start date. Flag any Line whose start date is more than one day after the Campaign's start date without a documented reason for a delayed launch.",
+                "Compare each Line's end date against the Campaign's end date. Flag any Line whose end date closes more than one day before the Campaign's end date, which would leave the Campaign's final days without an active Line.",
+                "If the Campaign shows zero impressions on the first or last days of the flight in the delivery report, cross-reference with the Line dates identified above."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per Line, whether its start and end dates align with the parent Campaign's flight window. A Line whose start date matches the Campaign's start date (or has a documented reason for a later start) and whose end date matches the Campaign's end date (or has a documented reason for an earlier close) passes. A Line whose start date is later than the Campaign's start date without explanation, or whose end date closes before the Campaign's end date without explanation, is flagged.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the Campaign flight dates and each Line's start and end dates above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more Lines in {{site_name}}'s campaigns have flight dates that do not align with the parent Campaign's flight window. Lines whose start dates fall after the Campaign opens or whose end dates close before the Campaign ends leave delivery days with no active Line, and that lost delivery cannot be recovered by pacing adjustments. {{voice_recommend}} reviewing the start and end dates on every Line against the Campaign's flight window before launch, and correcting any dates that leave gaps at the beginning or end of the flight."
+      }
+    },
+    {
+      "id": "ydsp-dayparting-not-reviewed-against-conversion-timing",
+      "title": "Lines run always-on dayparting without a review of when conversions occur",
+      "category": "campaigns",
+      "subcategory": "flight_scheduling",
+      "impact_score": 2,
+      "impact_rationale": "Always-on dayparting is not inherently wrong, but accepting the default without checking conversion timing means budget runs during hours when the audience does not convert, spreading a fixed daily budget across low-value hours and raising the effective cost per conversion.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["targeting", "performance"],
+      "educate": {
+        "base": "Dayparting on Yahoo DSP (demand-side platform) controls the hours of the day and days of the week during which a Line is eligible to bid. The setting lives at the Line level for display and video Lines. Native Lines do not support dayparting. The default for a new Line is to run at all hours across all days.<br><br>Running always-on is appropriate when conversion data shows no clear hourly or day-of-week pattern. The issue arises when the account has conversion data that shows a meaningful concentration in certain hours or days but the Line's scheduling has never been reviewed against that data. A fixed daily budget distributed evenly across 24 hours allocates the same hourly spend to hours with high conversion rates as to hours with near-zero conversion rates. Adjusting dayparting to concentrate delivery in the hours with stronger conversion rates raises the number of conversions the budget supports without increasing spend.<br><br>Yahoo DSP's reporting includes an hour-of-day and day-of-week breakdown. Pulling that report for the campaign's active period and comparing it against the Line's current scheduling setting is the check. A flat conversion distribution across all hours suggests always-on is appropriate. A pattern where more than half of conversions occur in fewer than half the active hours is a signal that a dayparting schedule may be worth testing.<br><br>A few signs point to a scheduling review being worthwhile:<ul><li>Conversion data shows a cost per conversion (CPC) that varies by more than 30% between the best-performing and worst-performing hours in the hour-of-day breakdown</li><li>The campaign targets an audience with a predictable schedule, such as business buyers during working hours or consumer audiences in the evenings</li><li>The Line has been running for more than two weeks with always-on scheduling and no prior review of the hour-of-day conversion data</li></ul>You may want to pull at least two weeks of hour-of-day data before adjusting dayparting, to avoid acting on short-term noise in the conversion data.",
+        "site_type_overlays": {
+          "ecommerce": "For ecommerce campaigns, purchase conversions on consumer-facing products often concentrate in evening hours and on weekends. You may want to pull the hour-of-day conversion report filtered to purchase events before deciding whether to apply a dayparting schedule. The pattern varies by product category, so reviewing the data before making changes is the right sequence.",
+          "lead_gen": "For lead-generation campaigns targeting business buyers, conversions often concentrate during business hours on weekdays. You may want to confirm this pattern in the hour-of-day report before applying dayparting. Applying a schedule without data support can restrict delivery during hours that would otherwise convert."
+        },
+        "learn_more": [],
+        "learn_more_note": "Yahoo DSP's documentation for dayparting configuration is in the Yahoo DSP Help Center, which requires a logged-in seat and is not publicly accessible. The Help Center covers which line types support dayparting (display and video; not native), how to set the hours and days on a Line, and how to access the hour-of-day reporting breakdown. Practitioners with platform access can find this guidance there.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Pull the hour-of-day and day-of-week conversion report from Yahoo DSP's reporting section for the campaign's active period, and compare it against the dayparting setting on each Line.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Open the Reporting section in Yahoo DSP and create a report for the Campaign. Add 'Hour of Day' and 'Day of Week' as dimensions, and include conversions and cost per conversion as metrics. Run the report for at least the past two weeks of active delivery data.",
+                "Review the output for hours and days where cost per conversion is materially higher than the campaign average, or where conversions are near zero despite impression delivery. Note the hours and days that account for the majority of conversions.",
+                "Open each Line's settings and navigate to the dayparting section. Note whether the Line is set to always-on or whether a specific hour and day schedule is already configured. Note: dayparting is not available on native Lines.",
+                "For Lines set to always-on, compare the current setting against the hours and days the report identified as high-converting. Flag Lines where the conversion data shows a clear concentration in a subset of hours but the Line is running always-on without a prior review."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per Line, whether a review of the hour-of-day and day-of-week conversion data was completed, and whether the current dayparting setting is consistent with the conversion pattern. A Line with always-on scheduling and a flat conversion distribution across hours passes. A Line with always-on scheduling where the conversion data shows a clear concentration in a subset of hours, or where cost per conversion varies by more than 30% between the best and worst hours, is flagged for scheduling review. Native Lines are excluded from this check since dayparting is not supported.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the hour-of-day cost per conversion range and the current dayparting setting for each Line above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that Lines in {{site_name}}'s campaigns are set to always-on dayparting without a prior review of when conversions occur. The hour-of-day data shows that conversions concentrate in a subset of hours, while budget runs evenly across all hours, which raises the effective cost per conversion. {{voice_recommend}} reviewing the hour-of-day conversion report for the active flight period and, where the data shows a clear pattern, testing a dayparting schedule that concentrates budget on the hours with the strongest conversion rates."
+      }
+    },
+    {
+      "id": "ydsp-campaign-time-zone-mismatches-target-market",
+      "title": "Campaign time zone does not match the target market, shifting pacing and reporting day boundaries",
+      "category": "campaigns",
+      "subcategory": "flight_scheduling",
+      "impact_score": 2,
+      "impact_rationale": "When the Campaign time zone differs from the target market's local time, the platform's pacing algorithm resets its daily budget at the wrong local hour, and the reporting day boundary in the dashboard does not match the market's actual day. The result is uneven delivery and a reporting view that requires manual offset to interpret correctly.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "performance"],
+      "educate": {
+        "base": "In Yahoo DSP, the time zone is set at the Campaign level. Every Line beneath the Campaign inherits that time zone for pacing and for the reporting day boundary. The time zone controls two things: the clock against which daily budget pacing resets each day, and the day boundary used to aggregate delivery data in reports.<br><br>When the Campaign's time zone matches the target market's local time, daily pacing resets at local midnight and the reporting day in the dashboard aligns with the practitioner's view of the market's day. When the Campaign's time zone differs from the target market, the daily budget resets at a different local hour. A Campaign set to Eastern Time (ET) targeting a West Coast audience resets its daily pacing at 9 p.m. Pacific, which means the last three hours of the target market's day run under a freshly reset budget while the first three hours of the next Pacific day carry the tail of the prior Eastern budget period.<br><br>The time zone is set during Campaign creation and can be changed later if needed. The Campaign settings page shows the current time zone. Confirming that the time zone matches the primary target geography is a one-field check that takes under a minute.<br><br>A few signs point to a time zone mismatch worth correcting:<ul><li>The Campaign targets a geographically specific audience (a single metro area, a single country) and the Campaign time zone is set to a different region's time</li><li>Delivery reports show uneven daily spend where the first and last hours of each reporting day are unusually high or low compared to midday hours</li><li>The Campaign was created from a template or bulk upload that carried a default time zone from a different market</li></ul>You may want to confirm the Campaign time zone before launch for any geo-targeted Campaign because the time zone affects pacing from the first day of delivery.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser running geo-targeted campaigns to specific regions, you may want to confirm that each Campaign's time zone matches the primary region being targeted. A Campaign targeting a single country or metro area with a mismatched time zone will have pacing resets and reporting day boundaries that do not align with the local market's day.",
+          "lead_gen": "For a lead-generation campaign targeting business buyers in a specific geography, you may want to confirm the Campaign time zone matches the buyers' local time. Dayparting rules and pacing are both interpreted against the Campaign time zone, so a mismatch shifts both the delivery window and the reporting view."
+        },
+        "learn_more": [],
+        "learn_more_note": "Yahoo DSP's documentation for campaign time zone configuration is in the Yahoo DSP Help Center, which requires a logged-in seat and is not publicly accessible. Microsoft Learn publishes a <a href='https://learn.microsoft.com/en-us/xandr/bidders/yahoo-buying-guide' class='tools-link-no-padding' target='_blank'>Yahoo Buying Guide</a> in collaboration with the Yahoo DSP team that confirms the campaign-level time zone setting and notes that Lines inherit it. For full configuration guidance, practitioners with platform access can consult the Yahoo DSP Help Center directly.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Locate the time zone setting on each Campaign and compare it against the primary geographic target of the Lines beneath it.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Navigate to the Advertisers section, select the advertiser, and open the Campaigns page. Open the Campaign settings for each Campaign you are auditing.",
+                "Locate the time zone field in the Campaign settings. Note the time zone currently set on the Campaign.",
+                "Open the Lines beneath the Campaign and note the geographic targeting on each Line (country, region, or metro area).",
+                "Compare the Campaign time zone against the primary geographic target of its Lines. Flag any Campaign where the time zone does not correspond to the target market's local time zone. For example, a Campaign set to America/New_York targeting a US West Coast audience, or a Campaign set to a US time zone targeting a European audience.",
+                "If the time zone is mismatched, note the offset between the Campaign's time zone and the target market's local time. That offset determines how many hours of pacing and reporting are shifted each day."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per Campaign, the time zone setting and the primary geographic target of its Lines. A Campaign whose time zone matches the target market's local time zone passes. A Campaign whose time zone differs from the target market's local time zone by one or more hours is flagged, with the offset recorded. Campaigns targeting audiences distributed across multiple time zones (e.g., national campaigns) where no single time zone is clearly dominant are noted as acceptable with the current setting.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the Campaign time zone and the geographic target of each Campaign's Lines above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more Campaigns in {{site_name}}'s account have a time zone setting that does not match the primary geographic target of their Lines. The Campaign time zone controls when daily pacing resets and defines the reporting day boundary, so a mismatch shifts both delivery distribution and the reporting view by the difference between the two time zones. {{voice_recommend}} updating the Campaign time zone to match the target market's local time on any geo-targeted Campaign where the current setting differs from the target geography."
+      }
+    }
+  ]
+}

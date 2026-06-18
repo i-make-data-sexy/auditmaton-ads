@@ -821,6 +821,58 @@ def check_theme_tags(data, file_path):
     return findings
 
 
+# Human-readable label fields that SKIP_KEYS excludes from the general
+# prose walk. Em-dashes and en-dashes are banned everywhere in Annie's
+# house style, including citation titles, so scan these for dashes only
+# (the general walk already covers every other prose field, and the
+# colon/quote rules would false-positive on legitimate citation titles
+# like "Guide: Section"). Without this, an em-dash in a source_title
+# slips past every gate.
+LABEL_DASH_FIELDS = {"source_title"}
+LABEL_DASH_RE = re.compile("[—–]")
+
+
+def check_label_dashes(obj, file_path, path=""):
+    """
+    File-level check: flag em-dashes and en-dashes inside human-readable
+    label fields (e.g., source_title) that the general prose walk skips
+    via SKIP_KEYS. Dashes are banned everywhere, so this closes the gap
+    without subjecting citation titles to the colon and quote rules.
+
+    Args:
+        obj: A parsed JSON value (dict, list, str, or scalar).
+        file_path (Path): Source file.
+        path (str): Accumulated dot-notation path used in the report.
+
+    Returns:
+        list[dict]: Findings in the same shape lint_text yields.
+    """
+
+    findings = []
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            child = f"{path}.{k}" if path else k
+            if k in LABEL_DASH_FIELDS and isinstance(v, str):
+                for m in LABEL_DASH_RE.finditer(v):
+                    is_em = v[m.start()] == "—"
+                    findings.append({
+                        "file": str(file_path),
+                        "json_path": child,
+                        "rule_id": "em-dash" if is_em else "en-dash",
+                        "severity": "high",
+                        "description": "Em-dash or en-dash in a label field. Use a colon or comma.",
+                        "suggest": "Replace the dash with a colon or comma.",
+                        "snippet": v[max(0, m.start() - 25):m.start() + 25],
+                        "match": v[m.start()],
+                    })
+            else:
+                findings.extend(check_label_dashes(v, file_path, child))
+    elif isinstance(obj, list):
+        for i, item in enumerate(obj):
+            findings.extend(check_label_dashes(item, file_path, f"{path}[{i}]"))
+    return findings
+
+
 def lint_file(file_path, rules):
     """
     Lints a single JSON file.
@@ -869,6 +921,9 @@ def lint_file(file_path, rules):
     findings.extend(check_duplicate_acronym_expansion(data, file_path))
     # File-level check: every check carries valid, side-appropriate theme_tags.
     findings.extend(check_theme_tags(data, file_path))
+    # File-level check: em/en-dashes in label fields (e.g., source_title)
+    # that SKIP_KEYS otherwise hides from the general prose walk.
+    findings.extend(check_label_dashes(data, file_path))
     return findings
 
 

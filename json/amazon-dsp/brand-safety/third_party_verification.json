@@ -1,0 +1,136 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://advertising.amazon.com/library/guides/brand-safety",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Amazon DSP surfaces the verification controls in the line-item and order settings, but the defaults do not automatically match what a brand's standards require. A few minutes of investigation reveals whether DoubleVerify or IAS is enabled, whether the segments applied reflect the brand's actual standards rather than a placeholder selection, and whether the impression counts from the verification vendor agree with Amazon's reported figures. Discrepancies above the expected tolerance are a signal that impressions are being counted differently at each layer, which matters for reporting to clients.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Third-party verification adds an independent measurement layer on top of Amazon DSP's own brand safety and viewability signals. Vendors such as DoubleVerify (DV) and IAS attach to impressions through the IAB Open Measurement SDK (OM SDK) and report viewability, brand safety, and invalid traffic (IVT) data outside Amazon's infrastructure. These checks confirm that verification is active, that the segments selected reflect real brand standards, and that the impression counts from the vendor and from Amazon are reconciled.",
+  "audit_checks": [
+    {
+      "id": "third-party-verification-not-active-or-misconfigured",
+      "title": "Third-party verification is not active or the wrong segments are applied at the line item",
+      "category": "brand-safety",
+      "subcategory": "third_party_verification",
+      "impact_score": 3,
+      "impact_rationale": "Without active verification, the account has no independent signal on viewability, brand safety, or invalid traffic (IVT). The wrong segments, such as a blanket 'most restrictive' preset, can shrink the eligible impression pool significantly without a corresponding improvement in brand safety outcomes.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "fraud"],
+      "educate": {
+        "base": "Amazon DSP supports third-party brand safety and viewability verification through approved measurement partners, including DoubleVerify (DV) and Integral Ad Science (IAS). Verification is applied at the line-item level, not at the account level, so an account with a verification contract can still run line items with no vendor attached.<br><br>Each vendor supplies segment options that correspond to different sensitivity thresholds: a standard news-safe segment, a more restrictive segment that excludes controversial-but-legal content, and the most restrictive preset that excludes a broad range of content categories. The most restrictive option limits delivery to a narrow band of inventory, which can reduce scale without a proportional gain in brand safety. You may want to align the segment selection to the brand's written content adjacency standards rather than defaulting to whichever option was in place when the line item was created.<br><br>The <a href='https://iabtechlab.com/standards/open-measurement-sdk/' class='tools-link-no-padding' target='_blank'>IAB Open Measurement SDK (OM SDK)</a> is the technical infrastructure that allows third-party vendors to measure impressions across mobile app, web, and connected TV (CTV) environments without the vendor injecting its own container directly into each ad call. Amazon DSP's inventory integrates with the OM SDK, so the verification vendor reads viewability and brand safety signals through that standard layer.<br><br>A few signs point to this check applying:<ul><li>The line item's verification section shows no vendor selected, or shows a vendor that is not the account's contracted partner</li><li>The segment applied is the most restrictive preset but no written policy requires that level</li><li>The line item was duplicated from a template and the verification settings were not reviewed after duplication</li></ul>You may want to open each active line item and confirm the vendor and segment selection match what the brand's standards actually require.",
+        "site_type_overlays": {
+          "ecommerce": "For endemic advertisers whose goal is Amazon Standard Identification Number (ASIN) purchases, the most restrictive verification segment can exclude shopping and deal-finder content where purchase intent is high. You may want to confirm that the segment does not block inventory categories that align well with a shopping-intent audience.",
+          "lead_gen": "For non-endemic advertisers driving to an off-Amazon destination, the segment selection has a larger effect on reach because the eligible pool is already smaller. You may want to confirm the segment matches the brand's content adjacency policy and is not simply inherited from a prior campaign."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Open Measurement SDK",
+            "source_url": "https://iabtechlab.com/standards/open-measurement-sdk/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that each active line item has a verification vendor attached and that the segment applied corresponds to the brand's documented content adjacency standards.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open the order and navigate to its line items. For each active line item, open the settings and find the brand safety and measurement section.",
+                "Note the third-party verification vendor shown. If the field is empty or shows a vendor that is not the account's contracted partner, record the line item name.",
+                "Note the verification segment applied. Record whether it is the brand's standard segment, a more restrictive preset, or the most restrictive option. Compare the selection against any written content adjacency policy for the brand.",
+                "Repeat for all active line items. Line items created by duplicating a template may have carried over a segment that was appropriate for the original campaign but not the current one."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per active line item, the verification vendor and the segment applied. A line item with the account's contracted vendor selected and a segment that matches the brand's content adjacency standards passes. A line item with no vendor, a mismatched vendor, or the most restrictive segment applied without a documented policy requirement is a fail recorded with the line item name.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the verification vendor and segment for each active line item above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more active line items on {{site_name}}'s Amazon DSP account either have no third-party verification vendor attached or are using a segment that does not match the brand's content adjacency standards. Without independent verification, the account has no viewability or brand safety signal outside Amazon's own reporting. An overly restrictive segment limits delivery without a corresponding policy requirement. {{voice_recommend}} reviewing each active line item to confirm the contracted verification vendor is selected and the segment applied reflects the brand's actual standards, then documenting the segment choice in the campaign brief so it carries forward to future flights."
+      }
+    },
+    {
+      "id": "verification-vendor-impression-discrepancy-not-reconciled",
+      "title": "Impressions reported by the verification vendor differ from Amazon's count by more than the expected tolerance",
+      "category": "brand-safety",
+      "subcategory": "third_party_verification",
+      "impact_score": 2,
+      "impact_rationale": "A discrepancy between the verification vendor's impression count and Amazon's reported count can understate viewable impressions in client deliverables or mask an inventory quality problem. At typical tolerated levels the gap is expected, but a gap outside tolerance is a signal worth tracing before it reaches a client report.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "data-quality"],
+      "educate": {
+        "base": "When third-party verification is active on Amazon DSP, two impression counts exist side by side: the number Amazon reports in the DSP console, and the number the verification vendor records. The two will not match exactly, and a small gap is expected.<br><br>The gap has known causes. Amazon counts an impression at bid win, before the ad renders. The verification vendor counts an impression only after the creative loads and begins rendering in a measurable environment. Ads that time out before rendering, that are filtered as invalid traffic (IVT), or that serve into environments the vendor cannot measure, such as certain closed app environments, reach Amazon's count but not the vendor's. A typical tolerated discrepancy is 10 to 15 percent depending on inventory mix and the environment split across display, video, and connected TV (CTV).<br><br>A discrepancy larger than the account's established tolerance points to one of a few issues: a delivery environment the vendor cannot tag, IVT that the vendor is filtering but Amazon is not, or a measurement configuration problem where the vendor's tag is not firing on a portion of the creative. Each has a different fix, so the investigation step matters before drawing a conclusion.<br><br>You may want to pull both counts for the same date range, calculate the percent gap, and compare it to the tolerance threshold the account uses. A gap that has grown since the previous flight, or that varies significantly by line item, points to a configuration or inventory issue rather than the expected counting methodology difference.",
+        "site_type_overlays": {
+          "ecommerce": "For endemic advertisers, a larger discrepancy on CTV or streaming TV (STV) line items can reflect delivery into Amazon's owned-and-operated environments where the vendor's measurement access differs from open web display. You may want to check the discrepancy rate by format rather than at the campaign level.",
+          "lead_gen": "For non-endemic advertisers, a large discrepancy can affect the viewable impression figures used in brand-lift study inputs. You may want to confirm that the vendor's count is being used as the viewability numerator, not Amazon's raw impression figure."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Open Measurement SDK",
+            "source_url": "https://iabtechlab.com/standards/open-measurement-sdk/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Pull impression counts from both Amazon DSP and the verification vendor for the same date range and calculate the discrepancy. Identify whether the gap is at the campaign level, the line item level, or specific to a format or environment.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open the campaign's reporting view and export impression totals by line item for the measurement period.",
+                "Note the total impressions Amazon reports and the breakdown by ad format and delivery environment where available."
+              ]
+            },
+            "verification_vendor_dashboard": {
+              "label": "Verification vendor dashboard (DoubleVerify or IAS)",
+              "steps": [
+                "Log in to the verification vendor's reporting interface and pull the total impressions measured for the same campaign and date range.",
+                "Calculate the percent discrepancy: divide the difference between Amazon's count and the vendor's count by Amazon's count, then multiply by 100.",
+                "If the discrepancy is above the account's tolerance threshold, break the vendor's report down by format (display, video, CTV) and by line item to identify which segment drives the gap.",
+                "Compare the discrepancy to the prior campaign flight to see whether it has grown or shifted."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the Amazon impression count, the vendor impression count, and the calculated percent discrepancy for the measurement period. A discrepancy within the account's established tolerance (typically 10 to 15 percent) passes. A discrepancy above tolerance, or one that has grown since the prior flight, is a fail recorded with the discrepancy figure, the line items or formats driving it, and the likely cause.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the Amazon impression count, the vendor impression count, the percent discrepancy, and the account tolerance threshold above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} a discrepancy between the impressions Amazon DSP reports and the impressions the third-party verification vendor records that exceeds the expected tolerance on {{site_name}}'s account. A gap within 10 to 15 percent is expected due to methodology differences, but a larger gap points to a delivery environment the vendor cannot tag, invalid traffic the vendor is filtering, or a measurement configuration issue. {{voice_recommend}} breaking the discrepancy down by line item and ad format to identify the source, then resolving any configuration issue before the figures appear in a client deliverable."
+      }
+    }
+  ]
+}

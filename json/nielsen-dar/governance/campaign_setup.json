@@ -1,0 +1,207 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Nielsen Digital Ad Ratings (DAR) is only as useful as the demographic target it measures against. A misconfigured target turns every on-target percentage and gross rating point (GRP) figure in the report into a number measured against the wrong population. These checks confirm that the demographic target matches the intended audience, that the measurement covers all the placements that should be tracked, and that the DAR campaign structure reflects the media plan so results can be read at a useful level of detail.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Nielsen Digital Ad Ratings measures the demographic composition of a digital ad campaign's audience by combining a calibrated panel with census-level data. The output is a set of metrics including on-target percentage, gross rating points (GRPs), unique audience reach, and frequency, segmented by demographics such as age and gender. For those metrics to reflect the campaign's actual goals, three configuration elements must be correct: the demographic target set in DAR must match the campaign's intended audience, DAR must be activated on all the line items or placements that belong in the measurement scope, and the campaign structure registered in the DAR system must reflect the media plan at enough granularity to make the reporting readable by tactic, publisher, or flight. These checks cover each of those three elements.",
+  "audit_checks": [
+    {
+      "id": "nielsen-dar-demographic-target-mismatch",
+      "title": "The demographic target configured in DAR does not match the campaign's intended audience",
+      "category": "governance",
+      "subcategory": "campaign_setup",
+      "impact_score": 4,
+      "impact_rationale": "On-target percentage and GRP are both calculated relative to the demographic target configured in DAR, not relative to any audience definition in the buying platform. If the target is set to the wrong age range or gender, every on-target metric in every DAR report for that campaign measures delivery against the wrong population. The practitioner reading the report has no way to detect this from the data alone since the numbers look normal regardless of whether the target matches the campaign's actual intended audience.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "Nielsen Digital Ad Ratings (DAR) measures how much of a campaign's impressions landed on a specific demographic group. That group is the demographic target configured when DAR is activated for the campaign. In Microsoft Invest, for example, activating DAR on a line item requires selecting a gender (male, female, or all adults) and an age range. The on-target percentage for that line item is then calculated as impressions delivered to that demographic divided by total impressions, expressed as a percentage. Gross rating points (GRPs) are calculated from that same demographic's reach and frequency figures.<br><br>The configuration happens at activation time, inside the DSP or ad server, and is registered with Nielsen as the campaign's measurement specification. Nielsen's panel calibration and census data are applied to that specification. Once the campaign is running, the demographic target is not retroactively adjustable without resetting the campaign's measurement reference in the Nielsen system.<br><br>A mismatch occurs when the target entered at activation does not correspond to the audience the campaign is actually trying to reach. A campaign targeting adults 25 to 54 that was configured in DAR with a target of adults 18 to 49 will report on-target delivery against the 18 to 49 group. If delivery skews toward adults 50 to 54, those impressions count as off-target in the DAR report even though they are within the campaign's actual intended audience. The on-target percentage appears lower than the campaign's genuine performance, and any optimization informed by that number steers delivery based on a metric measured against the wrong group.<br><br>A few signs point to a possible mismatch:<ul><li>The demographic target shown in the DAR activation settings does not match the demographic described in the campaign's media plan or brief</li><li>The campaign's audience targeting in the buying platform uses a different age range than what is registered in DAR</li><li>On-target percentage is unexpectedly low relative to the delivery the buying platform reports to the intended audience</li></ul>You may want to open the DAR activation settings for each line item and compare the configured gender and age range to the campaign's documented target demographic before reviewing the on-target metrics in the DAR report.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail campaign targeting a purchase-intent demographic such as adults 25 to 44, you may want to confirm that the DAR demographic target matches that exact age range rather than a broader default like adults 18 to 49. A broader default target deflates on-target percentage for the actual purchaser demo the campaign is optimizing toward.",
+          "lead_gen": "For a lead-generation campaign targeting a specific age and life-stage segment, such as adults 35 to 54 for a financial product or adults 18 to 34 for a service aimed at younger consumers, you may want to confirm the DAR target matches the life-stage segment the brief specifies rather than a default broad-adult range."
+        },
+        "learn_more": [
+          {
+            "source_type": "Microsoft Learn",
+            "source_title": "Activate Nielsen Digital Ad Ratings for a Line Item",
+            "source_url": "https://learn.microsoft.com/en-us/xandr/invest/activate-nielsen-digital-ad-ratings-for-a-line-item"
+          },
+          {
+            "source_type": "Microsoft Learn",
+            "source_title": "Metrics for Nielsen Digital Ad Ratings",
+            "source_url": "https://learn.microsoft.com/en-us/xandr/invest/nielsen-dar-metrics"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Compare the demographic target configured in DAR against the target audience documented in the campaign brief or media plan for each line item or placement in scope.",
+        "tools": {
+          "free": {
+            "nielsen_dar": {
+              "label": "Nielsen DAR",
+              "steps": [
+                "Open the DAR activation settings for each line item or placement in scope. In Microsoft Invest, go to the line item's Measurement section and locate the Audience Demo toggle and the demographic target fields. In Google Ad Manager, open the line item and locate the Nielsen GRP provider settings. Note the configured gender and age range for each.",
+                "Retrieve the campaign brief or media plan that specifies the intended target demographic. Note the gender and age range stated there.",
+                "Compare the two. If the DAR-configured demographic and the brief-specified demographic differ by gender or by more than one age band on either end of the range, record it as a mismatch with the specific discrepancy.",
+                "If the line item is already running, pull the on-target percentage from the DAR Audience Profile Report or the line item's Analytics tab. An unexpectedly low on-target percentage alongside a demographic mismatch confirms that the report is measuring against the wrong group."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per line item or placement, the DAR-configured demographic target and the brief-specified target demographic. A line item whose DAR demographic matches the brief passes. A line item whose DAR demographic differs from the brief in gender or in age range is a fail, recorded with the configured demographic, the brief demographic, and the current on-target percentage if the campaign is running.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the DAR-configured demographic and the brief-specified demographic for each line item above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the demographic target configured in the Nielsen Digital Ad Ratings (DAR) activation settings does not match the intended audience described in the media plan. On-target percentage and gross rating points (GRPs) are calculated relative to the DAR-registered demographic, so the measurement is currently reporting against the wrong population. Any on-target figures produced during this period reflect delivery against the configured demographic, not the campaign's actual intended audience. {{voice_recommend}} correcting the demographic target in the DAR activation settings to match the media plan's specified age range and gender, and noting that any historical on-target metrics generated under the mismatched target may need to be treated as unreliable for optimization decisions."
+      }
+    },
+    {
+      "id": "nielsen-dar-activation-gaps",
+      "title": "DAR is not activated on all line items or placements that should be in the measurement scope",
+      "category": "governance",
+      "subcategory": "campaign_setup",
+      "impact_score": 3,
+      "impact_rationale": "Nielsen DAR can only measure impressions that flow through line items or placements where it has been activated. Line items excluded from activation are invisible to the audience measurement. If those line items deliver a meaningful share of the campaign's impressions, the DAR report undercounts the total audience, understates reach, and misrepresents on-target delivery as a share of the full campaign.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "Nielsen Digital Ad Ratings (DAR) measures the audience for the specific line items or placements where it has been activated. Activation happens at the line-item level in most demand-side platforms (DSPs) and at the line-item or placement level in ad servers. A line item that has not been activated contributes no data to the DAR report. Its impressions, the audiences exposed to it, and its share of the campaign's total delivery all remain outside the measurement.<br><br>When a media plan covers multiple line items across different tactics, placements, or flight dates, and only some of those line items are activated in DAR, the resulting report reflects only the activated portion of the campaign. Unique audience reach across the full campaign is understated because users exposed only through un-activated line items are not counted. On-target percentage is measured only against the impressions that ran through activated line items, which may not be representative of the full campaign's delivery mix.<br><br>Activation gaps arise in a few recurring patterns. Line items added mid-flight after the initial DAR setup was completed are sometimes not activated because the setup step is not revisited. Retargeting or audience-extension line items that run alongside the main campaign are sometimes treated as separate from the primary campaign scope. Programmatic guaranteed or preferred deals set up directly in the ad server rather than through the DSP are sometimes not registered with the same Nielsen campaign reference as the DSP-bought inventory.<br><br>A few signs point to activation gaps:<ul><li>The total impressions reported by the buying platform's own reporting is meaningfully higher than the total impressions appearing in the Nielsen DAR report for the same date range</li><li>Line items added to the campaign after launch have no DAR measurement toggle enabled in their settings</li><li>Deal-based or direct-sold placements running alongside DSP-bought inventory are not associated with the same Nielsen campaign reference</li></ul>You may want to list all line items and placements that are part of the campaign scope and confirm, one by one, which ones have DAR activated, before comparing the combined delivery to what the DAR report shows.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail campaign that runs both prospecting line items and retargeting line items in parallel, you may want to confirm that DAR is activated on the retargeting line items as well. Retargeting inventory often reaches users in the campaign's target demographic and may represent a significant share of total impressions.",
+          "lead_gen": "For a lead-generation campaign using a combination of DSP-bought inventory and publisher direct deals, you may want to confirm that any direct-sold placements are registered under the same Nielsen campaign reference as the DSP line items, so their delivery is included in the audience measurement."
+        },
+        "learn_more": [
+          {
+            "source_type": "Microsoft Learn",
+            "source_title": "Activate Nielsen Digital Ad Ratings for a Line Item",
+            "source_url": "https://learn.microsoft.com/en-us/xandr/invest/activate-nielsen-digital-ad-ratings-for-a-line-item"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Nielsen Digital Ad Ratings pacing and reports",
+            "source_url": "https://support.google.com/admanager/answer/6166836"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "List all line items and placements in the campaign scope and verify which ones have DAR activated, then compare combined activated delivery to total campaign delivery.",
+        "tools": {
+          "free": {
+            "nielsen_dar": {
+              "label": "Nielsen DAR",
+              "steps": [
+                "Pull the full list of line items associated with the campaign from the buying platform (DSP or ad server). Include line items across all tactics, such as prospecting, retargeting, and deal-based placements.",
+                "For each line item, open its measurement settings and check whether DAR is activated. In Microsoft Invest, look for the Audience Demo toggle in the Measurement section. In Google Ad Manager, look for the Nielsen GRP provider setting on the line item. Record which line items do and do not have DAR active.",
+                "Pull total impressions for the full campaign from the buying platform's own reporting for the measurement period.",
+                "Pull total impressions from the Nielsen DAR report for the same date range. If the Nielsen total is materially lower than the buying platform total, the gap represents impressions running outside the DAR measurement scope.",
+                "Cross-reference the list of un-activated line items with the delivery volumes for those line items. Line items with high impression volume that are not in DAR represent the most significant gaps."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per line item, whether DAR is activated and the impression volume for that line item. The total impressions from activated line items are compared to total campaign impressions from the buying platform's own reporting. If activated-line-item impressions account for 95% or more of total campaign impressions, the measurement scope is considered adequate. If activated impressions represent less than 95% of the total, the coverage gap is recorded with the specific un-activated line items and their delivery volumes.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the DAR activation status and impression count for each line item above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that Nielsen Digital Ad Ratings (DAR) is not activated on all line items within the campaign scope. The line items missing DAR activation delivered impressions that are not included in the audience measurement report. As a result, the DAR report understates the campaign's total unique audience reach and may not represent the full delivery mix when reporting on-target percentage. {{voice_recommend}} activating DAR on all line items that are part of the campaign measurement scope, including any line items added after the initial setup, and confirming that any deal-based or direct-sold placements are registered under the same Nielsen campaign reference as the DSP-bought inventory."
+      }
+    },
+    {
+      "id": "nielsen-dar-campaign-structure-mismatch",
+      "title": "The DAR campaign structure does not mirror the media plan, preventing segmentation of results by tactic, publisher, or flight",
+      "category": "governance",
+      "subcategory": "campaign_setup",
+      "impact_score": 3,
+      "impact_rationale": "When the structure registered in the Nielsen DAR system does not correspond to the media plan's organizing logic, audience metrics can only be read at the campaign level. On-target performance by tactic, by publisher, or by flight date is not visible. Optimization decisions that require knowing which portion of the campaign is in-demo and which is not must be made on incomplete data.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "targeting"],
+      "educate": {
+        "base": "Nielsen Digital Ad Ratings (DAR) reports audience metrics at the campaign level and at whatever segmentation the campaign structure supports in the Nielsen system. In Google Ad Manager, DAR metrics can be segmented by order (campaign), line item, and device category in the Ad Manager Reach report. In Microsoft Invest, the Nielsen Digital Ad Ratings Audience Profile Report segments metrics by line item, demographic group, platform type, and country code.<br><br>The segmentation available in reporting depends on how the campaign was structured when DAR was set up. If all line items across multiple tactics and publishers were grouped under a single DAR campaign reference, the reporting can only show the aggregate. Separating line items by tactic (prospecting, retargeting), by publisher, or by flight date when the DAR is activated allows those same dimensions to appear as separate rows in the audience report.<br><br>A media plan that includes both a premium publisher direct buy and open-market programmatic inventory, for example, may need to demonstrate in-demo performance separately for each to satisfy reporting requirements or publisher reporting commitments. If both sets of line items were registered under one DAR campaign entry, that split is not available without re-activating the measurement.<br><br>The granularity of the campaign structure also affects how the DAR report supports mid-flight decisions. On-target percentage that is running below goal is actionable only if the report can identify which tactic or publisher is dragging the average down. A single top-level campaign view does not provide that signal.<br><br>A few signs point to a structure that does not match the media plan:<ul><li>The Nielsen DAR report shows results only at the overall campaign level, with no breakdown by tactic or publisher, while the media plan calls for performance reporting broken out by tactic or publisher</li><li>Line items representing distinct tactics, such as video and display or prospecting and retargeting, share the same Nielsen campaign reference and cannot be separated in reporting</li><li>The buying platform's own line-item structure does not correspond to any segmentation in the DAR report's available dimensions</li></ul>You may want to review the DAR campaign structure against the media plan's reporting requirements before the campaign ends, as restructuring during an active flight may require re-activating measurement on the affected line items.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail campaign separating upper-funnel awareness inventory from lower-funnel retargeting inventory, you may want to confirm that the two groups of line items are associated with separate DAR references or at least with line-item-level tagging that allows them to be filtered separately in the Audience Profile Report. Awareness and retargeting often show different on-target rates, and a blended number at the campaign level may not be useful for either.",
+          "lead_gen": "For a lead-generation campaign using distinct publisher packages with separate performance guarantees, you may want to confirm that each publisher's line items are set up in a way that allows their DAR metrics to be read independently. A publisher committed to an on-target delivery guarantee needs that guarantee verified at the line-item or placement level."
+        },
+        "learn_more": [
+          {
+            "source_type": "Microsoft Learn",
+            "source_title": "Nielsen Digital Ad Ratings Audience Profile Report",
+            "source_url": "https://learn.microsoft.com/en-us/xandr/invest/nielsen-dar-audience-profile-report"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Report on Nielsen Digital Ad Ratings",
+            "source_url": "https://support.google.com/admanager/answer/10954789"
+          },
+          {
+            "source_type": "MRC",
+            "source_title": "Accredited Services",
+            "source_url": "https://mediaratingcouncil.org/accreditation"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the DAR report's available segmentation against the media plan's reporting requirements to determine whether the campaign structure supports the breakdowns needed.",
+        "tools": {
+          "free": {
+            "nielsen_dar": {
+              "label": "Nielsen DAR",
+              "steps": [
+                "Pull the Nielsen DAR Audience Profile Report (in Microsoft Invest) or the Reach report (in Google Ad Manager) for the campaign. Note which dimensions are available for filtering or segmentation: line item, platform type, publisher, demographic group.",
+                "Review the media plan or reporting requirements document to identify what level of segmentation is expected for on-target and GRP reporting. Note whether the plan expects breakdowns by tactic (e.g., prospecting vs. retargeting), by publisher, or by flight.",
+                "Compare the dimensions available in the DAR report to the segmentation required by the media plan. If the plan requires publisher-level on-target reporting but the DAR report can only show campaign-level aggregates, record the specific gap.",
+                "Check the line-item structure in the buying platform. If line items representing distinct tactics or publishers share a single DAR campaign reference, confirm whether line-item-level filtering in the Audience Profile Report is sufficient to separate them. If not, the structure is a finding."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the segmentation levels available in the DAR report and compares them to the segmentation required by the media plan. If the DAR report can be filtered or broken down to match every reporting requirement in the plan, the structure passes. If the plan requires a breakdown that the DAR report cannot produce because line items are grouped under a single campaign reference with no separating dimension, the gap is a fail recorded with the specific required breakdown and the current report limitation.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the available DAR report dimensions and the required media plan reporting breakdowns above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Nielsen Digital Ad Ratings (DAR) campaign structure for {{site_name}}'s campaign does not mirror the media plan's reporting requirements. The DAR report can produce audience metrics at the overall campaign level, but the segmentation needed to evaluate on-target performance by tactic, publisher, or flight is not available because the relevant line items share the same campaign reference with no separating dimension. {{voice_recommend}} reviewing the DAR campaign structure against the media plan's reporting requirements and, for future campaigns, configuring the DAR activation at a level of granularity that allows the Audience Profile Report to be filtered by the breakdowns the plan requires."
+      }
+    }
+  ]
+}

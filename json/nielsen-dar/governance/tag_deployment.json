@@ -1,0 +1,198 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Nielsen Digital Ad Ratings (DAR) measurement depends entirely on correctly deployed tags and SDKs. When measurement tags are missing from placements, trafficked with mismatched parameters, or duplicated across ad-served and site-served channels, the audience data Nielsen reports reflects only the fraction of impressions it can actually observe. Mobile app and connected TV (CTV) environments add a separate instrumentation layer through the Open Measurement Software Development Kit (OM SDK) or Nielsen's own mobile SDK. Without those integrations, impressions delivered in-app and on CTV generate no audience data at all, leaving cross-screen reach and frequency figures incomplete. These checks are a prerequisite for trusting any demographic measurement the campaign produces.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Nielsen DAR measures deduplicated unique audience, reach, frequency, gross rating points (GRPs), and on-target percentage against an intended demographic across desktop, mobile web, mobile app, and CTV. The measurement depends on correctly deployed DAR tags and, for in-app and CTV environments, on SDK or Open Measurement SDK (OM SDK) integration. Two deployment paths exist: ad-served tags travel inside the creative and fire when the ad renders; site-served tags are placed directly on a publisher page and fire independently of the ad server. Mixing both paths for the same placement, or omitting the correct path for an environment, produces measurement gaps or inflated impression counts that distort every derived metric.",
+  "audit_checks": [
+    {
+      "id": "nielsen-dar-tags-missing-or-misconfigured",
+      "title": "DAR measurement tags are missing or misconfigured on measured placements",
+      "category": "governance",
+      "subcategory": "tag_deployment",
+      "impact_score": 4,
+      "impact_rationale": "A placement with no DAR tag produces zero audience data for those impressions, reducing observed reach and skewing on-target percentage and GRP calculations. A tag with incorrect campaign or placement parameters sends impressions to the wrong reporting bucket, so reported demographics cannot be attributed to the right line item or creative. Both failures degrade the accuracy of every measurement the campaign delivers.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "Nielsen DAR uses measurement tags to record ad impressions and associate them with the correct campaign, placement, and demographic target. Tags are generated through Nielsen's Campaign Management Interface and carry parameters that identify the advertiser, campaign, and placement. Nielsen's engineering documentation describes three primary tag formats: a JavaScript display tag for web placements that measures impressions alongside viewability and invalid traffic; a video tag intended for VAST delivery; and a pixel tag for environments where JavaScript is unavailable.<br><br>Each tag must be attached to the placements designated for measurement at the point of trafficking. When a buying platform activates Nielsen DAR for a line item, it typically handles tag attachment through the platform's ad-serving infrastructure. In configurations where the buyer or agency manages tag deployment directly, the tag must be assigned to every placement that the campaign intends to measure. Placements without a tag are invisible to Nielsen's data collection and contribute no audience observations to the campaign report.<br><br>Misconfiguration differs from absence. A tag can be present but carry incorrect parameter values, for example pointing to a different campaign identifier or an outdated placement definition. Nielsen matches tag parameters against the campaign setup on its measurement platform. A parameter mismatch routes impressions to the wrong reporting segment or causes them to be discarded during quality checks.<br><br>A few signs suggest a tag deployment problem worth investigating:<ul><li>The DAR report shows impressions for some placements but not others, where the missing placements were included in the campaign plan</li><li>On-target percentage is unexpectedly low relative to historical norms for the audience and inventory type, which can indicate impressions are not being attributed to the correct demographic</li><li>Discrepancies between the ad server's impression count and Nielsen's observed count exceed what co-viewing adjustments and panel weighting would normally produce</li></ul>You may want to review the tag assignment for each placement in the buying platform before concluding that a measurement gap reflects actual audience performance.",
+        "site_type_overlays": {
+          "ecommerce": "For ecommerce campaigns running across multiple placements and inventory types, you may want to confirm that DAR tags are assigned to every placement in the media plan, including any placements added mid-flight, so that audience data is collected consistently across the full campaign duration.",
+          "lead_gen": "For lead-generation campaigns with a narrow target demographic and high reliance on on-target percentage as a performance signal, you may want to verify that tag parameters correctly identify the intended demographic group, so that the on-target percentage reported reflects the actual audience composition."
+        },
+        "learn_more": [
+          {
+            "source_type": "Nielsen Engineering Documentation",
+            "source_title": "DAR Tag Implementation Guide",
+            "source_url": "https://engineeringportal.nielsen.com/wiki/DAR_Tag_Implementation_Guide"
+          },
+          {
+            "source_type": "Microsoft Learn (Xandr Invest)",
+            "source_title": "Measure Demographic Targeting Success with Nielsen Digital Ad Ratings",
+            "source_url": "https://learn.microsoft.com/en-us/xandr/invest/nielsen-digital-ad-ratings"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review tag assignment across all placements included in the campaign plan and confirm that each tag carries the correct campaign and placement parameters.",
+        "tools": {
+          "free": {
+            "nielsen_dar": {
+              "label": "Nielsen DAR",
+              "steps": [
+                "Open the DAR reporting interface and pull the campaign-level impression report. Compare the placements showing impressions against the full list of placements in the campaign plan. Record any placements in the plan that appear in the ad server's delivery report but are absent or show zero impressions in the DAR report.",
+                "For each placement that does show DAR impressions, note whether the impression count aligns reasonably with the ad server count given the co-viewing adjustment methodology. A large absolute gap, such as fewer than 50% of ad-server impressions appearing in DAR, may indicate a tag that is present but not firing reliably.",
+                "Review the tag parameters for each placement in the buying platform or the DAR Campaign Management Interface. Confirm that the campaign identifier and placement identifier in the tag match the current campaign setup. A tag generated for a previous campaign or a renamed placement may carry stale parameters.",
+                "If the buying platform manages tag attachment automatically, confirm that Nielsen DAR measurement was activated for the line item in the platform's line item settings before trafficking began. Activating it after the campaign starts means impressions delivered before activation are not measured."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each placement in the campaign plan, the practitioner records whether a DAR tag is assigned and whether that placement appears in the DAR impression report. A placement with a confirmed tag assignment and impressions in the DAR report passes. A placement in the plan that shows ad-server delivery but no DAR impressions, or that shows DAR impressions with parameters that do not match the current campaign setup, is a fail recorded with the placement name and the specific gap or parameter mismatch identified.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the placement name and the tag status for each placement in the campaign plan above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more placements in {{site_name}}'s campaign plan are missing DAR measurement tags or are carrying tag parameters that do not match the current campaign setup. Impressions delivered on untagged or misconfigured placements are not included in Nielsen's audience observations, which reduces measured reach and may skew on-target percentage and GRP calculations for the overall campaign. {{voice_recommend}} reviewing tag assignment for every placement in the campaign plan against the DAR report's placement list, confirming that tag parameters match the current campaign configuration, and retrafficking corrected tags for any placements where a gap is found."
+      }
+    },
+    {
+      "id": "nielsen-dar-ad-served-site-served-mismatch",
+      "title": "Ad-served and site-served DAR tags are both deployed on the same placement, producing duplicate impressions",
+      "category": "governance",
+      "subcategory": "tag_deployment",
+      "impact_score": 3,
+      "impact_rationale": "When both an ad-served tag and a site-served tag fire on the same impression, Nielsen receives two measurement signals for the same exposure. Depending on how Nielsen's deduplication handles the overlap, the impression may be counted twice in the raw data or trigger a quality flag that discards both. Either outcome distorts reach and frequency reporting for the placement.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "Nielsen DAR tags can be deployed through two paths. An ad-served tag travels inside the creative and fires when the ad renders on the page. A site-served tag is placed directly on the publisher's page, typically in a separate ad tag or pixel position, and fires independently of the creative. The two paths exist because different inventory configurations favor one approach over the other: programmatic display commonly uses ad-served tags embedded in the creative; direct-sold inventory or publisher-managed placements may use site-served tags that the publisher controls directly.<br><br>The distinction matters for measurement integrity. Each path produces its own impression signal. When a campaign uses both an ad-served tag in the creative and a site-served tag on the same page position for the same placement, each impression generates two separate DAR signals. Nielsen's measurement methodology does not guarantee deduplication across both signal types for the same impression event. The result is that the impression total in the DAR report may exceed actual delivery, and reach and frequency calculations derived from that inflated total will be off.<br><br>The setup can occur without anyone intending it. A publisher may implement a site-served tag as part of their standard measurement workflow while the buyer simultaneously traffics a creative containing an ad-served tag. Neither party may be aware that both signals are active. The symptom that surfaces is a DAR impression count that consistently exceeds the ad server's count by more than the margin explained by co-viewing adjustments.<br><br>A few situations are worth checking:<ul><li>The DAR impression count for a placement is materially higher than the ad server's count and co-viewing or panel weighting does not account for the gap</li><li>A publisher has confirmed they place a site-served Nielsen tag on their ad units as part of their standard setup, and the buyer has also trafficked a creative with an ad-served tag for the same placement</li><li>A campaign running on direct-sold publisher inventory shows higher DAR counts than a comparable programmatic campaign against the same audience</li></ul>You may want to confirm with the publisher whether they run their own site-served DAR tag on the ad unit before assuming a discrepancy reflects reach performance.",
+        "site_type_overlays": {
+          "ecommerce": "For ecommerce campaigns running direct-sold placements alongside programmatic, you may want to confirm that site-served and ad-served tags are not active on the same inventory position so that impression counts across the two buying paths can be compared accurately.",
+          "lead_gen": "For lead-generation campaigns using a mix of managed-service placements and self-serve buying, you may want to verify the tag deployment path for each placement type so that a discrepancy between DAR counts and ad server counts can be attributed to a known cause rather than assumed to reflect audience behavior."
+        },
+        "learn_more": [
+          {
+            "source_type": "Nielsen Engineering Documentation",
+            "source_title": "DAR Tag Implementation Guide",
+            "source_url": "https://engineeringportal.nielsen.com/wiki/DAR_Tag_Implementation_Guide"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Determine the tag deployment path in use for each placement and confirm that ad-served and site-served tags are not both active on the same placement.",
+        "tools": {
+          "free": {
+            "nielsen_dar": {
+              "label": "Nielsen DAR",
+              "steps": [
+                "Pull the placement-level impression report from DAR and compare each placement's DAR impression count to the count in the ad server's delivery report for the same date range. Record the ratio for each placement.",
+                "For placements where the DAR impression count exceeds the ad server count by more than a factor that co-viewing or panel weighting would explain, flag those placements for tag path review.",
+                "For each flagged placement, determine which tag path is in use on the buyer side: check whether the creative trafficking setup includes an ad-served DAR tag embedded in the creative or VAST.",
+                "Contact the publisher or operations team for each flagged placement and ask whether they run a site-served Nielsen DAR tag on the ad unit as part of their standard setup. If both paths are confirmed active, record the placement as a duplicate-tag candidate.",
+                "If the buying platform's line item settings have Nielsen DAR enabled and the creative also contains a DAR tag, review whether the platform's activation and the creative tag represent the same or different measurement signals to avoid counting the same impression twice."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each placement, the practitioner records the tag path in use on the buyer side and whether the publisher has confirmed a site-served tag is active on the same ad unit. A placement using one path only, ad-served or site-served, passes. A placement confirmed to have both an ad-served tag in the creative and a site-served tag on the same ad unit is a fail recorded with the placement name and the source of each tag.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the placement name and the tag paths confirmed for each placement above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} evidence that one or more placements in {{site_name}}'s campaign may have both ad-served and site-served DAR tags active simultaneously. When both tag paths fire on the same impression, Nielsen receives two measurement signals for the same exposure, which inflates DAR impression counts relative to ad server delivery and distorts reach and frequency calculations. {{voice_recommend}} confirming the intended tag deployment path for each placement with the publisher and the buying platform, removing the redundant tag path where both are confirmed active, and reconciling DAR counts against ad server delivery after the correction to verify the discrepancy resolves."
+      }
+    },
+    {
+      "id": "nielsen-dar-sdk-missing-mobile-ctv",
+      "title": "SDK or OM SDK integration for mobile app and CTV measurement is absent, leaving in-app and streaming impressions unmeasured",
+      "category": "governance",
+      "subcategory": "tag_deployment",
+      "impact_score": 4,
+      "impact_rationale": "JavaScript-based DAR tags cannot execute in native mobile app or CTV environments where a browser runtime is absent. Impressions delivered through in-app ad slots and CTV ad breaks require either the publisher app to integrate Nielsen's mobile SDK or the environment to support the IAB Tech Lab Open Measurement SDK (OM SDK) for third-party measurement access. Without one of those integrations, those impressions are not captured in the DAR report, cross-screen reach is understated, and GRP calculations omit a significant portion of total delivery.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "DAR JavaScript tags function in desktop and mobile web environments where a browser evaluates the tag when the ad renders. Native mobile app environments and CTV operating systems do not run a browser in the same way. An ad served inside a mobile app or a CTV streaming application cannot trigger a JavaScript tag through the normal browser execution path, so the standard display and video tags that work on the web produce no measurement signal in these environments.<br><br>Nielsen addresses this through two complementary mechanisms. For mobile app environments, Nielsen provides a mobile SDK that the publisher or app developer integrates directly into the application. The SDK fires the DAR measurement signal at the application level when an ad is exposed to the user. Nielsen's engineering documentation specifies mandatory parameters that the mobile environment must pass with each measurement call, including a device advertising identifier, a device group value, and a platform type flag. Those parameters are required for Nielsen to associate the impression with the correct demographic panel data.<br><br>For environments where integrating the Nielsen SDK directly is not feasible, the industry-standard Open Measurement SDK (OM SDK), published by the IAB Tech Lab, provides a common measurement integration layer. The OM SDK allows third-party measurement providers including Nielsen to access viewability and impression signals from mobile apps and CTV platforms through a standardized interface. Publishers and app developers who have integrated the OM SDK into their ad serving layer enable measurement providers to collect signals without requiring a separate per-provider SDK integration. Nielsen's VAST video tag supports OM SDK-enabled environments through its vWrap service, which dynamically adds the DAR video tag with OM SDK measurement support.<br><br>A campaign that runs across desktop, mobile app, and CTV will have measurement for desktop and mobile web impressions through the standard DAR JavaScript tag, but no measurement for in-app and CTV impressions unless the publisher's app environment has the Nielsen SDK or OM SDK integration in place. The DAR report will not flag this omission. It will simply show no impressions for those environments, which looks identical to a placement that was correctly configured but received no delivery.<br><br>A few signs suggest in-app or CTV impressions may not be reaching the DAR report:<ul><li>The ad server delivery report shows substantial impressions categorized as mobile app or CTV, but the DAR report shows no or very few impressions for those device types</li><li>The publisher or app developer has not confirmed SDK integration as part of their standard measurement setup</li><li>The buying platform's Nielsen DAR activation notes that the measurement applies to desktop and mobile web only, without confirming in-app or CTV coverage</li></ul>You may want to confirm SDK integration status with each publisher or app environment before treating a low DAR count for mobile app or CTV as a reflection of actual audience reach.",
+        "site_type_overlays": {
+          "ecommerce": "For ecommerce campaigns running across streaming and connected TV inventory, you may want to confirm with each publisher or platform that their app environment supports Nielsen's mobile SDK or the OM SDK before relying on DAR to report cross-screen reach inclusive of CTV impressions.",
+          "lead_gen": "For lead-generation campaigns where mobile app inventory represents a meaningful share of delivery, you may want to verify that publishers running in-app placements have the necessary SDK integration in place, so that the demographic measurement in the DAR report reflects the full audience and not only the browser-based portion of delivery."
+        },
+        "learn_more": [
+          {
+            "source_type": "Nielsen Engineering Documentation",
+            "source_title": "DAR Mobile Attributes Requirements",
+            "source_url": "https://engineeringportal.nielsen.com/wiki/DAR_Mobile_Attributes_Requirements"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Open Measurement SDK",
+            "source_url": "https://iabtechlab.com/standards/open-measurement-sdk/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Identify the environments included in the campaign's delivery and confirm that each in-app and CTV publisher has the measurement integration required for Nielsen DAR to observe those impressions.",
+        "tools": {
+          "free": {
+            "nielsen_dar": {
+              "label": "Nielsen DAR",
+              "steps": [
+                "Pull the ad server's device-type breakdown for the campaign's delivery, distinguishing desktop, mobile web, mobile app, and CTV. Note the share of total impressions each device type represents.",
+                "Compare the device-type breakdown from the ad server to the device-type breakdown in the DAR report for the same date range. If mobile app or CTV accounts for a meaningful share of ad-server delivery but shows substantially fewer or zero impressions in DAR, record the gap and the affected device types.",
+                "For each publisher or app environment delivering in-app or CTV impressions, confirm whether their app has Nielsen's mobile SDK integrated or whether they support the IAB Tech Lab Open Measurement SDK (OM SDK) for third-party measurement. This requires a direct conversation with the publisher or a review of their measurement capabilities documentation.",
+                "If the buying platform enabled Nielsen DAR for the line item, review whether the platform's DAR integration extends to in-app and CTV environments or applies only to desktop and mobile web. Some platform integrations are scoped to browser-based environments.",
+                "For video placements served through VAST in environments that support OM SDK, confirm whether the VAST tag uses Nielsen's vWrap service, which adds OM SDK-compatible measurement to the delivery, or a standard tag that relies on browser-based execution."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each in-app or CTV publisher in the campaign, the practitioner records whether the publisher's app environment has Nielsen's mobile SDK or OM SDK integration confirmed. A publisher environment with confirmed SDK integration and corresponding impressions in the DAR report passes. A publisher environment delivering in-app or CTV impressions in the ad server with no corresponding DAR impressions, and without a confirmed SDK integration, is a fail recorded with the publisher name, the environment type, and the delivery volume the DAR report is missing.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the publisher or app environment name and the SDK integration status for each in-app or CTV source above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s campaign is delivering impressions in mobile app or CTV environments where the necessary SDK integration for Nielsen DAR measurement is not confirmed. JavaScript-based DAR tags do not fire in native app and CTV environments, so those impressions are not captured in the audience report. Cross-screen reach figures in the DAR report reflect only the browser-based portion of delivery, which understates true reach and produces GRP calculations that omit a share of actual exposure. {{voice_recommend}} confirming SDK integration status with each in-app and CTV publisher, evaluating whether VAST video placements can be routed through Nielsen's vWrap service to add OM SDK-compatible measurement, and noting in campaign reporting that DAR figures reflect measured environments only until full SDK coverage is in place."
+      }
+    }
+  ]
+}

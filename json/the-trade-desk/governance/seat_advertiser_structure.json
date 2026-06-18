@@ -1,0 +1,185 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The seat and advertiser hierarchy in The Trade Desk is the foundation everything else inherits from: audiences, conversion pixels, supply settings, and identity configuration all attach at the advertiser level, not the campaign level. A seat that never separated advertisers may appear to run fine until conversion data from one brand contaminates a lookalike audience for another, or a Universal Pixel fires on the wrong property because its assignment was never reviewed. These checks are quick to run inside the platform and surface structural problems that distort performance and attribution across every campaign.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "In The Trade Desk, a seat holds one or more advertisers, and each advertiser owns the audiences, conversion pixels, and first-party data segments scoped to it. The Kokai platform inherits seat-level defaults, including brand safety categories, supply source preferences, and Unified ID 2.0 (UID2) identity settings, down through each advertiser. When that hierarchy is clean, audiences stay isolated, conversion data maps to the right brand, and platform defaults apply predictably. When it is not, cross-contamination and inherited misconfiguration can affect every campaign under the seat without any single campaign-level setting appearing obviously wrong.",
+  "audit_checks": [
+    {
+      "id": "ttd-advertisers-not-separated-by-coherent-principle",
+      "title": "Advertisers under the seat are not separated by a coherent organizing principle",
+      "category": "governance",
+      "subcategory": "seat_advertiser_structure",
+      "impact_score": 3,
+      "impact_rationale": "When unrelated brands, regions, or business units share one advertiser, their conversion pixels, audiences, and first-party data segments intermingle. Koa's optimization reads cross-brand signal as if it belongs to one entity, lookalike models draw on mixed pools, and attribution reports cannot be cleanly separated by brand. The problem compounds as campaigns scale.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "The Trade Desk structures its hierarchy as Seat > Advertiser > Campaign > Ad Group > Creative. The advertiser level is where audiences, Universal Pixels, first-party data segments, and conversion events attach. Everything inside one advertiser can see and draw on those resources; nothing outside it can, by default.<br><br>When an account was set up quickly or grown organically, it is not unusual for a single advertiser to hold campaigns for multiple brands, regions, or products that have no meaningful relationship to each other. A fashion brand's European campaigns sit alongside its North American direct-response campaigns under one advertiser. A holding company runs three unrelated verticals inside the same entity. A single-product company keeps a test brand inside the same advertiser as its live brand.<br><br>The consequence is data bleed. A Universal Pixel installed on Brand A's site fires conversion events that are available to Brand B's campaigns because both sit under the same advertiser. Audience segments built from Brand A's CRM data appear in Brand B's targeting library. Koa's optimization reads Brand A's purchase signal as relevant context for Brand B's bids. None of this shows up as an error. The platform is working as configured; the configuration is what is wrong.<br><br>A few signs suggest the advertiser structure should be reviewed:<ul><li>One advertiser holds campaigns with different brand names, websites, or conversion goals that have no audience overlap in practice</li><li>A Universal Pixel fires on properties belonging to more than one distinct brand</li><li>First-party segments or CRM data from different clients or product lines are visible under the same advertiser</li></ul>You may want to map each active advertiser to the brand or business unit it represents before evaluating whether the separation is clean.",
+        "site_type_overlays": {
+          "ecommerce": "For ecommerce accounts running multiple store brands or regional storefronts, you may want to confirm that each distinct brand or region has its own advertiser so that purchase conversion events, product catalog audiences, and CRM uploads from one storefront do not influence bids or audience models for another.",
+          "lead_gen": "For lead-generation accounts managing multiple clients or distinct product lines, you may want to confirm that each client or product line has its own advertiser so that form-fill conversion events and CRM segments from one business do not surface in another's targeting library."
+        },
+        "learn_more": [],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the advertiser list under the seat and evaluate whether each advertiser maps to a distinct, coherent entity.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Log in to The Trade Desk and navigate to the seat-level view to see all advertisers under it.",
+                "For each advertiser, open its settings and note its name, associated website domains, and any description or label. Identify whether multiple distinct brands, regions, or business units share one advertiser.",
+                "Open the advertiser's Data Management section and review which Universal Pixels and first-party segments are attached. Note whether segments from unrelated brands or clients are visible under the same advertiser.",
+                "Cross-reference the campaign list for each advertiser. If campaigns reference different brand names or distinct conversion goals that have no audience relationship, record the advertiser as a candidate for restructuring."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each advertiser under the seat, the practitioner records the organizing principle (brand, region, business unit) and whether any Universal Pixels, first-party segments, or campaign naming patterns suggest that unrelated entities share the advertiser. An advertiser that maps cleanly to one brand or business unit passes. An advertiser that holds campaigns or data assets from distinct, unrelated entities is a fail recorded with the advertiser name and the conflicting entities identified.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the advertiser name and the organizing principle or structural issue observed for each advertiser above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the advertiser structure under {{site_name}}'s seat does not consistently separate brands, regions, or business units into distinct advertisers. Unrelated entities sharing one advertiser means their Universal Pixels, first-party data segments, and conversion events are visible to each other's campaigns, which distorts Koa's optimization and makes it difficult to report cleanly by brand. {{voice_recommend}} mapping each current advertiser to the brand or business unit it represents, identifying any that hold campaigns or data assets for more than one distinct entity, and creating separate advertisers where the separation is warranted."
+      }
+    },
+    {
+      "id": "ttd-data-assets-scoped-to-wrong-advertiser",
+      "title": "First-party data, conversion pixels, or audiences are scoped to the wrong advertiser",
+      "category": "governance",
+      "subcategory": "seat_advertiser_structure",
+      "impact_score": 3,
+      "impact_rationale": "A Universal Pixel or first-party segment attached to the wrong advertiser is either unavailable where it is needed or visible where it should not be. Conversion events that fail to reach the right advertiser cannot feed Koa's optimization or attribution. Segments that leak across advertisers expose audience data to campaigns that should not have access to it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "In The Trade Desk, Universal Pixels are attached to a specific advertiser. The pixel fires on a website and sends conversion events, audience membership signals, and Universal Pixel data to that advertiser's data library. Campaigns under that advertiser can use those events for conversion tracking and retargeting. Campaigns under a different advertiser cannot, even within the same seat.<br><br>The same scoping applies to first-party segments uploaded through the platform's data onboarding or ingested via a data partner. A segment uploaded under Advertiser A is not accessible to Advertiser B's campaigns. This is by design, but it means a pixel or upload assigned to the wrong advertiser during setup creates a gap that is invisible at the campaign level. The campaign runs, fires impressions, and receives no conversion signal because the pixel's data belongs to a different advertiser entity.<br><br>The issue surfaces in a few ways. A Universal Pixel appears in the platform but the campaign targeting that site's converters cannot find the corresponding audience segment. Conversion reports for a campaign show no activity even though the advertiser's site is processing orders. An audience segment a team built for retargeting does not appear in the campaign's targeting options even though it exists under the seat.<br><br>The check is a mapping exercise: confirm that each Universal Pixel is installed on the property that belongs to the advertiser it is assigned to, and that first-party segments land under the advertiser whose campaigns will use them. You may want to verify this assignment in the platform's Data Management section before concluding that a missing signal is a tag-firing problem.",
+        "site_type_overlays": {
+          "ecommerce": "For ecommerce accounts, you may want to confirm that the Universal Pixel assigned to each storefront's checkout confirmation page is attached to the advertiser running that storefront's campaigns, so that purchase events feed the correct conversion reports and Koa's bid optimization.",
+          "lead_gen": "For lead-generation accounts, you may want to confirm that form-submission conversion events and CRM audience segments are attached to the advertiser whose campaigns target those leads, so that attribution and retargeting audiences reflect the correct funnel."
+        },
+        "learn_more": [
+          {
+            "source_type": "UID2 Documentation",
+            "source_title": "UID2 overview for advertisers",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-advertisers"
+          },
+          {
+            "source_type": "UID2 Documentation",
+            "source_title": "UID2 account setup",
+            "source_url": "https://unifiedid.com/docs/getting-started/gs-account-setup"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that each Universal Pixel is assigned to the advertiser that owns the property it fires on, and that first-party segments are accessible to the campaigns that need them.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Navigate to the advertiser's Data Management section and open the Universal Pixel list. For each pixel, note the advertiser it is attached to and the domain or property it fires on.",
+                "Cross-reference the pixel's assigned advertiser with the campaigns targeting that property's converters. If the campaigns and the pixel belong to different advertisers, the conversion events are not reaching those campaigns.",
+                "Review the first-party segment library under each advertiser. Confirm that segments built from a brand's CRM data or site visitors are attached to the same advertiser running that brand's campaigns.",
+                "For any segment or pixel that appears to be missing from a campaign's options, check whether it exists under a different advertiser in the same seat rather than assuming the data was never uploaded."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each Universal Pixel and first-party segment under the seat, the practitioner records the advertiser it is attached to and confirms that the campaigns meant to use it belong to the same advertiser. A pixel or segment accessible to the campaigns that need it and isolated from campaigns that should not have access passes. A pixel or segment attached to the wrong advertiser, making it unavailable to the intended campaigns or visible to unintended ones, is a fail recorded with the asset name and the advertiser mismatch.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the pixel or segment name and the advertiser assignment for each asset above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more Universal Pixels or first-party data segments under {{site_name}}'s seat are assigned to an advertiser that does not match the campaigns intended to use them. Conversion events and audience membership signals from those assets are not reaching the campaigns that need them, which gaps conversion reporting and prevents Koa from optimizing toward the right signal. {{voice_recommend}} auditing each Universal Pixel and first-party segment in the platform's Data Management section to confirm the assigned advertiser matches the campaigns that target those properties or audiences, and reassigning any assets that are misaligned."
+      }
+    },
+    {
+      "id": "ttd-seat-level-defaults-not-reviewed-per-advertiser",
+      "title": "Seat-level brand safety, supply, and identity defaults have not been reviewed at the advertiser level",
+      "category": "governance",
+      "subcategory": "seat_advertiser_structure",
+      "impact_score": 2,
+      "impact_rationale": "Seat-level defaults in Kokai apply to all advertisers unless an advertiser-level override is in place. An advertiser running in a sensitive category may need stricter brand safety settings than the seat default allows. An advertiser targeting markets where Unified ID 2.0 applies may need UID2 identity settings that differ from a sibling advertiser in a non-UID2 market. Defaults that are never reviewed at the advertiser level mean each advertiser inherits settings that may not fit its specific requirements.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "The Trade Desk's Kokai platform applies seat-level defaults as the starting configuration for every advertiser in the seat. Brand safety content categories, supply source preferences, OpenPath settings, and Unified ID 2.0 (UID2) identity configuration can all be set at the seat level and inherited downward. Each advertiser can override those defaults, but if it never does, it operates with whatever the seat established.<br><br>The default inheritance model is efficient for accounts where all advertisers share similar requirements. It creates a gap when advertisers have meaningfully different needs. A pharmaceutical advertiser may need content-category exclusions that go beyond what a consumer-goods advertiser requires. An advertiser running campaigns in markets covered by UID2, such as the United States, Canada, and Australia, has identity configuration needs that differ from an advertiser running only in European markets where the European Unified ID (EUID) applies instead. An advertiser buying premium video inventory through OpenPath may need supply settings that differ from an advertiser focused on display across the open marketplace.<br><br>A review at the advertiser level does not mean every advertiser needs custom settings. Many will inherit the seat defaults appropriately. The purpose is to confirm that the defaults have been evaluated against each advertiser's requirements rather than assumed to be correct by virtue of being the platform's starting point.<br><br>A few situations warrant close attention:<ul><li>Advertisers in regulated categories, such as pharmaceuticals, financial services, or alcohol, where content adjacency carries legal or policy risk beyond the seat default</li><li>Advertisers with geographic footprints that span both UID2 and EUID markets, where identity settings may need to differ by region</li><li>Advertisers that were migrated from a previous platform setup where the seat defaults were inherited without a deliberate review</li></ul>You may want to open each advertiser's settings in Kokai and confirm that brand safety, supply, and identity configuration reflect that advertiser's actual requirements.",
+        "site_type_overlays": {
+          "ecommerce": "For ecommerce advertisers, you may want to confirm that the supply and brand safety defaults at the seat level are appropriate for the retail context. An advertiser selling products in a regulated category, such as alcohol or supplements, may need tighter content-category exclusions than the seat default provides.",
+          "lead_gen": "For lead-generation advertisers, you may want to confirm that UID2 identity settings are configured at the advertiser level if the campaigns target markets where UID2 applies, so that first-party identity data from CRM uploads or email-based audiences is available for matching."
+        },
+        "learn_more": [
+          {
+            "source_type": "UID2 Documentation",
+            "source_title": "UID2 overview for advertisers",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-advertisers"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review seat-level defaults and confirm each advertiser's brand safety, supply, and identity settings have been evaluated against that advertiser's requirements.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Navigate to the seat-level settings in The Trade Desk UI and note the default brand safety content categories, supply source preferences, and UID2 identity configuration.",
+                "Open each advertiser's settings and compare them to the seat defaults. Identify which advertisers have advertiser-level overrides in place and which are inheriting the seat defaults without modification.",
+                "For any advertiser in a regulated or sensitive category, note whether the inherited brand safety settings are appropriate for that advertiser's content-adjacency requirements.",
+                "For advertisers running campaigns in UID2 markets, confirm that identity settings at the advertiser level are configured to use UID2 if first-party CRM data or email-based targeting is part of the strategy."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each advertiser, the practitioner records whether seat-level defaults for brand safety, supply, and identity have been reviewed and whether any advertiser-level overrides are in place. An advertiser with settings that have been deliberately evaluated against its requirements passes, whether it uses overrides or inherits the seat defaults. An advertiser in a regulated category or in a UID2 market that is inheriting seat defaults without any evidence of a deliberate review is flagged for follow-up, recorded with the advertiser name and the setting area that warrants review.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the advertiser name and the setting areas reviewed for each advertiser above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more advertisers under {{site_name}}'s seat are inheriting seat-level brand safety, supply, or identity defaults without evidence that those defaults have been reviewed against each advertiser's specific requirements. Advertisers in regulated categories or in markets where UID2 applies may have requirements that differ from the seat default, and inheriting defaults without a deliberate review leaves those gaps undetected. {{voice_recommend}} reviewing each advertiser's settings in Kokai against its category, geographic footprint, and identity strategy, and applying advertiser-level overrides where the seat default does not fit the advertiser's requirements."
+      }
+    }
+  ]
+}

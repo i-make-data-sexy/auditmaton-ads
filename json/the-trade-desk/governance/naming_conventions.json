@@ -1,0 +1,116 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Naming conventions are one of the few governance decisions that cannot be fixed retroactively without touching every object in the account. A campaign named 'Q2_Brand_CTV_Prospecting_US' can be filtered, pivoted, and rolled up in any reporting tool without a single manual tag. A campaign named 'Campaign 47' cannot. The check is a read-only inspection of live object names against a documented standard, so it takes minutes and the fix is low-effort going forward once a standard is written and shared.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Naming conventions give every campaign, ad group, and creative a structured label that encodes the dimensions the team reports on, such as channel, audience segment, geography, and funnel stage. The Trade Desk's Kokai platform organizes buying under a three-level hierarchy: Advertiser, Campaign, and Ad Group (with creatives attached at the ad group level). A consistent naming pattern across all three levels lets analysts filter and roll up performance in third-party reporting tools, spreadsheets, and dashboards without relying on custom labels or manual annotation. These checks confirm that a documented standard exists, that live objects follow it, and that the standard captures the dimensions the account actually needs for reporting.",
+  "audit_checks": [
+    {
+      "id": "ttd-naming-no-documented-standard",
+      "title": "No documented naming standard exists for campaigns and ad groups",
+      "category": "governance",
+      "subcategory": "naming_conventions",
+      "impact_score": 3,
+      "impact_rationale": "Without a written standard, names accumulate in ad hoc patterns. When a new team member or agency is added, names diverge further and rollup reporting breaks down at the points where name patterns change.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "A naming convention is a written rule that defines the format and allowed values for campaign and ad group names before anyone creates a new object. Without one, names are invented at creation time and reflect whatever the creator thought was useful in that moment. The result across a live account is a set of names with inconsistent separators, different capitalization, different orderings of the same dimensions, and missing values where a creator skipped a field they did not think mattered.<br><br>The Trade Desk's Kokai platform exposes campaign and ad group names as the primary sort and filter keys in its reporting interface. Any downstream tool, such as a data warehouse export, a spreadsheet, or a business intelligence dashboard, receives those names as raw strings. Filters and groupings in those tools depend on the names being consistent. A campaign named 'US_Prospecting_CTV_Q2' and a campaign named 'Q2_CTV_US_Prospecting' carry the same information but cannot be reliably matched by a regex or a string split because the field order differs.<br><br>A practical standard documents the following for each hierarchy level:<ul><li>The fields to include, in a fixed order (e.g., market, funnel stage, channel, audience, flight)</li><li>The separator character (underscores are machine-friendly; hyphens and pipes are also used)</li><li>The allowed values per field, or at minimum the field's purpose</li><li>The capitalization rule (all-caps abbreviations, title case, or all-lowercase)</li></ul>You may want to confirm the standard is written in a shared document that every account user and agency partner can access, not just understood informally by the person who built the account.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser, the naming standard should encode product category or brand alongside funnel stage so performance can be split between prospecting for a specific category and retargeting buyers of another. You may want to confirm the standard reserves a field for product line or category at the ad group level.",
+          "lead_gen": "For a lead-generation advertiser, the naming standard should encode the offer or landing page variant alongside audience type so performance across different lead forms can be separated in reporting. You may want to confirm the standard reserves a field for offer or creative theme."
+        },
+        "learn_more": [],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether a documented naming standard exists and whether the account's current campaign and ad group names follow a discernible pattern.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Log in to The Trade Desk and navigate to the Advertiser whose account you are auditing.",
+                "Open the Campaigns view and scan the names of the five most recent campaigns. Note the separator character, the field order, and whether the same dimensions appear in the same position across names.",
+                "Select one campaign and open its Ad Groups. Repeat the same scan for ad group names. Note whether the ad group names extend the campaign naming pattern or use a different structure.",
+                "Ask the account owner to share the written naming convention document. If no document exists, note that the standard is informal or absent."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a documented naming standard exists (yes or no) and whether the current campaign and ad group names follow a consistent pattern. A documented standard with names that match the pattern passes. An account with no documented standard, or with a standard that the live names do not follow, is a fail recorded with a sample of the inconsistent names.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a documented standard exists and note a sample of campaign and ad group names above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s The Trade Desk account does not have a documented naming convention for campaigns and ad groups. Names in the account follow different structures depending on when they were created, which prevents consistent filtering and rollup in reporting tools outside the platform. {{voice_recommend}} drafting a written standard that specifies the field order, separator character, allowed values per field, and capitalization rule for both campaign and ad group names, then applying it to new objects going forward."
+      }
+    },
+    {
+      "id": "ttd-naming-dimensions-missing-from-standard",
+      "title": "Naming standard omits reporting dimensions the team relies on",
+      "category": "governance",
+      "subcategory": "naming_conventions",
+      "impact_score": 3,
+      "impact_rationale": "A standard that exists but does not encode key reporting dimensions forces analysts to maintain a separate mapping table or apply manual filters to split performance by those dimensions. The reporting gap is the same as having no standard for that dimension.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "The value of a naming convention comes from the dimensions it encodes. A standard that captures only campaign flight date and channel but omits audience type leaves analysts unable to split performance by audience segment without opening each ad group individually. A standard that omits geography leaves a global advertiser unable to roll up by market in a dashboard that reads names as the only grouping key.<br><br>The Trade Desk's Kokai ad group is the level where most targeting decisions live: audience segments, supply paths, and creative assignments are set at the ad group level. The ad group name is therefore the label that carries the most analytical weight. An ad group named 'AdGroup_1' contains none of the targeting context that the configuration holds. An ad group named 'US_Prospecting_CTV_TechBuyers_Q2' encodes market, funnel stage, environment, audience, and flight in a single filterable string.<br><br>The dimensions worth encoding depend on how the team reports. A few questions identify the gaps:<ul><li>Does the team report performance by geography? If yes, is geo encoded in the name?</li><li>Does the team report by funnel stage (prospecting versus retargeting)? If yes, is stage encoded?</li><li>Does the team report by channel or environment (connected TV (CTV), display, audio, native)? If yes, is channel encoded?</li><li>Does the team report by audience segment? If yes, is segment encoded?</li></ul>You may want to compare the dimensions in the team's standard reporting views against the fields the naming convention captures. Any dimension that appears as a reporting filter but is absent from the name structure is a gap.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser running both prospecting and dynamic retargeting, the naming standard should distinguish those two ad group types clearly. Their expected click-through rates and return on ad spend differ, and mixing them in a rollup obscures both.",
+          "lead_gen": "For a lead-generation advertiser, the naming standard should distinguish between ad groups targeting cold audiences and those retargeting site visitors or CRM lists. Cost per lead typically differs substantially between the two, and a combined view hides the difference."
+        },
+        "learn_more": [],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Compare the dimensions the team uses in reporting against the fields the current naming convention encodes to identify gaps.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the reporting section of The Trade Desk and review the breakdown dimensions the team applies most often, such as geography, channel, audience, or funnel stage.",
+                "Open the Campaigns and Ad Groups views and read the names of active objects. For each reporting dimension the team uses, confirm whether that dimension is present as a field in the name.",
+                "Note any dimension that appears in report breakdowns but is absent from object names. These are the gaps the standard should address."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each reporting dimension the team uses and whether that dimension is present in the naming standard. A standard that encodes all reporting dimensions passes. A standard that omits one or more reporting dimensions is a fail recorded with the missing dimensions listed by name.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "List the team's reporting dimensions and note which are present or absent in the naming standard above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s The Trade Desk naming standard does not encode all of the dimensions the team uses in performance reporting. Dimensions absent from object names cannot be filtered or rolled up in tools that read names as the primary grouping key, so reporting on those dimensions requires manual annotation or a separate mapping table. {{voice_recommend}} reviewing the team's standard report breakdowns and updating the naming convention to include a field for each reporting dimension, applying the updated standard to new ad groups going forward."
+      }
+    }
+  ]
+}

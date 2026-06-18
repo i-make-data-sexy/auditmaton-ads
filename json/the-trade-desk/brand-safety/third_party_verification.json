@@ -1,0 +1,222 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Third-party verification is the layer that confirms The Trade Desk's reported impressions are real, viewable, and placed against content that fits the brand. Without it, fraud and brand-unsafe placements are invisible in platform reporting, which understates cost and overstates performance. The check covers three things: whether verification tags are applied at all, whether the suitability settings match the brand's actual standards rather than defaulting to maximum restriction, and whether reported numbers from the platform and the vendor are close enough to trust. None of these require deep technical work to confirm, and each one independently affects how much of the budget delivers genuine value.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Third-party verification vendors such as DoubleVerify (DV) and Integral Ad Science (IAS) sit inside the ad tag and measure each impression independently of The Trade Desk's own reporting. They confirm viewability, detect invalid traffic, and classify the content adjacent to each ad. These checks confirm that verification tags are active and applied at the right point in the campaign, that brand suitability settings are calibrated to the brand's standards rather than defaulted to maximum exclusion, and that discrepancies between The Trade Desk's impression count and the vendor's count fall within an acceptable tolerance.",
+  "audit_checks": [
+    {
+      "id": "ttd-third-party-verification-tags-not-active",
+      "title": "Third-party verification tags are not active or are applied only post-bid",
+      "category": "brand-safety",
+      "subcategory": "third_party_verification",
+      "impact_score": 4,
+      "impact_rationale": "Without pre-bid verification segments active, the campaign buys impressions before fraud and brand-unsafe signals are evaluated. Post-bid tagging records what happened but cannot prevent the spend. Fraud and brand-unsafe placements continue to consume budget until someone notices the verification vendor's reports.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "fraud"],
+      "educate": {
+        "base": "Verification vendors such as DoubleVerify (DV) and Integral Ad Science (IAS) operate in two modes: pre-bid and post-bid. Pre-bid verification applies the vendor's segments as targeting filters inside the demand-side platform (DSP) before the bid is placed, so the campaign never purchases impressions that fall outside the accepted parameters. Post-bid verification measures those same signals after the impression has already been bought and served, producing a report but no prevention.<br><br>In The Trade Desk's Kokai interface, pre-bid verification appears under the brand safety settings at the ad group level. The vendor's segments arrive as a data partnership and are selectable alongside other targeting. If the ad group has no pre-bid segment applied, or if a segment is present but marked as 'reporting-only' rather than avoidance, the protection is passive. Budget continues to flow to invalid and unsafe inventory, and the vendor report at the end of the flight documents the damage rather than preventing it.<br><br>A few signs point to this setup being incomplete:<ul><li>The ad group's brand safety settings show no DV or IAS pre-bid segment, or show one in reporting mode only</li><li>The verification vendor's dashboard shows high invalid traffic or brand-unsafe impression rates that do not decline over the flight</li><li>No verification partner appears in the campaign's data partnerships under the third-party section</li></ul>You may want to confirm that the pre-bid segment is set to 'avoidance' rather than 'reporting-only' on the ad groups that matter most before concluding the feature is working. Reporting mode looks identical to avoidance mode in the interface until you read the segment's configured action.",
+        "site_type_overlays": {
+          "ecommerce": "For ecommerce campaigns, connected TV (CTV) and video inventory carry additional fraud risk because impression volumes are high and invalid traffic detection is harder in a closed-screen environment. You may want to confirm the pre-bid segment explicitly covers CTV and video environments, not only display.",
+          "lead_gen": "Lead generation campaigns often run on content networks where brand suitability matters as much as fraud. You may want to confirm the pre-bid segment includes content category exclusions appropriate to the brand, not only fraud avoidance."
+        },
+        "learn_more": [
+          {
+            "source_type": "DoubleVerify",
+            "source_title": "DV verification products for advertisers: fraud, brand suitability, viewability",
+            "source_url": "https://doubleverify.com/products/advertisers/verify/"
+          },
+          {
+            "source_type": "Integral Ad Science",
+            "source_title": "IAS ad fraud solutions",
+            "source_url": "https://integralads.com/solutions/ad-fraud/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that a pre-bid verification segment from DV or IAS is active on the ad groups in scope, and that its action is set to avoidance rather than reporting-only.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the campaign and navigate to the ad group level in Kokai.",
+                "Under the brand safety or third-party verification section, note whether a DV or IAS pre-bid segment appears.",
+                "If a segment appears, confirm its action is 'avoidance' rather than 'reporting-only'. A reporting-only designation means the segment measures but does not filter.",
+                "Repeat for each ad group in scope. A campaign may have some ad groups protected and others not, so check each one rather than relying on campaign-level settings."
+              ]
+            },
+            "verification_vendor_dashboard": {
+              "label": "Verification vendor dashboard (DV Pinnacle or IAS Signal)",
+              "steps": [
+                "Log in to the verification vendor's reporting dashboard.",
+                "Pull an impression-level report for the campaign and filter to the invalid traffic and brand safety columns.",
+                "Note whether the invalid traffic rate is above 1-2% or whether brand-unsafe impressions appear. High rates suggest pre-bid protection is absent or set to reporting-only."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad group, whether a pre-bid verification segment is present and whether its action is avoidance. An ad group with an active avoidance segment passes. An ad group with no segment, or with a reporting-only segment, is a fail recorded with the ad group name and the current segment status.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the ad group name and verification segment status above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more ad groups in {{site_name}}'s The Trade Desk campaigns are running without active pre-bid verification, or with verification set to reporting-only mode. Without pre-bid avoidance segments applied, the campaign purchases impressions before fraud and brand-unsafe signals are evaluated, and the verification vendor's report documents exposure rather than preventing it. {{voice_recommend}} enabling pre-bid avoidance segments from the verification partner on all active ad groups, confirming the segment action is set to 'avoidance' rather than 'reporting-only', and reviewing the vendor dashboard after the next flight begins to confirm invalid traffic rates fall to an acceptable level."
+      }
+    },
+    {
+      "id": "ttd-verification-tier-miscalibrated",
+      "title": "Verification suitability tier is not calibrated to the brand's actual standards",
+      "category": "brand-safety",
+      "subcategory": "third_party_verification",
+      "impact_score": 3,
+      "impact_rationale": "A tier set more restrictive than the brand requires excludes inventory that would have been acceptable, reducing scale and raising effective CPM. A tier set less restrictive than the brand requires places ads next to content the brand would not approve. Both errors persist without obvious signs because the campaign delivers and reports normally.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "governance"],
+      "educate": {
+        "base": "Verification vendors offer tiered brand suitability profiles, typically labeled 'floor', 'standard', 'strict', or equivalent names that map to increasingly broad content exclusions. The 'floor' tier excludes only the most extreme content categories. The 'strict' tier excludes a wide range of adjacent topics including news, politics, sensitive but legal content, and anything the classification engine scores as moderately risky. Each step up the scale removes a larger share of eligible inventory from the pool.<br><br><a href='https://doubleverify.com/products/advertisers/verify/brand-suitability/' class='tools-link-no-padding' target='_blank'>DoubleVerify's brand suitability tiers</a> and <a href='https://integralads.com/solutions/brand-safety-suitability/' class='tools-link-no-padding' target='_blank'>IAS's equivalent settings</a> both allow advertisers to move between tiers or build custom profiles. The default when a verification tag is first applied is not always documented clearly, and campaigns sometimes inherit whatever tier a previous manager selected without reviewing whether it matches the brand's current guidelines.<br><br>The consequence runs in both directions. A luxury brand running at 'floor' may appear next to content its legal or communications team would reject. A news advertiser or a brand with a genuinely broad content policy running at 'strict' may find reach is severely curtailed, that effective cost per mille (CPM) is elevated, and that the campaign underdelivers against plan. Neither outcome reflects poor inventory quality. Both reflect a miscalibrated setting.<br><br>A few signs point to this setup being worth reviewing:<ul><li>The verification vendor's dashboard shows a high block rate, meaning a large share of eligible impressions were filtered out before serving</li><li>The campaign underdelivers against its impression target despite adequate budgets and broad targeting</li><li>The suitability tier in the verification vendor's platform has not been reviewed since the campaign was originally configured</li></ul>You may want to confirm the selected tier against the brand's written content adjacency guidelines before adjusting. Moving to a less restrictive tier without that alignment creates a different risk.",
+        "site_type_overlays": {
+          "ecommerce": "Ecommerce brands selling general consumer goods can often operate at 'standard' without material brand risk. A 'strict' tier applied to a mass-market retailer may unnecessarily exclude news and current-events content where purchase intent is present.",
+          "lead_gen": "Lead generation in regulated industries such as finance or healthcare may warrant a more conservative tier than the platform default. You may want to confirm the tier aligns with the compliance team's content adjacency policy, not just the marketing team's preference."
+        },
+        "learn_more": [
+          {
+            "source_type": "DoubleVerify",
+            "source_title": "DV brand suitability for advertisers",
+            "source_url": "https://doubleverify.com/products/advertisers/verify/brand-suitability/"
+          },
+          {
+            "source_type": "Integral Ad Science",
+            "source_title": "IAS brand safety and suitability solutions",
+            "source_url": "https://integralads.com/solutions/brand-safety-suitability/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Identify the current suitability tier in the verification vendor's platform and compare it against the brand's content adjacency guidelines.",
+        "tools": {
+          "free": {
+            "verification_vendor_dashboard": {
+              "label": "Verification vendor dashboard (DV Pinnacle or IAS Signal)",
+              "steps": [
+                "Log in to the verification vendor's platform and locate the brand profile or suitability settings for this advertiser.",
+                "Note the current tier label and which content categories are blocked. Export or screenshot the category list if possible.",
+                "Pull the block rate from the campaign report for the most recent completed flight. A block rate above 30-40% may indicate the tier is more restrictive than necessary for the campaign's delivery goals."
+              ]
+            },
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Navigate to the ad group's brand safety settings in Kokai and confirm which pre-bid segment is applied.",
+                "Cross-reference the segment name with the tier configured in the verification vendor's platform to confirm they match."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the current tier, the block rate from the most recent flight, and whether the tier has been reviewed against the brand's content adjacency guidelines. A tier with documented brand alignment and a block rate below the campaign's acceptable threshold passes. A tier that has not been reviewed, that produces a block rate the campaign team considers excessive, or that does not match the brand's written policy is a fail recorded with the current tier name and the block rate.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the current verification tier, the block rate from the last flight, and whether the tier aligns with the brand's content adjacency policy above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the verification suitability tier applied to {{site_name}}'s The Trade Desk campaigns has not been reviewed against the brand's content adjacency guidelines. A tier that is more restrictive than necessary reduces eligible inventory and raises effective CPM; a tier that is less restrictive than the brand requires places ads next to content the brand would not approve. Neither error is visible in standard campaign delivery reporting. {{voice_recommend}} reviewing the current tier in the verification vendor's platform against the brand's written content policy, confirming the block rate from recent flights is within an acceptable range, and documenting the approved tier so future campaign managers do not inherit an unreviewed setting."
+      }
+    },
+    {
+      "id": "ttd-verification-discrepancy-not-reconciled",
+      "title": "Impression count discrepancy between The Trade Desk and the verification vendor exceeds acceptable tolerance",
+      "category": "brand-safety",
+      "subcategory": "third_party_verification",
+      "impact_score": 3,
+      "impact_rationale": "A discrepancy above the normal tolerance range signals that the verification tag is not firing on a share of impressions, that a counting methodology difference has not been documented, or that billing and measurement are based on different populations of impressions. When the gap is not reconciled, the account cannot confirm how much of the budget was independently verified.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "data-quality"],
+      "educate": {
+        "base": "The Trade Desk counts an impression when it wins an auction and serves the ad. A third-party verification vendor counts an impression when its tag fires and the vendor's pixel loads. These are two independent measurement events, and a small gap between the two counts is expected. The advertising industry treats a discrepancy of roughly 5-10% as within normal tolerance. A gap larger than that indicates a problem worth tracing.<br><br>The most frequent causes of large discrepancies in a The Trade Desk context include the verification tag not loading in time before the browser moves on, the tag being applied to only some of the campaign's ad groups or creative line items, environments such as connected TV (CTV) or in-app inventory where third-party tags are subject to additional loading constraints, and ad blockers that prevent the verification pixel from firing on a desktop impression the DSP already counted.<br><br>A discrepancy is distinct from a block rate. The block rate measures impressions filtered before serving. The discrepancy measures the gap between what the DSP counted as served and what the verification vendor actually measured. A campaign can have a low block rate and a high discrepancy if the tag fires inconsistently after serving.<br><br>A few signs point to a discrepancy worth investigating:<ul><li>The verification vendor's delivered impressions are more than 10% below The Trade Desk's served impressions for the same date range</li><li>The discrepancy is higher on specific ad groups, environments, or creative formats than others, suggesting uneven tag application</li><li>The discrepancy has grown over time without a corresponding change in campaign setup</li></ul>You may want to pull the discrepancy report from the verification vendor's platform before concluding the campaign is fully covered. The platform's own delivery numbers do not surface the gap.",
+        "site_type_overlays": {
+          "ecommerce": "CTV and video formats used heavily in ecommerce upper-funnel campaigns carry a higher baseline discrepancy because third-party tags have fewer opportunities to fire on a closed-screen device. You may want to treat CTV and display discrepancies separately rather than averaging them. CTV's gap may be structural rather than a setup error.",
+          "lead_gen": "Lead generation campaigns running on display and native tend to have lower structural discrepancies than video or CTV. A discrepancy above 10% on display-only ad groups points to a tag application or load-time issue that is worth addressing before scaling the campaign."
+        },
+        "learn_more": [
+          {
+            "source_type": "Integral Ad Science",
+            "source_title": "IAS viewability measurement solutions",
+            "source_url": "https://integralads.com/solutions/viewability/"
+          },
+          {
+            "source_type": "DoubleVerify",
+            "source_title": "DV verification products for advertisers",
+            "source_url": "https://doubleverify.com/products/advertisers/verify/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Pull impression counts from The Trade Desk and from the verification vendor for the same campaign and date range, calculate the discrepancy percentage, and trace any gap above 10% to the ad groups or environments where it is highest.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "In Kokai, run a report for the campaign with impressions broken out by ad group and by environment (display, video, CTV, in-app). Note the total served impressions for the period you are reviewing.",
+                "Export the report or note the totals for comparison against the verification vendor."
+              ]
+            },
+            "verification_vendor_dashboard": {
+              "label": "Verification vendor dashboard (DV Pinnacle or IAS Signal)",
+              "steps": [
+                "Log in to the verification vendor's platform and pull a delivery report for the same campaign and the same date range.",
+                "Note the vendor's measured impression total and any breakdown by environment or ad group if available.",
+                "Calculate the discrepancy: (TTD impressions minus vendor impressions) divided by TTD impressions, expressed as a percentage. A result above 10% is worth tracing.",
+                "If the vendor offers a discrepancy analysis report, pull that as well. It may identify the environments or creative formats where the gap is concentrated."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the served impression total from The Trade Desk, the measured impression total from the verification vendor for the same period, and the calculated discrepancy percentage. A discrepancy below 10% passes. A discrepancy of 10% or above is a fail recorded with the percentage and the environment or ad group where the gap is largest.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the The Trade Desk impression count, the verification vendor impression count, and the calculated discrepancy percentage above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the impression count discrepancy between The Trade Desk and the third-party verification vendor on {{site_name}}'s campaigns exceeds the accepted tolerance. A gap above roughly 10% means a share of served impressions was not independently verified for viewability, brand safety, or fraud, and the account cannot confirm that budget reached the inventory the verification reports describe. {{voice_recommend}} pulling the discrepancy by ad group and environment, confirming the verification tag is applied to all active ad groups and creative line items, and reviewing whether CTV or in-app environments account for the majority of the gap before assuming a tag implementation error. If the tag application is complete, {{voice_recommend}} contacting the verification vendor's support team to confirm whether the discrepancy falls within the expected range for the environments in use."
+      }
+    }
+  ]
+}

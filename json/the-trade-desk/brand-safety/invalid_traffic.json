@@ -1,0 +1,129 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Invalid traffic (IVT) filtering sits at the foundation of any programmatic buy. When bot and non-human traffic reach the ad server unchecked, every metric in the campaign, impressions, clicks, and conversions, reads higher than the real human audience. The Trade Desk applies baseline general invalid traffic (GIVT) filtering automatically, but sophisticated invalid traffic (SIVT) requires verification partner segments or active exclusions. These checks are fast to audit: the platform surfaces IVT rates by supply source in reporting, and exclusion lists can be confirmed in the ad group settings in minutes. The fix, adding a fraud segment or excluding suspicious supply, costs nothing beyond the verification partner relationship that most programmatic buyers already have.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "IVT in programmatic advertising divides into two categories. GIVT covers known non-human activity, such as data-center traffic and bots on the Interactive Advertising Bureau (IAB) Tech Lab's registered list, and The Trade Desk filters it before billing. SIVT covers harder-to-detect fraud, including hijacked devices, adware, and misrepresented inventory, and it requires verification partner segments or active exclusion lists to address. These checks confirm that IVT filtering is active at the right level, that suspicious supply sources have been investigated and excluded, and that fraud segments from a verification vendor are applied where spend concentration makes them worthwhile.",
+  "audit_checks": [
+    {
+      "id": "ttd-ivt-no-verification-fraud-segment",
+      "title": "No verification vendor fraud segment is applied to ad groups with significant spend",
+      "category": "brand-safety",
+      "subcategory": "invalid_traffic",
+      "impact_score": 4,
+      "impact_rationale": "The Trade Desk applies GIVT filtering automatically, but SIVT, which covers hijacked devices, adware-driven traffic, and misrepresented inventory, passes through without a verification vendor segment. On campaigns with substantial spend, SIVT can represent a meaningful share of impressions that never reach a real person. Reported performance metrics improve on paper while actual human reach is lower than the numbers suggest.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["fraud", "brand-safety"],
+      "educate": {
+        "base": "The Trade Desk filters general invalid traffic (GIVT) before billing, removing impressions from known data-center IP ranges and bots documented on the <a href='https://iabtechlab.com/standards/ads-txt/' class='tools-link-no-padding' target='_blank'>IAB Tech Lab's</a> lists. Sophisticated invalid traffic (SIVT) is a different problem. SIVT includes traffic from compromised devices running ad-clicking malware, adware-injected impressions, and inventory misrepresented in the bid stream. GIVT filtration does not remove it.<br><br>Verification vendors, such as DoubleVerify and Integral Ad Science (IAS), provide fraud segments that buyers can apply as targeting exclusions or pre-bid filters in the Kokai platform. When one of these segments is active, the verification vendor's classification engine evaluates each bid opportunity before The Trade Desk commits spend. Impressions flagged as SIVT are excluded before the bid goes out, so the spend never reaches those sources.<br><br>Without a fraud segment, the account relies entirely on supply-source-level GIVT filtering and any exclusions the practitioner has added manually. A few signs suggest SIVT exposure may be present:<ul><li>IVT rates vary widely across supply sources in The Trade Desk's reporting, with some sources reporting rates several times higher than the campaign average</li><li>Click-through rates on display or video are unusually high relative to post-click engagement on site</li><li>Conversion counts from The Trade Desk diverge significantly from server-side or first-party event counts for the same period</li></ul>You may want to review whether a verification vendor fraud segment is applied at the ad group level, particularly on ad groups running open-web display or pre-roll video with broad audience or contextual targeting.",
+        "site_type_overlays": {
+          "ecommerce": "On campaigns driving purchase conversions, SIVT inflates click and conversion counts while suppressing the true return-on-ad-spend (ROAS). A Universal Pixel conversion that does not reconcile with the order management system is one signal worth investigating. You may want to confirm that a fraud segment is applied on ad groups where conversion volume is high enough to affect Koa's bid optimization.",
+          "lead_gen": "On lead-generation campaigns, bot-driven form fills can enter the customer relationship management (CRM) pipeline as fake leads, which distorts downstream lead quality scores and cost-per-lead benchmarks. You may want to confirm whether the verification vendor segment is applied and whether lead data is being validated against a server-side event before being counted in The Trade Desk's reporting."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt — Authorized Digital Sellers",
+            "source_url": "https://iabtechlab.com/standards/ads-txt/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether a verification vendor fraud segment is applied to ad groups with material spend, and review the IVT rate reported across supply sources.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the campaign and navigate to the ad group you want to review.",
+                "In the ad group's targeting settings, look for a 'Third-Party Segments' or 'Audience' section. Confirm whether a fraud or IVT segment from a verification vendor (e.g., DoubleVerify Fraud Lab, IAS Total Visibility) is listed as a targeting exclusion or pre-bid filter.",
+                "Navigate to reporting for the same ad group and pull an impression-level report broken down by supply source or site. Look for supply sources where the reported IVT rate is notably higher than the campaign average, or where click volume is high but on-site engagement is near zero.",
+                "Note any ad groups running display or pre-roll video on open marketplace supply without a fraud segment applied."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad group reviewed, whether a verification vendor fraud segment is applied and whether any supply sources show IVT rates materially above the campaign average. An ad group with a fraud segment active and no outlier supply sources passes. An ad group without a fraud segment, or with outlier supply sources not yet excluded, is a fail recorded with the ad group name and the supply sources flagged.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the fraud segment status and any flagged supply sources for each ad group above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that several ad groups on {{site_name}} are running without a verification vendor fraud segment applied, leaving sophisticated invalid traffic (SIVT) unfiltered. The Trade Desk's built-in filtration removes general invalid traffic (GIVT), but SIVT from compromised devices and misrepresented inventory passes through without a pre-bid or post-bid fraud segment. {{voice_recommend}} applying a fraud segment from a verification vendor to the affected ad groups, particularly those running open-web display or pre-roll video with broad targeting, and pulling a supply-source IVT report to identify any sources that warrant manual exclusion."
+      }
+    },
+    {
+      "id": "ttd-suspicious-supply-not-excluded",
+      "title": "Supply sources with abnormal performance patterns have not been investigated or excluded",
+      "category": "brand-safety",
+      "subcategory": "invalid_traffic",
+      "impact_score": 3,
+      "impact_rationale": "Supply sources that pass automated IVT filtration can still deliver traffic with patterns consistent with non-human activity: high click rates with near-zero dwell time, conversion spikes on a single domain, or impression volume that does not correlate with any audience signal. Leaving these sources running drains budget toward impressions that produce no real business outcome.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["fraud", "brand-safety"],
+      "educate": {
+        "base": "Automated invalid traffic (IVT) filters classify traffic based on known signals, such as data-center IP ranges and registered bot user agents. Traffic that does not match those known signals reaches the ad server even when it originates from low-quality sources. The result is supply that passes IVT filtration but delivers impressions with no real value.<br><br>Programmatic supply chain standards give buyers tools to investigate before excluding. The <a href='https://iabtechlab.com/sellers-json/' class='tools-link-no-padding' target='_blank'>sellers.json specification</a> lets buyers verify that a supply source's declared seller identity matches what is in the bid stream. A domain that cannot be traced to a legitimate seller in sellers.json, or that is listed as 'INTERMEDIARY' without a clear ownership chain, is worth scrutinizing before spend continues there.<br><br>Within The Trade Desk's reporting, a few patterns point to supply sources that deserve investigation:<ul><li>Click-through rate is high (above 1-2% for display) but average session duration or pages per session from that source is near zero in site analytics</li><li>A single domain or app accounts for a disproportionate share of impressions on a campaign with broad targeting</li><li>Conversion events attributed to a supply source do not appear in the first-party event stream for the same time window</li></ul>You may want to pull a site-level performance report and cross-reference the highest-spend domains against their sellers.json entries and the site's traffic reputation before deciding whether to keep them in the buy.",
+        "site_type_overlays": {
+          "ecommerce": "For purchase-driven campaigns, a supply source that generates click volume but no post-click revenue is worth isolating. You may want to compare The Trade Desk's click reporting against server-side session and order data segmented by traffic source to identify domains where clicks do not produce sessions.",
+          "lead_gen": "For lead-generation campaigns, a supply source that produces form-fill conversions that never appear as real contacts in the CRM is a useful signal. You may want to check whether The Trade Desk conversions from a flagged source have matching server-side events before concluding the source is legitimate."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Sellers.json — Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Pull a supply-source performance report and identify domains or apps with performance patterns inconsistent with real human traffic, then check their supply chain transparency before deciding whether to exclude them.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "In reporting, pull an impression and click report segmented by site or app for the campaign period. Sort by spend descending and look for sources where the click-through rate is high but you would not expect high engagement from that type of site (e.g., a generic content farm with 3% CTR on a display campaign).",
+                "For each flagged domain, navigate to the ad group's supply settings and check whether the domain appears in any inclusion or exclusion list, or whether it is reaching the campaign through open marketplace supply.",
+                "Look up the domain in a sellers.json lookup tool to confirm it has a legitimate seller entry. A domain that cannot be verified or that appears only as an INTERMEDIARY with no traceable publisher is a candidate for exclusion.",
+                "Cross-reference the flagged domains against the site analytics platform to see whether clicks from those sources produce sessions and on-site engagement consistent with human behavior."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per flagged supply source, the CTR, the sellers.json verification result, and the site analytics cross-reference. A source with a reasonable CTR, a verifiable sellers.json entry, and matching site analytics sessions passes. A source with an anomalous CTR, a missing or unverifiable sellers.json entry, or conversions that do not appear in the first-party event stream is a fail recorded with the domain name and the specific signal that flagged it.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the performance pattern, sellers.json result, and site analytics cross-reference for each flagged supply source above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} supply sources in {{site_name}}'s campaigns with performance patterns inconsistent with human traffic: high click-through rates that do not produce corresponding sessions in site analytics, and domains that cannot be verified through sellers.json. These sources are passing automated IVT filtration but delivering no measurable business outcome. {{voice_recommend}} excluding the flagged domains from the affected ad groups and pulling a sellers.json verification check on the remaining high-spend supply sources to confirm the buy is reaching legitimate inventory."
+      }
+    }
+  ]
+}

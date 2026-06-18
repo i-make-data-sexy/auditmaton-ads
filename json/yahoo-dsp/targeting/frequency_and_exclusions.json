@@ -1,0 +1,183 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Frequency and exclusion settings in Yahoo DSP (demand-side platform) determine how often a user sees an ad and which users should never see it at all. Yahoo DSP supports frequency caps at the campaign and line levels, and Yahoo ConnectID extends frequency management across devices by resolving a single user across the sites and apps where Yahoo has authenticated signal. Without a campaign-level cap, each line applies its own limit independently, and a user who qualifies for multiple lines can receive the full per-line allowance from each one. A suppression segment that has not been refreshed continues serving to recent converters, paying again for users who already responded. These checks read directly from the campaign and line settings panels in Yahoo DSP and typically resolve through configuration changes rather than rebuilds.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Yahoo DSP organizes buying under a four-level hierarchy: Advertiser, Campaign, Line, and Ad. Frequency caps can be applied at the campaign level and at the line level. A campaign-level cap sets a ceiling on the total impressions a user can receive across all lines in that campaign. A line-level cap limits impressions from that specific line but does not aggregate across other lines in the same campaign. Without a campaign-level cap in place, each line manages exposure independently, and a user who qualifies for several lines can receive the full per-line allowance from each one, pushing total campaign exposure well above any intended limit. Alongside frequency, suppression and exclusion segments define which users should be removed from targeting entirely: recent converters, existing customers, or users the campaign is not designed to reach. Yahoo ConnectID, Yahoo's deterministic identity solution built on authenticated signal from Yahoo properties, supports cross-device frequency management so that a cap set at the line level can apply consistently across the devices a user is active on. These checks confirm that caps are set at the right level, that the exclusion segments protecting the budget are current, and that campaign-level frequency settings are not left unset by default.",
+  "audit_checks": [
+    {
+      "id": "yahoo-dsp-no-campaign-level-frequency-cap",
+      "title": "No frequency cap is set at the campaign level, leaving per-line caps as the only control",
+      "category": "targeting",
+      "subcategory": "frequency_and_exclusions",
+      "impact_score": 3,
+      "impact_rationale": "A user who qualifies for multiple lines in the same campaign can receive the full per-line cap from each one. Without a campaign-level cap, total exposure to that user is a multiple of the per-line limit rather than a deliberate creative decision, raising cost per result and degrading the experience without surfacing a platform alert.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "targeting",
+        "ad-experience"
+      ],
+      "educate": {
+        "base": "Yahoo DSP's frequency cap hierarchy allows caps to be set at the campaign level and at the line level. A campaign-level cap applies across every line in that campaign: once a user reaches the campaign cap, no line in the campaign serves them again within the defined time window, regardless of how many lines they qualify for. A line-level cap applies only within that line and does not communicate with other lines in the same campaign.<br><br>When only line-level caps are configured, each line independently manages its own impression limit. A user who qualifies for three lines that each cap at five impressions per day can receive up to fifteen impressions from the same campaign in a single day. Yahoo DSP does not alert when this happens. The delivery report shows normal pacing, and the overexposure is not visible in aggregate campaign metrics without breaking down frequency distribution per user.<br><br>The certification documentation for Yahoo DSP confirms that setting a frequency cap at the campaign level is not mandatory, which means campaigns can launch and run without one. That default creates the conditions for the multi-line exposure problem whenever a campaign has more than one line and the lines serve overlapping audiences.<br><br>A few signs point to this gap:<ul><li>The campaign has more than one active line and no campaign-level frequency cap in the campaign settings</li><li>Impression counts are elevated relative to estimated reach, suggesting users are receiving the ad more often than the per-line cap would imply</li><li>The campaign brief specifies a per-user frequency goal that is not reflected in any campaign-level setting</li></ul>You may want to confirm that a campaign-level cap is in place before reviewing individual line caps. The line-level caps only matter within the ceiling the campaign cap sets. Yahoo ConnectID's cross-device resolution can extend that campaign-level cap across the devices a user is active on, so the cap applies whether the user sees the ad on a desktop browser, a mobile app, or a connected TV (CTV) environment.",
+        "site_type_overlays": {
+          "ecommerce": "For a store, the risk of missing a campaign-level cap is highest during promotional periods when multiple lines run simultaneously for the same sale or product. A shopper who qualifies for a cart-abandoner line, a product-page visitor line, and a prospecting line can receive ads from all three at once. You may want to confirm the campaign-level cap reflects the maximum impressions the brand intends to deliver to any one user during the promotion, and that the cap is set before the campaign launches rather than added after overexposure has already occurred.",
+          "lead_gen": "For a lead-generation advertiser, over-frequency produces diminishing returns faster than in retail because a prospect who has already submitted a form, or who has seen the ad many times without converting, should be in a suppression segment rather than continuing to receive impressions. Confirming both the campaign-level cap and the suppression segments together reduces spend on users who have had sufficient exposure and are unlikely to respond to additional impressions."
+        },
+        "learn_more": [],
+        "impactful_updates": [],
+        "learn_more_note": "Yahoo DSP's frequency cap documentation is maintained in the platform's Help Center, which requires an authenticated account to access. No public reference is linked here. Practitioners with platform access can find the frequency cap settings under the campaign and line configuration panels in Yahoo DSP."
+      },
+      "investigate": {
+        "intro": "Confirm whether each active campaign has a campaign-level frequency cap set, and compare it to the line-level caps to assess whether the campaign-level setting is the binding constraint.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "In Yahoo DSP, navigate to the Advertiser and open the Campaigns list. Select the campaign you want to audit.",
+                "Open the campaign settings and locate the frequency cap section. Note whether a campaign-level cap is set and what the impression limit and time window are. If no campaign-level cap is shown, record the campaign as uncapped at the campaign level.",
+                "Navigate to the Lines tab within the campaign. Open each active line and locate its frequency cap settings. Note the per-line impression limit and time window for each.",
+                "For any campaign without a campaign-level cap, calculate the maximum potential impressions a user who qualifies for all active lines could receive. Multiply the per-line cap by the number of lines the user could qualify for simultaneously.",
+                "Check the campaign's delivery report for frequency distribution if available. A high average frequency relative to estimated reach suggests users are receiving the ad more often than the per-line caps would indicate, which points to multi-line accumulation."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a campaign-level frequency cap is set on each active campaign and what the limit and time window are. A campaign with a campaign-level cap that reflects the intended per-user maximum from the brief passes. A campaign with no campaign-level cap, or with a campaign-level cap higher than the intended per-user maximum, is a fail recorded with the campaign name and the gap between the line-level caps and the campaign-level setting.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the campaign-level and line-level frequency caps for each active campaign above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more campaigns on {{site_name}}'s Yahoo DSP account have no frequency cap set at the campaign level, leaving each line to manage exposure independently. A user who qualifies for multiple lines in the same campaign can receive the full per-line allowance from each one, so total campaign exposure per user can run well above the intended limit without a platform alert. {{voice_recommend}} setting a campaign-level frequency cap on each active campaign that reflects the maximum impressions the brief intends per user, and treating line-level caps as a secondary ceiling within that campaign limit rather than the primary control."
+      }
+    },
+    {
+      "id": "yahoo-dsp-converter-suppression-missing-or-stale",
+      "title": "Converter suppression and existing-customer exclusion segments are missing or have not been refreshed",
+      "category": "targeting",
+      "subcategory": "frequency_and_exclusions",
+      "impact_score": 3,
+      "impact_rationale": "Spend delivered to recent converters or existing customers cannot convert at the intended acquisition rate. The cost per acquisition rises, and the reporting does not separate wasted impressions from productive ones, so the problem is not visible in standard delivery metrics without segment-level analysis.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "targeting",
+        "privacy"
+      ],
+      "educate": {
+        "base": "Yahoo DSP supports including and excluding audience segments at the line level. A segment applied as an exclusion stops the line from serving to users in that segment, which is how converter suppression and existing-customer exclusion are implemented. Yahoo DSP advertisers can activate third-party or first-party segments to identify prospects while suppressing their own first-party audiences such as customer relationship management (CRM) lists, site visitors, or recent purchasers, ensuring that acquisition budget reaches net new users rather than people who have already converted.<br><br>Two suppression types address different parts of the acquisition funnel. A recent-converter suppression segment removes users who completed a purchase or a form submission during the current campaign flight. An existing-customer exclusion removes users who are already customers, regardless of when they converted, so that prospecting lines do not pay for impressions on people who are already in the customer base.<br><br>Both segment types require a refresh cadence to remain accurate. A CRM file uploaded at campaign launch reflects the customer base as it was on the upload date. As new conversions accumulate during the flight, the uploaded segment falls behind the actual conversion count. The suppression effect shrinks over time if the file is not updated regularly. For campaigns with meaningful daily conversion volume, a 30-day-old suppression file can miss a significant share of recent converters.<br><br>A few signs suggest suppression gaps:<ul><li>The line's targeting panel shows no audience segments applied as exclusions in the Segment section</li><li>The campaign's CRM or conversion-based suppression segment was last uploaded more than 30 days ago on an account with regular conversion volume</li><li>The campaign has been running for more than two weeks and the suppression segment has not been updated since launch</li></ul>You may want to review both suppression types in the same pass. A campaign missing one exclusion type is often missing the other. Reviewing the segment panel for each line and the segment status in the Audiences section of Yahoo DSP covers both in a single workflow.",
+        "site_type_overlays": {
+          "ecommerce": "For a store, the most consequential suppression segment is a recent-purchase exclusion built from a pixel-based purchase event or a regularly updated CRM export. A customer who completed a checkout in the past 14 days is unlikely to benefit from seeing the same acquisition creative again, and the impression cost is real regardless of whether a conversion follows. You may want to confirm that the purchase-event segment is applied as an exclusion in all prospecting lines and that the segment is refreshed at a cadence that reflects the store's sales volume.",
+          "lead_gen": "For a lead-generation advertiser, the post-submission suppression segment stops the campaign from paying for impressions on users who already submitted a form. This matters most when form volume is high relative to the campaign's total audience size because the submitted-lead pool grows as a fraction of the reachable audience over the course of the flight. You may want to confirm the lead data is feeding the suppression segment on a cadence that matches submission volume rather than relying on a one-time upload from campaign launch."
+        },
+        "learn_more": [],
+        "impactful_updates": [],
+        "learn_more_note": "Yahoo DSP's audience and segment management documentation is maintained in the platform's Help Center, which requires an authenticated account to access. No public reference is linked here. Practitioners with platform access can find suppression segment configuration under the Audiences section and the line-level targeting panel in Yahoo DSP."
+      },
+      "investigate": {
+        "intro": "Confirm that converter suppression and existing-customer exclusion segments are applied to active prospecting lines, and check the recency of each first-party segment used for suppression.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "In Yahoo DSP, navigate to the Campaign and open the Lines list. For each active prospecting line, open the line settings and navigate to the targeting panel.",
+                "In the Segment section of the targeting panel, check whether any audience segments are applied as exclusions. Note the segment name and type for each exclusion found. If no exclusions are listed, record the line as having no suppression segments.",
+                "Navigate to the Audiences section of the Yahoo DSP account. Locate each first-party segment used for suppression and note the segment status, current size, and last upload or refresh date.",
+                "For segments built from a CRM file upload, check whether the last upload predates the most recent sales or lead cycle. A suppression segment that does not include the past 30 days of converters is likely missing a meaningful share of recent activity.",
+                "Compare the segment upload date to the campaign launch date. If the file has not been updated since launch and the campaign has been running for more than two weeks with consistent conversion volume, the segment is likely stale."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per active prospecting line, whether a converter suppression segment and an existing-customer exclusion segment are applied as exclusions in the targeting panel. A line with both types of suppression applied, and with first-party segments refreshed within the past 30 days, passes. A line missing either suppression type, or carrying a first-party segment last uploaded more than 30 days ago on an account with regular conversion volume, is a fail recorded with the line name, the missing or stale segment type, and the last upload date where applicable.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the exclusion segments applied to each active prospecting line and the last upload date for any first-party suppression segments above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more active prospecting lines on {{site_name}}'s Yahoo DSP account are missing suppression or exclusion segments, or are relying on first-party segments that have not been refreshed recently enough to reflect current conversion activity. Without a current converter suppression segment, the campaign continues serving impressions to users who have already responded. Without an existing-customer exclusion, acquisition spend reaches users who are already customers. {{voice_recommend}} reviewing the exclusion segment targeting on each prospecting line, uploading or refreshing the first-party suppression segments to reflect the current conversion data, and setting a recurring refresh cadence so the segments stay current for the remainder of the flight."
+      }
+    },
+    {
+      "id": "yahoo-dsp-frequency-cap-too-loose-for-flight",
+      "title": "Frequency cap is set too loosely relative to the flight length and channel, allowing over-serving",
+      "category": "targeting",
+      "subcategory": "frequency_and_exclusions",
+      "impact_score": 2,
+      "impact_rationale": "A cap set too high relative to the flight length allows the platform to concentrate a large share of the campaign's impressions on a small group of users before the audience is fully saturated, raising effective frequency above the point of diminishing returns and wasting budget on users who are unlikely to convert from additional exposure.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "targeting",
+        "ad-experience"
+      ],
+      "educate": {
+        "base": "A frequency cap exists to prevent over-serving, but the cap only controls exposure if the limit is calibrated to the flight length and channel. A cap set at 15 impressions per day on a seven-day campaign allows a user to receive more than 100 impressions from the campaign, which is a level that rarely produces incremental conversions and often drives negative brand sentiment. The cap is technically in place, but it is not doing the work it was designed to do.<br><br>The right cap depends on a few factors that vary by channel and campaign objective. Connected TV (CTV) campaigns typically target tighter caps, often in the range of 3 to 5 impressions per flight because the living-room context makes over-frequency more conspicuous than in a display or native environment. Display and native campaigns may tolerate higher per-day limits, but a high daily cap on a long flight can still produce excessive total exposure if the cap is not paired with a flight-level limit. A campaign with a daily cap of 10 impressions and a 30-day flight allows up to 300 impressions to the same user if the audience is small enough for the platform to cycle through it repeatedly.<br><br>Yahoo DSP's line-level frequency cap supports multiple time windows, including daily and flight-level limits. Setting both a daily cap and a flight-level cap together prevents the platform from concentrating impressions on a small group of users in the first days of the campaign and then running out of eligible users later in the flight.<br><br>A few signs suggest a cap is too loose:<ul><li>The per-day impression limit is more than double the campaign's intended average frequency for the full flight</li><li>The campaign's delivery report shows a small percentage of users accounting for a disproportionately large share of total impressions</li><li>The campaign is running on CTV or audio and the per-flight cap exceeds 7 to 10 impressions per user</li></ul>You may want to consider both a daily cap and a flight-level cap together rather than relying on one alone. A daily cap controls short-term burst serving. A flight-level cap controls the total exposure any one user receives over the campaign's duration.",
+        "site_type_overlays": {
+          "ecommerce": "For a store, a loose frequency cap on a promotional campaign can mean that a small group of highly reachable users receives the campaign's creative dozens of times while a larger pool of less-reachable users sees nothing. The result is uneven exposure across the potential audience and wasted spend on users past the point where additional impressions would drive a purchase. You may want to set a flight-level cap on promotional campaigns so that once a user has reached the intended exposure threshold, the budget shifts to new users rather than continuing to serve existing ones.",
+          "lead_gen": "For a lead-generation advertiser, a loose cap combined with a small target audience can result in the same prospects receiving the ad repeatedly throughout the campaign without submitting a form. At that point, additional impressions are unlikely to change behavior, and the budget would produce more responses by expanding reach to new users. You may want to consider lowering the per-day or per-flight cap and pairing it with a broader audience to improve the balance between depth of exposure and breadth of reach."
+        },
+        "learn_more": [],
+        "impactful_updates": [],
+        "learn_more_note": "Yahoo DSP's frequency cap documentation, including time window options and flight-level cap configuration, is maintained in the platform's Help Center, which requires an authenticated account to access. No public reference is linked here. Practitioners with platform access can find the frequency cap settings under the line configuration panel in Yahoo DSP."
+      },
+      "investigate": {
+        "intro": "Review the frequency cap settings on each active line relative to the campaign's flight length and channel, and check the delivery report for signs of frequency concentration on a small share of the audience.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "In Yahoo DSP, open the campaign and navigate to the Lines list. For each active line, open the line settings and locate the frequency cap configuration.",
+                "Note the impression limit and time window for each cap layer set on the line. Record whether a daily cap, a flight-level cap, or both are configured.",
+                "Calculate the maximum impressions a user could receive over the full campaign flight given the current daily cap. Multiply the daily cap by the number of days remaining in the flight. Compare this to the campaign's intended average frequency per user.",
+                "For CTV or audio lines, note whether the per-flight cap exceeds 7 to 10 impressions. For display or native lines, note whether the daily cap is more than double the campaign's intended average frequency for the full flight.",
+                "In the campaign delivery report, review frequency distribution if the data is available. A distribution where a small percentage of users account for a disproportionately large share of impressions suggests the cap is allowing concentration rather than distributing exposure across the audience."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the frequency cap time window and impression limit for each active line, calculates the maximum total impressions per user over the flight at the current daily cap, and compares that to the campaign's intended frequency target. A line whose maximum per-user impressions over the flight are within a reasonable range of the intended target passes. A line whose daily cap allows a per-flight total more than double the intended target, or whose per-flight cap on CTV or audio exceeds 10 impressions without a documented rationale, is a flag recorded with the line name, the cap setting, and the implied per-flight maximum.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the frequency cap settings and flight length for each active line above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more active lines on {{site_name}}'s Yahoo DSP account have frequency cap settings loose enough to allow a single user to receive impressions well above the campaign's intended exposure level over the course of the flight. A daily cap that is not paired with a flight-level limit, or a daily cap set high relative to the campaign's frequency goal, can result in the platform concentrating impressions on a small group of highly reachable users while a larger audience pool receives fewer exposures than intended. {{voice_recommend}} reviewing the frequency cap configuration on each active line, setting both a daily cap and a flight-level cap where neither is in place, and calibrating the per-day limit to the campaign's intended average frequency and the flight's duration rather than leaving the default or an arbitrary high value in place."
+      }
+    }
+  ]
+}

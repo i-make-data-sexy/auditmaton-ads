@@ -1,0 +1,200 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Conversion tracking on The Trade Desk sits at the center of how Koa optimizes bids and how the account reports return on ad spend. When the Universal Pixel misfires or server-side Events are not deduplicated, the count is wrong before any analysis begins. Checking deduplication takes a few minutes against the pixel's event log. Conversion value passing requires one field inspection in the pixel configuration. The cross-environment gap (web, app, and connected TV (CTV)) takes longer but reveals spend that has never been accountable to any outcome. Each check targets a distinct failure mode, and each has a concrete fix.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "The Trade Desk counts conversions through two paths: the Universal Pixel placed on web pages and a server-to-server Events integration for conversions that happen off-page or in environments where a browser tag cannot run. These checks confirm that both paths fire on the right triggers, that a single conversion is not counted twice when both paths are active at once, that conversion values reach the platform where revenue matters, and that app and CTV environments are not leaving outcomes untracked.",
+  "audit_checks": [
+    {
+      "id": "ttd-pixel-firing-and-deduplication",
+      "title": "The Universal Pixel fires correctly and conversions are deduplicated when server-side Events also run",
+      "category": "measurement",
+      "subcategory": "conversion_tracking",
+      "impact_score": 4,
+      "impact_rationale": "A pixel that misfires or double-counts sends Koa incorrect conversion signals. The algorithm bids toward an inflated count or misses conversions entirely, so both the optimization and the reported return on ad spend are wrong from the start.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "The Trade Desk's Universal Pixel is a JavaScript tag placed on the page that fires a conversion event when a visitor reaches a confirmation page or triggers a defined action. When a server-to-server Events integration runs alongside it, both paths can record the same conversion. The pixel fires from the browser when the page loads, and the server sends an event at the same moment from the advertiser's backend. Without a deduplication mechanism, the platform counts two conversions from one transaction.<br><br>The Trade Desk uses an order ID or event ID field passed in both signals as the deduplication key. When the pixel and the server-side event each carry the same ID for the same transaction, the platform keeps one and discards the other. When that field is absent or inconsistently populated, both events count.<br><br>A few signs point to a deduplication problem:<ul><li>The pixel fires on a page that also has a server-side event for the same trigger, with no shared order ID visible in either payload</li><li>The conversion count in The Trade Desk UI is materially higher than the order volume or lead volume in the advertiser's backend system</li><li>The pixel fires on pages that should not trigger a conversion, such as the cart page or a product detail page, rather than the confirmation page</li></ul>You may want to confirm both the firing trigger and the presence of a shared deduplication ID before drawing conclusions about whether a discrepancy is real.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the order confirmation page is where the transaction ID is available in the page's data layer or in the URL. You may want to confirm the pixel reads that transaction ID and passes it as the event ID, and that the server-side Events call for the same purchase carries the same value. A mismatch in the ID format between the pixel and the server call defeats deduplication even when both fields are populated.",
+          "lead_gen": "On a lead-generation site, a shared lead ID or form submission ID serves as the deduplication key. You may want to confirm the confirmation page or thank-you page exposes an ID the pixel can read, and that the server-side call for the same submission uses the same value. When no unique ID is available, the pixel and the server event cannot be reliably deduplicated."
+        },
+        "learn_more": [],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that the pixel fires on the correct trigger, that the payload carries a transaction or event ID, and that any parallel server-side Events call carries the same ID.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open your advertiser in The Trade Desk UI and navigate to 'Pixels' under the 'Tracking' section. Find the Universal Pixel and open its event log or activity report.",
+                "Review the event types firing and confirm that conversion events appear only on the intended trigger pages, such as the order confirmation or thank-you page, and not on earlier funnel pages.",
+                "Open one of the recorded conversion events and inspect the payload. Confirm an order ID or event ID field is populated. Note whether the value matches the format your backend uses."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open DevTools on the conversion confirmation page and go to the Network tab. Filter by 'insight' or 'thetradedesk' to find the pixel request.",
+                "Inspect the query parameters of the outgoing pixel call. Confirm the event type is set to the intended conversion event (e.g., 'purchase' or the custom event name configured in The Trade Desk UI).",
+                "Note whether an order ID or reference ID is passed as a parameter. If you run server-side Events, confirm that the server call for the same transaction uses the same ID value."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per conversion event, whether the pixel fires only on the intended trigger page, whether the payload carries a transaction or event ID, and whether a parallel server-side call carries the same ID. A conversion event that fires on the correct page with a populated and consistent deduplication ID passes. A conversion event that fires on the wrong page, carries no ID, or whose server-side call uses a different ID format is a fail recorded with the event name and the specific issue.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the firing page, the ID field value, and the server-side ID value for each conversion event above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that conversion tracking on {{site_name}} has a deduplication gap. The Universal Pixel and the server-to-server Events integration both fire on the same trigger without a shared transaction ID linking the two signals, so each conversion registers twice in The Trade Desk. Koa is optimizing toward a count that is higher than the real one, which distorts bid values and inflates the reported return on ad spend. {{voice_recommend}} adding a transaction or event ID to both the pixel payload and the server-side call so The Trade Desk can deduplicate on the matching value, and confirming through the pixel's event log that the count aligns with backend order volume after the change."
+      }
+    },
+    {
+      "id": "ttd-conversion-value-not-passed",
+      "title": "Conversion value is not passed to the pixel or server-side Events",
+      "category": "measurement",
+      "subcategory": "conversion_tracking",
+      "impact_score": 3,
+      "impact_rationale": "Without a revenue value, the platform cannot weight high-value conversions above low-value ones. Koa optimizes toward conversion count rather than return on ad spend, and the account cannot run a value-based bidding strategy or accurately report revenue attributed to the campaign.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "bidding"],
+      "educate": {
+        "base": "The Trade Desk's pixel and server-to-server Events both accept a revenue value field that records the monetary worth of each conversion. When the field is populated, the platform can surface revenue in reporting and Koa can factor conversion value into its bidding decisions. When the field is absent or set to a static placeholder, every conversion looks the same regardless of order size.<br><br>For an ecommerce account, a $200 purchase and a $12 purchase carry the same weight in optimization when no value is passed. Koa bids toward the same return on investment for both. For a lead-generation account, a high-intent form fill and a low-intent newsletter subscription are treated identically. Either way, the account loses the ability to direct spend toward the outcomes that matter most.<br><br>A few signs point to value passing being absent or broken:<ul><li>The revenue column in The Trade Desk reporting shows zero or a constant value across all conversions</li><li>The pixel payload or server-side call does not include a revenue or value parameter</li><li>The value field is hard-coded to '1' or '0' rather than pulling from the order total in the data layer</li></ul>You may want to check both the tag configuration and the reporting column before concluding that value data is missing. A misconfigured field can send data that does not surface in the report.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the order total is the natural value to pass, and it should be available in the data layer at the moment the confirmation page loads. You may want to confirm the pixel reads the order total dynamically rather than using a static placeholder, and that the value field in the pixel call reflects the actual transaction amount.",
+          "lead_gen": "On a lead-generation site, an exact revenue figure may not exist at the time of form submission. You may want to consider passing a proxy value such as the estimated revenue per lead derived from historical close rates, or mapping different form types to different value tiers, so high-intent submissions receive higher weight in Koa's optimization."
+        },
+        "learn_more": [],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that the conversion pixel or server-side Events call includes a revenue or value parameter and that the value is dynamic rather than a static placeholder.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "In The Trade Desk UI, open the campaign or advertiser reporting and add the 'Revenue' or 'Conversion Value' column if it is available.",
+                "Filter to a date range with known conversions and review whether the revenue column shows meaningful values or shows zero and constant values.",
+                "If the column shows zero or a constant, that confirms the value field is not being passed dynamically from the tag."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "On the conversion confirmation page, open DevTools and go to the Network tab. Filter for the pixel request sent to The Trade Desk.",
+                "Inspect the query parameters and locate the revenue or value parameter. Note whether its value reflects the actual order total visible on the page.",
+                "If the value is '0', '1', or absent, the pixel is not reading the order total from the page at firing time."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per conversion event, whether the revenue or value parameter is present in the pixel or server-side call, and whether it reflects a dynamic order value rather than a static placeholder. A conversion event with a populated, dynamic value field passes. A conversion event with a zero, static, or absent value field is a fail recorded with the event name and the value observed in the payload.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the value field content from the pixel payload for each conversion event above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s conversion pixel does not pass a revenue value, so The Trade Desk records each conversion as equal regardless of order size. Koa cannot optimize toward return on ad spend and the campaign reporting cannot surface revenue attributed to the campaign. {{voice_recommend}} updating the pixel configuration to read the order total dynamically from the page's data layer and pass it as the revenue parameter on each conversion event, then confirming through the Network tab that the value field reflects the actual transaction amount rather than a static placeholder."
+      }
+    },
+    {
+      "id": "ttd-ctv-app-conversions-unmeasured",
+      "title": "Connected TV and in-app conversions are not measured, leaving cross-environment outcomes untracked",
+      "category": "measurement",
+      "subcategory": "conversion_tracking",
+      "impact_score": 3,
+      "impact_rationale": "The Trade Desk delivers significant impression volume on connected TV (CTV) and in-app environments. When conversions from those environments are not tracked, the platform attributes no return to that spend and Koa cannot learn from it, so CTV and app inventory receives less budget weight than its actual contribution justifies.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "attribution"],
+      "educate": {
+        "base": "The Trade Desk runs campaigns across web, in-app, and CTV environments. The Universal Pixel covers web pages. In-app and CTV environments cannot run a browser-based JavaScript tag, so conversions that happen after an in-app or CTV impression require a different measurement path.<br><br>For in-app conversions, The Trade Desk supports server-to-server Events where the advertiser's app backend sends a conversion event directly to the platform when a user completes an action. <a href='https://unifiedid.com/docs/overviews/overview-advertisers' class='tools-link-no-padding' target='_blank'>Unified ID 2.0 (UID2)</a> and <a href='https://unifiedid.com/docs/getting-started/gs-faqs' class='tools-link-no-padding' target='_blank'>European Unified ID (EUID)</a> provide the identity spine that links in-app and CTV impressions to web conversions so cross-environment attribution can work.<br><br>For CTV, view-through attribution is the primary path because a viewer cannot click through from a TV screen. The Trade Desk measures a CTV-influenced web conversion when the household that received the CTV impression later converts on the web within the attribution window. That linkage depends on a UID2 being present in both the CTV bid stream and the conversion event.<br><br>A few signs point to cross-environment gaps:<ul><li>The campaign runs CTV or in-app line items but the conversion report shows zero or near-zero conversions attributed to those placements</li><li>There is no server-to-server Events integration in the advertiser account for the app</li><li>The attribution window for view-through is set to zero days, which eliminates all CTV view-through credit</li></ul>You may want to confirm which environments the campaign actually runs in before deciding whether the gap is a measurement problem or a placement one.",
+        "site_type_overlays": {
+          "ecommerce": "For a store running CTV campaigns to drive purchase intent, view-through attribution captures the household that saw the ad and then purchased on the web. You may want to confirm the view-through attribution window is set to a value that reflects the realistic consideration cycle for the product category, and that the web pixel is active so the linked conversion can be recorded.",
+          "lead_gen": "For a lead-generation advertiser running CTV or in-app campaigns, a form fill on the web after a CTV impression is the typical cross-environment conversion path. You may want to confirm the view-through attribution window is configured and that the landing page the campaign drives to has the Universal Pixel active."
+        },
+        "learn_more": [
+          {
+            "source_type": "Unified ID 2.0",
+            "source_title": "UID2 overview for advertisers",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-advertisers"
+          },
+          {
+            "source_type": "Unified ID 2.0",
+            "source_title": "UID2 frequently asked questions",
+            "source_url": "https://unifiedid.com/docs/getting-started/gs-faqs"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether the campaign runs CTV or in-app inventory, whether a server-to-server Events integration exists for the app, and whether the view-through attribution window is configured for CTV placements.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "In The Trade Desk UI, open the campaign's ad groups and identify any that target CTV or in-app supply. Note which environments are active in the media plan.",
+                "Open the advertiser's tracking settings and check whether a server-to-server Events integration is configured for the mobile app. If there is no app integration, in-app conversions cannot be recorded.",
+                "Open the campaign or ad group attribution settings and locate the view-through attribution window. Confirm it is set to a non-zero value if CTV placements are running. A zero-day window records no view-through credit for CTV impressions."
+              ]
+            },
+            "the_trade_desk_reporting": {
+              "label": "The Trade Desk Reporting",
+              "steps": [
+                "Pull a conversion report broken down by supply type or channel. Filter to the campaign's date range and add a dimension for environment or placement type.",
+                "Review whether CTV or in-app placements show any attributed conversions. Zero conversions against meaningful impression volume on CTV or app placements points to a measurement gap rather than a performance one.",
+                "Compare the view-through conversion count against the click-through count for CTV specifically. CTV should produce almost all view-through conversions; a zero view-through count alongside CTV impressions confirms the attribution window is not set."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per environment running in the campaign, whether a measurement path exists for that environment and whether the attribution window is configured. A CTV or in-app environment with a functioning measurement path (server-to-server Events for app, a non-zero view-through window for CTV) passes. A CTV or in-app environment with no measurement path or a zero view-through window is a fail recorded with the environment name and the specific gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the measurement path status and attribution window setting for each environment in the campaign above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s campaign runs CTV and in-app inventory without a measurement path for those environments. The Universal Pixel covers web pages only, so conversions influenced by CTV impressions or completed inside the app are not recorded in The Trade Desk. Koa receives no signal from those placements and cannot allocate budget toward them on the basis of outcome. {{voice_recommend}} setting up server-to-server Events for the app so in-app conversions are reported, configuring a view-through attribution window appropriate for the campaign's consideration cycle so CTV-influenced web conversions are captured, and confirming through the conversion report that CTV and app placements begin showing attributed conversions after the change."
+      }
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://advertising.amazon.com/solutions/products/amazon-dsp",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Amazon DSP's optimization engine learns within the line item, not across them. A hierarchy that is fragmented into many thin line items starves the algorithm of the signal it needs to make pacing and targeting decisions. The checks here are fast to run in the Amazon DSP console and the issues they surface, such as goal mismatches between order and line item or supply settings that exclude the audience a campaign is built around, point directly to configuration changes rather than creative or budget rebuilds.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Amazon DSP organizes buying through a three-level hierarchy: Advertiser, Order, and Line Item. The Order holds the high-level goal and flight dates. Each Line Item controls targeting, supply settings, bid, frequency cap, and creative assignment. When this hierarchy is coherent, each line item runs a distinct audience or tactic and gathers enough signal for Amazon's optimization to work. When it is not, budgets disperse across settings that cannot learn, and the reporting that comes out of Amazon Marketing Cloud (AMC) describes a structure that was never positioned to succeed.",
+  "audit_checks": [
+    {
+      "id": "amazon-dsp-order-goal-line-item-mismatch",
+      "title": "Line item supply type or audience scope conflicts with the order goal",
+      "category": "campaigns",
+      "subcategory": "order_line_item_structure",
+      "impact_score": 3,
+      "impact_rationale": "A line item that buys the wrong supply type for the order's goal, or that targets an audience too broad or too narrow for the outcome the order is designed to drive, will bid into impressions that cannot convert the way the order expects. Spend accrues without advancing the campaign goal.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "targeting"],
+      "educate": {
+        "base": "In Amazon DSP, the Order establishes the campaign goal, whether that is awareness, consideration, or purchase. Each line item under the order inherits that goal and executes a specific tactic toward it. The line item's supply type, audience, and bid strategy all need to support the order goal for the hierarchy to function as intended.<br><br>A few mismatches surface here regularly. A streaming TV (STV) line item placed under an order built for purchase outcomes has no click path, so the line item generates impressions that cannot drive the direct conversion the order targets. A line item with a broad run-of-network supply setting placed under an order targeting in-market audiences for a specific Amazon Standard Identification Number (ASIN) dilutes the audience signal by purchasing inventory with no connection to the shopping graph that makes Amazon DSP distinctive. Conversely, a line item with a tightly restricted audience pool placed under a reach order constrains scale to the point where the order cannot spend its budget during the flight.<br><br>The Amazon DSP console surfaces the supply type setting, the audience targeting segments, and the order goal on the same screens. You may want to read each line item's settings against the order's stated goal and flag any line item where the supply type or audience scope is misaligned. For endemic advertisers, a useful check is whether product ASINs are associated with the right line item goals. For non-endemic advertisers, confirming that the Amazon Ad Tag pixel is the measurement anchor for purchase line items matters more than ASIN association.<br><br>A few signs point to this check applying:<ul><li>An order goal set to purchase or conversion has one or more STV line items with no redirect click path</li><li>A line item targeting run-of-network supply sits under an order designed to reach a specific in-market segment</li><li>A line item's audience pool size in the console reads as too small for the order's flight budget</li></ul>You may want to confirm each line item's supply type and audience scope before assuming the order is structured to hit its goal.",
+        "site_type_overlays": {
+          "ecommerce": "For endemic advertisers who sell products on Amazon, the match between line item supply type and order goal is especially concrete. A line item intended to drive Add-to-Cart or purchase events needs supply that supports a click path to the product detail page (PDP). STV and audio line items build awareness but cannot carry a shopper to a PDP in the same session. You may want to confirm that purchase-goal line items use display or online video supply, and that STV line items are nested under an awareness or reach order rather than a conversion order.",
+          "lead_gen": "For non-endemic advertisers driving off-Amazon outcomes, the supply type check shifts toward confirming that line items with a conversion goal use supply that supports outbound clicks to the advertiser's landing page. STV line items are brand-building tools in this context. You may want to confirm that any line item with a cost-per-acquisition focus uses display or video supply that carries a link, and that the Amazon Ad Tag pixel fires on the destination page."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon DSP: demand-side platform advertising",
+            "source_url": "https://advertising.amazon.com/solutions/products/amazon-dsp"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each order's stated goal, then read each child line item's supply type and audience targeting settings to confirm they are consistent with that goal.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open the Amazon DSP console and navigate to the Advertiser whose campaign structure you are auditing.",
+                "For each Order, note the goal type shown in the order settings, for example 'Awareness', 'Consideration', or 'Purchase'.",
+                "Open each Line Item under the order. Note the supply type (display, online video, streaming TV, audio), the audience targeting segments, and the bid strategy.",
+                "Compare the line item's supply type against the order goal. Flag any STV or audio line item sitting under a purchase or conversion order. Flag any display or video line item under a reach order that has its audience narrowed to a segment too small for the order's budget to clear.",
+                "For endemic campaigns, confirm that line items with a conversion goal have at least one ASIN associated and that the supply type supports a click path."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per order, the goal type and the supply type and audience scope of each child line item. A line item whose supply type supports the order goal and whose audience scope is proportionate to the budget passes. A line item whose supply type cannot deliver the order's conversion outcome, or whose audience is scoped so tightly the line item cannot spend, is a fail recorded with the order name, line item name, and the specific mismatch.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the order goal and each child line item's supply type and audience scope above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more line items in {{site_name}}'s Amazon DSP campaign structure have a supply type or audience scope that does not support the parent order's goal. When a line item buys inventory that cannot deliver the outcome the order targets, the budget spends without advancing the campaign. {{voice_recommend}} reviewing each order goal alongside its child line items' supply settings and audience targeting, and moving or reconfiguring any line item whose settings conflict with the order's intended outcome. For purchase-goal orders, confirming that line items use display or online video supply with a click path to the product detail page or landing page is a practical starting point."
+      }
+    },
+    {
+      "id": "amazon-dsp-line-items-too-thin-to-optimize",
+      "title": "Line items are split so thin that Amazon's optimization cannot gather sufficient signal",
+      "category": "campaigns",
+      "subcategory": "order_line_item_structure",
+      "impact_score": 3,
+      "impact_rationale": "Amazon DSP's bidding and pacing algorithm learns at the line item level. A line item that receives fewer impressions than the algorithm needs to make confident decisions will pace poorly, bid erratically, or exhaust its budget in bursts. The account appears active in reporting while the optimization engine is effectively flying blind.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "bidding"],
+      "educate": {
+        "base": "Amazon DSP makes bid and pacing decisions at the line item level. Each line item has its own audience, supply settings, flight dates, and budget. The optimization logic observes outcomes within that line item and adjusts over time. For that learning loop to function, the line item needs to accumulate a meaningful volume of impressions and, for conversion goals, a meaningful volume of attributed events.<br><br>When a campaign is broken into many narrow line items, each individual line item receives only a fraction of the total budget and impression volume. An order split into ten line items instead of two or three means each of the ten receives a tenth of the signal. Amazon does not pool learning across line items in the same order, so splitting too thin does not distribute learning, it prevents it.<br><br>A few signs suggest a line item is too thin:<ul><li>Line item daily budgets are set below the threshold where Amazon's own guidance indicates performance goals will be met</li><li>An order has more than five or six line items pursuing the same audience tactic with minor variations</li><li>Line item impression pacing is highly uneven, with some line items exhausting budget in the first few hours of a day and others under-pacing throughout</li></ul>You may want to evaluate whether multiple line items targeting overlapping audiences or using the same supply type could be consolidated without losing the tactic the split was intended to achieve. For AMC users, query-level frequency and reach data can show whether the line items are actually reaching distinct audiences or overlapping into the same pool.",
+        "site_type_overlays": {
+          "ecommerce": "For endemic advertisers, over-segmentation by ASIN is a pattern worth checking. Building a separate line item for each ASIN in a catalog multiplies line item count without necessarily improving targeting precision. Amazon's audience signals reflect shopping behavior at a category level as well as an ASIN level. You may want to consider whether grouping related ASINs under a single line item would concentrate signal without sacrificing audience relevance.",
+          "lead_gen": "For non-endemic advertisers, over-segmentation by creative format or audience segment is a comparable pattern. A line item built for each combination of creative size and audience produces the same signal starvation as ASIN-level splitting. You may want to consolidate where the audience and supply settings are substantively the same."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon Marketing Cloud: discover advertising insights",
+            "source_url": "https://advertising.amazon.com/solutions/products/amazon-marketing-cloud"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the line item count per order, each line item's budget and impression volume, and pacing patterns to identify line items that are too narrow to accumulate sufficient optimization signal.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open the Amazon DSP console and navigate to each Order in the campaign.",
+                "Count the number of active line items per order. Note any order with more than five or six line items that appear to target overlapping audiences or use the same supply type.",
+                "Review each line item's allocated budget relative to the order's total budget. A line item receiving less than roughly 10-15% of a modest order budget may be too thin to generate the impression volume the algorithm needs.",
+                "Check the pacing report for each line item. Note any line item that regularly exhausts its daily budget within the first few hours or consistently under-paces. Both patterns suggest the line item's settings and budget are misaligned with available supply and audience size.",
+                "Note the audience segment size shown in each line item's targeting section. A very small audience pool combined with a broad supply setting may result in the line item bidding repeatedly against the same users at high frequency without scaling."
+              ]
+            },
+            "amazon_marketing_cloud": {
+              "label": "Amazon Marketing Cloud (AMC)",
+              "steps": [
+                "If the account has access to Amazon Marketing Cloud (AMC), query reach and frequency at the line item level for the flight period.",
+                "Compare unique reach per line item. Line items with highly overlapping unique reach are likely reaching the same audience pool and would benefit from consolidation.",
+                "Query attributed conversion events per line item. A line item with fewer than a handful of conversions over a full flight has not generated enough signal for the algorithm to have optimized meaningfully."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per order, the number of active line items, each line item's share of the order budget, and the pacing pattern observed. An order where each line item receives a budget proportionate to meaningful impression volume and paces evenly through the flight passes. An order where two or more line items target overlapping audiences with similar supply settings, where individual line items receive a budget too small to generate sustained delivery, or where pacing is highly uneven across line items, is a fail recorded with the order name and the line items involved.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the line item count, budget allocation, and pacing observation per order above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Amazon DSP campaign structure contains line items split too thinly for Amazon's optimization engine to gather sufficient signal. Each line item receives its own share of budget and impression volume, and the algorithm learns within each one independently. When the split is too fine, no individual line item accumulates the signal it needs to pace and bid reliably. {{voice_recommend}} reviewing orders with many line items and consolidating those that target overlapping audiences or use the same supply type, so that each remaining line item receives a budget and impression volume sufficient for the optimization loop to function. Amazon Marketing Cloud reach and frequency queries can help confirm which line items are pulling from the same audience pool before consolidation decisions are made."
+      }
+    },
+    {
+      "id": "amazon-dsp-flat-order-structure-no-goal-alignment",
+      "title": "Campaign uses a flat order structure with no separation by funnel goal",
+      "category": "campaigns",
+      "subcategory": "order_line_item_structure",
+      "impact_score": 2,
+      "impact_rationale": "Mixing awareness, consideration, and purchase tactics inside a single order obscures performance and makes budget reallocation by funnel stage difficult. Reporting at the order level blends cost-per-thousand figures from awareness line items with cost-per-acquisition figures from purchase line items, making it hard to evaluate whether the investment at any stage is working.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "attribution"],
+      "educate": {
+        "base": "Amazon DSP is designed to run full-funnel campaigns where awareness, consideration, and purchase goals operate as distinct orders with distinct line items under each. The Order is the natural unit of budget and goal alignment. When all tactics are placed under a single order regardless of their funnel goal, the order-level reporting aggregates metrics that belong to different stages and different success criteria.<br><br>A streaming TV (STV) awareness line item is evaluated on reach and view-through rate. A display retargeting line item is evaluated on click-through rate and attributed purchases. Combining them in the same order produces a blended cost-per-action figure that is not meaningful for either tactic and makes it difficult to shift budget from a stage that is over-spending to one that is under-funded.<br><br>The distinction matters more for endemic advertisers who track purchase outcomes at the ASIN level through Amazon Attribution. A purchase attributed in Amazon reporting to an awareness line item and a purchase attributed to a retargeting line item have different implications for where the account should invest. Without order-level goal separation, that attribution signal is difficult to read in the console and requires AMC queries to untangle.<br><br>You may want to check whether the account organizes Orders by funnel goal or whether multiple funnel stages have been combined into a single Order. For smaller campaigns where only one goal is actively running, the single-order pattern may be intentional and not a problem. The issue surfaces when awareness, consideration, and purchase line items all live in one order and the account makes budget decisions based on that order's aggregate reporting.",
+        "site_type_overlays": {
+          "ecommerce": "For endemic advertisers, order-level goal separation also clarifies which stage of the funnel is contributing to new-to-brand purchases versus repeat purchases. Amazon's new-to-brand metric is one of the reporting signals that distinguishes Amazon DSP from open DSPs. When all line items are in a single order, new-to-brand attribution is harder to separate by funnel stage in the console. You may want to confirm that awareness and retargeting orders are distinct so new-to-brand data can be read per funnel stage.",
+          "lead_gen": "For non-endemic advertisers, funnel separation often matters less because the primary goal is driving the user off Amazon to a landing page rather than through an Amazon-native purchase funnel. A single order with awareness and retargeting line items may be acceptable here if the campaign is small and the reporting goal is simply total cost per site visit or lead. You may want to confirm whether the account's reporting goals require funnel-stage separation before flagging a flat structure as a problem."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon DSP: demand-side platform advertising",
+            "source_url": "https://advertising.amazon.com/solutions/products/amazon-dsp"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the account's order list and each order's line items to confirm whether funnel goals are separated at the order level or mixed within a single order.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open the Amazon DSP console and list all active orders for the advertiser.",
+                "For each order, note the goal type in the order settings and review the supply types of its child line items.",
+                "Flag any order that contains a mix of STV or audio line items alongside display retargeting line items where the goals are substantively different, for example awareness and purchase running in the same order.",
+                "Note whether order naming conventions reflect funnel stage, for example 'Q2 Awareness STV' versus 'Q2 Retargeting Display'. The absence of any funnel-stage naming across a multi-tactic campaign is a signal that the structure was not designed with goal separation in mind."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the account's orders are organized by funnel goal or whether multiple funnel stages are combined within a single order. A campaign where each order has a clear goal and its line items all support that goal passes. A campaign where awareness, consideration, and purchase line items coexist in the same order, and where reporting decisions are made at the order level, is a fail recorded with the order name and a description of the mixed goals present.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether each order's goal is consistent across its line items or mixed above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Amazon DSP campaign structure places multiple funnel goals within the same order rather than separating them by order. Awareness, consideration, and purchase tactics each produce different success metrics, and combining them under one order merges those metrics in reporting in a way that makes it difficult to evaluate performance at any single stage or to reallocate budget toward the stage that most needs it. {{voice_recommend}} restructuring the campaign so that each order corresponds to one funnel goal, with line items under it executing tactics toward that goal specifically. This separates the reporting and the budget decisions by stage and makes the attribution data that Amazon DSP surfaces for each goal more readable and actionable."
+      }
+    }
+  ]
+}

@@ -630,6 +630,50 @@ CATEGORY_METADATA = {
             "description": "Cross-platform deduplication, reconciliation, and reporting",
         },
     },
+    "comscore": {
+        "governance": {
+            "display_name": "Governance",
+            "icon_class": "fa-solid fa-scale-balanced",
+            "description": "Campaign setup, tag deployment, and user access",
+        },
+        "coverage": {
+            "display_name": "Coverage",
+            "icon_class": "fa-solid fa-satellite-dish",
+            "description": "Measured coverage and platform coverage",
+        },
+        "audience": {
+            "display_name": "Audience",
+            "icon_class": "fa-solid fa-users",
+            "description": "On-target delivery, demographic composition, reach and frequency, and audience guarantees",
+        },
+        "measurement": {
+            "display_name": "Measurement",
+            "icon_class": "fa-solid fa-chart-line",
+            "description": "Cross-platform deduplication, reconciliation, and reporting",
+        },
+    },
+    "samba-tv": {
+        "governance": {
+            "display_name": "Governance",
+            "icon_class": "fa-solid fa-scale-balanced",
+            "description": "Campaign setup, data integration, and user access",
+        },
+        "coverage": {
+            "display_name": "Coverage",
+            "icon_class": "fa-solid fa-satellite-dish",
+            "description": "ACR footprint and platform coverage",
+        },
+        "audience": {
+            "display_name": "Audience",
+            "icon_class": "fa-solid fa-users",
+            "description": "Reach and frequency, incremental reach, co-viewing, and demographic composition",
+        },
+        "measurement": {
+            "display_name": "Measurement",
+            "icon_class": "fa-solid fa-chart-line",
+            "description": "Cross-screen deduplication, outcomes, and reporting",
+        },
+    },
     "google-tag-manager": {
         "container-structure": {
             "display_name": "Container Structure",
@@ -933,7 +977,7 @@ DISPLAY_ACRONYMS = {
     "tcf": "TCF", "gpp": "GPP", "cmp": "CMP", "capi": "CAPI", "vast": "VAST",
     "pdp": "PDP", "cdp": "CDP", "crm": "CRM", "gtm": "GTM", "ga4": "GA4",
     "gsc": "GSC", "nap": "NAP", "ymyl": "YMYL", "eeat": "EEAT", "b2b": "B2B",
-    "b2c": "B2C", "openpath": "OpenPath", "pmax": "PMax", "connectid": "ConnectID",
+    "b2c": "B2C", "openpath": "OpenPath", "pmax": "PMax", "connectid": "ConnectID", "acr": "ACR",
 }
 
 

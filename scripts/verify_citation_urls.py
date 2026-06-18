@@ -4,15 +4,23 @@
 # Walks a json/ subtree, extracts every external http(s) URL from the content
 # fields, and classifies each one:
 #   ok        - resolved (2xx/3xx)
-#   broken    - a real link fault (4xx/5xx, excluding 429)
+#   broken    - a real link fault: 404, 410, or 5xx
+#   blocked   - 401/403/400/405/406/451; the server refused the script (auth
+#               wall or anti-bot, e.g. facebook.com returns 400 and Nielsen's
+#               portal returns 403 to non-browser requests). The page is
+#               usually live in a real browser; spot-check with a browser or
+#               WebFetch. NOT a link fault.
 #   throttled - HTTP 429; reflects the requester's IP, not the link
 #   error     - could not connect (DNS, SSL/cert, timeout); NOT a link fault
 #
-# Only "broken" fails the run (exit 1). "throttled" and "error" are reported
-# but do not fail, because both reflect the local machine/network rather than
-# the link itself. A wall of "error" usually means Python cannot verify TLS
-# certs (on macOS run the bundled "Install Certificates.command", or just use
-# the requests path below, which uses certifi).
+# Only "broken" fails the run (exit 1). "blocked", "throttled", and "error"
+# are reported but do not fail, because each reflects the requester (anti-bot
+# policy, IP, or local TLS) rather than the link being dead. This matches the
+# contract in DEPLOY.md invariant #4: a 404/410/5xx is broken; a 429 (and, by
+# the same logic, an anti-bot 400/403) is not. A wall of "error" usually means
+# Python cannot verify TLS certs (on macOS run the bundled "Install
+# Certificates.command", or just use the requests path below, which uses
+# certifi).
 #
 # Usage:
 #   python3 scripts/verify_citation_urls.py                  # checks json/
@@ -26,7 +34,31 @@ import glob
 import time
 import argparse
 
-URL_RE = re.compile(r"https?://[^\s'\"<>)]+")
+# Allow ')' inside the URL so paths with parens (e.g. an MRC PDF named
+# "...Brand Safety (Final).pdf") are captured whole. _trim() then drops only a
+# trailing ')' that is unbalanced, which is the markdown "(see https://x)" case.
+URL_RE = re.compile(r"https?://[^\s'\"<>]+")
+
+
+def _trim(u):
+    """
+    Strips trailing punctuation a URL should not end with, including a single
+    unbalanced trailing ')'.
+
+    A balanced ')' (one that closes a '(' present in the URL, as in
+    "...(Final).pdf") is kept; an unbalanced one (a markdown wrapper like
+    "(https://example.com)") is dropped.
+
+    Args:
+        u (str): A raw URL match.
+
+    Returns:
+        str: The trimmed URL.
+    """
+    u = u.rstrip(".,;")
+    while u.endswith(")") and u.count(")") > u.count("("):
+        u = u[:-1].rstrip(".,;")
+    return u
 
 UA = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -75,7 +107,7 @@ def extract_urls(root):
             continue
         for s in collect_strings(data):
             for m in URL_RE.findall(s):
-                urls.add(m.rstrip(".,);"))
+                urls.add(_trim(m))
     return sorted(urls)
 
 
@@ -138,17 +170,25 @@ def _classify(code):
     """
     Maps an HTTP status code to a health category.
 
+    Only 404, 410, and 5xx are real link faults ("broken"). 429 is
+    throttling. The remaining 4xx (401/403/400/405/406/451) are an auth wall
+    or anti-bot refusal of the script, not a dead page, so they are "blocked"
+    and do not fail the run.
+
     Args:
         code (int): The HTTP status code
 
     Returns:
-        tuple: (kind, code) where kind is ok/broken/throttled
+        tuple: (kind, code) where kind is ok/broken/blocked/throttled
     """
     if code == 429:
         return ("throttled", code)
     if 200 <= code < 400:
         return ("ok", code)
-    return ("broken", code)
+    if code in (404, 410) or 500 <= code < 600:
+        return ("broken", code)
+    # Other 4xx: auth wall or anti-bot block of the script, not a dead link.
+    return ("blocked", code)
 
 
 def check(url, timeout=20):
@@ -180,6 +220,7 @@ def main():
 
     ok = 0
     broken = []
+    blocked = []
     throttled = []
     errors = []
     for u in urls:
@@ -189,6 +230,9 @@ def main():
         elif kind == "throttled":
             throttled.append(u)
             print(f"  429 throttled (not a link fault)  {u}")
+        elif kind == "blocked":
+            blocked.append((detail, u))
+            print(f"  {detail} blocked (anti-bot/auth, not a link fault)  {u}")
         elif kind == "error":
             errors.append((detail, u))
             print(f"  ERROR {detail} (could not connect)  {u}")
@@ -197,11 +241,16 @@ def main():
             print(f"  {detail} BROKEN  {u}")
         time.sleep(args.delay)
 
-    print(f"\nsummary: ok={ok}  broken={len(broken)}  throttled={len(throttled)}  error={len(errors)}")
+    print(f"\nsummary: ok={ok}  broken={len(broken)}  blocked={len(blocked)}  "
+          f"throttled={len(throttled)}  error={len(errors)}")
     if errors and ok == 0 and not broken:
         print("note: every request errored, which almost always means Python "
               "cannot verify TLS certificates. Run macOS 'Install "
               "Certificates.command', or `pip install requests certifi`, then re-run.")
+    if blocked:
+        print("note: 'blocked' is an anti-bot or auth refusal of this script "
+              "(e.g. facebook.com 400, Nielsen 403), not a dead link. "
+              "Spot-check any you doubt in a browser or with WebFetch.")
     if throttled:
         print("note: throttling reflects this machine's IP, not the links.")
     sys.exit(1 if broken else 0)

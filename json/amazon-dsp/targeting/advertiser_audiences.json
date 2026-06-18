@@ -1,0 +1,194 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://advertising.amazon.com/solutions/products/amazon-dsp",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Amazon DSP's audience targeting becomes meaningful when the advertiser's own data is in the mix. Without onboarded first-party audiences, every campaign targets only Amazon-derived signals, which the advertiser shares with every other brand selling in the same category. These checks confirm that hashed CRM uploads, Amazon Ad Tag pixel audiences, and AMC audiences are present, fresh, large enough to serve, and activated correctly. Suppression checks protect budget from being spent on people who already converted. The review takes one session in the DSP console and AMC, and a review of the audience library frequently turns up at least one audience that is expired, too small, or built in AMC but never pushed to the DSP.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Advertiser audiences in Amazon DSP are the audiences built from data the advertiser brings in rather than audiences Amazon derives from its shopping graph. The three sources are hashed CRM file uploads, pixel audiences collected by the Amazon Ad Tag, and audiences built in Amazon Marketing Cloud (AMC) using the advertiser's own signals combined with Amazon event data. These checks confirm that each source is onboarded, current, and large enough to serve, that AMC audiences have been activated to the DSP, and that suppression audiences are applied where they fit the campaign goal.",
+  "audit_checks": [
+    {
+      "id": "amazon-dsp-first-party-audiences-stale-or-undersized",
+      "title": "First-party audiences are expired, too small to serve, or missing from the DSP entirely",
+      "category": "targeting",
+      "subcategory": "advertiser_audiences",
+      "impact_score": 4,
+      "impact_rationale": "When first-party audiences are absent or expired, the DSP cannot reach the advertiser's own customers or prospects. Every line item falls back to Amazon's category audiences, where the advertiser has no differentiation. Conversion rates drop and cost per acquisition rises because the campaign is targeting cold audiences instead of warm ones.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["targeting", "data-quality"],
+      "educate": {
+        "base": "Amazon DSP supports three types of advertiser first-party audiences. Hashed CRM file uploads let advertisers bring email lists or phone numbers from their customer database and match them against Amazon account signals. Amazon Ad Tag pixel audiences collect visitors from the advertiser's site or app after the Amazon Ad Tag fires on those pages. Amazon Marketing Cloud (AMC) audiences are built by running queries against pseudonymized Amazon event data combined with the advertiser's own signals inside the clean room, then pushing the resulting audience to the DSP for activation.<br><br>Each source has its own health requirements. CRM uploads expire if they are not refreshed. The Amazon Ads documentation recommends refreshing audience files when the underlying data changes. Pixel audiences shrink as the membership window closes, and an audience with fewer than the minimum required members (typically a few hundred) stops being eligible to serve. AMC audiences exist in a separate workflow and must be explicitly activated to the DSP before they appear in line item targeting.<br><br>A few signs point to an audience problem:<ul><li>The audience status in the DSP console shows 'Expired', 'Inactive', or a member count below the serving minimum</li><li>Line items that were meant to use first-party audiences are actually running on Amazon category audiences because no first-party audience was applied</li><li>The CRM upload date in the audience library is more than 90 days old</li><li>The pixel has not fired recently, so the Amazon Ad Tag audience has shrunk past the serving minimum</li></ul>You may want to review all three audience sources in one session. An audience that reads as 'Active' but has a count near the minimum can exhaust before the line item ends, falling off targeting mid-flight.",
+        "site_type_overlays": {
+          "ecommerce": "For an endemic advertiser selling on Amazon, CRM uploads of past purchasers and high-value customers are particularly important for retention and upsell campaigns. You may want to confirm that the upload reflects recent purchasers and that the membership window aligns with the typical repurchase cycle for the product category.",
+          "lead_gen": "For a non-endemic advertiser, the Amazon Ad Tag pixel is the primary source of site-visitor audiences since the advertiser does not sell on Amazon and has no purchase data in Amazon's graph. You may want to confirm the pixel is firing on all key pages, that the audience is within its membership window, and that the member count is above the serving minimum."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon DSP: demand-side platform overview",
+            "source_url": "https://advertising.amazon.com/solutions/products/amazon-dsp"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each first-party audience source in the Amazon DSP console for status, last-refresh date, and member count.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Navigate to the Amazon DSP console and open 'Audiences' in the left navigation.",
+                "Filter by audience type to review CRM file uploads separately from pixel audiences. For each audience, note the status ('Active', 'Expired', or 'Inactive'), the member count, and the date of the last file upload or the last date the pixel recorded members.",
+                "For CRM uploads: flag any audience whose last refresh date is more than 90 days ago, or whose status is not 'Active'.",
+                "For pixel audiences: flag any audience whose member count is below the serving minimum or whose membership window has closed.",
+                "Open each line item targeting the advertiser's first-party audiences and confirm the audience is applied and shows a status that allows delivery."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per audience, the type (CRM upload, pixel, or AMC), the current status, the member count, and for CRM uploads the last refresh date. An audience is healthy when its status is 'Active', its member count is above the serving minimum, and its most recent CRM refresh is within 90 days. An audience fails when its status is 'Expired' or 'Inactive', its count is below the minimum, or its CRM file has not been refreshed in more than 90 days. Record the audience name and the specific gap for each failure.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the status, member count, and last-refresh date for each first-party audience above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more first-party audiences in {{site_name}}'s Amazon DSP account are expired, below the serving minimum, or not refreshed recently. Without active first-party audiences, affected line items fall back to Amazon category audiences, which removes the differentiation that first-party data provides and raises cost per acquisition. {{voice_recommend}} refreshing expired CRM uploads, confirming the Amazon Ad Tag is firing on all key pages to rebuild the pixel audience, and reviewing the member count for each audience before the next flight goes live."
+      }
+    },
+    {
+      "id": "amazon-dsp-amc-audiences-not-activated",
+      "title": "AMC-built audiences exist in the clean room but have not been activated to the DSP",
+      "category": "targeting",
+      "subcategory": "advertiser_audiences",
+      "impact_score": 3,
+      "impact_rationale": "Amazon Marketing Cloud audiences represent the advertiser's most analytically precise segments. If those audiences are not activated to the DSP, the line items cannot use them. The activation step is a deliberate workflow that requires the audience to be pushed from AMC to the DSP. Skipping it means the investment in building the audience produces no targeting benefit.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["targeting", "data-quality"],
+      "educate": {
+        "base": "Amazon Marketing Cloud (AMC) is a privacy-safe clean room where advertisers run SQL queries against pseudonymized Amazon event data, such as ad exposures, purchases, and streaming events, alongside the advertiser's own signals. One output of an AMC workflow is a custom audience: a set of users who met the criteria defined in the query, for example users who saw a streaming TV (STV) ad but did not convert within 14 days. AMC can push those audiences directly to the Amazon DSP for use in line item targeting.<br><br>The activation is a separate step from building the audience. An AMC query can complete and produce a result set without that result set ever reaching the DSP. The practitioner must run an audience push workflow in AMC, specify the advertiser account to receive the audience, and confirm it appears in the DSP audience library before the line item can use it.<br><br>A few signs point to AMC audiences that are built but not activated:<ul><li>AMC shows completed audience queries with a result count, but those audience names do not appear in the Amazon DSP audience library</li><li>Line items that were built around AMC-derived insights are targeting Amazon category audiences because the custom audience was never pushed</li><li>The AMC workspace shows audience exports with an error or a pending status that was never resolved</li></ul>You may want to confirm the audience appears in the DSP library and that the member count is above the serving minimum before assigning it to a line item. An audience that was pushed weeks ago may have shrunk below the minimum by flight start.",
+        "site_type_overlays": {
+          "ecommerce": "For an endemic advertiser, AMC audiences built from partial-path analysis, such as users who added an item to cart but did not purchase, or users who purchased once but not in the last 180 days, are particularly useful for retargeting and win-back campaigns. You may want to confirm those audiences are pushed to the DSP and applied to the appropriate line items before the campaign goes live.",
+          "lead_gen": "For a non-endemic advertiser using AMC to analyze cross-channel exposure, audiences built from users who saw video and display ads but have not visited the site are useful for sequential messaging campaigns. You may want to confirm those audiences are activated to the DSP and that the membership window in AMC aligns with the campaign flight dates."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon Marketing Cloud: privacy-safe clean room for advertising insights",
+            "source_url": "https://advertising.amazon.com/solutions/products/amazon-marketing-cloud"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that each AMC-built audience has been activated to the DSP and appears in the audience library with an active status.",
+        "tools": {
+          "free": {
+            "amazon_marketing_cloud": {
+              "label": "Amazon Marketing Cloud",
+              "steps": [
+                "Open the AMC workspace and navigate to the Audiences section. Review completed audience queries and note the audience name, the result count, and the export status.",
+                "For any audience showing a completed result but no confirmed export, check whether an audience push workflow was initiated. A result that completed but was never exported has not reached the DSP.",
+                "Note any audiences showing an export error or a pending status that has not resolved."
+              ]
+            },
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open the Amazon DSP console and navigate to 'Audiences'. Filter or search for the audience names you identified in AMC.",
+                "Confirm each AMC audience appears with a status of 'Active' and a member count above the serving minimum.",
+                "For any AMC audience not found in the DSP library, return to AMC and initiate the audience push, specifying the correct advertiser account as the destination."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per AMC audience, the query status in AMC, the export status, and whether the audience appears in the DSP console library as 'Active'. An audience passes when AMC shows a completed export and the audience appears in the DSP library as 'Active' with a member count above the serving minimum. An audience fails when AMC shows a completed result but no export, an export error, or the audience does not appear in the DSP library. Record the audience name and the gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the AMC export status and the DSP library status for each AMC audience above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more AMC-built audiences in {{site_name}}'s account have not been activated to the Amazon DSP. The audiences exist as completed query results in AMC but are not present in the DSP audience library, so line items cannot use them. {{voice_recommend}} initiating an audience push from AMC for each affected audience, confirming the destination advertiser account is correct, and verifying that each audience appears in the DSP library as 'Active' before assigning it to a line item."
+      }
+    },
+    {
+      "id": "amazon-dsp-purchaser-suppression-not-applied",
+      "title": "Suppression of recent purchasers or current customers is not applied on acquisition-focused line items",
+      "category": "targeting",
+      "subcategory": "advertiser_audiences",
+      "impact_score": 3,
+      "impact_rationale": "Acquisition-focused line items that run against users who already converted spend budget on conversions the campaign cannot claim. For endemic advertisers, this means new-to-brand metrics are diluted by returning purchasers. For non-endemic advertisers, it means spend goes to users who already completed the desired action. In both cases the cost per acquisition appears higher than it should be because budget is not concentrated on the people the campaign is trying to reach.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["targeting", "data-quality"],
+      "educate": {
+        "base": "Suppression in Amazon DSP works by adding an audience to a line item as an exclusion rather than an inclusion. When an acquisition or new-to-brand campaign runs without a suppression audience, users who already purchased the product or completed the conversion goal remain in the eligible pool and can receive impressions. Amazon's new-to-brand (NTB) metric captures whether a purchase came from a customer who had not bought from the brand on Amazon in the prior 12 months, but the campaign still spends on returning customers even when NTB is the primary goal.<br><br>The suppression audience is typically a CRM upload of existing customers or a pixel audience of users who completed the conversion. For endemic advertisers, the Amazon DSP can also use Amazon's own purchaser signals to build a suppression audience that excludes recent purchasers of the specific Amazon Standard Identification Number (ASIN) being promoted.<br><br>A few signs point to missing or misconfigured suppression:<ul><li>The line item targeting panel shows no exclusion audiences on a campaign whose stated goal is acquisition or new-to-brand</li><li>The new-to-brand percentage reported by Amazon Attribution is lower than expected for a campaign targeting new customers</li><li>The suppression audience exists in the DSP library but its status is expired or its member count has dropped below the serving minimum, so it is no longer excluding anyone</li></ul>Suppression is not appropriate for every campaign. Retention and win-back campaigns are designed to reach existing customers. You may want to confirm that suppression is applied on acquisition-focused line items and that the suppression audience is current before each flight.",
+        "site_type_overlays": {
+          "ecommerce": "For an endemic advertiser, you may want to apply ASIN-level purchaser suppression on acquisition line items promoting a specific product. Amazon DSP can target users who have not purchased a given ASIN in the last 12 months, which aligns directly with the new-to-brand goal without requiring the advertiser to maintain a separate CRM upload for suppression.",
+          "lead_gen": "For a non-endemic advertiser, suppression is typically a pixel audience of users who completed the lead form or reached the thank-you page. You may want to confirm that audience is applied as an exclusion on acquisition line items and that the membership window covers the typical sales cycle, so a lead who converted last week is still excluded from the pool."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon DSP: demand-side platform overview",
+            "source_url": "https://advertising.amazon.com/solutions/products/amazon-dsp"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each acquisition-focused line item to confirm a suppression audience is applied and that the suppression audience is active and above the serving minimum.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open the campaign and navigate to the line items whose goal is acquisition or new-to-brand reach.",
+                "Open each line item's targeting panel and review the 'Audiences' section. Confirm whether any audience is set as an exclusion rather than an inclusion. A line item with no exclusion audiences has no suppression applied.",
+                "For any suppression audience found, confirm its status in the audience library is 'Active' and its member count is above the serving minimum. An expired or undersized suppression audience excludes no one.",
+                "For endemic campaigns where new-to-brand percentage is the primary metric, confirm whether ASIN-level purchaser suppression is available and applied, in addition to any CRM or pixel exclusion audience."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per acquisition-focused line item, whether an exclusion audience is applied, the name of that audience, its status in the DSP library, and its member count. A line item passes when it has at least one active exclusion audience with a member count above the serving minimum. A line item fails when it has no exclusion audience, or when the exclusion audience is expired or below the minimum. Record the line item name and the gap for each failure. Line items whose goal is retention or win-back are out of scope for this check.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the exclusion audience name, status, and member count for each acquisition-focused line item above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more acquisition-focused line items in {{site_name}}'s Amazon DSP account are running without a suppression audience, or with a suppression audience that has expired. Without an active exclusion, the line items serve impressions to users who already converted, which dilutes new-to-brand metrics and raises the effective cost per acquisition. {{voice_recommend}} applying an active exclusion audience to each acquisition-focused line item, confirming the suppression audience's status and member count before each flight, and refreshing CRM-based suppression files on a schedule that reflects the typical conversion cycle."
+      }
+    }
+  ]
+}

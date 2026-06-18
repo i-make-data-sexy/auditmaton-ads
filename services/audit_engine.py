@@ -554,6 +554,33 @@ CATEGORY_METADATA = {
             "description": "Yahoo ConnectID adoption, first-party data onboarding, and identity resolution",
         },
     },
+    "doubleverify": {
+        "governance": {
+            "display_name": "Governance",
+            "icon_class": "fa-solid fa-scale-balanced",
+            "description": "DV Pinnacle setup, platform integration, and user access",
+        },
+        "coverage": {
+            "display_name": "Coverage",
+            "icon_class": "fa-solid fa-chart-pie",
+            "description": "Measured rate and coverage across channels and formats",
+        },
+        "brand-safety": {
+            "display_name": "Brand Safety",
+            "icon_class": "fa-solid fa-shield-halved",
+            "description": "Authentic Brand Suitability tiers, block and allow controls, and pre-bid suitability",
+        },
+        "fraud": {
+            "display_name": "Fraud",
+            "icon_class": "fa-solid fa-robot",
+            "description": "Fraud Lab IVT and SIVT detection, and pre-bid fraud avoidance",
+        },
+        "viewability": {
+            "display_name": "Viewability",
+            "icon_class": "fa-solid fa-eye",
+            "description": "Viewability measurement against the MRC standard, and attention metrics",
+        },
+    },
     "google-tag-manager": {
         "container-structure": {
             "display_name": "Container Structure",

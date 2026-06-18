@@ -37,6 +37,27 @@
        Content-less platforms render greyed with a 'soon' badge. #}
     {% set ns = namespace(active_name=active_platform) %}
     {% for type_label, group_platforms in picker_groups %}{% for p in group_platforms %}{% if p.slug == active_platform %}{% set ns.active_name = p.name %}{% endif %}{% endfor %}{% endfor %}
+    {# Side filter. Rescopes the Platform dropdown to one side (or all)
+       via a ?side= query param the dashboard route reads. Mirrors the
+       Platform dropdown's structure and reuses platform-filter.js. #}
+    <div class="platform-filter" id="side-filter" role="region" aria-label="Audit side filter">
+        <span class="platform-filter-label">Side</span>
+        <div class="platform-filter-control">
+            <button type="button" class="platform-filter-trigger" aria-haspopup="true" aria-expanded="false">
+                <i class="fa-solid fa-arrows-left-right"></i>
+                <span class="platform-filter-trigger-label">{{ side_label }}</span>
+                <i class="fa-solid fa-chevron-down platform-filter-chevron"></i>
+            </button>
+            <div class="platform-filter-menu" role="menu">
+                <a href="{{ app_root }}/dashboard/{{ active_platform }}/?side=demand" role="menuitem"
+                   class="platform-filter-option{% if side_selection == 'demand' %} is-active{% endif %}">Demand</a>
+                <a href="{{ app_root }}/dashboard/{{ active_platform }}/?side=supply" role="menuitem"
+                   class="platform-filter-option{% if side_selection == 'supply' %} is-active{% endif %}">Supply</a>
+                <a href="{{ app_root }}/dashboard/{{ active_platform }}/?side=all" role="menuitem"
+                   class="platform-filter-option{% if side_selection == 'all' %} is-active{% endif %}">All</a>
+            </div>
+        </div>
+    </div>
     <div class="platform-filter" id="platform-filter" role="region" aria-label="Active ad-audit platform">
         <span class="platform-filter-label">Platform</span>
         <div class="platform-filter-control">

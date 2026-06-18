@@ -580,9 +580,30 @@ def create_app(config_class=None):
         # practitioner selected at intake when a non-empty selection exists.
         active_side = session.get("intake_side") or get_active_side() or "demand"
         selected = set(session.get("intake_platforms") or [])
-        picker_groups = platforms_grouped_by_type(
-            active_side,
-            slugs=(selected if selected else None),
+
+        # Optional ?side= override from the Side dropdown. It rescopes the
+        # platform picker to one side (demand/supply) or to every platform
+        # (all), ignoring the intake selection so the full side is browsable.
+        # With no override the picker keeps the intake-scoped default above.
+        side_param = (request.args.get("side") or "").strip().lower()
+        if side_param == "all":
+            picker_groups = (
+                platforms_grouped_by_type("demand")
+                + platforms_grouped_by_type("supply")
+            )
+            side_selection = "all"
+        elif side_param in ("demand", "supply"):
+            picker_groups = platforms_grouped_by_type(side_param)
+            side_selection = side_param
+        else:
+            picker_groups = platforms_grouped_by_type(
+                active_side,
+                slugs=(selected if selected else None),
+            )
+            side_selection = active_side
+
+        side_label = {"demand": "Demand", "supply": "Supply", "all": "All"}.get(
+            side_selection, "Demand"
         )
 
         rendered = render_template(
@@ -592,6 +613,8 @@ def create_app(config_class=None):
             available_platforms=AVAILABLE_PLATFORMS,
             picker_groups=picker_groups,
             active_side=active_side,
+            side_selection=side_selection,
+            side_label=side_label,
         )
 
         # Cache-control headers (dashboard reflects in-progress audit state)

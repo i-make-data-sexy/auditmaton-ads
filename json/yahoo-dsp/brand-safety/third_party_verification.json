@@ -1,0 +1,213 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Yahoo DSP combines always-on proprietary fraud protection (TalonPro) with opt-in third-party verification from vendors such as Integral Ad Science (IAS) and DoubleVerify (DV). The opt-in portion is the lever auditors check: third-party verification vendors operate in two distinct modes, post-bid measurement, which records brand-unsafe or fraudulent impressions after delivery, and pre-bid avoidance, which prevents the Yahoo DSP bidder from competing for those impressions at all. Each check in this section is a configuration review, not a rebuild, and the settings surface in the line's Targeting section within the Yahoo DSP UI.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Integral Ad Science and DoubleVerify each integrate with Yahoo DSP at the line level. Both vendors provide two distinct operational modes: a pre-bid avoidance segment that instructs the Yahoo DSP bidder to skip impressions that fail the brand-safety, viewability, or invalid traffic (IVT) criteria before the bid is placed, and a post-bid measurement tag that fires on delivered impressions and generates reporting. These two modes are not interchangeable. These checks confirm that the right mode is active, that segment thresholds reflect the brand's actual risk tolerance, and that discrepancies between Yahoo DSP's delivery counts and the verification vendor's counts are reconciled rather than left unexplained.",
+  "audit_checks": [
+    {
+      "id": "yahoo-dsp-verification-monitoring-only-not-prebid",
+      "title": "Third-party verification is in post-bid monitoring mode, not pre-bid avoidance",
+      "category": "brand-safety",
+      "subcategory": "third_party_verification",
+      "impact_score": 4,
+      "impact_rationale": "Post-bid monitoring records brand-unsafe, fraudulent, or low-viewability impressions after they are delivered and billed. Pre-bid avoidance prevents the bid from entering those auctions. A line operating in monitoring mode spends against placements it has already chosen to flag as problematic, and the vendor report documents the exposure rather than blocking it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "fraud"],
+      "educate": {
+        "base": "When a third-party verification vendor such as Integral Ad Science (IAS) or DoubleVerify (DV) is connected to a Yahoo DSP account, its segments are available in two ways. The first is a post-bid measurement tag, sometimes labeled a monitoring segment, that the vendor fires on delivered impressions to classify content and measure fraud and viewability after the fact. The second is a pre-bid avoidance segment, applied as a targeting exclusion on the line before Yahoo DSP places the bid, so the platform never competes for impressions the vendor would flag.<br><br>The distinction matters because billing happens at delivery. An impression served against fraudulent or brand-unsafe inventory is billed regardless of what the verification tag reports afterward. Post-bid reporting surfaces the exposure, but the spend is already committed. Pre-bid avoidance keeps the bid out of the auction entirely, so the spend never reaches the flagged impression.<br><br>Yahoo DSP operates TalonPro as its always-on proprietary fraud filter. Third-party verification from IAS or DV is an opt-in layer on top of TalonPro, not a replacement for it. A line can have TalonPro active (it always does), a third-party measurement tag, and a third-party pre-bid avoidance segment. Or it can have TalonPro plus only a measurement tag, in which case the third-party vendor is watching but not blocking.<br><br>A few signs point to a line running in monitoring-only mode:<ul><li>The verification vendor dashboard shows impression volume with brand-safety or fraud classifications, but no pre-bid avoidance segment appears in the line's Targeting settings within Yahoo DSP</li><li>The line's Inventory Quality Targeting section shows bot avoidance or viewability controls at the Yahoo DSP platform level but no third-party vendor segment applied as a separate targeting exclusion</li><li>The verification vendor's account manager confirms the integration is set to measurement rather than avoidance</li></ul>You may want to confirm the line's targeting configuration directly in Yahoo DSP rather than relying on the vendor dashboard label alone. Both modes generate data in the vendor's reporting interface, so the dashboard alone does not distinguish pre-bid from post-bid.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser running Yahoo DSP display or video, fraudulent impressions inflate delivery counts without producing any shopping signal. Pre-bid avoidance keeps that traffic out of the auction, so viewability and engagement metrics that inform line optimization reflect real users rather than invalid activity.",
+          "lead_gen": "For a lead-generation advertiser, brand-unsafe placements carry reputational risk beyond the wasted spend. A lead captured alongside harmful content reflects on the brand regardless of the downstream conversion rate. Pre-bid avoidance removes those placements before the bid rather than identifying them in a post-campaign report."
+        },
+        "learn_more": [
+          {
+            "source_type": "Microsoft Learn (Yahoo DSP)",
+            "source_title": "Yahoo Buying Guide: Inventory Quality Targeting",
+            "source_url": "https://learn.microsoft.com/en-us/xandr/bidders/yahoo-buying-guide"
+          }
+        ],
+        "learn_more_note": "Yahoo DSP's detailed documentation on third-party verification vendor setup, including how to apply IAS and DoubleVerify pre-bid avoidance segments at the line level, is in the Yahoo DSP Help Center and Developer Portal. Both require a Yahoo DSP account login to access. Contact your Yahoo DSP account manager or the verification vendor's integration team for setup guidance.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm, for each active line running with a third-party verification vendor, whether a pre-bid avoidance segment is attached as a targeting exclusion or whether only a post-bid measurement tag is present.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Navigate to the Advertisers section, select the advertiser, open the campaign, and open the line you want to check.",
+                "Within the line, open the Targeting page and locate the Inventory Quality Targeting section.",
+                "Confirm whether a pre-bid avoidance segment from your verification vendor (IAS or DoubleVerify) appears as a targeting exclusion in that section, separate from Yahoo DSP's own bot avoidance and viewability controls.",
+                "If only Yahoo DSP's native controls are present, with no third-party vendor segment listed as a targeting exclusion, the line is running without third-party pre-bid coverage.",
+                "Repeat for each active line. Lines within the same campaign may have different configurations if they were set up at different times."
+              ]
+            },
+            "verification_vendor_dashboard": {
+              "label": "Verification vendor dashboard (IAS or DoubleVerify)",
+              "steps": [
+                "Log in to your verification vendor platform and navigate to the Yahoo DSP integration settings.",
+                "Confirm whether pre-bid avoidance is enabled for the relevant advertiser and lines, or whether the setup is labeled as verification or measurement only.",
+                "Note the distinction in the vendor interface: pre-bid configurations typically appear under a 'Pre-Bid Targeting' or 'Avoidance' section, while post-bid setups appear under 'Verification' or 'Measurement'."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per active line, whether a pre-bid avoidance segment from the third-party verification vendor is attached as a targeting exclusion in Yahoo DSP's Targeting settings. A line with a pre-bid segment actively applied passes. A line with only a post-bid measurement tag and no pre-bid avoidance segment is a fail recorded with the line name and the campaign it belongs to.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the targeting configuration for each active line above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that third-party verification for {{site_name}}'s Yahoo DSP lines is configured in post-bid monitoring mode rather than pre-bid avoidance. The verification vendor is recording brand-unsafe, fraudulent, and low-viewability impressions after delivery, but the pre-bid segment that would prevent the bid from entering those auctions is not attached to the line targeting. Every flagged impression in the vendor report represents spend that has already been billed. {{voice_recommend}} attaching the verification vendor's pre-bid avoidance segment as a targeting exclusion on each affected line, and confirming the segment type in both Yahoo DSP's Targeting settings and the vendor platform, to block unsafe and invalid inventory before the bid rather than report it afterward."
+      }
+    },
+    {
+      "id": "yahoo-dsp-verification-segments-not-calibrated",
+      "title": "Verification vendor segments are at a default threshold not reviewed against the brand's risk tolerance",
+      "category": "brand-safety",
+      "subcategory": "third_party_verification",
+      "impact_score": 2,
+      "impact_rationale": "Default or maximum-restriction segment settings block a larger share of available inventory than the brand's actual risk profile may require. This reduces reach and raises effective cost per impression without delivering additional protection beyond what the brand's own standards call for. Conversely, a threshold set too low accepts impressions the brand would prefer to avoid. Neither outcome reflects an intentional calibration decision.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "targeting"],
+      "educate": {
+        "base": "Integral Ad Science and DoubleVerify each offer tiered segment settings for brand safety, viewability, and fraud avoidance. Brand-safety segments typically run from a floor tier that blocks only content in hard categories such as adult content and hate speech, through a mid tier that also excludes controversial news and mature topics, to a maximum tier that blocks a wider range of content including news, politics, and sensitive categories that a particular brand may find acceptable. Viewability thresholds range similarly, from a low floor that excludes only the least measurable placements to a high setting that restricts a meaningful share of real, measured inventory.<br><br>The segments applied to a line should reflect the brand's documented content adjacency standards, not a default that carries over from account setup or from a previous campaign. A consumer packaged goods brand and a financial services firm have different adjacency risk profiles. A campaign focused on reach operates differently from one targeting a narrow, high-value audience. Setting every line to maximum restriction resolves the configuration question efficiently but reduces the eligible impression pool more than the brand's actual standards require, which shows up as lower reach, higher cost per thousand impressions (CPM), and slower pacing at the same budget.<br><br>A few signs suggest the segments may not have been reviewed against the brand's risk tolerance:<ul><li>All lines use the same verification vendor tier regardless of campaign objective, channel type, or audience</li><li>The vendor account shows the most restrictive tier applied across every line without a documented review</li><li>Pacing or delivery issues trace to low bid win rates on impression pools the brand has not explicitly assessed for suitability</li></ul>You may want to compare the selected tier against the brand's documented content adjacency guidelines, if they exist, rather than accepting the default or the highest available restriction.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser, high viewability thresholds may exclude below-the-fold placements on product listing pages that convert at acceptable rates despite lower measured viewability. You may want to compare conversion performance across viewability tiers before tightening the threshold on lower-funnel lines.",
+          "lead_gen": "For a lead-generation advertiser, aggressive brand-safety tiers on content categories such as news and politics may exclude placements where the target audience is actively engaged. You may want to review which content categories the brand's guidelines actually prohibit rather than defaulting to categories the vendor flags as sensitive."
+        },
+        "learn_more": [
+          {
+            "source_type": "Microsoft Learn (Yahoo DSP)",
+            "source_title": "Yahoo Buying Guide: Inventory Quality Targeting",
+            "source_url": "https://learn.microsoft.com/en-us/xandr/bidders/yahoo-buying-guide"
+          }
+        ],
+        "learn_more_note": "Detailed documentation on configuring IAS and DoubleVerify segment tiers within Yahoo DSP, including the specific threshold options and how they map to Yahoo DSP's Inventory Quality Targeting controls, is in the Yahoo DSP Help Center, which requires a Yahoo DSP account login. Contact your verification vendor's account team for a segment tier review and for guidance on mapping tiers to your brand's content adjacency standards.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm the tier and threshold settings applied to each verification vendor segment in use on active lines, and compare them against any documented brand content adjacency guidelines.",
+        "tools": {
+          "free": {
+            "verification_vendor_dashboard": {
+              "label": "Verification vendor dashboard (IAS or DoubleVerify)",
+              "steps": [
+                "Log in to the verification vendor platform and navigate to the segment settings for the Yahoo DSP integration.",
+                "For each active segment, note the tier applied: the brand-safety category level (floor, standard, or maximum restriction), the viewability threshold (e.g., 40%, 60%, or 70%+ in-view), and the fraud avoidance level.",
+                "Compare the selected tier against the brand's content adjacency guidelines or brand safety policy if one exists. Note any tier set to maximum restriction without a documented rationale."
+              ]
+            },
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Open each active line and navigate to Targeting. Review which verification vendor segment is applied as a targeting exclusion in the Inventory Quality Targeting section.",
+                "Note the segment name and cross-reference it against the vendor dashboard to identify which tier it corresponds to.",
+                "Check whether different lines within the same campaign use different tiers, which would indicate a per-line review was done, or whether all use the same default."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per active line, the verification segment tier applied and whether a documented brand guideline supports that tier. A line whose tier matches a documented content adjacency policy passes. A line using a maximum-restriction tier without a documented rationale is a note, not a hard fail, recorded with the line name and the segment tier applied.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the segment tier and any supporting brand guideline for each active line above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that verification vendor segments on {{site_name}}'s Yahoo DSP lines are set to a uniform tier across all lines rather than calibrated to the brand's documented content adjacency standards. A single tier applied without review, whether a maximum restriction or a platform default, does not reflect an intentional match between the brand's risk tolerance and the eligible impression pool. {{voice_recommend}} reviewing the segment tier applied to each active line against the brand's content adjacency policy, adjusting tiers to the level the policy actually requires, and documenting the rationale for each tier selection so future campaign builds have a reference to start from."
+      }
+    },
+    {
+      "id": "yahoo-dsp-verification-discrepancy-not-reconciled",
+      "title": "Discrepancies between Yahoo DSP delivery counts and verification vendor counts are not reconciled",
+      "category": "brand-safety",
+      "subcategory": "third_party_verification",
+      "impact_score": 3,
+      "impact_rationale": "When Yahoo DSP and the verification vendor report different impression counts, one of three things is happening: the verification tag is not firing on all delivered impressions, the vendor's invalid traffic (IVT) filtration is removing impressions that Yahoo DSP counted, or a tag configuration error is causing misfired or mis-attributed records. Each cause requires a different fix. Leaving the discrepancy unexamined means the account does not know whether its delivery figures are reliable.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "fraud"],
+      "educate": {
+        "base": "Yahoo DSP reports delivery from its own ad server, counting impressions at the point the creative is served. A third-party verification vendor such as IAS or DoubleVerify counts impressions when its tag loads on the page. These two counts rarely match exactly, and a gap of up to roughly 10% is within the range that differences in tag-fire timing, page abandonment, and measurement methodology explain. A discrepancy that exceeds that range, or that changes materially from one reporting period to the next, points to a specific issue worth tracing.<br><br>Three causes account for most significant discrepancies:<ul><li>The verification tag is not attached to all creatives running on the line, so some delivered impressions never reach the vendor's counter at all</li><li>The vendor's IVT filtration is removing a share of impressions that Yahoo DSP counted, which means Yahoo DSP's total includes impressions the vendor has classified as invalid</li><li>A tag configuration error, such as an ad macro that does not pass correctly, is causing the vendor tag to fire but attribute the impression to the wrong campaign or line</li></ul>Reconciling the discrepancy requires pulling matching date ranges from both Yahoo DSP and the verification vendor, computing the percentage gap at the line level, and identifying which cause is responsible. A vendor-side IVT filter producing the gap is a different outcome from a missing tag on one creative format. You may want to start with a creative-level tag audit before assuming the gap reflects invalid traffic removal.<br><br>Yahoo DSP's native Inventory Quality Targeting, including the built-in bot avoidance setting, does not replace third-party verification tag coverage. The two systems count impressions independently. A large discrepancy between Yahoo DSP's delivery total and the vendor's measured total may indicate that the tag is not covering the full delivery volume, regardless of TalonPro's always-on filtration.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser running multiple creative formats across Yahoo DSP display and video lines, a missing verification tag on one format, such as native or connected TV (CTV), can produce a discrepancy that appears small at the campaign level but is large within that specific format or channel. You may want to check tag coverage by creative type, not only by campaign total.",
+          "lead_gen": "For a lead-generation advertiser running a small number of high-value placements, a discrepancy of even a few percentage points may warrant investigation. Each impression in a narrow targeting set represents a meaningful opportunity. You may want to review tag firing at the individual placement level rather than only at the line aggregate."
+        },
+        "learn_more": [
+          {
+            "source_type": "Microsoft Learn (Yahoo DSP)",
+            "source_title": "Yahoo Buying Guide: Campaign and Line Setup",
+            "source_url": "https://learn.microsoft.com/en-us/xandr/bidders/yahoo-buying-guide"
+          }
+        ],
+        "learn_more_note": "Yahoo DSP's documentation on attaching third-party verification tags to creatives and lines, including how tag macros are configured and how to pull delivery reports for discrepancy comparison, is in the Yahoo DSP Help Center, which requires a Yahoo DSP account login. Contact your Yahoo DSP account manager or your verification vendor's integration team for guidance on tag audit procedures and macro configuration.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Pull matching date-range reports from Yahoo DSP and the verification vendor, compute the impression discrepancy at the line level, and identify whether it is within the expected range or points to a specific tag-coverage or configuration issue.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "In Yahoo DSP, navigate to the line's reporting view and pull an impressions report segmented by campaign, line, and if available by creative. Set the date range to match the period you will pull from the verification vendor.",
+                "Use Yahoo DSP's own served-impression column rather than any verification vendor column that may already appear within the DSP's reporting interface. That column may already reflect the vendor's filtration and would understate the raw delivery count.",
+                "Export or record the impression totals for comparison."
+              ]
+            },
+            "verification_vendor_dashboard": {
+              "label": "Verification vendor dashboard (IAS or DoubleVerify)",
+              "steps": [
+                "Log in to the verification vendor platform and pull an impressions report for the same date range, segmented by the same campaign and line breakdown.",
+                "Compare the vendor's total measured impression count against Yahoo DSP's served-impression count for each line.",
+                "Compute the percentage difference: (Yahoo DSP count minus vendor count) divided by Yahoo DSP count. A result above 10% warrants further investigation.",
+                "If the vendor dashboard separates total measured impressions from IVT-filtered impressions, compare both against Yahoo DSP's total to determine whether the gap is explained by IVT removal, tag coverage gaps, or an unidentified configuration issue."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the impression discrepancy percentage per line. A line with a discrepancy below 10% passes. A line with a discrepancy of 10% or more is a fail recorded with the line name, the Yahoo DSP impression count, the verification vendor impression count, and the percentage gap. The practitioner also notes whether the vendor dashboard attributes the gap to IVT filtration, incomplete tag coverage, or an unidentified cause.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the Yahoo DSP impression count, the verification vendor count, and the percentage discrepancy for each active line above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that discrepancies between Yahoo DSP's served-impression counts and the verification vendor's measured counts on {{site_name}}'s campaigns exceed the expected range without a documented explanation. When Yahoo DSP and the verification vendor report materially different impression totals, the account does not have a reliable picture of how much of its delivery reached real users or whether the verification tag covers all delivered impressions. {{voice_recommend}} pulling matching date-range reports from both Yahoo DSP and the verification vendor, computing the discrepancy at the line level, and tracing whether the gap reflects IVT filtration, missing tag coverage on specific creatives or channels, or a tag configuration error. Each cause requires a different correction, and the reconciliation should be documented so future reporting periods can be compared against a known baseline."
+      }
+    }
+  ]
+}

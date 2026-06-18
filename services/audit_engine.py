@@ -507,6 +507,53 @@ CATEGORY_METADATA = {
             "description": "Amazon Marketing Cloud, attribution, and brand lift and reach",
         },
     },
+    "yahoo-dsp": {
+        "governance": {
+            "display_name": "Governance",
+            "icon_class": "fa-solid fa-scale-balanced",
+            "description": "Advertiser account structure, user roles and access, and naming conventions",
+        },
+        "campaigns": {
+            "display_name": "Campaigns",
+            "icon_class": "fa-solid fa-rectangle-list",
+            "description": "Campaign and line structure, budget pacing, and flight scheduling",
+        },
+        "bidding": {
+            "display_name": "Bidding",
+            "icon_class": "fa-solid fa-hand-holding-dollar",
+            "description": "Bid strategy, optimization, and custom bid multipliers",
+        },
+        "targeting": {
+            "display_name": "Targeting",
+            "icon_class": "fa-solid fa-crosshairs",
+            "description": "Audience setup, the data marketplace, and frequency and exclusions",
+        },
+        "inventory": {
+            "display_name": "Inventory",
+            "icon_class": "fa-solid fa-boxes-stacked",
+            "description": "Deals and private marketplace, supply sources, and inventory quality",
+        },
+        "creative": {
+            "display_name": "Creative",
+            "icon_class": "fa-solid fa-palette",
+            "description": "Creative formats, QA, and video and connected TV creative",
+        },
+        "measurement": {
+            "display_name": "Measurement",
+            "icon_class": "fa-solid fa-chart-line",
+            "description": "Conversion tracking, attribution, and reporting",
+        },
+        "brand-safety": {
+            "display_name": "Brand Safety",
+            "icon_class": "fa-solid fa-shield-halved",
+            "description": "Brand safety controls, third-party verification, and invalid traffic",
+        },
+        "identity": {
+            "display_name": "Identity",
+            "icon_class": "fa-solid fa-fingerprint",
+            "description": "Yahoo ConnectID adoption, first-party data onboarding, and identity resolution",
+        },
+    },
     "google-tag-manager": {
         "container-structure": {
             "display_name": "Container Structure",
@@ -810,7 +857,7 @@ DISPLAY_ACRONYMS = {
     "tcf": "TCF", "gpp": "GPP", "cmp": "CMP", "capi": "CAPI", "vast": "VAST",
     "pdp": "PDP", "cdp": "CDP", "crm": "CRM", "gtm": "GTM", "ga4": "GA4",
     "gsc": "GSC", "nap": "NAP", "ymyl": "YMYL", "eeat": "EEAT", "b2b": "B2B",
-    "b2c": "B2C", "openpath": "OpenPath", "pmax": "PMax",
+    "b2c": "B2C", "openpath": "OpenPath", "pmax": "PMax", "connectid": "ConnectID",
 }
 
 

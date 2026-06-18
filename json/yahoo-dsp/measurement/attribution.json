@@ -1,0 +1,172 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Attribution configuration in Yahoo DSP lives at the Line level, where post-click and post-view lookback windows are set separately for each conversion rule. The defaults are generous to the platform and easy to leave untouched, which means a short-cycle product can end up with a window that sweeps in conversions it did not drive. The check takes a few minutes per Line and the conversation about what the numbers actually represent is worth having before optimization decisions are made on the reported figures.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Yahoo DSP measures conversions through the Yahoo Dot pixel and its server-side equivalent, the Yahoo Conversions API (CAPI). Attribution is controlled at the Line level by two separate lookback windows: a post-click window covering conversions from users who clicked an ad, and a post-view window covering conversions from users who saw an impression but did not click. Both windows are configured in the conversion rule attached to each Line. Longer windows credit the Line for a broader pool of conversions, and the post-view window in particular can inflate display performance when it is set wider than the category's actual consideration cycle. These checks confirm that the windows have been reviewed against the real purchase timeline, that post-click and post-view totals can be read separately in reporting, and that the team understands what the combined conversion number includes.",
+  "audit_checks": [
+    {
+      "id": "yahoo-dsp-attribution-windows-not-reviewed-against-sales-cycle",
+      "title": "Post-click and post-view attribution windows were not reviewed against the product's consideration cycle",
+      "category": "measurement",
+      "subcategory": "attribution",
+      "impact_score": 3,
+      "impact_rationale": "Windows set wider than the actual decision cycle absorb conversions from users who would have converted without the ad, inflating reported return on ad spend and steering budget toward Lines that appear to be driving outcomes they are not.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["attribution", "data-quality"],
+      "educate": {
+        "base": "Yahoo DSP records a conversion when a user who clicked or viewed an ad completes the tracked event within the lookback window configured in that Line's conversion rule. The post-click window and the post-view window are set independently. When neither has been changed from the platform default, the window may be far longer than the time a typical customer takes to decide.<br><br>The practical effect depends on the category. A product with a two-day consideration cycle does not benefit from a 30-day post-click window. Setting one pulls in conversions from users who saw the ad weeks before converting through a completely different path. The Line's reported cost per conversion drops, its reported return on ad spend rises, and the figures justify more budget, but the attribution is crediting activity the Line did not drive.<br><br>A few signs the windows may not reflect the actual sales cycle:<ul><li>Nobody on the team can explain the current window values or remembers choosing them</li><li>The windows have not been updated since the campaign was first set up</li><li>The reported conversion volume in Yahoo DSP is materially higher than what an independent measurement vendor or the analytics platform reports for the same period and conversion action</li></ul>You may want to locate the consideration cycle for the product from analytics data, such as the median time between first session and purchase, and compare it to the current window values. Where the window is a multiple of the cycle, shortening it is worth evaluating.",
+        "site_type_overlays": {
+          "ecommerce": "On a retail site, order data gives a concrete view of how long customers take from first exposure to checkout. You may want to pull average time-to-purchase from the analytics platform and compare it to the current windows. If either window is materially longer than the median path, it is likely capturing organic and direct conversions that were already in motion.",
+          "lead_gen": "On a lead-generation site, the form submission is the conversion event, but the sales cycle extends beyond the form. A post-click window longer than the median time from first visit to submission may be drawing in leads who were already in the funnel from other channels. You may want to check whether form submissions attributed to Yahoo DSP correlate with campaign flight dates, which would indicate genuine influence, rather than simply occurring within the window."
+        },
+        "learn_more": [],
+        "learn_more_note": "Yahoo DSP's documentation on attribution windows and conversion rule configuration is in the Yahoo DSP Help Center, which requires a platform login. No public reference is linked here. Practitioners with platform access can find the attribution settings under the Line setup and conversion rule sections of the Help Center.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the post-click and post-view window values on each active Line and compare them against the product's typical consideration timeline.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "In the Yahoo DSP UI, navigate to Advertisers and select the advertiser you are auditing.",
+                "Open the relevant Campaign, then select the Line you want to review.",
+                "In the Line settings, locate the Conversion section and find the conversion rule attached to the Line. Note the post-click lookback window value and the post-view lookback window value.",
+                "Repeat for each active Line under the campaign. Flag any Line where either window has not been changed from the default, or where the window length is not documented anywhere in the campaign notes.",
+                "Compare each window value to the product's median consideration cycle as estimated from analytics data. Note any Line where either window is more than twice the median."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per Line, the post-click window value, the post-view window value, and the product's consideration cycle estimate from analytics. A Line where both windows are at or below the consideration cycle passes. A Line where either window materially exceeds the consideration cycle, or where neither window has documented rationale for its length, is a fail recorded with the Line name and the current window values.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the post-click and post-view window values and the product's consideration cycle estimate for each Line above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the post-click and post-view attribution windows on {{site_name}}'s Yahoo DSP Lines have not been reviewed against the product's actual consideration cycle. Windows configured wider than the typical decision timeline absorb conversions from users who would have converted regardless of the ad, which inflates the reported return on ad spend and can direct budget toward activity that did not drive the outcome. {{voice_recommend}} reviewing the window values on each active Line, comparing them to the median time-to-conversion from the analytics platform, and adjusting any window that materially exceeds the consideration cycle."
+      }
+    },
+    {
+      "id": "yahoo-dsp-attribution-post-view-window-inflates-display-credit",
+      "title": "Post-view attribution window is wide enough to credit display impressions that had no role in the conversion",
+      "category": "measurement",
+      "subcategory": "attribution",
+      "impact_score": 3,
+      "impact_rationale": "A post-view window that runs longer than the category's purchase cycle credits display impressions for conversions that completed through other paths. Display and video campaigns on Yahoo DSP reach broad audiences; a wide window means a high share of all conversions in the period will fall inside it, making the channel appear more effective than it is.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["attribution", "data-quality"],
+      "educate": {
+        "base": "Post-view attribution, also called view-through attribution, credits a Line when a user who was served an impression, but did not click, completes the conversion event within the post-view window. The logic is that display and video advertising can influence decisions even without a direct click. That holds for some categories and some placements. It also creates a counting method that, when the window is long, can credit impressions for conversions that had other causes entirely.<br><br>Yahoo DSP sets the post-view window at the Line level, inside the conversion rule. The window can be configured in hours or days. On a display or connected television (CTV) campaign targeting a broad audience, a multi-week post-view window means the Line will reach a large share of the addressable population over the flight. Any user in that audience who converts within the window, for any reason, is attributed to the Line. The conversion could have come from a branded search, a direct visit, an email, or a retargeting touch from another channel.<br><br>View-through attribution is not wrong in principle. CTV and audio campaigns, where clicking is not the expected response, rely on it as the primary signal. The question is whether the window length matches the category and whether post-view conversions are being treated appropriately when making optimization decisions.<br><br>A few signals that the post-view window may be inflating results:<ul><li>Post-view conversions account for more than half of the total conversions reported for a display or CTV Line</li><li>The post-view window has not been reviewed since the campaign launched</li><li>The Yahoo DSP reported conversion total is noticeably higher than what the Yahoo Dot pixel data shows in a third-party analytics tool for the same period</li></ul>You may want to pull Yahoo DSP reporting segmented by post-click and post-view conversions separately and evaluate whether the post-view share is defensible given how the product sells.",
+        "site_type_overlays": {
+          "ecommerce": "Retail advertisers with short purchase cycles are particularly exposed to post-view inflation on display campaigns. A post-view window of one or two days is a reasonable starting point for categories such as consumables, apparel, or event tickets. You may want to compare the reported cost per conversion with post-view included against the figure with post-view excluded to see the size of the gap.",
+          "lead_gen": "For lead-generation campaigns, post-view attribution on display is harder to defend unless the product has a long consideration cycle and display is being used for awareness at the top of the funnel. You may want to consider whether form submissions attributed to post-view came from audiences the Line actually reached, or from users who were already in the pipeline from other sources."
+        },
+        "learn_more": [],
+        "learn_more_note": "Yahoo DSP's documentation on post-view attribution configuration and reporting is in the Yahoo DSP Help Center, which requires a platform login. No public reference is linked here. Practitioners with platform access can find post-view conversion reporting and the window setting under the Line and reporting sections of the Help Center.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Pull conversion reporting segmented by attribution type, compare post-view and post-click volumes per Line, and review the post-view window value configured on each Line.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "In Yahoo DSP reporting, build a report at the Line level that includes both post-click conversions and post-view conversions as separate columns. If the reporting interface shows a combined total, look for a breakdown option or filter by attribution type.",
+                "For each display, video, or CTV Line, calculate the post-view conversions as a share of total conversions. Flag any Line where post-view conversions account for more than 50 percent of the total.",
+                "Return to the Line settings and note the post-view window value. If the window is 7 days or longer on a Line serving short-cycle products, record it as a flag.",
+                "If the Yahoo Dot pixel is also sending data to an analytics platform, compare the platform's conversion count to the Yahoo DSP total for the same period and conversion action. A large gap may indicate the post-view window is attributing conversions that the independent tool does not."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per display, video, or CTV Line, the post-view conversion share and the configured post-view window. A Line where post-view conversions are less than 30 percent of the total and the window is at or below the product's consideration cycle passes. A Line where post-view conversions exceed 50 percent of the total, or where the post-view window exceeds the consideration cycle by a factor of two or more, is a fail recorded with the Line name, post-view share, and current window value.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the post-view conversion share and post-view window value for each Line above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the post-view attribution window on {{site_name}}'s Yahoo DSP display and video Lines is wider than the product's consideration cycle, and that post-view conversions account for a disproportionate share of the reported totals. This configuration credits display impressions for conversions that completed through other paths within the window, which overstates the channel's contribution and can direct budget toward Lines that are reaching audiences already on their way to converting. {{voice_recommend}} shortening the post-view window to a value that reflects the realistic window in which a seen impression could have influenced the decision, and pulling a segmented report that separates post-view from post-click conversions so each signal can be evaluated independently."
+      }
+    },
+    {
+      "id": "yahoo-dsp-attribution-combined-total-obscures-post-view-share",
+      "title": "Post-click and post-view conversions are reported as a single total, making it impossible to tell click-driven from view-driven results",
+      "category": "measurement",
+      "subcategory": "attribution",
+      "impact_score": 2,
+      "impact_rationale": "When post-click and post-view conversions are read only as a combined figure, decisions about Line performance, budget allocation, and optimization are made on a blended number whose components may have very different implications. A Line with strong click-driven results and weak post-view results reads identically to one where the reverse is true.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["attribution", "performance"],
+      "educate": {
+        "base": "Yahoo DSP tracks conversions through the Yahoo Dot pixel and the Yahoo Conversions API (CAPI), attributing each conversion to a Line based on either a post-click or a post-view match within the configured windows. Both types of conversions roll up into the total conversion count visible in standard reporting. When reporting is reviewed at the campaign or Line level using only the total, post-click and post-view are invisible as separate signals.<br><br>The two attribution types reflect different levels of engagement. A post-click conversion follows a deliberate action: the user saw the ad, chose to click, and then converted. A post-view conversion reflects an impression that the user may or may not have noticed, followed by a conversion that could have been driven by any other factor in the window. Treating these as equivalent in optimization decisions can produce a distorted view of which Lines are actually influencing behavior.<br><br>This matters most when the post-view window is long relative to the category's purchase cycle. The post-view pool grows as the window widens. A campaign that looks efficient on a blended conversion metric may be running primarily on post-view credit with very few genuine click-driven conversions underneath the number.<br><br>A few signs the blended total may be obscuring the real picture:<ul><li>The team reviews campaign performance using the combined conversion column without ever looking at post-click and post-view separately</li><li>Optimization decisions, such as increasing budget on a Line or lowering a cost-per-acquisition target, are made based on the blended total</li><li>Nobody on the team knows what share of conversions on display Lines are post-view</li></ul>You may want to confirm that Yahoo DSP reporting is set up to show post-click and post-view as separate columns for at least the Lines driving the most spend.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser, post-click conversions on display and CTV are a stronger signal of ad-driven demand than post-view conversions. You may want to build a reporting view that shows both columns side by side and use the post-click figure as the primary efficiency metric for decisions about Line-level budget.",
+          "lead_gen": "For lead generation, the distinction matters when reporting to stakeholders. A total conversion figure that includes post-view may overstate what the campaign delivered in terms of genuinely influenced leads. You may want to report post-click conversions as the primary output and present post-view as a supplementary signal with a note on the window length."
+        },
+        "learn_more": [],
+        "learn_more_note": "Yahoo DSP's documentation on conversion reporting columns, including how to segment post-click and post-view results, is in the Yahoo DSP Help Center, which requires a platform login. No public reference is linked here. Practitioners with platform access can find reporting configuration guidance in the Help Center under the reporting section.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether Yahoo DSP reporting is configured to show post-click and post-view conversions as separate columns, and identify whether optimization decisions are being made on the blended total or on separated figures.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "In the Yahoo DSP reporting interface, open the report builder and review the available conversion columns. Look for separate columns for post-click conversions and post-view conversions, as distinct from the combined total.",
+                "If a saved report exists for the campaigns you are auditing, open it and check whether post-click and post-view are shown as separate columns or only as a combined total.",
+                "For each high-spend display or CTV Line, note the post-click conversion total and the post-view conversion total separately. If the reporting interface only shows a combined figure, check whether filtering by attribution type is available.",
+                "Ask whoever manages the campaigns whether their weekly or monthly performance review uses the combined total or the separated breakdown. Note the answer as part of the audit record."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner confirms whether post-click and post-view conversions are available as separate columns in active reporting views, and whether the team uses the separated breakdown in optimization decisions. A campaign where both columns are visible and the team reviews them separately passes. A campaign where only the blended total is monitored, or where the team cannot identify what share of conversions is post-view, is a fail recorded with a note on the current reporting setup.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Confirm above whether post-click and post-view conversions are separated in the current reporting view and whether the team reviews them independently."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Yahoo DSP campaigns are being evaluated using a combined conversion total that does not distinguish post-click from post-view results. Post-click conversions follow a deliberate user action and represent a stronger signal of ad-driven demand, while post-view conversions reflect impressions that may or may not have influenced the outcome. Reading only the blended figure makes it impossible to assess whether the campaign is delivering genuine click-driven results or primarily accumulating post-view credit within a wide lookback window. {{voice_recommend}} configuring Yahoo DSP reporting to show post-click and post-view conversions as separate columns and using the post-click figure as the primary efficiency metric for optimization decisions."
+      }
+    }
+  ]
+}

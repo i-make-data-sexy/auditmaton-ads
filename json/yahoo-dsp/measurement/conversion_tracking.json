@@ -1,0 +1,198 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Yahoo DSP counts conversions through the Yahoo Dot pixel on web pages and a Conversion Application Programming Interface (Conversion API, or CAPI) for server-side events. When the pixel fires on the wrong page, when post-view and post-click conversions are not read separately, or when no conversion value reaches the platform, the account cannot optimize toward real outcomes or report return on ad spend accurately. Each of these checks targets a distinct gap with a concrete fix, and all three can be inspected without leaving the Yahoo DSP interface or the browser.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Yahoo DSP measures conversions through two paths: the Yahoo Dot pixel, a JavaScript tag placed on web pages, and the Yahoo Conversion Application Programming Interface (CAPI), a server-side integration that sends events directly from the advertiser's backend. These checks confirm that the Dot pixel fires on the correct trigger page, that post-click and view-through conversions are examined separately so view-through credit does not inflate the apparent result, and that a conversion value reaches the platform so revenue-based goals and return on ad spend (ROAS) reporting are possible.",
+  "audit_checks": [
+    {
+      "id": "yahoo-dsp-dot-pixel-misconfigured",
+      "title": "The Yahoo Dot pixel fires on the wrong page or event, causing conversions to be undercounted or inflated",
+      "category": "measurement",
+      "subcategory": "conversion_tracking",
+      "impact_score": 4,
+      "impact_rationale": "A Dot pixel that fires on the wrong page sends Yahoo DSP a false conversion signal before a transaction is complete, or misses the transaction entirely. The platform optimizes toward whichever count it receives, so bids and reported results both reflect the wrong reality from the start.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "The Yahoo Dot pixel is a JavaScript tag that fires a conversion event when a visitor reaches a defined trigger. The intended trigger is almost always the order confirmation page or a thank-you page that only appears after a transaction or form submission is complete. When the pixel fires on an earlier page, such as a cart page, a checkout step, or a product detail page, Yahoo DSP records a conversion for every visitor who reaches that stage, not just the ones who complete the action. When the pixel is missing from the confirmation page entirely, the platform receives no signal and reports zero conversions for that event type.<br><br>The pixel's event type parameter tells Yahoo DSP what kind of action fired. A pixel configured with a purchase event type on a page that is not a purchase confirmation sends purchase signals into the attribution model on every visit to that page. A pixel with no event type set defaults to a generic page view, which Yahoo DSP may count under a different attribution rule than the one configured for the conversion goal.<br><br>A few signs suggest the pixel may be misconfigured:<ul><li>The conversion count in Yahoo DSP reporting is materially higher than the order or lead volume in the advertiser's backend system over the same period</li><li>The pixel fires on pages the practitioner can reach without completing a purchase or submitting a form, such as the cart or a mid-funnel step</li><li>The event type in the pixel payload does not match the conversion goal type configured in the Yahoo DSP seat</li></ul>You may want to inspect the pixel firing page and the event type parameter before concluding that a discrepancy in conversion counts is an attribution issue rather than a tagging one.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the order confirmation page is the correct and only trigger for a purchase conversion event. You may want to load the confirmation page after completing a test purchase and verify in the browser's Network tab that the Dot pixel fires exactly once on that page, that the event type reflects a purchase, and that it does not fire on any earlier checkout step.",
+          "lead_gen": "On a lead-generation site, the thank-you page shown after a successful form submission is the correct trigger for the lead event. You may want to confirm the pixel fires on that page only, and not on the form page itself, which a visitor can reach and reload without ever submitting."
+        },
+        "learn_more": [],
+        "learn_more_note": "Yahoo DSP's Dot pixel configuration and event type documentation are maintained in the Yahoo DSP Help Center, which requires a logged-in seat to access. Practitioners with platform access can find the pixel setup guide and event type reference there. No publicly accessible equivalent exists.",
+        "impactful_updates": [
+          {
+            "update_date": "2025-04-28",
+            "update_title": "Yahoo DSP launches Conversion API for server-side conversion measurement",
+            "update_description": "Yahoo DSP introduced its Conversion Application Programming Interface (CAPI), enabling advertisers to send conversion events directly from their backend rather than relying on the browser-based Dot pixel alone. CAPI uses the same attribution rules configured in the Yahoo DSP seat and supports unifying online and offline conversion data.",
+            "update_link": "https://www.yahooinc.com/press/yahoo-dsp-launches-conversion-api-to-enhance-campaign-measurement-and-optimization"
+          }
+        ]
+      },
+      "investigate": {
+        "intro": "Confirm the Dot pixel fires only on the intended confirmation page, that the event type matches the conversion goal, and that the count in Yahoo DSP aligns roughly with backend transaction volume.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "In the Yahoo DSP UI, navigate to the advertiser and open the Tracking or Pixels section. Locate the Dot pixel associated with the conversion goal you are auditing.",
+                "Review the event type configured for the pixel. Confirm it matches the intended conversion action (e.g., a purchase event type for an order confirmation, a lead event type for a form submission).",
+                "Open the conversion reporting for the advertiser and note the total conversion count over a recent period. Compare this number with the order or lead volume your backend system recorded over the same period. A material gap in either direction points to a pixel placement or configuration issue."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open a browser and navigate to the page where the conversion should fire, such as the order confirmation page. Open DevTools and go to the Network tab.",
+                "Filter the Network tab requests by 'yahoo' or 'dot' to isolate the Dot pixel call. Trigger the conversion action (or load the confirmation page directly if possible) and confirm the pixel request appears.",
+                "Inspect the query parameters of the Dot pixel request. Note the event type parameter and confirm it matches the conversion goal. Also confirm the pixel does NOT fire if you navigate to an earlier page in the funnel, such as the cart or a product detail page."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per conversion event, whether the pixel fires only on the intended trigger page, whether the event type in the payload matches the conversion goal, and whether the conversion count in Yahoo DSP is within a reasonable margin of backend transaction volume. A pixel that fires on the correct page with the correct event type and a count that aligns with backend data passes. A pixel that fires on the wrong page, carries a mismatched event type, or whose count diverges materially from backend volume is a fail recorded with the specific page and the discrepancy observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the firing page, event type, Yahoo DSP conversion count, and backend transaction count for each conversion event above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Yahoo Dot pixel on {{site_name}} fires on a page earlier in the checkout funnel than the order confirmation, so Yahoo DSP records a conversion for visitors who do not complete a purchase. The platform's optimization signals and reported conversion totals are higher than actual transaction volume. {{voice_recommend}} moving the pixel trigger to the order confirmation page, confirming the event type in the payload matches the purchase conversion goal, and verifying through the Network tab that the pixel fires exactly once per completed transaction and not on any earlier funnel step."
+      }
+    },
+    {
+      "id": "yahoo-dsp-post-view-inflation",
+      "title": "Post-click and view-through conversions are not examined separately, allowing view-through credit to inflate reported results",
+      "category": "measurement",
+      "subcategory": "conversion_tracking",
+      "impact_score": 3,
+      "impact_rationale": "Yahoo DSP reports click-through and view-through conversions as separate columns. When the two are read together as a single total without checking the composition, view-through credit, which attributes a conversion to an impression a user may have scrolled past, can make a campaign appear to perform well on conversions that would have occurred without the ad.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "attribution"],
+      "educate": {
+        "base": "Yahoo DSP attributes conversions through two distinct paths. A click-through conversion records when a user clicks an ad and then completes the conversion action within the click-through attribution window. A view-through conversion, also called a post-view conversion, records when a user is served an impression, does not click, and later completes the conversion action within the view-through attribution window.<br><br>Yahoo DSP reports these two types in separate columns: click-through conversions and view-through conversions. The platform's default reporting can show a combined total, which makes the campaign look like it drove more conversions than the click-only path would show. View-through credit is contested because the user who converted may have done so independent of the ad exposure, and because the view-through window is often set to 30 days by default, which captures many conversions that happened well after the impression.<br><br>A few signs suggest the distinction has not been examined:<ul><li>The conversion report is reviewed using only a total conversion column without separating the click-through and view-through components</li><li>The view-through attribution window is at its default setting and has not been adjusted to reflect the realistic consideration cycle for the product</li><li>The click-through conversion count alone does not justify the campaign's cost, but the combined total does</li></ul>You may want to pull click-through conversions and view-through conversions as separate columns before drawing conclusions about campaign return on ad spend.",
+        "site_type_overlays": {
+          "ecommerce": "For a store, the click-through conversion count is the more defensible signal for products with short consideration cycles. You may want to add the click-through and view-through conversion columns separately to the Yahoo DSP report and evaluate whether the cost per click-through conversion is within the target range before relying on the combined total for budget decisions.",
+          "lead_gen": "For a lead-generation advertiser, the consideration cycle between ad exposure and form submission can be longer, which makes a longer view-through window harder to dismiss. You may want to confirm the view-through window length is calibrated to the actual sales cycle, and review whether the click-through conversion rate alone supports the spend level on each line."
+        },
+        "learn_more": [],
+        "learn_more_note": "Yahoo DSP's attribution window configuration and the distinction between click-through and view-through conversions are documented in the Yahoo DSP Help Center, which requires a logged-in seat to access. Practitioners with platform access can find the attribution settings and reporting column definitions there. No publicly accessible equivalent exists.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Pull the conversion report with click-through and view-through conversions in separate columns and review the attribution window settings for each active conversion goal.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "In the Yahoo DSP UI, open the reporting section for the advertiser or campaign you are auditing. Add both the click-through conversions column and the view-through conversions column to the report.",
+                "Filter to a recent date range with meaningful conversion volume. Note what share of total conversions each type represents. A view-through share above 50% in a campaign that does not run video or connected TV warrants closer examination.",
+                "Navigate to the conversion goal or attribution settings for the advertiser and locate the view-through attribution window. Note the number of days currently configured. A window of 30 days or more for a low-consideration product captures conversions that likely occurred independently of the ad."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the click-through conversion count, the view-through conversion count, and the view-through attribution window length for each active conversion goal. A goal where the click-through count alone justifies the spend and the view-through window is calibrated to the realistic consideration cycle passes. A goal where the combined total justifies the spend but the click-through count alone does not, or where the view-through window is at a default setting that exceeds the realistic cycle, is a flag recorded with the split and the window length.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the click-through conversion count, view-through conversion count, and view-through attribution window length for each active conversion goal above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Yahoo DSP conversion reporting is reviewed using a combined total that does not separate click-through and view-through conversions. The view-through window is set to 30 days, which captures conversions that occurred long after the impression and may be unrelated to the ad. When click-through conversions are isolated, the cost per result is outside the target range. {{voice_recommend}} adding separate click-through and view-through columns to the campaign report, evaluating performance against click-through conversions as the primary signal, and reviewing whether the view-through attribution window reflects the realistic time between ad exposure and purchase decision for this product."
+      }
+    },
+    {
+      "id": "yahoo-dsp-conversion-value-missing",
+      "title": "Conversion value is not passed through the Yahoo Dot pixel or Conversion API, blocking ROAS reporting and value-based optimization",
+      "category": "measurement",
+      "subcategory": "conversion_tracking",
+      "impact_score": 3,
+      "impact_rationale": "Without a revenue value, Yahoo DSP treats a $300 transaction and a $15 transaction identically. The platform cannot optimize toward return on ad spend, the ROAS column in reporting is empty or zero, and high-value orders receive no extra weight in the bidding model.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["conversion-tracking", "data-quality"],
+      "educate": {
+        "base": "The Yahoo Dot pixel accepts a transaction value parameter, referred to in the pixel's parameter set as 'gv' (gross value), that records the monetary worth of a conversion at the moment it fires. When the parameter is populated with the actual order total, Yahoo DSP can surface a conversion value column in reporting and can factor the per-conversion revenue into its return on ad spend (ROAS) calculation. When the parameter is absent, set to zero, or hard-coded to a static placeholder, every conversion looks the same in the optimization model and in reporting.<br><br>The Yahoo Conversion API (CAPI) accepts the same value field in its server-side payload. An account that has migrated to CAPI for server-side event sending still needs to confirm the value field is included in each event call. The CAPI call is separate from the Dot pixel call and each must carry the value independently unless the two signals are being deduplicated against a single event record.<br><br>A few signs suggest conversion value is not reaching the platform:<ul><li>The ROAS or conversion value column in Yahoo DSP reporting shows zero or a constant number across all dates with conversion activity</li><li>The 'gv' parameter in the Dot pixel payload shows '0', '1', or is absent when inspected in the browser's Network tab on the confirmation page</li><li>The CAPI event payload does not include a value field, or the field contains a static placeholder rather than the dynamic order total</li></ul>You may want to check both the pixel payload and the reporting column before concluding value data is missing. A misconfigured value field can send data that does not surface correctly in the report.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, the order total is available in the page's data layer at the moment the confirmation page loads. You may want to confirm the Dot pixel reads the order total dynamically from that data layer and passes it as the 'gv' parameter, and that the value in the Network tab request reflects the actual transaction amount from the test purchase rather than a static value.",
+          "lead_gen": "On a lead-generation site, an exact revenue figure is rarely available at the time of submission. You may want to consider assigning a proxy value based on the estimated average revenue per closed lead, or mapping different form types to different value tiers, so the platform can weight high-intent submissions differently from low-intent ones in ROAS-based reporting."
+        },
+        "learn_more": [],
+        "learn_more_note": "Yahoo DSP's Dot pixel parameter reference, including the 'gv' transaction value field, and the corresponding CAPI value field are documented in the Yahoo DSP Help Center, which requires a logged-in seat to access. Practitioners with platform access can find the parameter definitions and CAPI payload schema there. No publicly accessible equivalent exists.",
+        "impactful_updates": [
+          {
+            "update_date": "2025-04-28",
+            "update_title": "Yahoo DSP Conversion API (CAPI) launched, adding server-side path for conversion value reporting",
+            "update_description": "Yahoo DSP released its Conversion API (CAPI) as a server-side complement to the Yahoo Dot pixel. CAPI accepts conversion value in its event payload and applies the same attribution rules as the pixel. Accounts using CAPI to send purchase events should confirm the value field is included in each server-side call. CAPI is configured separately from the Dot pixel.",
+            "update_link": "https://www.yahooinc.com/press/yahoo-dsp-launches-conversion-api-to-enhance-campaign-measurement-and-optimization"
+          }
+        ]
+      },
+      "investigate": {
+        "intro": "Confirm whether the Dot pixel or CAPI payload includes a transaction value parameter, and whether Yahoo DSP reporting shows a populated conversion value column.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "In the Yahoo DSP UI, open the campaign or advertiser reporting and add the 'Conversion Value' column (sometimes labeled 'ROAS Conversion Value') to the report.",
+                "Filter to a date range with known conversion activity. If the column shows zero or blank across all dates, conversion value is not reaching the platform from the pixel or CAPI.",
+                "If the column shows a constant value (e.g., every conversion has exactly the same value), the pixel or CAPI payload is likely using a static placeholder rather than the actual order total."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "On the order confirmation page, open DevTools and go to the Network tab. Complete a test transaction (or load the page with a test order if possible) and filter the Network tab for the Dot pixel request.",
+                "Locate the pixel request sent to Yahoo and inspect its query parameters. Find the 'gv' parameter, which carries the transaction value. Note whether it reflects the actual order total visible on the confirmation page.",
+                "If the 'gv' parameter is '0', absent, or shows a static value that does not change between orders, the pixel is not reading the order total dynamically from the page at firing time."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per conversion event, whether the transaction value parameter is present in the Dot pixel payload or CAPI call, and whether it reflects a dynamic order value rather than a static placeholder. A conversion event whose payload carries a populated, dynamic value that appears in Yahoo DSP's conversion value reporting column passes. A conversion event with a zero, absent, or static value field is a fail recorded with the event name and the specific value observed in the payload or reporting column.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the 'gv' parameter value from the pixel payload and the conversion value column from Yahoo DSP reporting for each conversion event above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Yahoo Dot pixel does not pass a transaction value on conversion events, so Yahoo DSP records each conversion as equal regardless of order size. The ROAS conversion value column in reporting shows zero, and the platform cannot weight higher-value orders above lower-value ones in its optimization model. {{voice_recommend}} updating the Dot pixel configuration to read the order total dynamically from the page's data layer and pass it as the 'gv' parameter on each purchase event, confirming through the browser's Network tab that the parameter reflects the actual transaction amount, and verifying that the conversion value column in Yahoo DSP reporting populates with meaningful figures after the change is live."
+      }
+    }
+  ]
+}

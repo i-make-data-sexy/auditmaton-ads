@@ -1,0 +1,210 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://advertising.amazon.com/solutions/products/amazon-dsp",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Amazon DSP accounts accumulate advertisers, orders, and line items over time, and without a deliberate structure the account becomes harder to read and act on. Audience data from one campaign bleeds into another's reporting, endemic and non-endemic activity share the same conversion signals, and naming gets idiosyncratic enough that roll-up reporting becomes unreliable. The checks here are discovery work, not configuration changes: the practitioner reads the existing structure and notes where it departs from a coherent organizing principle.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Amazon DSP organizes activity in a four-level hierarchy: advertiser, order, line item, and creative. The advertiser is the top-level entity that holds audience segments, conversion events, and brand settings. Orders group line items around a shared budget or flight date, and line items hold the targeting and bidding logic. This structure gives the account its shape, and the shape determines how well the account reads in reporting and how cleanly audience data and conversion signals stay separated across different business objectives.",
+  "audit_checks": [
+    {
+      "id": "amazon-dsp-advertiser-mixing-unrelated-objectives",
+      "title": "A single advertiser entity mixes unrelated product lines or conversion goals",
+      "category": "governance",
+      "subcategory": "account_structure",
+      "impact_score": 3,
+      "impact_rationale": "Audience segments and conversion events are scoped to the advertiser entity. When unrelated product lines or conversion goals share one advertiser, audience membership lists and attribution data intermingle, which degrades targeting precision and makes reporting ambiguous at the advertiser level.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "In Amazon DSP, the advertiser entity is more than a billing label. Audience segments built from pixel events, purchase signals, and advertiser-uploaded lists are all tied to the advertiser. Conversion events used to define retail outcomes, such as an Amazon Standard Identification Number (ASIN) purchase or a detail page view, are also scoped at this level. When a single advertiser entity contains orders for unrelated product lines, such as apparel and electronics, the audience pools and conversion signals from each product line intermingle. A retargeting audience built from apparel detail page viewers may pick up electronics browsers, and a purchase conversion event counts buys across both lines, making it harder to evaluate either one cleanly.<br><br>A coherent advertiser structure typically follows one of three principles: one advertiser per brand, one advertiser per product line, or one advertiser per business objective (such as separating endemic retail campaigns from non-endemic brand campaigns). Which principle fits depends on the organization's reporting needs and how distinctly different the audience and conversion logic is across each area.<br><br>A few signs point to mixing problems in the current structure:<ul><li>Orders for visibly different product lines or conversion goals sit inside one advertiser entity</li><li>Audience segments include membership criteria from unrelated purchase or browse behaviors</li><li>Conversion events in the advertiser's settings track outcomes across product lines that have no meaningful relationship</li></ul>You may want to review how many distinct audience pools and conversion event types the advertiser entity holds before deciding whether the structure fits the business.",
+        "site_type_overlays": {
+          "ecommerce": "For an endemic advertiser selling on Amazon, the advertiser entity's conversion events tie directly to ASIN-level purchase and detail page view data. If the advertiser runs campaigns for product lines with separate retail categories, such as supplements and pet food, keeping them in one advertiser means Amazon Marketing Cloud (AMC) analyses that compare path-to-purchase across those lines will blend the signals. Separating them by product line makes AMC queries more actionable.",
+          "lead_gen": "For a non-endemic advertiser driving to an off-Amazon destination, the advertiser entity holds the Amazon Ad Tag pixel that fires on the conversion page. If the organization runs campaigns for unrelated business units, each with its own destination and conversion definition, keeping them in one advertiser means the pixel data and audience lists apply across all units. Separating non-endemic advertisers by business unit keeps audience and conversion data specific to each unit's goals."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon DSP overview",
+            "source_url": "https://advertising.amazon.com/solutions/products/amazon-dsp"
+          },
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon Marketing Cloud",
+            "source_url": "https://advertising.amazon.com/solutions/products/amazon-marketing-cloud"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the advertiser entity's orders, audience segments, and conversion events to determine whether unrelated objectives share the same entity.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open the Amazon DSP console and navigate to the advertiser entity you are auditing.",
+                "Review the list of orders. Note whether they address visibly different product lines, conversion types, or funnel stages that have no meaningful audience overlap.",
+                "Navigate to the advertiser's audience segments. Check whether the segment definitions draw on purchase or browse signals from unrelated product categories.",
+                "Navigate to the advertiser's conversion events. List the event types and note whether they cover distinct retail or pixel-based goals that belong to different business units."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner notes, per advertiser entity reviewed, whether the orders, audience segments, and conversion events follow a single coherent organizing principle (brand, product line, or objective). An advertiser entity whose orders and conversion events address one coherent area passes. An advertiser entity with orders or conversion events that mix unrelated product lines or business units is a fail, recorded with a description of the mixing observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the advertiser entity name, the mix of orders observed, and the conversion event types above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Amazon DSP account uses a single advertiser entity to hold campaigns for unrelated product lines or conversion goals. Audience segments and conversion events are scoped to the advertiser entity, so mixing distinct business areas at this level blends their audience membership lists and attribution data. Reporting at the advertiser level becomes ambiguous, and retargeting audiences may include users whose browse or purchase signals belong to an unrelated product area. {{voice_recommend}} reviewing the advertiser entities against a consistent organizing principle, such as one entity per product line or one entity per business objective, and separating any areas whose audience and conversion logic should not commingle."
+      }
+    },
+    {
+      "id": "amazon-dsp-order-naming-inconsistent",
+      "title": "Orders and line items do not follow a consistent naming convention",
+      "category": "governance",
+      "subcategory": "account_structure",
+      "impact_score": 2,
+      "impact_rationale": "Inconsistent naming makes roll-up reporting unreliable. Filtering, pivoting, and exporting data from Amazon Marketing Cloud or a third-party reporting tool depends on structured names that carry predictable fields. Without a convention, each analyst applies their own interpretation and results diverge.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "Amazon DSP does not enforce a naming convention. The names practitioners give to orders and line items are free-text fields, which means every team or managed-service partner can apply a different pattern. A common consequence is an account where some orders are named by campaign flight date, others by product, and others by a short code that once meant something and no longer does.<br><br>Naming matters because it is the primary way to segment data in reporting. Amazon DSP's built-in reporting lets users filter and break down results by order or line item name. Amazon Marketing Cloud (AMC), which runs SQL queries over raw event data, often joins on name fields or uses them as filters when no other structural metadata is available. A third-party reporting tool pulling data via the <a href='https://advertising.amazon.com/solutions/products/amazon-dsp' class='tools-link-no-padding' target='_blank'>Amazon DSP API</a> will surface names as the primary label for each entity. When names are inconsistent, any downstream roll-up that tries to group by product line, funnel stage, or audience type has to be rebuilt from scratch each time.<br><br>A workable convention typically embeds two to four fields in the name, separated by a consistent delimiter, such as a pipe or hyphen. A few signs that the current naming lacks a convention:<ul><li>Orders or line items with dates in some names and not others</li><li>Abbreviations that appear in some names but are spelled out in others</li><li>Line items whose names do not indicate their targeting type, audience, or funnel position</li><li>Names that include agency or team codes that do not transfer to the client's own reporting view</li></ul>You may want to document the convention that is in use, if one exists, before proposing a replacement. Renaming live line items can disrupt in-flight reporting continuity.",
+        "site_type_overlays": {
+          "ecommerce": "For an endemic advertiser, a useful naming convention often includes the ASIN or product category, the audience type (e.g., 'in-market', 'retargeting', 'new-to-brand'), and the ad format. This lets reporting group by product and funnel stage without additional taxonomy work.",
+          "lead_gen": "For a non-endemic advertiser, the naming convention often includes the business unit or campaign objective, the audience type, and the ad format or placement. This supports roll-ups by objective and by audience strategy without relying on external documentation."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon Marketing Cloud",
+            "source_url": "https://advertising.amazon.com/solutions/products/amazon-marketing-cloud"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the names of orders and line items across at least two advertisers to determine whether a consistent convention is in use.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open the Amazon DSP console and navigate to the Orders view for the advertiser you are auditing.",
+                "Export or scroll through the order names. Look for a repeating pattern of fields such as brand, product line, flight date, audience type, or format. Note any orders whose names depart from the pattern.",
+                "Open several orders and review the line item names within them. Check whether the line item names carry enough information to identify their targeting type, audience, and creative format without opening the line item record.",
+                "If a naming guide or convention document exists for the account, request it and compare it against what you observe in the console."
+              ]
+            },
+            "amazon_marketing_cloud": {
+              "label": "Amazon Marketing Cloud (AMC)",
+              "steps": [
+                "If AMC access is available, run a simple query that returns distinct order and line item names. Review the output for naming consistency.",
+                "Note whether any group-by analysis on the name fields would produce coherent segments or would require manual cleanup before the results are usable."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner notes whether orders and line items follow a consistent naming pattern that carries at least two meaningful structural fields, such as audience type and funnel stage. An account where the majority of names follow one identifiable convention passes. An account where names follow no discernible convention, or where the convention is inconsistently applied across more than a minor share of entities, is a fail, recorded with examples of the inconsistency.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record example order and line item names above, along with a note on whether a consistent pattern is present, to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Amazon DSP orders and line items do not follow a consistent naming convention. Names vary in structure across orders, with some carrying audience type and format information and others using short codes or dates that do not transfer cleanly to reporting views. Any downstream analysis in Amazon Marketing Cloud or a third-party reporting tool that groups by product line, funnel stage, or audience type has to rely on manual interpretation rather than structured name parsing. {{voice_recommend}} establishing a naming convention that embeds at least two structural fields, such as audience type and ad format, and applying it to new entities going forward, with a plan to rename existing entities during a reporting transition window to avoid disrupting in-flight data."
+      }
+    },
+    {
+      "id": "amazon-dsp-endemic-nonendemix-mixed",
+      "title": "Endemic and non-endemic campaigns share an advertiser entity without separation",
+      "category": "governance",
+      "subcategory": "account_structure",
+      "impact_score": 3,
+      "impact_rationale": "Endemic campaigns optimize toward Amazon retail outcomes (ASIN purchases, new-to-brand buyers, detail page views) while non-endemic campaigns optimize toward off-Amazon pixel events. Mixing both in one advertiser entity conflates conversion signals from fundamentally different measurement systems and audience sources, which makes attribution analysis in Amazon Marketing Cloud unreliable for either objective.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "Amazon DSP supports two distinct advertiser types that have separate measurement foundations. Endemic advertisers sell products on Amazon and measure outcomes through Amazon's retail signals: ASIN detail page views, add-to-cart actions, and purchases, including 'new-to-brand' purchases from buyers who had not previously bought from the brand on Amazon. Non-endemic advertisers drive traffic to a destination outside Amazon and measure outcomes through the Amazon Ad Tag pixel, which fires on the advertiser's own site.<br><br>The distinction matters at the advertiser entity level because conversion events and audience segments pull from different data sources depending on which type of activity they serve. An endemic campaign's audience may include in-market shoppers identified through Amazon purchase signals. A non-endemic campaign's audience may include users who visited the advertiser's own site. When both campaign types share one advertiser entity, the audience pools and the conversion event definitions can pull from both sources simultaneously, and it becomes difficult to isolate the contribution of retail signals from pixel-based signals in any AMC analysis.<br><br>A few signs that endemic and non-endemic activity are mixed in the same entity:<ul><li>The advertiser holds conversion events that include both ASIN purchase events and Amazon Ad Tag pixel events from an external site</li><li>Audience segments in the advertiser draw on both Amazon retail signals and first-party pixel data from off-Amazon activity</li><li>Orders targeting Amazon owned-and-operated inventory and orders driving to external landing pages both sit under one advertiser</li></ul>You may want to confirm whether the account was set up by a managed-service team or a self-service practitioner, as managed-service engagements sometimes consolidate activity into one entity for billing convenience even when the measurement logic differs.",
+        "site_type_overlays": {
+          "ecommerce": "An advertiser that sells both on Amazon and through its own direct-to-consumer site may legitimately run both endemic and non-endemic campaigns. Separating them into distinct advertiser entities lets AMC queries analyze each retail path independently and prevents the retail conversion signals from one path obscuring the pixel-based signals of the other.",
+          "lead_gen": "A non-endemic advertiser running brand campaigns alongside product launch support (where the product will eventually appear on Amazon) may need to plan for the eventual addition of endemic activity. Separating the advertiser entities early avoids a structural reorganization once the retail component becomes active."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon DSP overview",
+            "source_url": "https://advertising.amazon.com/solutions/products/amazon-dsp"
+          },
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon Marketing Cloud",
+            "source_url": "https://advertising.amazon.com/solutions/products/amazon-marketing-cloud"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether the advertiser entity holds conversion events and audiences from both Amazon retail signals and Amazon Ad Tag pixel data.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open the Amazon DSP console and navigate to the advertiser entity's conversion events.",
+                "Note whether the conversion events include both ASIN-level retail events (such as purchases or detail page views) and Amazon Ad Tag pixel events from an external site. The presence of both types confirms mixed activity.",
+                "Navigate to the advertiser's audience segments. Check whether segment definitions draw on both Amazon shopping signals and first-party pixel data from off-Amazon visits.",
+                "Review the orders and note whether some drive to Amazon product detail pages while others drive to external landing pages. Both types in one advertiser entity, combined with mixed conversion events, confirms the mixing issue."
+              ]
+            },
+            "amazon_marketing_cloud": {
+              "label": "Amazon Marketing Cloud (AMC)",
+              "steps": [
+                "If AMC access is available, query the advertiser's conversion events by type to confirm whether both retail and pixel-based event types are present in the same entity.",
+                "Note whether any existing AMC reports attempt to combine retail and pixel conversion data in a single attribution analysis, as this would produce results that are not interpretable as either endemic or non-endemic performance."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the advertiser entity holds conversion events or audience segments that draw from both Amazon retail signals and Amazon Ad Tag pixel sources. An advertiser entity that contains only retail conversion events and retail-signal audiences, or only pixel-based conversion events and pixel-based audiences, passes. An advertiser entity that contains both types is a fail, recorded with a description of which event types and audience sources are mixed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the conversion event types and audience segment sources present in the advertiser entity above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Amazon DSP advertiser entity mixes endemic and non-endemic activity within a single entity. The advertiser holds conversion events that draw from both Amazon retail purchase signals and Amazon Ad Tag pixel events from an external site, and audience segments that combine Amazon shopping data with off-Amazon first-party signals. This mixing makes it difficult to isolate the contribution of retail-sourced signals from pixel-based signals in any Amazon Marketing Cloud attribution analysis, and the results from either path are less interpretable as a result. {{voice_recommend}} separating endemic and non-endemic campaigns into distinct advertiser entities so that each entity's conversion events, audience pools, and AMC analyses reflect a single measurement source."
+      }
+    }
+  ]
+}

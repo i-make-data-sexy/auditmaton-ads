@@ -1,0 +1,201 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Amazon DSP access is managed at the advertiser entity level, and mistakes here carry real consequences: a user with admin access can change billing, modify audience sharing rules, and restructure the account hierarchy. The user list is short to review, the fixes are deletions or role adjustments rather than rebuilds, and the gaps most worth closing, stale agency contacts and roles set too broadly, are exactly the ones that go unreviewed the longest.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Amazon DSP access is entity-scoped. A user holds access to a specific advertiser, and that access persists until someone explicitly removes it. The available roles, typically 'Admin', 'Standard', and 'Read only', set what each user can edit within the scope they hold. For agencies managing multiple advertisers under one entity, access scoped too broadly exposes one client's campaign data and audience configuration to contacts from another. These checks confirm that each user holds the least access their work requires, that no former staff or agency contacts retain live access, and that agency users are scoped to the advertisers they actually manage.",
+  "audit_checks": [
+    {
+      "id": "amazon-dsp-users-overprivileged",
+      "title": "Users hold broader access than their role requires",
+      "category": "governance",
+      "subcategory": "user_access",
+      "impact_score": 3,
+      "impact_rationale": "Admin access in Amazon DSP covers billing, user management, and audience configuration alongside campaign editing. When people who only review performance or manage a subset of campaigns hold Admin access, the account carries exposure it does not need: a mistaken change can reach billing, audience sharing rules, or other users' configurations.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "Amazon DSP assigns each user a role that determines what they can do within the advertiser or entity they can reach. Admin access covers the full scope: billing settings, user management, audience sharing rules, and all campaign creation and editing. Standard access handles campaign work without touching billing or other users. Read only access gives visibility into performance and configuration without the ability to make changes.<br><br>Granting Admin access as a default, rather than the minimum needed for each person's actual work, widens the blast radius of any error. A media planner who manages line items and creatives does not need the ability to change billing or modify who else can access the account. When that person's credentials are compromised or they make an unintentional change, Admin access lets the error reach parts of the account well beyond what their work required.<br><br>Amazon DSP's user management is in the advertiser settings, and the list of users and roles is visible to anyone with Admin access. A few signs point to access being set too broadly:<ul><li>Multiple users hold Admin access, but only one or two actually perform billing, user management, or audience sharing tasks</li><li>Users who review performance or pull reporting hold Standard access rather than Read only</li><li>Agency contacts who manage campaigns hold Admin access, giving them visibility into billing and other users</li></ul>You may want to confirm with the account owner what each user's actual responsibilities are before adjusting roles. The goal is for each user's access to match the work they do, not to lock down every account to the minimum.",
+        "site_type_overlays": {
+          "ecommerce": "For an endemic advertiser, the account team often includes brand managers, a retail media agency, and an analytics contact. The analytics contact reviewing new-to-brand (NTB) rates and Amazon Standard Identification Number (ASIN)-level performance typically needs Read only access, not Standard. You may want to confirm that contacts whose work is limited to reviewing data are not set to Standard or Admin.",
+          "lead_gen": "For a non-endemic advertiser driving traffic off Amazon, the team may include a media agency and an internal marketing stakeholder who reviews cost-per-acquisition data. That stakeholder rarely needs to edit campaigns or touch audience rules. You may want to confirm that performance-review contacts hold Read only rather than a broader role."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Manage all Amazon Ads products in one account",
+            "source_url": "https://advertising.amazon.com/library/guides/advertiser-account"
+          },
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Custom access controls for the Amazon Ads console",
+            "source_url": "https://advertising.amazon.com/resources/whats-new/custom-access-controls"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the user list and compare each person's access level against the work their role actually requires.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Sign in to the Amazon DSP console and open the advertiser you are auditing.",
+                "Open the advertiser's settings and navigate to the user management section. Note every user, their current role, and the email domain they are on.",
+                "For each user with Admin or Standard access, identify what their work actually requires: do they manage campaigns and line items, review performance, handle billing, or manage audience sharing?",
+                "Flag any user whose role grants more access than their responsibilities need, for example an analytics contact on Standard access whose work is limited to pulling reports."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per user, their current role and the role their work requires. A user whose access matches the least role needed for their actual responsibilities passes. A user holding access broader than their work requires is a fail, recorded with the user's name, current role, and the role that would fit.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each user's current role and the role their work requires to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} users on {{site_name}}'s Amazon DSP account who hold broader access than their role requires. Admin or Standard access assigned as a default gives users the ability to change billing, modify audience sharing rules, or edit campaigns they are not responsible for, which widens the surface for an accidental or unauthorized change. {{voice_recommend}} reviewing the user list against each person's actual responsibilities and downgrading anyone whose work is limited to reporting or campaign review to Read only access. Before making changes, confirm with the account owner what each person does so the adjustment closes the gap without blocking real work."
+      }
+    },
+    {
+      "id": "amazon-dsp-stale-user-access",
+      "title": "Departed staff or former agency contacts still hold advertiser access",
+      "category": "governance",
+      "subcategory": "user_access",
+      "impact_score": 3,
+      "impact_rationale": "Amazon DSP does not remove access automatically when a relationship ends. A former employee or agency contact retains whatever role they held, including the ability to view audience segments built from first-party data, inspect campaign budgets and performance, or in the Admin case, change billing and modify other users.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "privacy"],
+      "educate": {
+        "base": "Access to an Amazon DSP advertiser persists until an Admin explicitly removes it. When an employee leaves, an agency engagement ends, or a vendor relationship changes, the user record stays active at its existing role and scope. Nothing in Amazon DSP expires or prompts for a review.<br><br>The exposure depends on the role the person held. A former Standard user can still view all campaign data, audience configurations, and ASIN-level performance. A former Admin retains the ability to modify billing, manage other users, and alter audience sharing rules. For endemic advertisers, audience segments that reflect shopper behavior around specific product listings represent proprietary data. Access to that data by a contact outside the current relationship is a real privacy and competitive concern.<br><br>Stale access surfaces most when offboarding focuses on corporate email or VPN but does not include an explicit Amazon DSP user removal step. An agency transition that moves spend to a new partner but does not clean up the prior agency's access leaves two sets of agency contacts on the same account simultaneously. A freelancer who finished a project six months ago may still appear in the user list unchanged.<br><br>A few signs point to stale access in the user list:<ul><li>Email addresses that belong to a former agency or a vendor whose engagement has ended</li><li>Users who appear unfamiliar to the current account team</li><li>Users whose email addresses no longer exist in the client's active directory</li></ul>You may want to cross-reference the user list against the client's current roster of employees, active agencies, and current vendor relationships before removing anyone. A user who has not logged in recently may still hold a legitimate role.",
+        "site_type_overlays": {
+          "ecommerce": "For an endemic advertiser, audience segments built on Amazon shopping signals for specific ASINs represent competitive data. You may want to confirm that former agency contacts who built or managed those audiences during a past engagement no longer hold access, so proprietary shopper data is not visible outside the current relationship.",
+          "lead_gen": "For a non-endemic advertiser, the Amazon Ad Tag pixel collects off-Amazon behavioral data used for retargeting. You may want to confirm that former agencies or contractors who configured pixel-based audiences do not retain access to those audience definitions after the engagement ends."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Manage all Amazon Ads products in one account",
+            "source_url": "https://advertising.amazon.com/library/guides/advertiser-account"
+          },
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Custom access controls for the Amazon Ads console",
+            "source_url": "https://advertising.amazon.com/resources/whats-new/custom-access-controls"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Pull the full user list for the advertiser and cross-reference each user against the client's current roster of employees, active agencies, and vendor contacts.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open the advertiser's settings in the Amazon DSP console and navigate to the user management section. List every user, their email domain, and their current role.",
+                "Compare email domains against the current agency roster, the client's active employee directory, and any active vendor relationships.",
+                "Flag any user whose email belongs to a former agency, a contact who has left the client's organization, or a vendor whose engagement has ended.",
+                "For each flagged user, confirm with the client's account owner whether the person still has a legitimate reason to hold access before removing them."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per user, whether they are part of the current working relationship. A user confirmed as currently active passes. A user from a former agency, a departed employee, or an unrecognized account is a fail, recorded with the user's name and email domain pending the client's confirmation before removal.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each user against the current team and active partners to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} user accounts on {{site_name}}'s Amazon DSP advertiser that belong to contacts outside the current working relationship, including users associated with a former agency or whose presence on the account could not be confirmed. Those accounts retain the access level they held when they were last active, which in some cases includes Standard access to campaign data, audience configurations, and ASIN-level performance. {{voice_recommend}} cross-referencing the full user list against the client's current employee roster and active partner list, confirming each unfamiliar user with the account owner, and removing any account the client confirms is no longer active. {{voice_recommend}} also adding an explicit Amazon DSP user removal step to the offboarding process so access is revoked at the time the relationship ends rather than discovered during a later audit."
+      }
+    },
+    {
+      "id": "amazon-dsp-access-scoped-too-broadly",
+      "title": "Agency users are scoped to multiple advertisers they do not manage",
+      "category": "governance",
+      "subcategory": "user_access",
+      "impact_score": 3,
+      "impact_rationale": "For agencies that operate multiple advertisers under one Amazon DSP entity, access granted at too high a level in the hierarchy gives one client's contacts visibility into another client's campaign data, audience segments, and spend. Amazon DSP does not enforce advertiser-level boundaries automatically for users scoped above the advertiser.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "privacy"],
+      "educate": {
+        "base": "Amazon DSP organizes accounts in a hierarchy of entities and advertisers. An agency typically operates one or more entities, each containing multiple advertiser accounts for individual clients. Access can be granted at the entity level, which gives a user visibility into every advertiser under that entity, or at the advertiser level, which limits visibility to a single client's campaigns and data.<br><br>When agency users or client-side contacts are granted entity-level access for convenience, the result is that each person can see the campaign structures, audience segments, and spend data of every advertiser under that entity. For an agency managing multiple competing or unrelated brands, that cross-visibility is a data handling problem. One client's contacts can see another client's budget, ASIN targeting strategy, and audience configuration, and there is no restriction in the Amazon DSP console preventing them from doing so.<br><br>The correct pattern is to grant each user access scoped to the specific advertisers they manage. An agency contact who runs campaigns for one client receives advertiser-level access to that client's advertiser only. Entity-level access is appropriate for agency administrators who need to manage structure across all clients, not for day-to-day campaign managers.<br><br>A few signs point to access scoped too broadly:<ul><li>Agency contacts from one client's team hold entity-level access, giving them visibility into all other clients under that entity</li><li>Users whose responsibilities cover a single advertiser are configured with access spanning multiple advertisers</li><li>Third-party measurement vendors or creative contacts are granted entity-level access when their task applies only to one advertiser</li></ul>You may want to confirm the intended scope for each user with the agency's account admin before making changes. Some entity-level users are correctly placed there; the question is whether every entity-level user needs that scope for their work.",
+        "site_type_overlays": {
+          "ecommerce": "For an endemic advertiser working with an agency that also manages other retail brands on Amazon, entity-level access for that advertiser's contacts exposes the agency's other clients' ASIN targeting and audience strategy. You may want to confirm whether the advertiser's own contacts hold entity-level access and, if so, whether they need it for their work.",
+          "lead_gen": "For a non-endemic advertiser whose agency also runs campaigns for competitors in the same category, entity-level access for any user creates a cross-client visibility risk. You may want to confirm that each user's access is scoped to the specific advertiser they manage and that client contacts from other accounts cannot reach this advertiser's data."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Manage all Amazon Ads products in one account",
+            "source_url": "https://advertising.amazon.com/library/guides/advertiser-account"
+          },
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Custom access controls for the Amazon Ads console",
+            "source_url": "https://advertising.amazon.com/resources/whats-new/custom-access-controls"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "For each user with access to this advertiser, confirm whether their scope is set at the advertiser level or at a level that gives them visibility into additional advertisers.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open the Amazon DSP console and navigate to the entity settings. Review the user list at the entity level and note the scope at which each user holds access.",
+                "For each user with entity-level or multi-advertiser access, identify their organization and the specific advertisers they are responsible for managing.",
+                "Confirm with the agency account admin which users genuinely need entity-level access for their work, such as an admin who manages structure across all clients, versus users whose work is limited to one advertiser.",
+                "Flag any user who holds entity-level access but whose responsibilities are limited to a single client's campaigns."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per user, the scope at which they hold access and the advertisers their work covers. A user whose access scope matches the advertisers they manage passes. A user with entity-level access whose work is limited to a single advertiser is a fail, recorded with the user's name, their actual scope, and the advertiser they should be scoped to.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each user's current access scope and the advertisers their work actually covers to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that agency users and client contacts on {{site_name}}'s Amazon DSP account hold entity-level access that gives them visibility into advertisers they do not manage. Each user scoped above the advertiser level can see the campaign structures, audience segments, and spend data of every client under that entity, which creates cross-client visibility that the current working relationships do not justify. {{voice_recommend}} reviewing the access scope for each user, rescoping day-to-day campaign managers and client contacts to the specific advertisers they are responsible for, and reserving entity-level access for agency administrators who need it for structural management tasks. After the change, confirm that each rescoped user can still reach the data they need for their work."
+      }
+    }
+  ]
+}

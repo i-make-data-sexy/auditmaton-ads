@@ -1,0 +1,183 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Samba TV's reporting portal holds measurement data that informs media spend decisions: reach, frequency, audience composition, incremental reach, and outcome attribution. The practitioners reading that data should not be the same ones who can alter the study configuration or audience definition that produces it. These checks are fast to run and the fixes are account-level administrative actions, not platform or campaign rebuilds.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Samba TV is an audience measurement vendor that delivers cross-screen reach, frequency, and outcome reporting through a client-facing reporting portal. Because the portal reflects the results of a configured measurement study, the access model has two distinct concerns: who can read the data, and who can change the study or audience parameters that determine what the data shows. Separating those two functions, and confirming that only current team members hold access, is the focus of these checks.",
+  "audit_checks": [
+    {
+      "id": "samba-tv-users-overprivileged",
+      "title": "Users hold broader access than their role in the engagement requires",
+      "category": "governance",
+      "subcategory": "user_access",
+      "impact_score": 3,
+      "impact_rationale": "When everyone on an account team receives the same level of access regardless of their function, users who only need to read reports can also alter study settings or audience definitions. A change to a study parameter mid-flight changes the measurement output without leaving an obvious signal in the data itself.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "Access to a measurement vendor's reporting portal typically separates into two functional tiers: users who configure measurement studies and audiences, and users who read the resulting reports. The first tier can change what is being measured. The second tier can only see what was measured. Giving both groups the same access level means that any report reader could, intentionally or not, alter a parameter that changes the numbers they are there to review.<br><br>In a Samba TV engagement, the study configuration includes elements such as which audiences are included in reach calculations, how co-viewing is modeled, and which outcome signals are tied to the campaign. These settings determine what the reporting reflects. A user who changes an audience definition changes the denominator in every reach metric the client uses to evaluate performance. That kind of change does not announce itself in the report.<br><br>The practical test is straightforward: for each person with access to the Samba TV portal, confirm whether their job function requires them to configure the study or only to read and act on the output. A media planner reviewing reach and frequency against pacing targets does not need access to the audience or study configuration. A client analytics lead validating outcomes against their attribution model needs to read data, not redefine the measurement parameters.<br><br>A few patterns suggest access may be broader than the role requires:<ul><li>All portal users were provisioned with the same access level during onboarding, without differentiation by function</li><li>Users who received access to review report outputs also have access to study or audience configuration screens</li><li>Third-party contacts such as creative agencies or media review partners have configuration access alongside reporting access</li></ul>You may want to ask the Samba TV account team to confirm what each access level allows before reviewing who holds which level. The specific role names and their permissions in Samba TV's portal are managed through the client account team rather than published in a public help center.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser, the in-house analytics or measurement team is the appropriate owner of study configuration access. A retail media manager or brand marketing contact reviewing reach against a flight schedule typically needs reporting access only. You may want to confirm that contacts reviewing outcome attribution, such as a customer acquisition lead comparing Samba TV outcomes to platform-reported conversions, are not also provisioned for study configuration.",
+          "lead_gen": "For a lead-generation advertiser, the person responsible for defining the audience that the study measures against, such as a demand generation manager or marketing operations lead, is the appropriate holder of configuration access. A sales or pipeline team contact reviewing top-of-funnel reach data typically needs reporting access only. You may want to confirm that contacts added to the portal for visibility into lead-stage reach are not provisioned with configuration access by default."
+        },
+        "learn_more": [],
+        "learn_more_note": "Samba TV's reporting portal and user access documentation is managed through the client account team rather than a public help center. Contact your Samba TV account manager to obtain the current permission model and the specific capabilities each access level provides.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the current user list in the Samba TV reporting portal and compare each person's access level against their role in the engagement.",
+        "tools": {
+          "free": {
+            "samba_tv": {
+              "label": "Samba TV",
+              "steps": [
+                "Log in to the Samba TV reporting portal with an account that has administrative access. Navigate to the user management or account settings area, which your Samba TV account team can direct you to if the location is not visible in your current view.",
+                "Export or note the full list of users: name, email address, and access level. Note which users hold configuration-level access versus reporting-only access.",
+                "For each configuration-level user, confirm their job function. If their role is to review or act on report outputs rather than to define the study or audiences, they are a candidate for downgrade to reporting access.",
+                "For each third-party contact, such as a creative agency, media review partner, or external stakeholder, confirm whether their function requires configuration access or reporting access only.",
+                "If the portal does not display a user list or access levels in your current view, request a current user roster from your Samba TV account manager, who can provide this through the account management interface."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each user in the portal, record their name, access level, and whether the level matches their job function. A user whose access level matches the configuration or reporting work they actually perform passes. A user whose access level grants configuration permissions when their function is reporting-only is a fail, recorded with the user's name, current access level, and the recommended adjustment.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each user's name, access level, and whether the level matches their role in the engagement to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that access provisioning in {{site_name}}'s Samba TV reporting portal does not reflect the functional split between users who configure measurement studies and users who read the resulting reports. Users whose role is to review reach and outcome data hold the same access level as users responsible for study or audience configuration. {{voice_recommend}} working with the Samba TV account team to review the current access levels, identify users whose function is reporting rather than configuration, and adjust their access accordingly. Separating configuration access from reporting access limits the ability of a report reader to alter a study parameter that changes the measurement output they are evaluating."
+      }
+    },
+    {
+      "id": "samba-tv-stale-user-accounts",
+      "title": "Departed or former agency contacts retain active portal access",
+      "category": "governance",
+      "subcategory": "user_access",
+      "impact_score": 4,
+      "impact_rationale": "A portal account that remains active after someone leaves the engagement retains access to measurement data and, depending on the access level, to study or audience configuration. Measurement vendors do not automatically expire access when a team member departs or an agency relationship ends, so the account stays active until it is explicitly removed.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "compliance"
+      ],
+      "educate": {
+        "base": "Measurement vendor portals do not have visibility into the client's employment or agency roster. When someone leaves a team or a vendor relationship ends, the portal account they used remains active at the same access level it was provisioned with unless an account administrator removes it. The credential remains usable.<br><br>For Samba TV, an active account for a departed employee or former agency contact means that person retains access to campaign reach data, audience composition, frequency distributions, and outcome reporting for the current and prior flights. If the account held configuration access, it also retains the ability to view or modify study settings. Neither scenario depends on the account being actively used: the access exists and can be exercised.<br><br>Stale access builds up through two common paths. The first is standard staff attrition: a media planner or analyst leaves the client, the departure triggers an IT offboarding that covers corporate email and internal tools, but the Samba TV portal account is not part of the checklist. The second is agency roster changes: an agency contact was provisioned for a specific campaign flight, the flight ended and the agency relationship continued, but the same contact rotated off the account and a new contact was added without the original contact being removed.<br><br>A few patterns point to stale accounts in the user list:<ul><li>Email addresses associated with agencies or vendors that no longer hold the engagement</li><li>Email addresses that no longer resolve in the client's identity provider or directory</li><li>Accounts with email addresses the current account team does not recognize</li></ul>You may want to cross-reference the portal user list against the client's current employee roster and their active agency and vendor contacts before removing anyone. A user who appears unfamiliar may still hold a legitimate role.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser, past agency contacts who supported a seasonal campaign flight may still hold active portal access, including visibility into audience composition data and product category reach that the client considers proprietary. You may want to confirm that access for past agency contacts was removed when each flight concluded or when the agency relationship changed.",
+          "lead_gen": "For a lead-generation advertiser, a former agency or media buying contact with portal access can view outcome data tied to lead-stage audience segments. You may want to confirm that contacts associated with prior campaigns or vendor relationships that have since ended no longer appear in the active user list."
+        },
+        "learn_more": [],
+        "learn_more_note": "Samba TV's portal user management is handled through the client account team. Contact your Samba TV account manager to obtain the current user roster, confirm which accounts are active, and request removal of accounts that are no longer needed.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Pull the current user list from the Samba TV portal and cross-reference each account against the client's current employee roster and their active agency and vendor contacts.",
+        "tools": {
+          "free": {
+            "samba_tv": {
+              "label": "Samba TV",
+              "steps": [
+                "In the Samba TV reporting portal, navigate to the user management or account settings area. If you cannot access the user list directly, request the current user roster from your Samba TV account manager.",
+                "Export or note each user's name, email address, and access level.",
+                "Review each email domain against the client's current agency and vendor list. Flag any domain associated with an agency or vendor whose engagement has ended.",
+                "For each flagged user, confirm with the client's account owner whether the person still has a legitimate reason to hold access. Note users the client cannot confirm as currently active.",
+                "Repeat the review for any accounts with email addresses the current account team does not recognize, even if the domain matches a current vendor."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each flagged user, record their name, email domain, access level, and whether the client confirms they are currently active. A user the client confirms as currently active passes. A user the client cannot confirm, or who is associated with a former agency or vendor relationship, is a fail, recorded with the user's name, email, access level, and the recommended action.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each flagged user's name, email, access level, and active-or-departed status to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} user accounts in {{site_name}}'s Samba TV reporting portal associated with contacts who are no longer part of the active account team, including former agency contacts from prior campaign flights. These accounts retain the access level they were provisioned with when they were added to the portal. {{voice_recommend}} cross-referencing the full user list against the client's current employee and agency roster, requesting removal of any account the client confirms is no longer active through the Samba TV account team, and establishing a step in the offboarding or vendor rotation process that includes explicit portal access removal."
+      }
+    },
+    {
+      "id": "samba-tv-no-separation-config-reporting",
+      "title": "No separation between users who can alter study configuration and users who read reports",
+      "category": "governance",
+      "subcategory": "user_access",
+      "impact_score": 3,
+      "impact_rationale": "When all portal users can both configure measurement parameters and read reporting output, there is no structural check on a change to the study or audience definition that would alter the results being reviewed. The configuration and the reporting function are meant to serve different people with different jobs; conflating them removes accountability for changes that affect the numbers.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "A Samba TV measurement engagement involves at least two functionally distinct activities: defining what to measure, and reading what was measured. Defining the study means setting parameters such as the target audience, the geographic scope, the measurement window, and the outcome signals tied to the campaign. Reading the study means reviewing the reach curves, frequency distributions, demographic breakdowns, and outcome reports that the defined study produces.<br><br>These two activities carry different accountability implications. A change to the study definition changes the output. If the practitioner reading the output is also the one who can change the definition, there is no structural separation between the two functions. A concern about an unexpected data point could lead to a configuration change that resolves the anomaly in the data rather than explaining it, and the change would not be visible in the report itself.<br><br>Separation of function means that the people who configure the study are a distinct group from the people who read and act on the reports. In practice this usually means the client's measurement or analytics lead holds configuration access, while media planners, marketing managers, and agency contacts reviewing pacing and performance hold reporting access only. The configuration owner is responsible for any change to the study parameters; the reporting users read the output of the configuration as set.<br><br>A few patterns suggest this separation is absent:<ul><li>All portal users were provisioned with the same access level, with no differentiation between configuration and reporting roles</li><li>The client cannot name who is responsible for study or audience configuration because no one's access was specifically scoped to that function</li><li>Media planners or agency contacts who review performance data also have access to audience definition or study parameter screens</li></ul>You may want to confirm with the Samba TV account team what the available access levels are and which functions each level enables, then map that to the roles on the account team, before adjusting provisioning.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser, the measurement or analytics function that defines the study, such as a consumer insights lead or a performance measurement manager, is the appropriate holder of configuration access. A brand or performance marketing team reviewing reach against flight targets reads reports and does not need access to the audience or study configuration screens. You may want to confirm that the two groups are provisioned at different access levels.",
+          "lead_gen": "For a lead-generation advertiser, the measurement configuration owner, typically someone in marketing operations or demand generation analytics, holds configuration access. Sales and pipeline team contacts who review top-of-funnel reach data to assess campaign contribution to pipeline hold reporting access only. You may want to confirm that contacts added to the portal to support pipeline reviews are not provisioned at the same level as the configuration owner."
+        },
+        "learn_more": [],
+        "learn_more_note": "Samba TV's portal access levels and the specific permissions each level carries are documented through the client account team rather than a public help center. Contact your Samba TV account manager to confirm the available access tiers and what each one enables.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "For each user in the Samba TV portal, confirm whether their access level distinguishes between configuration capabilities and reporting-only access, and whether the access levels in use match each person's function.",
+        "tools": {
+          "free": {
+            "samba_tv": {
+              "label": "Samba TV",
+              "steps": [
+                "In the Samba TV reporting portal, navigate to the user management area and note the access level assigned to each user. If user management is not visible in your current view, request the list from your Samba TV account manager.",
+                "Ask your Samba TV account manager to confirm what each access level allows: specifically, which levels permit changes to study or audience configuration and which levels are limited to reporting and data review.",
+                "For each user with configuration-level access, confirm whether their job function involves defining or modifying measurement parameters. A user whose function is to review report outputs but who holds configuration access is a candidate for adjustment.",
+                "Identify whether any access level in use is effectively a single-tier that grants all portal users the same capabilities. If so, note this as the finding: no access differentiation exists, not just that individual users are over-provisioned.",
+                "Confirm with the client's measurement or analytics lead who holds, or should hold, responsibility for study configuration. If no one can name the configuration owner, that is a separate finding about accountability."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "Confirm whether the portal supports distinct access levels and whether those levels are in use. A pass requires that: at least one access level is restricted to reporting functions, at least one user group is provisioned at that reporting-only level, and the users responsible for study configuration hold a distinct configuration-capable level. A fail is recorded when all users share a single access level that includes configuration capabilities, or when reporting-only users hold configuration-capable access, with a note on the number of users affected and whether a reporting-only tier is available.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Confirm whether the portal has distinct access levels and whether users are provisioned according to their function to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Samba TV portal does not separate users with study configuration access from users whose role is to read and act on reporting outputs. All users in the portal hold the same access level, which includes the ability to alter study parameters and audience definitions that determine what the reporting reflects. {{voice_recommend}} working with the Samba TV account team to confirm whether a reporting-only access tier is available, provisioning reporting users at that tier, and scoping configuration access to the measurement or analytics lead responsible for study design. Where a reporting-only tier is not available, {{voice_recommend}} establishing a written policy that configuration changes require documented approval from the measurement lead before they are made."
+      }
+    }
+  ]
+}

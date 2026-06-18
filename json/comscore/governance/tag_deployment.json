@@ -1,0 +1,193 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://iabtechlab.com/standards/open-measurement-sdk/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Comscore Campaign Ratings (CCR) data is only as complete as the instrumentation underneath it. If measurement tags are absent from a placement, that placement contributes no impressions to the CCR report. If tags fire twice per impression, reach and frequency figures are inflated. If CTV or mobile app environments lack an Open Measurement SDK (OM SDK) integration, those channels are invisible to the measurement methodology entirely. These checks are quick to run against the campaign setup and the CCR report side by side, and they surface gaps that explain discrepancies before the campaign concludes.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Comscore Campaign Ratings measures deduplicated unique audience, reach, frequency, and on-target percentage across desktop, mobile web, mobile app, and connected TV using a panel-plus-census hybrid methodology. For the census layer to include a placement, that placement must fire an impression-level Comscore measurement tag, or the app or device must carry a Comscore SDK or OM SDK integration. When that instrumentation is missing or misconfigured, CCR reports on a subset of the campaign's actual delivery, and the reach and frequency figures understate true exposure.",
+  "audit_checks": [
+    {
+      "id": "comscore-measurement-tags-not-implemented",
+      "title": "Comscore measurement tags are absent from one or more placements that should be measured",
+      "category": "governance",
+      "subcategory": "tag_deployment",
+      "impact_score": 3,
+      "impact_rationale": "Every placement missing a Comscore impression tag contributes no data to the census layer of a CCR report. The report covers only the tagged placements, so reach and frequency figures reflect a partial picture of the campaign. On-target percentage and deduplication across environments are calculated from an incomplete impression pool, making optimization decisions based on those figures unreliable.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "Comscore Campaign Ratings (CCR) combines two data layers: a panel of opted-in users that provides demographic ground truth and a census layer built from impression-level tags that fires on every eligible ad placement. The census layer is what gives CCR its scale across desktop web, mobile web, mobile app, and connected TV (CTV).<br><br>The measurement tag for the census layer is typically a pixel or script supplied by Comscore to the advertiser or agency. It is then trafficked by the buying platform or ad server alongside the creative. When the ad serves, the measurement tag fires an impression call to Comscore, which records the event and maps it to the panel-derived demographic model.<br><br>A placement that never receives the measurement tag produces no impression-level data for CCR. The panel may still extrapolate some reach estimate from its sampled users, but the census census weight for that placement is missing, which reduces CCR's statistical confidence and understates total impressions. If a campaign runs a significant share of its delivery on untagged placements, the CCR report describes only a fraction of actual exposure.<br><br>A few conditions tend to produce untagged placements:<ul><li>The tag was generated but not trafficked to all line items or placements in the buying platform</li><li>A new placement type, such as a connected TV auction or a programmatic guaranteed deal, was added mid-campaign without updating the measurement tag setup</li><li>The buying platform's trafficking workflow separated measurement tags from creative trafficking, and the measurement tag step was skipped for some placements</li></ul>You may want to compare the placement list in the buying platform against the placement coverage shown in the CCR report before concluding that a low delivery figure reflects campaign performance rather than a tagging gap.",
+        "site_type_overlays": {
+          "ecommerce": "For ecommerce campaigns running across multiple placement types, including display, video, and CTV, you may want to confirm that each placement type received a Comscore measurement tag during trafficking so that cross-channel reach and frequency data in the CCR report reflects the full campaign.",
+          "lead_gen": "For lead-generation campaigns where placements are added or adjusted frequently, you may want to confirm that each new placement receives a Comscore measurement tag at trafficking time, not as a retroactive step. Impressions that fire before the tag is in place are not recoverable in the CCR report."
+        },
+        "learn_more": [],
+        "learn_more_note": "Comscore's documentation for measurement tag generation and trafficking workflows is available in its client portal, which requires a logged-in account and is not publicly accessible. Contact your Comscore account representative or agency measurement lead for tag generation instructions and trafficking specifications for your specific buying platform.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Compare the placement list in the buying platform against the coverage reflected in the CCR report to identify placements where measurement tags were not trafficked.",
+        "tools": {
+          "free": {
+            "comscore": {
+              "label": "Comscore",
+              "steps": [
+                "Open the CCR report for the campaign and navigate to the placement or line-item breakdown, if available in your report view.",
+                "Note which placements or channels appear in the CCR report with impression data and which do not appear at all or appear with zero measured impressions.",
+                "In the buying platform or ad server, pull the list of all active placements or line items for the same campaign and compare it to the CCR coverage list.",
+                "For each placement that is active in the buying platform but absent from CCR, confirm whether a Comscore measurement tag was trafficked alongside the creative. If no tag was applied, record the placement as unmeasured.",
+                "For programmatic placements where tag trafficking is handled by a supply-side platform or publisher, confirm with the trafficking team that the Comscore impression tag was included in the ad call or creative wrapper."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each active placement in the campaign, the practitioner records whether a Comscore measurement tag was trafficked and whether that placement appears with impression data in the CCR report. A placement with a tag in place and confirmed CCR coverage passes. A placement that was active during the campaign but produced no CCR impression data and has no tag in the trafficking setup is a fail, recorded with the placement name, channel type, and the date range during which it ran untagged.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each active placement, whether a Comscore measurement tag was trafficked, and whether that placement appears in the CCR report above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more active placements in {{site_name}}'s campaign were not covered by a Comscore measurement tag during the campaign flight. Placements without a tag contribute no impression data to the census layer of the Comscore Campaign Ratings (CCR) report, which means reach, frequency, and on-target percentage figures reflect only the measured portion of the campaign's delivery. {{voice_recommend}} auditing the placement list in the buying platform against CCR coverage before each campaign flight and confirming that every placement receives a Comscore measurement tag at trafficking time, including any placements added or modified mid-campaign."
+      }
+    },
+    {
+      "id": "comscore-tag-duplication-or-mismatch",
+      "title": "Comscore measurement tags are duplicated or mismatched between ad-served and site-served implementations",
+      "category": "governance",
+      "subcategory": "tag_deployment",
+      "impact_score": 3,
+      "impact_rationale": "A duplicated Comscore measurement tag fires two impression events to Comscore for each actual ad serve. CCR inflates the campaign's total measured impressions, overstates reach and frequency, and produces on-target percentage figures that do not reflect reality. A tag mismatch between the ad-served and site-served versions of a placement introduces a different problem. Comscore receives two impression signals for the same event from different sources and cannot deduplicate them reliably, compounding discrepancies in the report.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "A Comscore measurement tag can enter a campaign's traffic in more than one place. The buying platform may fire an impression tracker from the creative's wrapper tag. A publisher or ad server may fire a separate Comscore pixel from a placement-level tag it was given independently. If both fire for the same impression event, Comscore receives two signals where one occurred, and the CCR report doubles the impression count for that placement.<br><br>This duplication is distinct from the standard counting discrepancy that arises between an ad server and a publisher. It is a measurement instrumentation problem: the same impression is counted twice in the audience measurement data, not just in delivery logs.<br><br>A mismatch is a related but different condition. It arises when the tag trafficked by the buying platform and the tag provided to the publisher belong to different campaign or placement identifiers. Comscore records impressions against two separate identifiers and cannot merge them into a single delivery line in CCR. The result is that the CCR report shows delivery split across multiple entries for what is a single campaign placement, and deduplication calculations treat them as distinct placements rather than one.<br><br>A few signs indicate a duplication or mismatch may be present:<ul><li>The CCR report shows total measured impressions that exceed buying platform delivery by more than the expected panel-to-census reconciliation margin</li><li>A single placement appears under two different names or identifiers in the CCR report</li><li>The trafficking team used both a creative-level tag and a placement-level tag from Comscore for the same line item</li></ul>You may want to review the tag trafficking notes for each placement before attributing a significant measurement discrepancy to delivery variance.",
+        "site_type_overlays": {
+          "ecommerce": "For ecommerce campaigns running across direct publisher buys and programmatic placements, you may want to confirm that each channel uses exactly one Comscore measurement tag per placement. Direct publisher buys and programmatic buys on the same publisher domain can each receive a separate tag if trafficking is not coordinated.",
+          "lead_gen": "For lead-generation campaigns using managed service buyers alongside self-serve programmatic, you may want to confirm that the managed service team and the self-serve team are not both attaching independent Comscore tags to the same placements. Both teams may receive tag sets from the same Comscore campaign setup, which makes coordination essential."
+        },
+        "learn_more": [],
+        "learn_more_note": "Comscore's documentation for identifying and resolving duplicate or mismatched tag implementations is available in its client portal and requires a logged-in account. Contact your Comscore account representative for guidance on confirming single-tag coverage per placement and resolving discrepancies between CCR delivery and buying platform delivery logs.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the tag trafficking setup for each placement to confirm exactly one Comscore measurement tag fires per impression event, and verify that all tags for the campaign use consistent placement identifiers.",
+        "tools": {
+          "free": {
+            "comscore": {
+              "label": "Comscore",
+              "steps": [
+                "In the CCR report, compare total measured impressions for the campaign against buying platform delivery for the same date range. A measured impression count that significantly exceeds buying platform delivery suggests double-firing.",
+                "In the CCR report, check whether any single placement appears under more than one identifier or label. Multiple entries for the same creative or publisher placement indicate an identifier mismatch.",
+                "In the buying platform, review the trafficking setup for each line item or placement and note where the Comscore measurement tag was applied: at the creative wrapper level, the placement level, or both.",
+                "If the campaign includes direct publisher buys, confirm with the publisher or ad operations team that a site-served Comscore tag was not added independently at the publisher level in addition to the tag already in the creative wrapper.",
+                "For any placement where both a creative-level and a placement-level Comscore tag are present, confirm with the Comscore account team whether both are required or whether one should be removed to prevent duplication."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each placement in the campaign, the practitioner records the number of Comscore measurement tags applied, whether any placement appears under multiple identifiers in the CCR report, and whether CCR impression totals exceed buying platform delivery by more than an expected reconciliation margin. A placement with exactly one tag, a single identifier in CCR, and a measured impression count consistent with buying platform delivery passes. A placement with duplicate tags, multiple identifiers, or measured impressions that significantly exceed buying platform delivery is a fail, recorded with the placement name, the source of each tag, and the impression discrepancy observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each placement, the number of Comscore tags applied, and whether the CCR identifier matches across all tag sources above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} evidence of duplicated or mismatched Comscore measurement tag implementation on one or more placements in {{site_name}}'s campaign. Duplicate tags fire two impression events to Comscore for a single ad serve, inflating measured reach and frequency in the Comscore Campaign Ratings (CCR) report. Mismatched placement identifiers prevent Comscore from merging delivery into a single line, which fragments deduplication calculations. {{voice_recommend}} reviewing the tag trafficking setup for each placement to confirm exactly one Comscore tag fires per impression and that all tags for the campaign use consistent placement identifiers, and coordinating with publishers or ad operations teams where site-served tags may have been applied independently."
+      }
+    },
+    {
+      "id": "comscore-sdk-ctv-mobile-not-integrated",
+      "title": "The SDK or Open Measurement integration required for mobile app and connected TV measurement is not in place",
+      "category": "governance",
+      "subcategory": "tag_deployment",
+      "impact_score": 3,
+      "impact_rationale": "Mobile app and connected TV (CTV) environments cannot execute standard impression-level pixel tags because their rendering environments do not support the same tag-firing mechanism as a browser. Without a Comscore Software Development Kit (SDK) or an Open Measurement SDK (OM SDK) integration in the app or CTV environment, impressions delivered in those channels produce no census data for CCR. Any reach, frequency, or on-target percentage reported for mobile app or CTV environments relies on panel extrapolation alone, without the census-layer grounding that makes CCR figures reliable at scale.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "Browser-based ad placements on desktop and mobile web can fire impression-level tags because the browser executes the tag's JavaScript or makes the image request when the ad renders. Mobile app and CTV environments do not have a browser to execute those tags. An ad rendered inside an iOS app, an Android app, or a CTV application on a smart TV platform does not fire a standard pixel tag in the same way.<br><br>To measure impressions in those environments, the app or device must either carry a Comscore SDK integrated by the app developer or support the IAB Tech Lab's Open Measurement SDK (OM SDK). The OM SDK is an industry standard that provides a common interface for third-party measurement vendors, including Comscore, to receive viewability and impression signals from mobile apps and CTV applications without requiring a separate vendor-specific SDK integration per app.<br><br>When neither a Comscore SDK nor an OM SDK integration is present, the app or CTV environment cannot pass impression-level signals to Comscore's census layer. The CCR report may still show some audience data for those environments if panelists in the Comscore panel happen to use those apps or devices, but without census data the figures carry substantially less statistical weight. Campaigns that deliver a large share of their impressions in mobile app or CTV environments without SDK coverage are effectively operating with panel-only measurement for those channels.<br><br>A few signs suggest SDK coverage may be missing from these environments:<ul><li>The CCR report shows no measured impressions for mobile app or CTV channels despite confirmed buying platform delivery in those channels</li><li>The app developer confirms the Comscore SDK or OM SDK was never integrated into the app's build</li><li>The CTV inventory source does not appear on the IAB Tech Lab's OM SDK compliance list for CTV platforms</li></ul>You may want to confirm SDK integration status with the app developer or the supply-side platform before concluding that CTV or mobile app inventory is simply underperforming on reach.",
+        "site_type_overlays": {
+          "ecommerce": "For ecommerce campaigns that include CTV or mobile app placements as part of a cross-screen strategy, you may want to confirm that each app or CTV environment involved in the campaign has an OM SDK or Comscore SDK integration in place before finalizing the measurement plan, so that CTV and in-app impressions contribute to CCR's census layer alongside browser-based channels.",
+          "lead_gen": "For lead-generation campaigns using mobile app inventory to reach audiences on specific platforms, you may want to confirm that the apps where ads are served carry an OM SDK or Comscore SDK integration. In-app impression measurement depends on the app developer's integration rather than on trafficking the tag from the buying platform."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Documentation",
+            "source_title": "Open Measurement SDK: standards and integration resources",
+            "source_url": "https://iabtechlab.com/standards/open-measurement-sdk/"
+          },
+          {
+            "source_type": "IAB Tech Lab Explainer",
+            "source_title": "Why OM SDK for CTV: measurement consistency across connected TV environments",
+            "source_url": "https://iabtechlab.com/standards/measurement/tech-lab-explainer-why-om-sdk/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether an OM SDK or Comscore SDK integration is present in each mobile app and connected TV environment where the campaign delivered impressions.",
+        "tools": {
+          "free": {
+            "comscore": {
+              "label": "Comscore",
+              "steps": [
+                "In the CCR report, identify which channels are included in the campaign: desktop web, mobile web, mobile app, and connected TV (CTV). Note any channels where the report shows no measured impressions despite buying platform delivery.",
+                "For each mobile app environment in the campaign, ask the app developer or the supply-side platform whether the app carries an OM SDK or Comscore SDK integration. An app without either integration cannot pass impression-level signals to Comscore's census layer.",
+                "For each connected TV environment in the campaign, confirm with the CTV supply source or publisher whether OM SDK is integrated into the CTV application. The IAB Tech Lab maintains a compliance list of OM SDK-integrated CTV platforms at iabtechlab.com, which you can use as a reference.",
+                "Cross-reference the channels with confirmed SDK coverage against the CCR report to verify that measured impressions appear for those channels. If a channel shows confirmed SDK coverage but no CCR data, escalate to the Comscore account team to rule out a campaign configuration issue.",
+                "Record any mobile app or CTV channels where SDK coverage is absent and quantify the impression volume delivered to those channels from buying platform logs, so the measurement gap can be expressed in terms of unmeasured delivery."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each mobile app and connected TV (CTV) channel in the campaign, the practitioner records whether the environment has an OM SDK or Comscore SDK integration and whether measured impressions appear in the CCR report for that channel. A channel with confirmed SDK integration and corresponding CCR data passes. A channel with confirmed buying platform delivery but no CCR coverage, and no SDK integration in place, is a fail, recorded with the channel type, the environment or app name, and the impression volume delivered without census measurement during the campaign.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each mobile app and connected TV channel, the SDK integration status, and whether CCR measured impressions appear for that channel above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more mobile app or connected TV (CTV) environments in {{site_name}}'s campaign lack an Open Measurement SDK (OM SDK) or Comscore SDK integration, which means those environments cannot pass impression-level signals to Comscore's census layer. The Comscore Campaign Ratings (CCR) report for those channels relies on panel extrapolation alone, without the census grounding that makes reach and frequency figures reliable at scale. {{voice_recommend}} confirming OM SDK or Comscore SDK integration status with the app developer or CTV supply source for each in-app and CTV environment in the campaign before finalizing the measurement plan, and excluding unintegrated environments from CCR reporting until the integration is in place."
+      }
+    }
+  ]
+}

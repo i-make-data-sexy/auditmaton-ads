@@ -1,0 +1,195 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://iabtechlab.com/datacleanrooms/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Samba TV matches the advertiser's ad-exposure data to its Automatic Content Recognition (ACR) household panel to produce reach, frequency, and outcomes metrics. If the exposure data feed does not cover all channels in the campaign, the match pool is incomplete and reach will be understated. If the data connection is stale or misconfigured, the matched exposures do not reflect the current campaign. These checks confirm that the integration is complete, current, and that the identifiers and consent signals needed for matching are in place before the team reads any measurement output.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Samba TV measures cross-screen advertising by matching an advertiser's ad-exposure data to households identified through its ACR panel, which collects opt-in viewing data from smart TVs. The match produces reach, frequency, demographic composition, and outcomes metrics across linear TV, connected TV (CTV), and digital. For those metrics to reflect the full campaign, three integration elements must be correct: the exposure data feed must cover every channel in the campaign scope, the data connection itself must be current and properly configured, and the identifiers and consent signals required for household matching must be present and handled correctly. Each of these checks examines one of those three elements.",
+  "audit_checks": [
+    {
+      "id": "samba-tv-exposure-data-feed-incomplete",
+      "title": "The exposure or delivery data feed does not cover all campaign channels, so Samba TV cannot match part of the delivery",
+      "category": "governance",
+      "subcategory": "data_integration",
+      "impact_score": 4,
+      "impact_rationale": "Samba TV can only match household exposures for the impressions included in the data feed it receives. Channels excluded from the feed are invisible to the matching process. If a meaningful share of the campaign's delivery runs through a channel whose data is not connected, the resulting reach figures understate the true campaign audience, frequency distribution is skewed toward the connected channels, and any outcomes or incremental-reach analysis reflects a partial picture of what actually ran.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "Samba TV's measurement relies on matching the advertiser's ad-exposure records, drawn from ad-server logs, platform delivery reports, or a pixel, to the households in Samba's ACR panel. The matching process can only operate on the exposure data it has received. Channels for which no exposure data was connected contribute nothing to the audience measurement, regardless of how much delivery ran through them.<br><br>A campaign that buys linear TV, CTV, and digital display, but only connects the CTV delivery data to Samba, produces reach and frequency metrics that represent the CTV portion of the campaign. The linear and display audiences are absent from the measurement. The reach figure in the Samba report will be lower than the true unduplicated campaign audience, and the cross-screen deduplication that is the core value of ACR-based measurement cannot happen if the non-CTV channels are missing.<br><br>This gap is particularly relevant for incremental-reach analysis. The point of layering digital onto a linear TV buy is to reach households the linear TV schedule did not reach. If the linear TV exposure data is not included in the integration, Samba cannot identify which households saw the linear TV ad and therefore cannot calculate the incremental reach from the digital layer. The incremental-reach figure will appear artificially high because linear-exposed households are not recognized as already-reached.<br><br>A few signs point to an incomplete feed:<ul><li>The total impressions in the Samba measurement report are materially lower than the total impressions in the buying platform's own reporting for the same date range and campaign</li><li>The media plan includes channels, such as linear TV, a specific programmatic platform, or a direct publisher buy, that are not represented in the Samba setup documentation</li><li>The Samba campaign setup lists only one or two data sources when the campaign buys across three or more channels or platforms</li></ul>You may want to request the campaign's data-source manifest from your Samba TV account team and compare it against the full channel list in the media plan before reviewing any reach or frequency outputs.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail campaign running both a linear TV brand-awareness flight and digital retargeting against site visitors, you may want to confirm that both the linear TV delivery data and the digital impression data are included in the Samba integration, so that households exposed to both the TV ad and the digital ad are identified as such and cross-screen reach deduplication reflects the full campaign.",
+          "lead_gen": "For a lead-generation campaign using CTV and a paid social channel in parallel, you may want to confirm that delivery data from both channels is connected to Samba, so that the measurement captures households reached by either channel and the frequency distribution reflects the combined campaign rather than CTV alone."
+        },
+        "learn_more": [],
+        "learn_more_note": "Samba TV's integration documentation for ad-exposure data feeds, including data-source requirements by channel type, is maintained within the partner portal and account-team onboarding materials, which are not publicly accessible. Contact your Samba TV account team for the data-source manifest and integration checklist for your campaign setup.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Compare the data sources listed in the Samba TV campaign setup against the channels in the media plan to identify any channels whose delivery data is not included in the measurement.",
+        "tools": {
+          "free": {
+            "samba_tv": {
+              "label": "Samba TV",
+              "steps": [
+                "Request the campaign setup documentation or data-source manifest from your Samba TV account team. This should list every data source connected to the measurement campaign: ad-server log feeds, platform delivery integrations, and any pixel or tag connections.",
+                "Retrieve the media plan or campaign brief and list every channel or platform included in the buy, such as linear TV, CTV, programmatic display, paid social, or direct publisher deals.",
+                "Compare the two lists. For each channel in the media plan, confirm that a corresponding data source appears in the Samba campaign setup. Record any channels present in the media plan but absent from the Samba data-source list.",
+                "Pull total impressions for the full campaign from the buying platform's reporting for the measurement period. Pull total impressions from the Samba measurement report for the same date range. If the Samba total is materially lower than the buying platform total, the gap indicates impressions running outside the matched data set."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each channel in the media plan and whether a corresponding data source is connected in Samba. A campaign where every channel in the plan has a data source in the Samba setup passes. A campaign where one or more channels in the plan have no corresponding Samba data source is a fail, recorded with the missing channel names and an estimate of the impression volume those channels represent based on the media plan's allocation.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each channel from the media plan and its data-source status in the Samba setup above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the exposure data connected to Samba TV for {{site_name}}'s campaign does not cover all channels in the media plan. One or more channels are delivering impressions that are not included in the Samba matching process, which means the campaign's reported reach understates the true unduplicated audience and the cross-screen deduplication Samba TV provides cannot account for the missing channels. Any incremental-reach figures produced from the current setup reflect only the connected portion of the campaign. {{voice_recommend}} working with the Samba TV account team to connect the exposure or delivery data for each channel in the media plan and confirming the data-source manifest is complete before reviewing reach and frequency outputs."
+      }
+    },
+    {
+      "id": "samba-tv-data-connection-stale-or-misconfigured",
+      "title": "The data connection to Samba TV is stale or misconfigured, so matched exposures do not reflect the current campaign",
+      "category": "governance",
+      "subcategory": "data_integration",
+      "impact_score": 3,
+      "impact_rationale": "When the data connection between the ad server or platform and Samba TV stops flowing or is misconfigured, the household matching process receives outdated or incomplete exposure records. The Samba report continues to display metrics, but those metrics reflect a prior state of the campaign rather than current delivery. Decisions about reach, frequency pacing, or incremental lift made on that data are based on an exposure set that does not match what is actually running.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "governance"
+      ],
+      "educate": {
+        "base": "Samba TV receives ad-exposure data through a data connection established at campaign setup, which may take the form of a log-level data feed from an ad server, a platform delivery integration, or a pixel or tag placed on a campaign landing page. Once the connection is established, Samba ingests the exposure records and runs the household-matching process on a scheduled basis. If the connection stops delivering data, or if it was configured with incorrect parameters, the matching process will not have access to the exposures from the affected period.<br><br>A stale connection is distinct from a feed-coverage gap. A feed-coverage gap means certain channels were never included in the setup. A stale connection means a channel that was correctly included has stopped sending data, either because a credential expired, an ad-server export configuration changed, a campaign ID was updated mid-flight without updating the Samba setup, or a technical error interrupted the feed. From the outside, the Samba report may not display an obvious error. It will simply reflect the matched exposures from the last period the connection was active, producing metrics that look plausible but correspond to an earlier slice of the campaign.<br><br>Misconfiguration is a related but distinct problem. If the connection was established with incorrect filtering parameters, such as a campaign ID that covers a subset of the actual campaign's line items, the data flowing to Samba is structurally limited from the start. The metrics will be internally consistent but will not represent the full campaign's delivery.<br><br>A few signs point to a stale or misconfigured connection:<ul><li>The Samba report has not updated in several days despite the campaign actively delivering impressions according to the buying platform's reporting</li><li>Total matched exposures in Samba stopped growing at a date that does not correspond to a campaign pause or end date</li><li>The campaign was restructured mid-flight, such as new line items added or campaign IDs changed, and the Samba integration was not updated to reflect the new structure</li></ul>You may want to compare the last data-receipt timestamp in the Samba campaign dashboard against the buying platform's delivery log before drawing conclusions from any measurement output.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail campaign with a seasonal promotion where creative and campaign IDs were updated mid-flight, you may want to confirm that the Samba data connection was updated to reference the new campaign or line-item IDs so the promotional period's delivery is included in the measurement and not only the pre-promotion flights.",
+          "lead_gen": "For a lead-generation campaign using a pixel or tag on a campaign landing page, you may want to confirm the pixel is still firing correctly after any site updates or tag-management changes that may have occurred since the campaign launched, as a broken pixel stops the exposure signal from reaching Samba."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Data Clean Rooms Guidance and Recommended Practices",
+            "source_url": "https://iabtechlab.com/datacleanrooms/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm the data connection to Samba TV is actively receiving exposure data from all configured sources and that the connection parameters reflect the current campaign structure.",
+        "tools": {
+          "free": {
+            "samba_tv": {
+              "label": "Samba TV",
+              "steps": [
+                "Log in to the Samba TV measurement dashboard and open the campaign. Look for a data-receipt or last-updated timestamp that indicates when exposure data was most recently ingested. Compare this timestamp to the buying platform's delivery log for the same period.",
+                "Check whether the total matched exposures in Samba have grown since the campaign's last data check. A flat exposure count over several days while the buying platform shows active delivery is a signal the connection has stopped receiving data.",
+                "Review the connection configuration with your Samba TV account team. Confirm that the campaign IDs, line-item filters, or other parameters used to identify the campaign's impressions in the data feed still match the current campaign structure in the buying platform.",
+                "If the campaign was modified mid-flight, such as new line items, updated creative, or a changed campaign ID, confirm whether the Samba integration was updated to include those changes and when the update took effect."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the last data-receipt timestamp from the Samba campaign dashboard and compares it to the most recent delivery date in the buying platform. A gap of more than 48 hours while the campaign is actively delivering is a fail, recorded with the timestamp of the last Samba ingestion and the current buying-platform delivery date. A connection that is current but whose configuration was not updated after a mid-flight campaign restructure is also a fail, recorded with the date of the restructure and the date the Samba configuration was last reviewed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the last Samba data-receipt timestamp and the most recent delivery date from the buying platform above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the data connection between {{site_name}}'s campaign and Samba TV is either stale or was not updated after a mid-flight campaign change. The Samba measurement report is drawing on exposure data that does not reflect the current state of the campaign, which means reach, frequency, and any outcomes metrics produced since the connection fell out of date are based on an incomplete exposure set. {{voice_recommend}} working with the Samba TV account team to confirm the data connection is actively receiving exposure records, to review whether the connection parameters still match the current campaign structure, and to identify the date from which metrics can be considered reliable before using the Samba output to inform optimization decisions."
+      }
+    },
+    {
+      "id": "samba-tv-matching-identifiers-or-consent-missing",
+      "title": "Identifiers or consent signals required for household matching are missing or not handled correctly, producing low match rates",
+      "category": "governance",
+      "subcategory": "data_integration",
+      "impact_score": 3,
+      "impact_rationale": "Samba TV's household matching links the advertiser's exposure records to ACR-identified households using identifiers such as IP address, device ID, or matched first-party signals. When those identifiers are absent from the exposure data, or when consent signals required to use them are not correctly passed, the match rate falls. A low match rate means a smaller share of the campaign's impressions are attributed to a known household, which reduces the statistical reliability of reach, frequency, and outcomes metrics and may understate exposure to specific demographic segments.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "Samba TV matches ad exposures to households by linking signals in the exposure data to signals in its ACR household panel. The identifiers used for matching vary by channel and integration type and may include IP address at the household level, connected-device identifiers, or hashed first-party data matched through a data clean room or secure matching process. For any given exposure record, a match is possible only if the record contains an identifier that can be linked to a household Samba has observed in its panel.<br><br>Two issues reduce match rates in practice. First, the exposure data may lack usable identifiers. Log-level data from some platforms does not include IP addresses or device IDs in the fields available for export, either because the platform does not make them available or because the export was not configured to include them. A record with no matchable identifier contributes an impression count to the total but produces no matched household. Second, consent requirements may restrict which identifiers can be used for matching. In markets where privacy regulations require a consent signal before a user's identifier can be applied to cross-party matching, exposure records from users who did not consent cannot contribute to the household match, even if the identifier is technically present in the data.<br><br>Low match rates affect the measurement in two ways. The matched-household pool that underlies reach and frequency metrics is smaller than the actual exposed audience, so reach is understated and frequency is calculated over a subset of households. Demographic composition metrics reflect only the matched portion of the audience, which may not be representative if certain devices, platforms, or consent cohorts match at lower rates than others.<br><br>A few signs point to a matching or consent issue:<ul><li>The Samba match rate reported for the campaign is below the expected range for the channel type, which your account team can provide as a reference benchmark</li><li>The exposure data export from a specific platform does not include IP or device identifier fields, or those fields are present but empty for a large share of records</li><li>The campaign runs in a market or on a platform where consent-management requirements apply, and no consent-signal handling was discussed or configured during the Samba integration setup</li></ul>You may want to request a match-rate breakdown from your Samba TV account team that shows match rates by channel and data source before reviewing demographic or outcomes metrics, as low match rates on specific sources can distort the aggregate measurement.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail campaign using first-party customer data for clean-room-based matching, you may want to confirm that the first-party data shared with Samba through the clean room or secure matching process is formatted to the specification Samba requires and that any consent restrictions on that data have been applied before the match, so the matched pool reflects only users who have consented to cross-party data use.",
+          "lead_gen": "For a lead-generation campaign running in a market with consent-management requirements, you may want to confirm that the consent signal from the campaign's consent-management platform (CMP) is correctly passed alongside the impression data flowing to Samba, so that only records from consented users are included in the household-matching process."
+        },
+        "learn_more": [
+          {
+            "source_type": "MRC",
+            "source_title": "Standards and Guidelines",
+            "source_url": "https://mediaratingcouncil.org/standards-and-guidelines"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Data Clean Rooms Guidance and Recommended Practices",
+            "source_url": "https://iabtechlab.com/datacleanrooms/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the match rate reported by Samba TV for the campaign and examine the exposure data and consent configuration to identify why the match rate may be below expected levels.",
+        "tools": {
+          "free": {
+            "samba_tv": {
+              "label": "Samba TV",
+              "steps": [
+                "Request a match-rate report or breakdown from your Samba TV account team. Ask for match rates by channel and by data source so you can identify which sources are matching well and which are not.",
+                "For any data source with a low match rate, review the exposure data export configuration in the originating platform. Check whether IP address, device identifier, or other matchable fields are included in the export and whether those fields are populated for a representative share of records.",
+                "If the campaign is running in a market where consent-management requirements apply, confirm with your Samba TV account team whether the data connection includes a mechanism for passing consent signals alongside the exposure records. Review the consent-management platform's (CMP) configuration to confirm it is set up to pass the relevant consent signal for the data use in question.",
+                "If the integration uses a data clean room or secure matching process to connect first-party data, review the data specification Samba provided at setup and confirm the first-party data being shared meets that specification's formatting and field requirements."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the match rate by channel and data source as provided by Samba TV and compares each to the expected range for that channel type. A data source whose match rate falls within the expected range and whose identifier fields are confirmed to be populated passes. A data source with a match rate below the expected range is a fail, recorded with the data source name, the observed match rate, and the likely cause identified from the identifier field review or consent configuration check.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the match rate by data source and the identifier or consent issue identified for each source above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more data sources in {{site_name}}'s Samba TV integration are producing match rates below expected levels for the channel type. The lower match rate means a share of the campaign's impressions cannot be attributed to a known household, which reduces the reliability of reach, frequency, and demographic metrics for those sources and may cause the aggregate measurement to underrepresent exposure in certain audience segments. The likely cause is either missing or unpopulated identifier fields in the exposure data export, or consent signals that restrict which records can be used in the household-matching process. {{voice_recommend}} requesting a match-rate breakdown by data source from the Samba TV account team, reviewing the identifier field configuration in each data source's export, and confirming that the consent-signal handling for the integration meets the requirements of the markets and platforms in scope."
+      }
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/admanager/answer/177403",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The role assigned to each user decides who can change network settings, Unified Pricing Rules, and blocking controls, so an account where the Administrator role is handed out widely has no real boundary on who can move revenue or open up inventory. The review is fast and entirely inside the Admin tab, where the user list shows every account and its role on one screen. Tightening access to least privilege and removing departed or unused accounts reduces both the chance of an accidental change to live settings and the surface an attacker or a former vendor could reach. None of this requires a configuration rebuild, only edits to roles and user status.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Google Ad Manager (GAM) controls who can do what through user roles. Built-in roles such as Administrator, Trafficker, and Salesperson carry fixed permission sets, and administrators can also build custom roles scoped to a smaller list of permissions. These checks confirm that network-wide control is held by the few people who genuinely need it, and that the user list contains only accounts that are still active and necessary.",
+  "audit_checks": [
+    {
+      "id": "gam-roles-overly-broad-admin-access",
+      "title": "Too many users hold Administrator-level roles",
+      "category": "governance",
+      "subcategory": "roles_permissions",
+      "impact_score": 3,
+      "impact_rationale": "The Administrator role can change network settings, Unified Pricing Rules, and blocking controls, any of which moves revenue or alters what serves. Granting it to users who only need to traffic or report widens the set of people who can make a network-wide change by mistake, and it enlarges the access a compromised account would carry.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance"],
+      "educate": {
+        "base": "In Google Ad Manager (GAM), every user is assigned one role, and that role decides what the user can see and change. The built-in Administrator role has full access to all functionality, which includes network settings, Unified Pricing Rules (UPR) that set price floors, and the blocking controls that decide which advertisers and categories may serve. A user with that role can change any of those, so the count of Administrators is the count of people who can alter what serves and at what price across the whole network.<br><br>Least privilege means each user holds only the permissions their job needs. A trafficker needs to build orders and line items, a salesperson needs to manage their own deals, and a reporting analyst needs read access. None of those jobs requires the ability to rewrite a price floor or change a network setting. When the Administrator role is the default handed to new users, people accumulate network-wide control they never use, and a single mistaken edit or a single compromised login then reaches settings that move revenue.<br><br>GAM also supports custom roles. An administrator can create a role and select only the permissions it needs, or copy an existing role as a starting point and remove what is not required. Scoping a custom role to the minimum lets you give a trafficker or an analyst exactly the access their work calls for without granting full Administrator rights.<br><br>A few signs point to Administrator access being broader than it should be:<ul><li>Users who only build orders or run reports are assigned the Administrator role</li><li>External accounts, such as an agency or a partner, hold Administrator rather than a scoped custom role</li><li>New users are given Administrator by default rather than the role matching their job</li></ul>You may want to confirm that each Administrator genuinely needs network-wide control, and consider moving the rest to a built-in or custom role scoped to their actual work.",
+        "site_type_overlays": {
+          "publishing": "On a media property where several people traffic campaigns and pull reports, you may want to reserve the Administrator role for the one or two people who own network settings and pricing, and move trafficking and reporting staff to roles scoped to those tasks. A custom role copied from Trafficker and trimmed is one approach for staff who build orders but should not touch price floors."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "View, create, and manage user roles",
+            "source_url": "https://support.google.com/admanager/answer/177403"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "User role permissions",
+            "source_url": "https://support.google.com/admanager/answer/9154293"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "List every user and the role each holds, then judge whether the people with Administrator-level access actually need network-wide control.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Admin', then 'Access & authorization', then 'Users' to see the full user list.",
+                "Sort or filter the list by role so the Administrator accounts group together, and note how many users hold Administrator.",
+                "For each Administrator, note the person or account and whether their job needs network-wide control, such as editing network settings, Unified Pricing Rules, or blocking controls.",
+                "Open 'Admin', then 'Access & authorization', then 'Roles' to review the built-in and custom roles available, so you can see which scoped role would fit each user who does not need Administrator."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per user, the role held and whether that user's job needs network-wide control. The account passes when the Administrator role is limited to the few users who genuinely need to change network settings, pricing rules, or blocking controls. It is a fail, recorded with the affected user names, when users who only traffic, sell, or report hold Administrator, or when an external account holds Administrator rather than a scoped role.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each user, the role they hold, and whether their job needs network-wide control above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that more users hold the Administrator role on {{site_name}}'s Google Ad Manager (GAM) network than the work requires. Administrator carries full access, including network settings, Unified Pricing Rules, and blocking controls, so every account with that role can change what serves and at what price across the whole network. Granting it to users who only traffic, sell, or report widens the set of people who can make a network-wide change by mistake and enlarges the access a compromised login would reach. {{voice_recommend}} reserving Administrator for the few people who own network settings and pricing, and moving the rest to a built-in or custom role scoped to their actual job. After the change, review the user list again and confirm each remaining Administrator genuinely needs network-wide control."
+      }
+    },
+    {
+      "id": "gam-roles-stale-or-orphaned-users",
+      "title": "Inactive or departed users still have active access",
+      "category": "governance",
+      "subcategory": "roles_permissions",
+      "impact_score": 3,
+      "impact_rationale": "An account left active after the person departs or the engagement ends keeps whatever permissions it held, so a former employee, agency, or supply partner can still reach the network. Each unused account adds to the surface where a credential leak or a mistaken change can do damage, with no offsetting benefit since no one is using it for current work.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance"],
+      "educate": {
+        "base": "Access in Google Ad Manager (GAM) is granted as people join a team or an engagement begins, and removing it when they leave depends on a manual step that can be missed. An account that stays active after the person departs keeps the role and permissions it held, so a former employee, a former agency, or a supply partner whose contract ended can still sign in and act on the network. The risk is not that they will, but that the open door exists at all. A leaked credential on a forgotten account reaches the same settings the original user could.<br><br>External accounts deserve particular attention. Agencies, consultants, and demand or supply partners are often added with real permissions for the length of an engagement, and those accounts can outlive the relationship. An audit of the user list is the moment to identify accounts that belong to people no longer on the team or organizations no longer under contract.<br><br>GAM removes access by deactivating a user rather than deleting them. A deactivated user loses access to the network immediately, and scheduled reports they owned stop delivering. Deactivation is also the safer choice where history matters. It revokes access while keeping the user's record and the audit trail of what they did intact. Where a person's actions are referenced in past orders or reports, deactivating preserves that history in a way a deletion would not.<br><br>A few signs point to access that should be reviewed:<ul><li>Accounts for people who have left the team or changed roles are still active</li><li>External accounts for agencies or partners remain active after the engagement ended</li><li>The last sign-in for an account is long ago with no current reason for it to be open</li></ul>You may want to deactivate each account that no longer maps to a current person or relationship, and keep the user record rather than deleting it where the history is worth preserving.",
+        "site_type_overlays": {
+          "publishing": "On a media property that works with outside ad-ops consultants or supply partners, you may want to keep a short note of which external accounts exist and why, then revisit it each time an engagement ends so partner access is deactivated on schedule rather than left open. Reviewing the user list against the current team and active contracts is one way to catch accounts that should have been closed."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Add and edit users",
+            "source_url": "https://support.google.com/admanager/answer/3059181"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the full user list against the current team and active relationships, and identify accounts that should no longer have access.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Admin', then 'Access & authorization', then 'Users' to see every account and its status.",
+                "For each active user, confirm the person is still on the team or the organization is still under contract, and note any account that no longer maps to a current relationship.",
+                "Where the user detail shows a last sign-in or activity, note accounts that have not been used in a long time and have no current reason to stay open.",
+                "Flag every external account, such as an agency, consultant, or supply partner, and confirm the engagement that justified it is still active."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per user, whether the account maps to a current person or relationship and whether it shows recent activity. The account passes when every active user is a current member of the team or an active partner with a present reason for access. It is a fail, recorded with the affected account names, when accounts for departed staff, ended engagements, or long-unused logins remain active.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each user, whether the account still maps to a current person or relationship, and any last-activity signal above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Google Ad Manager (GAM) user list contains active accounts that no longer map to a current person or relationship. Departed staff and external accounts for agencies or partners whose engagement ended retain the role and permissions they held, so each one is a door into the network that no one is using and that a leaked credential could reach. {{voice_recommend}} reviewing the user list against the current team and active contracts and deactivating each account that is no longer needed, keeping the user record rather than deleting it where the history is worth preserving. After the change, confirm that every active account belongs to a current person or an active partner with a present reason for access."
+      }
+    }
+  ]
+}

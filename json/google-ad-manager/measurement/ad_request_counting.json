@@ -1,0 +1,149 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/admanager/answer/15983907",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The ad request funnel is where a publisher's fill rate, match rate, and unfilled volume come from, and each of those rates only means something when it is read against the funnel stage it belongs to. The check is fast because it reads the request metrics the publisher already reports rather than building anything new. Catching a rate calculated against the wrong denominator, or a rising share of unfilled impressions left untracked, prevents a yield decision made on a number that does not mean what the publisher thinks it means and surfaces revenue leaks while they are still small.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Google Ad Manager separates an ad request into stages as it moves through serving, from total requests down through the requests that were eligible, the requests an ad source matched, and the impressions that finally filled. The fill rate, match rate, and unfilled volume a publisher uses to judge demand each depend on which of those stages sits in the numerator and which sits in the denominator. These checks confirm that the publisher reads each funnel stage as Google Ad Manager defines it and watches unfilled impressions and match rate over time so a developing revenue leak is noticed early.",
+  "audit_checks": [
+    {
+      "id": "gam-adrequests-funnel-stages-confused",
+      "title": "The stages of the ad request funnel are read interchangeably",
+      "category": "measurement",
+      "subcategory": "ad_request_counting",
+      "impact_score": 2,
+      "impact_rationale": "Google Ad Manager counts total ad requests, eligible requests, matched requests, and filled impressions as separate stages, and a fill or match rate calculated against the wrong stage returns a number that looks authoritative but answers a different question. The publisher reads demand strength from that rate, so the misreading propagates into pricing and partner decisions rather than staying contained in a report.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "yield"],
+      "educate": {
+        "base": "An ad request in Google Ad Manager (GAM) is not a single number. It passes through stages as it moves through serving, and GAM counts each stage separately. Total ad requests is every request the ad server received. Some of those requests are filtered out before they can compete, so a narrower count of eligible or valid requests is what actually reached the auction. Of the requests that competed, the ones an ad source returned an ad for are matched requests, and the ones that finished as a served ad are filled impressions. The stages narrow at each step, and the gap between two stages is a different quantity from the gap between two others.<br><br>The rates a publisher reads off this funnel are ratios between specific stages, so the denominator has to match the question. Fill rate is total impressions divided by total ad requests, which answers how much of all requested inventory ended as a served ad. Match rate compares the requests an ad source matched against the requests sent to it, which answers how often that source had an ad to return. Reading one rate as the other, or calculating either against a stage it does not belong to, produces a figure that is precise and wrong at the same time.<br><br>Unfilled impressions sit at the bottom of the funnel and tie the stages together. An unfilled impression is an ad request that did not return an ad because none was eligible to serve, and GAM does not count it in total impressions. Total ad requests equals total impressions plus unfilled impressions, so a request count read without accounting for unfilled volume overstates how much inventory actually monetized.<br><br>A few signs point to funnel stages being read interchangeably:<ul><li>A fill rate is quoted but the denominator is a filtered or eligibility-narrowed request count rather than total ad requests</li><li>Match rate and fill rate are used as if they answered the same question</li><li>A request total is treated as monetized inventory without subtracting unfilled impressions</li><li>Two reports quote the 'same' request metric but one counts total requests and the other counts a later stage</li></ul>You may want to confirm which funnel stage each rate is built on against the GAM reporting metric reference before reading the rate as a demand signal. A rate built on the stage it belongs to supports the decision. A rate built on a neighboring stage undermines it while still looking exact.",
+        "site_type_overlays": {
+          "publishing": "On a media property judging programmatic demand across several ad sources, match rate and fill rate are the two most likely to be swapped because both describe how well inventory monetized but compare different funnel stages. You may want to confirm which request count each yield report divides by before reading the rate as a signal of how much demand the inventory is attracting.",
+          "ecommerce": "On a commerce-content property where ad inventory runs alongside merchandising, you may want to confirm that an ad fill rate quoted next to commerce metrics is built on total ad requests rather than a filtered request count, so a difference in how the funnel was scoped is not read as a difference in how the inventory performed."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Interactive report metrics",
+            "source_url": "https://support.google.com/admanager/table/16431202"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Counting impressions and clicks",
+            "source_url": "https://support.google.com/admanager/answer/2521337"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review how the publisher defines fill rate and match rate, and confirm which funnel stage each rate uses as its numerator and denominator before either is read as a demand signal.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Reporting', then 'Reports', and open the report the publisher uses to judge fill and demand.",
+                "List the request metrics in the report and note which ones are present, for example total ad requests, a filtered or eligibility-narrowed request count, matched requests, total impressions, and unfilled impressions.",
+                "For the fill rate the publisher quotes, record its numerator and denominator and confirm the denominator is total ad requests rather than a later, narrower stage.",
+                "For the match rate the publisher quotes, record which request count it divides by and confirm it compares matched requests against the requests sent to that source, not against total ad requests.",
+                "Confirm that total ad requests reconciles to total impressions plus unfilled impressions, and note any place where a request total is read as monetized inventory without subtracting unfilled impressions.",
+                "Check each metric definition against the Interactive report metrics reference in GAM Help and record any rate built on a funnel stage it does not belong to."
+              ]
+            },
+            "ads_traffic_navigator": {
+              "label": "Ads traffic navigator",
+              "steps": [
+                "Open the Ads traffic navigator in Premium reporting, where it is available, to view the request funnel as a single visualization from total ad requests through valid requests, demand-type eligibility, and total impressions.",
+                "Read the stage-to-stage drop-off and confirm that the rate the publisher quotes corresponds to the two stages it claims to compare, rather than skipping a stage in between."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each rate the publisher acts on, which funnel stage sits in its numerator and which sits in its denominator, and confirms the choice against the GAM definition. A set of rates where fill rate divides total impressions by total ad requests, match rate compares matched requests against the requests sent to that source, and request totals account for unfilled impressions passes. A rate built on a stage it does not belong to, for example a fill rate divided by a filtered request count or a match rate read as a fill rate, is a fail recorded with the rate name and the stage at fault.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the numerator and denominator the publisher uses for each rate above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the ad request funnel stages on {{site_name}} are read interchangeably, so some of the rates used to judge demand are calculated against the wrong stage. Google Ad Manager (GAM) counts total ad requests, eligible requests, matched requests, and filled impressions as separate stages, and a fill rate or match rate built on a stage it does not belong to returns a number that looks authoritative while answering a different question. {{voice_recommend}} confirming each rate against the GAM reporting metric reference, calculating fill rate as total impressions divided by total ad requests, reading match rate against the requests sent to each source, and accounting for unfilled impressions when a request total is treated as monetized inventory. After the change, reread the key yield reports with the corrected definitions and confirm the rates still support the conclusions drawn from them."
+      }
+    },
+    {
+      "id": "gam-adrequests-unfilled-match-rate-not-monitored",
+      "title": "Unfilled impressions and match rate are not monitored over time",
+      "category": "measurement",
+      "subcategory": "ad_request_counting",
+      "impact_score": 2,
+      "impact_rationale": "A rising share of unfilled impressions or a falling match rate points to a demand or setup break, for example a price floor set too high, a partner that stopped responding, or a targeting gap that left inventory ineligible. A publisher that does not trend these metrics by ad unit only notices the lost revenue once the gap is large, so the leak runs unaddressed for the period between the break and its discovery.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "data-quality"],
+      "educate": {
+        "base": "Unfilled impressions and match rate are the two funnel metrics that move first when demand or setup breaks, which makes them worth watching as a trend rather than reading once. An unfilled impression is an ad request that did not return an ad because none was eligible to serve, and Google Ad Manager (GAM) reports it as its own metric. Match rate measures how often an ad source returned an ad for the requests sent to it. When either metric drifts, the inventory is being requested as before but is monetizing less of it.<br><br>A single snapshot hides this drift. A 6 percent unfilled rate is not obviously good or bad in isolation, but a move from 6 percent to 14 percent across a few weeks on a specific ad unit is a signal, and that signal only exists when the metric is compared against its own recent history. The same holds for match rate. A level that is stable carries little information, while a decline that started on a particular date points to something that changed on or near that date.<br><br>The causes a trend surfaces are usually traceable to a setup change. A few patterns recur:<ul><li>A floor or unified pricing rule raised high enough that bids fall below it, so requests that used to fill now go unfilled</li><li>A demand partner or yield group that stopped responding, which drops its match rate toward zero while leaving total requests unchanged</li><li>A targeting or eligibility change that made a slice of inventory ineligible, so its requests are counted but never match</li><li>A new ad unit or size with no demand mapped to it, which reports requests with a near-zero fill</li></ul>You may want to trend unfilled impressions and match rate by ad unit over a recent window and treat a sustained move as something to investigate at the setup level. The metric tells you where and when the change began, and the floor, partner, or targeting configuration tells you why.",
+        "site_type_overlays": {
+          "publishing": "On a media property with several ad units and demand partners, a decline usually localizes to one ad unit or one partner rather than the whole network, so a trend broken out by ad unit and by ad source is what separates a real leak from normal variance. You may want to set a recurring view of unfilled impressions and match rate by ad unit so a partner that stops responding or a floor raised too high shows up as a dated change rather than a vague revenue dip."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Troubleshoot unfilled impressions in Ad Manager",
+            "source_url": "https://support.google.com/admanager/answer/1739296"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Report on unfilled impressions",
+            "source_url": "https://support.google.com/admanager/answer/4556972"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Trend unfilled impressions and match rate by ad unit over a recent period, flag the declines, and trace each one back to the floor, partner, or targeting change that produced it.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Reporting', then 'Reports', and build or open a report that breaks out unfilled impressions and match rate by ad unit over a recent window of several weeks.",
+                "Read the trend for each ad unit and flag any ad unit where the unfilled share is rising or the match rate is falling rather than holding steady.",
+                "For each flagged ad unit, note the date the change began. The start date usually lines up with the setup change that caused it.",
+                "Check the floor or unified pricing rule applied to the flagged ad unit and record whether a recent floor increase could be pushing bids below the price.",
+                "Check the demand partners or yield groups serving that inventory and record whether any partner's match rate dropped toward zero, which points to a partner that stopped responding.",
+                "Check the targeting and eligibility on the flagged inventory and record whether a recent change left a slice of requests ineligible to match."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether unfilled impressions and match rate are trended by ad unit over a recent period and whether any declines were investigated to their cause. A setup where both metrics are monitored as a trend, declines are flagged with their start date, and each flagged decline is traced to a floor, partner, or targeting change passes. A setup where unfilled impressions and match rate are read only as a single snapshot, or where a flagged decline was left uninvestigated, is a fail recorded with the ad unit and the metric that drifted.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether unfilled impressions and match rate are trended by ad unit, and the cause of any decline you flagged, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that unfilled impressions and match rate are not monitored over time on {{site_name}}, so a developing revenue leak would not be noticed until it was large. A rising share of unfilled impressions or a falling match rate points to a demand or setup break, for example a price floor set too high, a partner that stopped responding, or a targeting gap that left inventory ineligible, and these signals only exist when the metrics are compared against their own recent history. {{voice_recommend}} trending unfilled impressions and match rate by ad unit over a recent window, flagging any ad unit where the unfilled share rises or the match rate falls, and tracing each flagged decline back to the floor, partner, or targeting change that started it. After the change, set a recurring view of these metrics by ad unit so the next drift surfaces as a dated change rather than a vague dip in revenue."
+      }
+    }
+  ]
+}

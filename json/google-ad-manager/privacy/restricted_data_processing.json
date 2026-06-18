@@ -1,0 +1,153 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/admanager/answer/9561023",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Restricted Data Processing decides whether opted-out users see personalized or non-personalized ads, so a misconfiguration lands on either the compliance side or the revenue side. Getting it wrong by leaving it off for covered users is a privacy exposure. Getting it wrong by applying it to everyone serves non-personalized ads to traffic the law never covered, which lowers yield without any compliance benefit. The check is a configuration review, not a rebuild, and the settings and ad-tag signals that drive it are visible in Ad Manager and on the page.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Restricted Data Processing (RDP) tells Google to limit how it uses personal data and to serve non-personalized ads for users covered by US state privacy laws, such as the California Privacy Rights Act. Whether RDP fires comes down to the consent signal the page passes and the Ad Manager settings behind it, so getting its scope right is the difference between a compliance gap and needlessly suppressed revenue. These checks confirm that RDP is enabled for the users the law covers and that its scope is neither broader nor narrower than those laws require.",
+  "audit_checks": [
+    {
+      "id": "gam-rdp-not-enabled-for-applicable-states",
+      "title": "Restricted Data Processing is not enabled for applicable US states",
+      "category": "privacy",
+      "subcategory": "restricted_data_processing",
+      "impact_score": 3,
+      "impact_rationale": "When Restricted Data Processing never fires for users who opted out under an applicable state law, Google keeps using their personal data for personalized ads, which leaves the publisher carrying the compliance gap rather than the platform. The exposure stays out of view because ads keep serving normally.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Restricted Data Processing (RDP) is a Google Ad Manager setting that limits Google's use of personal data to a restricted set of operations for a given user, and serves that user non-personalized ads. It exists so publishers can honor opt-outs under US state privacy laws, such as the California Privacy Rights Act (CPRA), where a covered user exercises a right to opt out of the sale or sharing of their personal information. When an RDP signal is present, Google stops interest-based targeting and stops recording the user against identifiers for personalized ads.<br><br>RDP is triggered one of two ways. A consent signal passed from the page, typically through the Global Privacy Platform (GPP) string a consent management platform writes, can carry the opt-out, and Ad Manager reads it and applies RDP for that request. The publisher can also enable RDP through an Ad Manager setting or through the publisher ad tags so it applies to all users in applicable states without a per-page signal. If neither path is in place for opted-out users, RDP never fires and Google continues to process their data for personalized ads.<br><br>The cost of that gap is a compliance one rather than a revenue one. Ads keep serving, so nothing looks broken, but the opt-out the user exercised is not being honored downstream, and the obligation to honor it sits with the publisher. The fix is configuration, either wiring the opt-out signal through to Ad Manager or turning on the Ad Manager setting for the applicable users.<br><br>A few signs point to RDP not being enabled for users the law covers:<ul><li>No consent management platform is writing a GPP string, or the string is present but Ad Manager is not configured to act on it</li><li>The Ad Manager restricted data processing setting is left off for states the publisher serves</li><li>Ad requests for opted-out users in covered states still return personalized ads</li></ul>You may want to confirm both the signal path and the Ad Manager setting before deciding RDP is in place. A signal that is written but never read leaves the user unprotected just as much as no signal at all.",
+        "site_type_overlays": {
+          "publishing": "On a content or media property, the opt-out usually arrives through the consent management platform that already gates the page, so the question is whether that opt-out reaches Ad Manager as an RDP signal rather than stopping at the banner. You may want to confirm a Global Privacy Platform string is written for opted-out users and that Ad Manager is set to act on it.",
+          "ecommerce": "On a commerce-content property, a 'Do Not Sell or Share My Personal Information' link is often the opt-out surface a covered user uses, so RDP needs to fire for sessions that follow it. You may want to confirm that following the opt-out link sets the per-page RDP signal on subsequent ad requests rather than leaving them personalized."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Helping publishers comply with U.S. states privacy laws",
+            "source_url": "https://support.google.com/admanager/answer/9561023"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Restricted data processing settings",
+            "source_url": "https://support.google.com/admanager/answer/14117973"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that Restricted Data Processing is triggered for opted-out users in the states the publisher serves, either through the consent signal the page passes or through the Ad Manager setting.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Admin', then 'Global settings', and find the privacy and data protection settings that cover restricted data processing for US states.",
+                "Note whether restricted data processing is enabled for applicable states and whether it is set to apply to all users in those states or to rely on a per-request signal.",
+                "If it relies on a per-request signal, note which signal Ad Manager is configured to read, for example a Global Privacy Platform string."
+              ]
+            },
+            "google_publisher_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open a page on the property as a user in an applicable state, or with the opt-out exercised, and open the Google Publisher Console from the page.",
+                "Inspect the ad request and note whether it carries the restricted data processing signal and whether the returned ads are non-personalized.",
+                "Repeat with the opt-out not exercised and confirm the request differs, so you can tell the signal is actually changing the request rather than always reading the same way."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each applicable state the publisher serves, whether an opted-out user triggers Restricted Data Processing, by either the Ad Manager setting or the consent signal, and whether the ad request for that user returns non-personalized ads. A state where opted-out users reliably trigger RDP passes. A state where opted-out users still receive personalized ads, with neither the setting nor a working signal applying RDP, is a fail recorded with the state and the path that is missing.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record, for each applicable state, whether opted-out users trigger restricted data processing and whether their ad requests return non-personalized ads above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that Restricted Data Processing (RDP) is not enabled for users {{site_name}} serves in states whose privacy laws, such as the California Privacy Rights Act, require honoring an opt-out. Ads keep serving for those users, so nothing looks broken, but Google continues to process their personal data for personalized ads, which leaves the opt-out unhonored and the obligation with the publisher. {{voice_recommend}} enabling RDP for the applicable users, either by turning on the Ad Manager setting for those states or by wiring the opt-out signal, typically a Global Privacy Platform string, through to Ad Manager. After the change, confirm in the Google Publisher Console that an opted-out user's ad request carries the RDP signal and returns non-personalized ads."
+      }
+    },
+    {
+      "id": "gam-rdp-scope-too-broad-or-narrow",
+      "title": "Restricted Data Processing scope is broader or narrower than the law requires",
+      "category": "privacy",
+      "subcategory": "restricted_data_processing",
+      "impact_score": 2,
+      "impact_rationale": "Restricted Data Processing serves non-personalized ads, which typically earn less, so applying it to all traffic lowers revenue on users the law never covered. Applying it too narrowly leaves opted-out users in covered states processed for personalized ads, which is the compliance side of the same scoping error.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "yield"],
+      "educate": {
+        "base": "Restricted Data Processing (RDP) is not meant to apply to every user. It is meant to apply to the users an applicable law actually covers, which is generally those in a state with a relevant privacy law who have exercised an opt-out. Because RDP serves non-personalized ads, and non-personalized ads typically earn less than personalized ones, the scope of RDP has a direct effect on revenue as well as on compliance.<br><br>Scoping RDP too broadly means turning it on for traffic the law never reached, for example all users on the property regardless of state or opt-out status. That serves non-personalized ads to users who could have received personalized ads, so the publisher gives up yield with no compliance benefit in return. It can look like a safe default, but it is paid for in revenue on every uncovered impression.<br><br>Scoping RDP too narrowly is the opposite failure. If RDP only fires for some covered users, for example one state when the publisher serves several with similar laws, or only when a specific signal is present that many opted-out users never send, then a share of opted-out users still get personalized ads. That is the same compliance gap as not enabling RDP at all, just confined to the users the scope missed.<br><br>The right scope matches the users the applicable laws cover, no broader and no narrower. Ad Manager supports this through the per-request signal, so RDP can fire for an opted-out user and stay off for a user who was never covered. You may want to map the states the property serves and their opt-out requirements against what actually triggers RDP, rather than treating it as a single on or off switch for the whole property.",
+        "site_type_overlays": {
+          "publishing": "On a content or media property with a national audience, an all-on RDP setting serves non-personalized ads to readers in states with no applicable law, which costs yield for no compliance gain. You may want to confirm RDP is keyed to the opt-out signal and the covered states rather than applied to all traffic.",
+          "ecommerce": "On a commerce-content property, the opt-out link a covered user follows should scope RDP to that user's subsequent requests, not to every visitor. You may want to confirm that visitors who never opted out continue to receive personalized ads, so the non-personalized scope is not widened past the users the law covers."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Restricted data processing settings in Google's publisher ad tags",
+            "source_url": "https://support.google.com/admanager/answer/9598414"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Helping publishers comply with U.S. states privacy laws",
+            "source_url": "https://support.google.com/admanager/answer/9561023"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which users or regions trigger Restricted Data Processing and compare that against the users the applicable laws actually cover.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Admin', then 'Global settings', and find the restricted data processing settings for US states.",
+                "Note whether RDP is set to apply to all users, to all users in named states, or to rely on a per-request opt-out signal.",
+                "List the states the property serves and their opt-out requirements, then compare that list against what the setting actually applies RDP to."
+              ]
+            },
+            "google_publisher_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open a page as a user who has not opted out and who is in a state with no applicable law, and inspect the ad request in the Google Publisher Console for whether the RDP signal is present.",
+                "Open the same page as an opted-out user in a covered state and inspect the ad request the same way.",
+                "Compare the two. RDP should be present for the covered opted-out user and absent for the uncovered user. RDP present for both points to a scope that is too broad, and RDP absent for the covered user points to a scope that is too narrow."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records which users trigger Restricted Data Processing and compares that against the users the applicable laws cover. A configuration where RDP fires for opted-out users in covered states and stays off for users no applicable law reaches passes. RDP applied to all traffic, including uncovered users, is a fail recorded as too broad. RDP that misses some opted-out users in covered states is a fail recorded as too narrow, with the users or states the scope missed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which users or regions trigger restricted data processing and which users the applicable laws cover above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that Restricted Data Processing (RDP) on {{site_name}} is scoped differently from what the applicable privacy laws require. RDP serves non-personalized ads, so a scope that is too broad serves those lower-earning ads to users no law covers and gives up revenue for no compliance benefit, while a scope that is too narrow leaves some opted-out users in covered states processed for personalized ads. {{voice_recommend}} scoping RDP to the opted-out users in covered states, no broader and no narrower, by keying it to the per-request opt-out signal rather than applying it to all traffic. After the change, confirm in the Google Publisher Console that an opted-out user in a covered state carries the RDP signal while an uncovered user who did not opt out does not."
+      }
+    }
+  ]
+}

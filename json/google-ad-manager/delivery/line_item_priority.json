@@ -1,0 +1,200 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/admanager/answer/177279",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Line item type sets a delivery priority, and priority is evaluated before price, so a misassigned type lets the wrong demand win a slot and loses revenue without any obvious error in reporting. The check is quick. The line item list in Delivery shows each item's type and priority, and the auditor compares that against what the line item is meant to deliver. The fix is a configuration change to the type or priority, not a rebuild, and it changes which demand serves from the next request forward.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "In Google Ad Manager (GAM), a line item's type sets a delivery priority, and that priority decides which demand wins an ad slot before price is considered. The priority ladder runs from Sponsorship at priority 4, through Standard at 6 to 10, to Network, Bulk, and Price Priority at 12, and House at 16, where a lower number wins. These checks confirm that each line item's type matches its real commitment, so guaranteed deals deliver, programmatic demand competes on the inventory it should, and house ads serve only as a fallback.",
+  "audit_checks": [
+    {
+      "id": "gam-priority-types-misassigned",
+      "title": "Line item types and priorities are misassigned",
+      "category": "delivery",
+      "subcategory": "line_item_priority",
+      "impact_score": 4,
+      "impact_rationale": "Priority is evaluated before price, so a line item set to the wrong type wins or loses slots for reasons the deal never intended. A non-guaranteed campaign typed as Sponsorship outranks real guaranteed deals, and a guaranteed deal typed as Network can underdeliver, which puts both the contract and the revenue at risk.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "inventory"],
+      "educate": {
+        "base": "In Google Ad Manager (GAM), a line item's type is not just a label. It sets the delivery priority that decides which demand wins a slot, and a lower priority number wins. The ladder runs from Sponsorship at priority 4, through Standard at priority 6, 8, or 10, to Network, Bulk, and Price Priority at priority 12, and House at priority 16. Sponsorship and Standard are the guaranteed types, meant for demand a publisher has committed to deliver. Network, Bulk, and Price Priority are non-guaranteed, meant for remnant demand that fills what guaranteed deals leave behind.<br><br>The priority is evaluated before price. A Sponsorship line item at priority 4 wins a slot ahead of a Standard line item at priority 6, and both win ahead of a remnant Network line item at priority 12, regardless of which one carries the higher cost per mille (CPM). When the type matches the commitment, this is what delivers guaranteed contracts on schedule. When the type is wrong, the ladder works against the publisher. A non-guaranteed campaign typed as Sponsorship outranks the real guaranteed deals it should sit below, and a deal that was sold as guaranteed but typed as Network drops to remnant priority and can underdeliver against its contract.<br><br>The fix is to match the type to what the line item actually owes. A reserved, must-deliver buy belongs in Sponsorship or Standard. Remnant demand that should only fill leftover impressions belongs in Network, Bulk, or Price Priority. Google's reference on <a href='https://support.google.com/admanager/answer/177279' class='tools-link-no-padding' target='_blank'>line item types and priorities</a> sets out the full ladder and the delivery behavior each type carries.<br><br>A few signs point to a type or priority that does not match the commitment:<ul><li>A line item with no contractual guarantee is set to Sponsorship or Standard, so it outranks genuine guaranteed deals</li><li>A guaranteed deal is set to Network, Bulk, or Price Priority, so it competes at remnant priority and risks underdelivery</li><li>Two guaranteed line items targeting the same inventory carry priorities that do not reflect which deal should win</li></ul>You may want to confirm each line item's type against the deal it represents before deciding the ladder is set correctly. The priority number alone does not show whether it matches the commitment behind it.",
+        "site_type_overlays": {
+          "publishing": "On a media site, guaranteed Sponsorship and Standard line items usually carry the directly sold deals that fund the operation, so a remnant campaign mistakenly typed as guaranteed can starve those deals of impressions. You may want to walk the active guaranteed line items and confirm each one represents a real commitment rather than a remnant buy that was typed too high.",
+          "ecommerce": "On a commerce-content site, internal promotions for the store's own products are often run as line items alongside sold demand. You may want to confirm those internal promotions are typed as House or as a clearly non-guaranteed type, so they do not outrank the paid demand that the ad slots are meant to monetize."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Line item types and priorities",
+            "source_url": "https://support.google.com/admanager/answer/177279"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Price Priority line items",
+            "source_url": "https://support.google.com/admanager/answer/79306"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each active line item's type and priority in Delivery against the commitment it represents, and flag any item whose type does not match its real obligation.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Delivery', then 'Line items', and add the 'Type' and 'Priority' columns to the view so each line item shows both.",
+                "For a sample of active line items across orders, note the type, the priority, and what the line item is meant to deliver, for example a reserved sponsorship, a sold guaranteed buy, or remnant fill.",
+                "Flag any line item with no real guarantee that is set to Sponsorship or Standard, and any deal sold as guaranteed that is set to Network, Bulk, or Price Priority.",
+                "Where two guaranteed line items target the same ad units, note their priorities and confirm the higher-priority item is the one that should win that inventory."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per sampled line item, its type, its priority, and the commitment it represents. A line item whose type matches its obligation passes, for example a reserved buy set to Sponsorship or remnant fill set to Network. A non-guaranteed line item set to a guaranteed type, or a guaranteed deal set to a remnant type, is a fail recorded with the line item name and the mismatch. Two guaranteed line items on the same inventory whose priorities do not reflect which should win are recorded together as a fail.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the type, priority, and intended commitment for each sampled line item above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that some line items on {{site_name}} carry a type and delivery priority that does not match the commitment behind them. In Google Ad Manager, the line item type sets a priority that decides which demand wins a slot before price is considered, so a misassigned type lets the wrong demand serve. On {{site_name}}, this shows up as non-guaranteed campaigns typed high enough to outrank genuine guaranteed deals, or guaranteed deals dropped to remnant priority where they risk underdelivery. {{voice_recommend}} resetting each affected line item's type to match its real obligation, with reserved buys in Sponsorship or Standard and remnant fill in Network, Bulk, or Price Priority, then rechecking the priority ladder on shared inventory so the deals that should win do."
+      }
+    },
+    {
+      "id": "gam-priority-overrides-higher-programmatic-value",
+      "title": "Priority lets a low-CPM guaranteed line item beat higher programmatic bids",
+      "category": "delivery",
+      "subcategory": "line_item_priority",
+      "impact_score": 3,
+      "impact_rationale": "Because priority is evaluated before price, a low-cost-per-mille guaranteed line item can win a slot ahead of a higher programmatic bid, so the publisher serves the cheaper impression and forgoes the difference. When guaranteed inventory is over-committed, this happens across a large share of requests and the lost yield adds up.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "inventory"],
+      "educate": {
+        "base": "Delivery priority and price answer two different questions in Google Ad Manager (GAM). Priority decides which class of demand is considered first, and price decides which line item wins within a class. A guaranteed Sponsorship or Standard line item sits above remnant and programmatic demand on the priority ladder, so it is considered first even when its cost per mille (CPM) is lower than what a programmatic bid would pay for the same impression.<br><br>This is the intended behavior for a true commitment. A publisher that sold a guaranteed campaign agreed to deliver it, and priority is how Ad Manager honors that. The problem appears when guaranteed demand is priced low and booked broadly. Each slot a low-CPM guaranteed line item claims is a slot that a higher Open Bidding or Authorized Buyers bid could have won, so the publisher serves the cheaper impression and leaves the difference unrealized. The wider the targeting and the larger the goal, the more of the day's inventory is decided this way.<br><br>Two controls change the outcome where it makes sense. Dynamic allocation lets non-guaranteed and programmatic demand compete in real time against a guaranteed line item by comparing the guaranteed item's value against live bids, so a high enough bid can win an impression the guaranteed item would otherwise take. Google's reference on <a href='https://support.google.com/admanager/answer/3721872' class='tools-link-no-padding' target='_blank'>ad competition with dynamic allocation</a> describes how that comparison runs. For inventory that should simply go to the highest payer, a Price Priority line item competes on value CPM against other remnant and programmatic demand rather than claiming the slot by rank, as described in Google's reference on <a href='https://support.google.com/admanager/answer/79306' class='tools-link-no-padding' target='_blank'>Price Priority line items</a>.<br><br>A few signs suggest priority is costing yield rather than protecting a commitment:<ul><li>A guaranteed line item with a broad goal and a low CPM is winning a large share of impressions on inventory where programmatic bids run higher</li><li>Guaranteed demand is booked far beyond what the contracts require, so it claims slots that have no contractual reason to be guaranteed</li><li>Dynamic allocation is not enabled on inventory where programmatic demand could lawfully compete with the guaranteed line items</li></ul>You may want to reserve guaranteed priority for genuine commitments and let value-based competition handle the rest, rather than booking guaranteed line items as a default.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a sponsorship sold as a flat package can carry a low effective CPM while filling premium inventory that programmatic buyers would pay more for. You may want to confirm dynamic allocation is enabled on that inventory, so a higher programmatic bid can win the impressions the sponsorship does not contractually need."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Ad competition with dynamic allocation",
+            "source_url": "https://support.google.com/admanager/answer/3721872"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Price Priority line items",
+            "source_url": "https://support.google.com/admanager/answer/79306"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Compare the CPMs of broadly targeted guaranteed line items against the programmatic bids on the same inventory, and check whether dynamic allocation is set so value can compete where there is no contractual reason to block it.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Delivery', then 'Line items', and identify guaranteed line items with broad targeting and a large goal, noting each one's CPM.",
+                "For the ad units those line items target, open 'Reporting' and review the average programmatic CPM, for example the Ad Exchange or Open Bidding revenue per thousand impressions on that inventory.",
+                "Flag any guaranteed line item whose CPM sits below the programmatic CPM on the same inventory, where the guaranteed buy has no contractual need to claim every slot.",
+                "On that inventory, check whether dynamic allocation is enabled so programmatic demand can compete in real time, rather than the guaranteed line item taking the slot by rank alone."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per broadly targeted guaranteed line item, its CPM, the programmatic CPM on the same inventory, and whether dynamic allocation is enabled there. A guaranteed line item that reflects a real commitment, or whose CPM is at or above the programmatic alternative, passes. A low-CPM guaranteed line item winning inventory where programmatic bids run higher and dynamic allocation is off is a fail recorded with the line item name and the CPM gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the guaranteed CPM, the programmatic CPM, and the dynamic allocation setting for each sampled inventory above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that delivery priority on {{site_name}} is letting low-cost-per-mille guaranteed line items win inventory where programmatic bids would pay more. In Google Ad Manager, priority is evaluated before price, so a guaranteed line item is considered ahead of higher programmatic demand on the same slot, which is correct for a real commitment but costs yield when the guaranteed buy is priced low and booked broadly. {{voice_recommend}} reserving guaranteed priority for genuine contracts, enabling dynamic allocation on inventory where programmatic demand should be allowed to compete, and using Price Priority where the slot should simply go to the highest value. After the change, compare the guaranteed and programmatic CPMs on that inventory again to confirm value is now competing."
+      }
+    },
+    {
+      "id": "gam-priority-house-ads-outrank-paid",
+      "title": "House ads or default line items outrank paid demand",
+      "category": "delivery",
+      "subcategory": "line_item_priority",
+      "impact_score": 3,
+      "impact_rationale": "A house line item left at too high a priority, or a default treated as anything but a last resort, serves ahead of paid demand and earns nothing on slots that could have been monetized. The delivery looks normal in reporting, so the lost revenue is hard to spot without checking what is actually serving.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "ad-experience"],
+      "educate": {
+        "base": "House line items in Google Ad Manager (GAM) carry the lowest delivery priority of the standard types, priority 16, and they exist to promote a publisher's own products or services. Because they sit at the bottom of the ladder, they are meant to serve only when no paid demand is available to fill the slot. A house line item is the fallback, not the default winner.<br><br>That arrangement breaks when a house line item is raised above its intended priority, or when a campaign that should be a house ad is typed as something higher. At that point the house ad outranks paid demand and serves on slots that guaranteed deals or programmatic bids could have filled. The impression still renders and the report still shows delivery, so the slot looks busy while it earns nothing. A default ad, the creative that shows when nothing else fills, has the same failure mode if it is reached more often than a genuine last resort, for example when paid demand is mistakenly excluded from the inventory.<br><br>Keeping house ads in their place is mostly a matter of confirming the type and the priority. A house promotion belongs in a House line item at priority 16, where it fills only what paid demand leaves behind. Google's reference on <a href='https://support.google.com/admanager/answer/79305' class='tools-link-no-padding' target='_blank'>House line items</a> describes the type and its fallback role.<br><br>A few signs suggest house or default ads are taking paid impressions:<ul><li>A house line item is set to a priority below 16, or is typed as Network, Standard, or Sponsorship rather than House</li><li>A house line item is delivering a large share of impressions on inventory that also carries paid demand</li><li>The default ad is rendering frequently on slots where paid line items should have filled, which points to paid demand being excluded or mistargeted</li></ul>You may want to confirm that house and default ads serve only when paid demand does not fill, rather than competing with it.",
+        "site_type_overlays": {
+          "publishing": "On a media site, house ads often promote the publication's own newsletters, subscriptions, or events, so they can look like legitimate delivery while displacing paid demand. You may want to confirm those house line items sit at priority 16 and review their impression share on monetized inventory, so self-promotion fills only the slots paid demand left empty.",
+          "ecommerce": "On a commerce-content site, internal product promotions are a natural fit for house line items. You may want to confirm those promotions are typed as House at priority 16 rather than raised above paid demand, so the store's own ads do not take impressions the inventory could have sold."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "House line items",
+            "source_url": "https://support.google.com/admanager/answer/79305"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Line item types and priorities",
+            "source_url": "https://support.google.com/admanager/answer/177279"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the house and default line items for their type, priority, and delivery share, and flag any that serve on inventory where paid demand should fill first.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Delivery', then 'Line items', filter to the House type, and add the 'Priority' column so each house line item shows its priority.",
+                "Flag any house line item set below priority 16, or any self-promotion campaign typed as Network, Standard, or Sponsorship rather than House.",
+                "Open 'Reporting' for the inventory those house line items target and note their impression share against the paid line items on the same ad units.",
+                "Review how often the default ad renders, and where it renders frequently, check whether paid demand is being excluded or mistargeted on that inventory."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per house and default line item, its type, its priority, and its impression share on inventory that also carries paid demand. A house line item set to House at priority 16 that serves only where paid demand does not fill passes. A house line item raised above priority 16, typed as a higher type, or taking a meaningful share of paid inventory is a fail recorded with the line item name. A default ad rendering frequently on inventory that should carry paid demand is recorded as a fail with the inventory noted.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the type, priority, and impression share for each house and default line item above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that house ads or default line items on {{site_name}} are serving ahead of paid demand. House line items carry the lowest delivery priority in Google Ad Manager and are meant to fill only what paid demand leaves behind, so a house line item raised above priority 16, or a self-promotion typed as a higher type, takes impressions the inventory could have monetized while the report still shows normal delivery. {{voice_recommend}} setting each house promotion to the House type at priority 16, reviewing its impression share on monetized inventory, and checking why the default ad renders where paid demand should fill. After the change, confirm that house and default ads serve only when paid demand does not fill the slot."
+      }
+    }
+  ]
+}

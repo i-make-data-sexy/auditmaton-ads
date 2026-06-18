@@ -1,0 +1,236 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/admanager/answer/13554116",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Consent signals decide whether a publisher can serve personalized ads, has to fall back to non-personalized ads, or serves nothing at all in a regulated region, so a gap here hits revenue and compliance at the same time. The check is mostly inspection. Loading a page from a regulated context and reading the ad request in the browser's developer tools shows whether a consent string is reaching Google and in what form. The fixes are configuration in the consent management platform and the ad tags rather than a rebuild, and they take effect on the next ad request.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "A consent management platform collects the reader's privacy choices and passes them to Google Ad Manager, and whether those signals arrive, and in what form, decides what Ad Manager is allowed to serve. These checks confirm that the European framework reaches Ad Manager through a certified platform, that United States state opt-outs reach it through the right signal, and that traffic without consent still falls back to non-personalized ads rather than going unfilled. Each one traces a signal from the consent platform into the ad request the auditor can read in the browser.",
+  "audit_checks": [
+    {
+      "id": "gam-consent-tcf-not-integrated",
+      "title": "The Transparency and Consent Framework is not integrated with Ad Manager",
+      "category": "privacy",
+      "subcategory": "consent",
+      "impact_score": 4,
+      "impact_rationale": "Without a certified consent platform passing a valid framework signal, European Economic Area and United Kingdom traffic drops to non-personalized or limited ads, or is not served at all, which lowers revenue on that traffic. The setup may also fall short of the legal requirement Google enforces for serving ads in those regions.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "In the European Economic Area (EEA), the United Kingdom, and Switzerland, Google Ad Manager expects the reader's consent to arrive through the IAB Europe Transparency and Consent Framework (TCF). A consent management platform (CMP) presents the consent notice, records the choice, and encodes it as a Transparency and Consent (TC) string that Google's ad tags read on each ad request. Google requires that the CMP be one it has certified and that the CMP integrate with the TCF when serving personalized ads to readers in those regions.<br><br>When no certified CMP passes a valid TC string, Ad Manager cannot treat the traffic as consented. Depending on the configuration, the ad request falls back to non-personalized or limited ads, which generally clear at lower rates, or it serves nothing, which leaves the impression unfilled. The publisher carries both the revenue gap and the compliance exposure because Google enforces the certified-CMP requirement as a condition of serving ads in these regions.<br><br>The framework also moves through versions, and the version the CMP emits matters. The IAB set March 1, 2026 as the deadline for publishers and CMPs to implement <a href='https://support.google.com/admanager/answer/9805023' class='tools-link-no-padding' target='_blank'>TCF v2.3</a>, after which ad requests carrying an older string can default to limited ads. A CMP that fires but emits a stale or malformed string is a subtler version of the same gap.<br><br>A few signs point to the framework not being integrated:<ul><li>No CMP is present on the page, or the CMP on the page is not on Google's certified list</li><li>The ad request carries no gdpr or gdpr_consent value when loaded from a regulated context</li><li>The CMP emits a TC string from an older framework version than the current requirement</li></ul>You may want to confirm both that the CMP is certified and that the TC string actually reaches Google before deciding the framework is integrated. A certified CMP that does not pass a valid string leaves the traffic in the same place as no CMP at all.",
+        "site_type_overlays": {
+          "publishing": "On a content site, the consent notice usually loads through a tag in the page head, and the order it loads relative to the ad tags decides whether the first ad request carries a TC string. You may want to confirm the CMP resolves the reader's choice before the ad requests fire, so the earliest impressions are not sent without a signal.",
+          "ecommerce": "On a commerce-content site that also runs Ad Manager, the same consent notice often governs both the ad tags and analytics or remarketing tags. You may want to confirm the CMP's TCF integration covers the ad serving specifically, rather than assuming a consent banner built for analytics also passes the TC string Ad Manager reads."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Google consent management requirements for serving ads in the EEA, the UK, and Switzerland (for publishers)",
+            "source_url": "https://support.google.com/admanager/answer/13554116"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Publisher integration with the IAB Europe TCF",
+            "source_url": "https://support.google.com/admanager/answer/9805023"
+          },
+          {
+            "source_type": "IAB Europe",
+            "source_title": "Transparency & Consent Framework (TCF) v2.3",
+            "source_url": "https://iabeurope.eu/transparency-consent-framework/"
+          }
+        ],
+        "impactful_updates": [
+          {
+            "update_date": "2026-03-01",
+            "update_title": "TCF v2.3 implementation deadline",
+            "update_summary": "The IAB set March 1, 2026 as the deadline for publishers and certified consent management platforms to implement TCF v2.3. After the deadline, Google treats ad requests that carry an older TC string differently, and they can default to limited ads, so a CMP still emitting a v2.2 string serves a weaker outcome than its setup implies.",
+            "update_link": "https://support.google.com/admanager/answer/9805023"
+          }
+        ]
+      },
+      "investigate": {
+        "intro": "Confirm that a Google-certified consent management platform is present and that it passes a valid TCF string to Ad Manager when a page loads from a European Economic Area context.",
+        "tools": {
+          "free": {
+            "google_publisher_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Load a page that serves Ad Manager ads, ideally from a European Economic Area context using a VPN or a location override, then open the Google Publisher Console with the page's developer tools.",
+                "Look at the page-level request information and note whether a TCF consent signal is recorded for the request. A console that reports the request as running without consent points to a CMP that is absent, not firing, or not passing the string."
+              ]
+            },
+            "browser_dev_tools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the browser's developer tools, switch to the Network tab, and reload the page from a regulated context so the ad requests fire.",
+                "Filter for the ad request to securepubads.g.doubleclick.net and read its query parameters. Note whether gdpr and gdpr_consent are present and whether gdpr_consent carries a TC string rather than an empty value.",
+                "Cross-check the CMP that set the string against Google's certified CMP list. A string from a CMP that is not certified does not make the traffic eligible for personalized ads."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a page loaded from a European Economic Area context, whether a Google-certified CMP is present, whether the ad request carries a gdpr_consent TC string, and which framework version that string uses. A certified CMP passing a valid current-version TC string passes. No CMP, a non-certified CMP, a missing or empty gdpr_consent value, or a string from an outdated framework version is a fail recorded with what was observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a certified CMP is present and whether a valid TCF string reaches the ad request from a regulated context above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the IAB Europe Transparency and Consent Framework is not fully integrated with Google Ad Manager on {{site_name}}. Google requires a certified consent management platform to pass a valid Transparency and Consent (TC) string for readers in the European Economic Area and the United Kingdom, and without it those impressions fall back to non-personalized or limited ads, or go unserved, while the setup may also fall short of the requirement Google enforces. {{voice_recommend}} deploying a Google-certified consent management platform, confirming it passes a valid TC string on the current framework version, and verifying in the browser's developer tools that the ad request carries the gdpr and gdpr_consent values when the page loads from a regulated context."
+      }
+    },
+    {
+      "id": "gam-consent-gpp-us-signals-not-passed",
+      "title": "US state privacy signals are not passed through the Global Privacy Platform",
+      "category": "privacy",
+      "subcategory": "consent",
+      "impact_score": 3,
+      "impact_rationale": "When a reader in a covered United States state opts out and that choice does not reach Google through the Global Privacy Platform signal, the ad serving keeps treating the reader as eligible for personalized ads. The opt-out does not take effect, and the publisher carries the compliance gap for traffic from those states.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Several United States state laws, including those in California, Colorado, Connecticut, Florida, and Virginia, give readers the right to opt out of having their personal data sold, shared, or used for targeted advertising. For that opt-out to take effect in Google Ad Manager, the reader's choice has to reach Google as a signal the ad serving reads. The IAB Tech Lab's Global Privacy Platform (GPP) is the framework that carries those United States state choices, encoded as section strings the consent management platform (CMP) emits.<br><br>Ad Manager reads the GPP signal from two ad request parameters, gpp for the string and gpp_sid for the section IDs it covers. When the string signals an opt-out, Google applies restricted data processing, which limits the ad serving to non-personalized treatment for that reader. The IAB deprecated the older US Privacy String in January 2024 in favor of GPP, and Ad Manager still reads the older string for backward support, but Google recommends moving to GPP for new setups.<br><br>When the CMP does not emit a GPP string, or emits one that omits the sections for the states the publisher serves, the opt-out never reaches the ad request. The serving continues as personalized, so the reader's choice is recorded in the consent notice but not honored downstream. The break is between the CMP and the ad request rather than in the notice itself.<br><br>A few signs point to United States state signals not being passed:<ul><li>The ad request carries no gpp parameter when a page loads from a covered state</li><li>The gpp_sid value omits the section for a state the publisher serves readers in</li><li>The CMP still emits only the deprecated US Privacy String with no GPP equivalent</li></ul>You may want to confirm the CMP emits a GPP string covering each covered state the publisher serves before treating United States opt-outs as honored.",
+        "site_type_overlays": {
+          "publishing": "On a content site with United States readers across several states, the CMP's regional configuration decides which GPP sections it emits, and a notice tuned only for California can leave Colorado, Connecticut, Florida, and Virginia readers without a signal. You may want to confirm the CMP's GPP configuration covers each state where the publisher has meaningful traffic, not California alone.",
+          "ecommerce": "On a commerce-content site, the same opt-out the reader makes for the storefront should carry to the ad serving, but the two often run through separate consent paths. You may want to confirm the GPP string the CMP emits for the ad tags reflects the reader's opt-out, rather than assuming a storefront preference center also reaches Ad Manager."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Supporting the IAB's Global Privacy Platform",
+            "source_url": "https://support.google.com/admanager/answer/14117049"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Helping publishers comply with U.S. states privacy laws",
+            "source_url": "https://support.google.com/admanager/answer/9561023"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform",
+            "source_url": "https://iabtechlab.com/standards/global-privacy-platform/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that the consent management platform emits a Global Privacy Platform string carrying the United States state sections for the states the publisher serves, and that the opt-out reaches the ad request.",
+        "tools": {
+          "free": {
+            "browser_dev_tools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load a page that serves Ad Manager ads from the context of a covered United States state, using a VPN or location override, and make the opt-out choice in the consent notice.",
+                "Open the developer tools Network tab, reload so the ad requests fire, and find the request to securepubads.g.doubleclick.net.",
+                "Read the request's query parameters and note whether gpp and gpp_sid are present, and whether gpp_sid includes the section for the state you are testing. An ad request with no gpp value after an opt-out means the signal is not reaching Google."
+              ]
+            },
+            "cmp_settings": {
+              "label": "Consent management platform settings",
+              "steps": [
+                "Open the CMP's admin settings and find its United States or Global Privacy Platform configuration.",
+                "Note which state sections the CMP is set to emit and compare that list against the states where the publisher has readers. A configuration that covers only some states leaves the others without a signal."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a page loaded from a covered state with an opt-out made, whether the ad request carries a gpp string and whether gpp_sid includes that state's section, plus which states the CMP is configured to cover. A GPP string present with the tested state's section, and CMP coverage for each served state, passes. A missing gpp parameter, a gpp_sid that omits a served state, or a CMP emitting only the deprecated US Privacy String is a fail recorded with the states affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the ad request carries a GPP string with the tested state's section, and which states the CMP covers, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that United States state privacy opt-outs are not reaching Google Ad Manager through the Global Privacy Platform (GPP) signal on {{site_name}}. State laws in places such as California, Colorado, Connecticut, Florida, and Virginia let readers opt out of targeted advertising, and that choice has to arrive in the ad request as a GPP string for the serving to honor it, otherwise the impression continues as personalized and the opt-out is recorded but not applied. {{voice_recommend}} configuring the consent management platform to emit a GPP string covering each state the publisher serves, and confirming in the browser's developer tools that the ad request carries the gpp and gpp_sid parameters after a reader opts out from a covered state."
+      }
+    },
+    {
+      "id": "gam-consent-npa-fallback-not-configured",
+      "title": "No non-personalized ads fallback is configured for no-consent traffic",
+      "category": "privacy",
+      "subcategory": "consent",
+      "impact_score": 2,
+      "impact_rationale": "When a reader declines consent and no non-personalized ads fallback is set, the impression goes unfilled rather than serving a compliant non-personalized ad. The publisher loses the revenue it could still earn from that traffic within the rules, and the loss scales with the share of readers who decline.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "yield"],
+      "educate": {
+        "base": "When a reader declines consent in a regulated region, Google Ad Manager cannot serve a personalized ad, but it can still serve a non-personalized ad (NPA). A non-personalized ad uses contextual signals such as the page content and coarse location rather than the reader's past behavior, so it stays within the rules for a reader who has opted out. Serving one keeps the impression earning rather than leaving it blank.<br><br>Whether that fallback happens depends on how the ad request is built. A request marked with the npa=1 parameter tells Google to serve a non-personalized ad, and a consent management platform (CMP) that is integrated with the ad tags sets this automatically for no-consent readers. When neither the CMP nor the tags request non-personalized ads for that traffic, the request can resolve to no eligible demand and the slot goes unfilled.<br><br>The cost of the gap scales with how often readers decline. Every declined impression that could have served a non-personalized ad and instead served nothing is revenue the publisher could have earned compliantly. The fix is in the request path rather than the inventory. The demand for non-personalized ads exists, the request just has to ask for it.<br><br>A few signs point to a missing fallback:<ul><li>Ad requests from no-consent readers carry no npa=1 parameter, so they are treated as personalized and find no eligible demand</li><li>Fill rate drops sharply on traffic from regulated regions compared with the rest of the site</li><li>The CMP is set to block ad tags entirely on decline rather than letting them request non-personalized ads</li></ul>You may want to confirm the request path asks for non-personalized ads on decline rather than blocking the tags, so the impression still has a path to fill.",
+        "site_type_overlays": {
+          "publishing": "On a content site, blocking the ad tags outright when a reader declines is the simplest CMP setting, and it is also the one that leaves regulated-region impressions unfilled. You may want to confirm the CMP lets the ad tags fire with npa=1 on decline rather than suppressing them, so declined readers still see a compliant non-personalized ad.",
+          "ecommerce": "On a commerce-content site, declined readers still browse and read, so the ad slots on those pages can earn from non-personalized demand if the request asks for it. You may want to confirm the no-consent path requests non-personalized ads rather than leaving the slots blank for a segment that is still engaged with the content."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Ads personalization settings in Google's publisher ad tags",
+            "source_url": "https://support.google.com/admanager/answer/7678538"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Personalized and non-personalized ads",
+            "source_url": "https://support.google.com/admanager/answer/9005435"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that ad requests from readers who decline consent request non-personalized ads rather than being blocked, so the impression still has a path to fill.",
+        "tools": {
+          "free": {
+            "browser_dev_tools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load a page that serves Ad Manager ads from a regulated context and decline consent in the notice.",
+                "Open the developer tools Network tab, reload so the ad requests fire, and find the request to securepubads.g.doubleclick.net. Note whether the request fires at all, and whether it carries npa=1.",
+                "If no ad request fires after a decline, the CMP is blocking the tags. If a request fires without npa=1, it is asking for personalized ads the reader did not consent to. Either case means no compliant fallback is in place."
+              ]
+            },
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "In Ad Manager, open the reporting and break delivery out by a dimension that isolates regulated-region traffic, such as country.",
+                "Compare fill rate and unfilled impressions for regulated regions against the rest of the traffic. A sharp drop in fill on those regions, alongside no npa=1 in the request, points to declined impressions going unfilled rather than serving non-personalized ads."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a page where consent was declined, whether the ad request still fires and whether it carries npa=1, plus the fill rate on regulated-region traffic from reporting. An ad request that fires with npa=1 on decline, serving non-personalized ads, passes. A request that does not fire, or fires without npa=1 and finds no eligible demand, is a fail recorded with the observed fill gap on the affected traffic.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the ad request fires with npa=1 after a consent decline, and the fill rate on regulated-region traffic, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has no non-personalized ads (NPA) fallback for readers who decline consent, so those impressions go unfilled rather than serving a compliant non-personalized ad. A declined reader cannot be shown a personalized ad, but Ad Manager can still serve a contextual non-personalized ad when the request asks for it with npa=1, and leaving that out means revenue the site could earn within the rules is lost. {{voice_recommend}} configuring the consent management platform to let the ad tags fire with npa=1 on decline rather than blocking them, and confirming in the browser's developer tools that a no-consent ad request carries npa=1 and that fill recovers on regulated-region traffic."
+      }
+    }
+  ]
+}

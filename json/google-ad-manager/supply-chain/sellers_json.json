@@ -1,0 +1,152 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/admanager/answer/9761171",
+  "worth_it": "Yes",
+  "worth_it_explanation": "sellers.json and the SupplyChain object are the buy-side complement to ads.txt, so they decide how much of the publisher's supply a buyer can verify. A seller marked confidential without a reason, or a SupplyChain object that omits hops, makes the inventory read as unverified supply that transparency-focused buyers discount or skip. The check is quick. The publisher's record in Google's sellers.json and the transparency setting in Google Ad Manager (GAM) are both readable in a few minutes, and the fix is a configuration change, not a rebuild.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "ads.txt names who is authorized to sell a publisher's inventory, but it stops at the account ID and never reveals the seller behind that account. sellers.json closes that gap by publicly listing each seller account and whether the seller's identity is transparent or confidential, and the SupplyChain object traces every intermediary from the publisher to the buyer. Together they let a buyer verify the full path. These checks confirm the publisher's seller record is transparent unless a real reason requires otherwise, and that the SupplyChain object is complete across the paths the publisher sells through.",
+  "audit_checks": [
+    {
+      "id": "gam-sellersjson-seller-identity-hidden-unnecessarily",
+      "title": "The seller is marked confidential in sellers.json without a real need",
+      "category": "supply-chain",
+      "subcategory": "sellers_json",
+      "impact_score": 3,
+      "impact_rationale": "A confidential seller record hides the publisher's name and domain from buyers, so the inventory reads as anonymous supply. Buyers that prefer or require transparent sellers discount or skip that supply, which can suppress bids and lower yield without any change to the inventory itself.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["transparency", "fraud"],
+      "educate": {
+        "base": "Google's sellers.json file lists each seller account in Google Ad Manager (GAM), AdSense, and AdMob, along with the seller's name, business domain, and a flag for whether that identity is transparent or confidential. A buyer reads sellers.json to match the account ID it sees in a bid request against a real, named seller, which is how the buyer confirms it knows who it is buying from.<br><br>When the seller record is set to confidential, Google still lists the account but withholds the name and the business domain. The buyer sees an account ID with no identity behind it. To a buyer screening for transparent supply, that anonymous record reads as a gap in the chain rather than a known publisher, and the inventory competes at a disadvantage against supply where the seller is named.<br><br>The transparency status is shared across a publisher's AdSense, AdMob, and GAM accounts, so a single setting governs all three. It is not possible to be transparent in one product and confidential in another. Confidential exists for genuine cases, for example a seller bound by a contract that forbids naming the publisher, but choosing it by default hides identity for no benefit and costs the demand that prefers a named seller.<br><br>A few signs point to identity being hidden without a real need:<ul><li>The publisher's record in Google's sellers.json shows the seller as confidential rather than naming the publisher</li><li>The GAM transparency setting is off, or the business domain field is blank</li><li>No contract or policy reason is on file that would require the seller to stay anonymous</li></ul>You may want to set the seller record to transparent unless a specific, documented reason requires confidential. Transparent is the setting that lets a buyer verify the path.",
+        "site_type_overlays": {
+          "publishing": "For a media publisher, a named seller record is what lets a buyer connect the bid request back to your brand, which is the supply many buyers prefer. You may want to confirm your record in Google's sellers.json names your business and lists your domain, rather than reading as a confidential account a buyer cannot identify.",
+          "ecommerce": "For a commerce-content site that also sells ad inventory, the same brand you sell products under is the seller a buyer wants to recognize in sellers.json. You may want to confirm the seller record is transparent and the business domain matches your storefront, so the ad demand can tie the inventory to a known retailer."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Provide seller information with sellers.json",
+            "source_url": "https://support.google.com/admanager/answer/9761171"
+          },
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Look up the publisher's record in Google's sellers.json and read the transparency setting in Google Ad Manager to confirm the seller is named unless a documented reason requires confidential.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Admin', then 'Global settings', and find the sellers.json transparency setting.",
+                "Note whether transparency is enabled and whether the business domain field is filled in. A blank domain or a disabled setting means the seller will read as confidential to buyers.",
+                "Record any contract or policy reason on file that would require the record to stay confidential, so the evaluation can tell a deliberate choice from an oversight."
+              ]
+            },
+            "google_sellers_json": {
+              "label": "Google sellers.json file",
+              "steps": [
+                "Open Google's published sellers.json at realtimebidding.google.com/sellers.json and search for the publisher's seller account ID.",
+                "Read the record for that account and note whether it names the seller and lists a domain, or whether it is marked confidential with the identity withheld.",
+                "Confirm the public record matches what the GAM setting implies. A setting that reads as transparent but a confidential public record points to a save that did not take or a sync that is pending."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for the publisher's seller account, whether the record in Google's sellers.json names the seller and lists a domain, whether the GAM transparency setting is enabled, and whether any documented reason requires confidential. A record that names the seller with a domain, or a confidential record backed by a documented reason, passes. A confidential record with no reason on file, or a transparent setting that does not appear in the public file, is a fail recorded with what was observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the sellers.json transparency status and any documented reason for confidential above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s seller record is marked confidential in Google's sellers.json with no documented reason on file. Google's sellers.json lets buyers match an account ID in a bid request to a named seller, and a confidential record withholds the name and domain, so the inventory reads as anonymous supply that transparency-focused buyers discount or skip. {{voice_recommend}} setting the seller record to transparent through the Google Ad Manager transparency setting and filling in the business domain, unless a specific contract or policy reason requires confidential. After the change, confirm the public sellers.json record names the seller and lists the domain."
+      }
+    },
+    {
+      "id": "gam-supplychain-object-incomplete",
+      "title": "The SupplyChain object is incomplete or not passed for all paths",
+      "category": "supply-chain",
+      "subcategory": "sellers_json",
+      "impact_score": 3,
+      "impact_rationale": "A missing or incomplete SupplyChain object hides one or more hops between the publisher and the buyer, so the buyer cannot trace the full path. The inventory reads as unverified supply, which pushes transparency-focused demand away and can lower the price the inventory clears at.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["transparency", "fraud"],
+      "educate": {
+        "base": "The SupplyChain object, often written as the SChain, travels with the bid request and records each intermediary between the publisher and the buyer. It is built from nodes, one per entity that touches the sale, and each node names the seller's domain and its seller account ID. A buyer reads the chain to confirm every hop is a party it intends to transact with, and to check that the inventory is bought as directly as the chain claims.<br><br>When the object is missing, or present but missing a hop, the buyer loses the ability to trace the path. A chain that stops short reads the same as supply with no chain at all, which is unverified supply. Demand that screens for a complete SupplyChain object discounts or skips it, so the publisher loses bids on inventory that is otherwise legitimate.<br><br>The object has to be complete for both the paths a publisher sells through. On direct sales where the publisher transacts with Google, Google builds the object. On resold or Open Bidding paths, each intermediary has to add its own node, so a partner that omits its node breaks the chain downstream even when the publisher's own setup is correct. The chain is also validated against sellers.json and ads.txt, so a node that names a seller ID absent from those files reads as a mismatch.<br><br>A few signs point to the object being incomplete:<ul><li>Bid requests for resold paths carry no SupplyChain object, or one with fewer nodes than the path has intermediaries</li><li>A node names a seller domain or account ID that does not appear in that party's sellers.json</li><li>A reselling partner's documentation does not confirm it appends its own node</li></ul>You may want to confirm the object is present and complete for direct and resold paths, and that each node reconciles with the matching sellers.json record. A chain is only as verifiable as its weakest hop.",
+        "site_type_overlays": {
+          "publishing": "For a media publisher that sells inventory both directly and through resellers, the direct path is the one Google fills in, while the resold paths depend on each partner adding its node. You may want to confirm with each reselling partner that it appends a SupplyChain node for your inventory. A partner that omits its node breaks the chain even when your own GAM setup is complete."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Bid transparency with the SupplyChain object",
+            "source_url": "https://support.google.com/admanager/answer/10368261"
+          },
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm the SupplyChain object is present and complete for the direct and resold paths the publisher sells through, and that each node reconciles with the matching sellers.json record.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Admin', then 'Global settings', and confirm sellers.json transparency and the business domain are set. The SupplyChain object is validated against the sellers.json record.",
+                "List the paths the publisher sells through, separating direct sales with Google from resold or Open Bidding paths, so each path can be checked for a complete chain.",
+                "For each reselling partner, locate its documentation or contact and confirm it appends a SupplyChain node for the publisher's inventory."
+              ]
+            },
+            "bid_request_inspection": {
+              "label": "Bid request inspection",
+              "steps": [
+                "Capture a sample bid request for the inventory, for example through a partner's reporting or a request-level log the publisher can access.",
+                "Read the SupplyChain object and count the nodes against the number of intermediaries the path actually has. Note any path where the object is absent or carries fewer nodes than the path.",
+                "For each node, check that the seller domain and account ID it names appear in that party's sellers.json, and record any node that does not reconcile."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per path the publisher sells through, whether a SupplyChain object is present, whether its node count matches the intermediaries on that path, and whether each node reconciles with the matching sellers.json record. A path with a complete object whose nodes reconcile passes. A path with no object, a node missing, or a node that names a seller absent from sellers.json is a fail recorded with the path and the gap observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record, for each direct and resold path, whether the SupplyChain object is present and complete above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the SupplyChain object on {{site_name}}'s inventory is incomplete on one or more paths. The SupplyChain object records each intermediary between the publisher and the buyer, and a missing or partial object hides hops, so the inventory reads as unverified supply that transparency-focused buyers discount or skip. {{voice_recommend}} confirming the object is complete for the direct and resold paths, working with each reselling partner to append its node, and reconciling every node against the matching sellers.json record. After the change, recheck a sample bid request to confirm the chain covers the full path."
+      }
+    }
+  ]
+}

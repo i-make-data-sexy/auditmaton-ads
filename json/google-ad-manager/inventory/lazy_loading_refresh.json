@@ -1,0 +1,228 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://developers.google.com/publisher-tag/guides/control-ad-loading",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Lazy loading and ad refresh both decide how many requests a page makes and how many of those impressions are viewable, so they sit directly on top of revenue and on top of Active View. A lazy-load setup tuned too eager wastes requests and pulls viewability down, and a refresh that fires off-screen or too fast inflates impression counts while raising invalid-traffic and policy risk. The check reads the Google Publisher Tag (GPT) configuration on a live page and the viewability numbers in reporting, so a practitioner can see the trade-off rather than guess at it. The fix is a configuration change in the page tag, not a rebuild, and it takes effect on the next page load.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Lazy loading defers an ad request until the slot is near the viewport, and ad refresh re-requests a slot that is already on the page. Both control how many requests a page sends, how many impressions count as viewable, and how much revenue the inventory earns, and both can be tuned in ways that cost the publisher revenue or invite policy problems. These checks confirm that the lazy-load margins balance viewability against fill, that refresh fires only on viewable slots at a defensible interval, and that refreshed impressions are labeled so reporting stays accurate.",
+  "audit_checks": [
+    {
+      "id": "gam-lazyload-fetch-margins-mis-tuned",
+      "title": "Lazy loading fetch and render margins are mis-tuned",
+      "category": "inventory",
+      "subcategory": "lazy_loading_refresh",
+      "impact_score": 3,
+      "impact_rationale": "Margins set too eager request and render ads far ahead of the viewport, which wastes ad requests and counts impressions a user may never scroll to, lowering viewability. Margins set too tight request the ad only as the slot arrives, which leaves slow or unfilled slots and lost revenue. Either extreme moves money, and the page often reads as working in both cases.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["performance", "inventory"],
+      "educate": {
+        "base": "Lazy loading in the Google Publisher Tag (GPT) defers the request and render of an ad slot until the user scrolls near it, rather than requesting every slot the moment the page loads. It is configured through the slot or page settings with three values. The fetch margin, expressed as a percentage of the viewport, controls how far ahead of the viewport GPT calls for the ad. The render margin controls how far ahead it draws the ad once fetched. The mobile scaling value multiplies both margins on mobile, where faster scrolling means the ad needs a longer head start to be filled by the time it reaches the screen.<br><br>The margins are a trade-off between fill and viewability. Set the fetch margin too high and the page requests ads many viewports ahead, so a reader who never scrolls that far still triggered the request, the impression counts against the slot, and the viewability rate drops because the ad was rendered out of view. Set it too low and the request goes out only as the slot arrives, so a slow ad call leaves the slot empty or late, which is lost revenue on inventory the reader actually saw.<br><br>A reasonable starting point is a fetch margin a viewport or two ahead with a smaller render margin, then a mobile scaling value that widens both on smaller screens. The right numbers depend on page length, scroll speed, and how fast the ad stack fills, so the margins are something to measure and adjust rather than set once. You may want to read Active View viewable rate by ad unit after a change to see whether tightening or loosening the margins moved viewability without starving fill.<br><br>A few signs point to margins that need tuning:<ul><li>Viewable rate is low on below-the-fold units while their request volume is high, which suggests the fetch margin is rendering ads no one scrolls to</li><li>Below-the-fold units show empty or slow-filling slots on real devices, which suggests the margin is too tight to request in time</li><li>The configuration uses default or copied-in margin values that were never checked against this site's layout</li></ul>Confirm the live margin values against the viewability the inventory is actually earning before deciding the setup is balanced. The configuration alone does not tell you whether the numbers fit the page.",
+        "site_type_overlays": {
+          "publishing": "On a long-scroll editorial page with many in-article slots, the fetch margin decides how many of those lower slots fire for a reader who bounces after the first screen. You may want to set the margin so slots request a viewport or two ahead rather than all at once, then read viewable rate per in-article position to confirm the lower units are not being requested for readers who never reach them.",
+          "ecommerce": "On a commerce-content page such as a category or listing grid, slots sit between rows of products the user scrolls quickly past, so a fetch margin tuned for slow editorial reading can fire ads the shopper blows past. You may want to test a tighter render margin here and watch viewability against fill since the scroll pattern differs from a long article."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag developer docs",
+            "source_title": "Control ad loading and refresh",
+            "source_url": "https://developers.google.com/publisher-tag/guides/control-ad-loading"
+          },
+          {
+            "source_type": "Google Publisher Tag developer docs",
+            "source_title": "Lazy loading",
+            "source_url": "https://developers.google.com/publisher-tag/samples/lazy-loading"
+          },
+          {
+            "source_type": "Google Publisher Tag developer docs",
+            "source_title": "Ad best practices",
+            "source_url": "https://developers.google.com/publisher-tag/guides/ad-best-practices"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the live lazy-load configuration on a representative page and compare the fetch and render margins against the viewability each below-the-fold ad unit is earning in reporting.",
+        "tools": {
+          "free": {
+            "google_publisher_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open a representative content page and launch the Google Publisher Console (append the console parameter to the URL or use the bookmarklet), then open the 'Page request' or page settings view.",
+                "Find the lazy loading configuration and record the fetch margin percent, the render margin percent, and the mobile scaling value in use.",
+                "Scroll the page and watch when each slot requests and renders relative to where it sits, noting any below-the-fold slot that fills well before it enters view or one that arrives empty as it scrolls in."
+              ]
+            },
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Reporting', then build or open a report broken out by ad unit with the Active View viewable impressions and the viewable rate metrics.",
+                "Note the viewable rate and the total ad requests for each below-the-fold ad unit, so the eager-versus-tight margin trade-off can be read against real numbers.",
+                "Flag below-the-fold units with high request volume but low viewable rate, which points to a fetch margin rendering ads ahead of where readers actually scroll."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the live fetch margin, render margin, and mobile scaling value from the page, then records the viewable rate and request volume for the below-the-fold ad units from reporting. A setup where the margins request slots a viewport or two ahead and the below-the-fold units hold a healthy viewable rate without obvious empty slots passes. A setup where high-request below-the-fold units show low viewability, or where slots arrive empty on real devices, is a fail recorded with the ad unit and the margin values at fault.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the lazy-load margin values and the per-ad-unit viewable rate above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the lazy loading margins on {{site_name}} are not balanced against the viewability the inventory is earning. The Google Publisher Tag (GPT) fetch and render margins decide how far ahead of the viewport ads request and draw, and the current values are requesting below-the-fold slots ahead of where readers scroll, which lowers the viewable rate while spending ad requests on impressions few users see. {{voice_recommend}} tuning the fetch margin to request slots roughly a viewport or two ahead with a smaller render margin, setting a mobile scaling value that widens both on smaller screens, then rereading the Active View viewable rate per ad unit to confirm the change raised viewability without starving fill."
+      }
+    },
+    {
+      "id": "gam-refresh-fires-without-viewability-or-interval",
+      "title": "Auto-refresh fires without meeting viewability or a minimum interval",
+      "category": "inventory",
+      "subcategory": "lazy_loading_refresh",
+      "impact_score": 3,
+      "impact_rationale": "Refreshing a slot that is off-screen, or faster than a roughly 30-to-60-second floor, manufactures impressions a user never saw and pulls the viewable rate down across the affected units. The extra requests raise invalid-traffic exposure, and undeclared or too-fast refresh is a Google Ad Manager policy violation, so the practice risks both buyer trust and account standing.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["ad-experience", "fraud"],
+      "educate": {
+        "base": "Ad refresh re-requests a slot that is already on the page, replacing the creative without a full page reload. Done well, it earns a second impression from a reader who stayed on an in-view slot. Done without gating, it manufactures impressions a user never saw. The two gates that separate the two outcomes are viewability and a minimum interval.<br><br>The viewability gate means a slot should refresh only while it is in view. The Google Publisher Tag (GPT) exposes an impression-viewable event that fires when a slot meets the Active View threshold, and refresh logic that waits for that event before starting its timer keeps the next impression tied to a slot the reader can actually see. Refresh that fires on a fixed timer regardless of scroll position re-requests slots that have scrolled off, so the impression count rises while the viewable rate falls.<br><br>The interval gate means refresh should not fire faster than a defensible floor. Google's Ad Manager guidance sets a 30-second minimum between time-based or event-driven refreshes on the web, with longer intervals common in practice, and refreshing inventory must be declared to Ad Manager so the refresh is transmitted to buyers. A timer shorter than that floor, or refresh that is never declared, is a policy problem as well as a quality one. Refreshing on user action, such as a click or a deliberate content change, is treated differently and does not carry the same minimum.<br><br>A few signs point to refresh that is not properly gated:<ul><li>Impressions per session run high relative to page views, which suggests slots are refreshing more than the reading time supports</li><li>Refresh logic runs on a plain timer with no impression-viewable condition, so off-screen slots re-request</li><li>The refresh interval is shorter than roughly 30 seconds, or the refreshing inventory was never declared in Ad Manager</li></ul>You may want to confirm both gates before judging refresh healthy. A slot can clear the interval and still refresh off-screen, or be in view and refresh too fast, and each leaves a different problem in the numbers.",
+        "site_type_overlays": {
+          "publishing": "On an editorial page where a reader lingers on a single article, an in-view refresh on a sticky or in-article slot can earn a real second impression, which makes the viewability and interval gates the difference between added revenue and inflated counts. You may want to confirm the refresh waits for the impression-viewable event and holds a 30-second-or-longer interval, and that the refreshing units are declared in Ad Manager."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag developer docs",
+            "source_title": "Control ad loading and refresh",
+            "source_url": "https://developers.google.com/publisher-tag/guides/control-ad-loading"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Declare inventory that refreshes",
+            "source_url": "https://support.google.com/admanager/answer/6286179"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Viewability best practices",
+            "source_url": "https://support.google.com/admanager/answer/6199883"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the refresh logic on a live page to see what triggers it, then check the impressions-per-session pattern and the inventory declaration in Google Ad Manager.",
+        "tools": {
+          "free": {
+            "google_publisher_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open a page that uses refresh and launch the Google Publisher Console, then watch the event log as a slot stays in view and as it scrolls off.",
+                "Note whether a refresh request fires while the slot is off-screen, and time the gap between refreshes to read the interval the logic is using.",
+                "Record whether the refresh appears tied to an impression-viewable event or to a plain timer that runs regardless of scroll position."
+              ]
+            },
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Reporting' and build a report comparing total impressions to page views or sessions for the units that refresh, to read impressions per session.",
+                "Open 'Inventory', then the refresh or inventory-declaration settings, and confirm whether the refreshing units are declared as required.",
+                "Flag any unit where impressions per session run high and the refresh is undeclared or fires faster than a 30-second interval."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per refreshing ad unit, whether the refresh waits for an impression-viewable condition, the interval between refreshes, and whether the unit is declared as refreshing in Ad Manager. A unit that refreshes only while in view, holds a 30-second-or-longer interval, and is declared passes. A unit that refreshes off-screen, fires faster than the floor, or was never declared is a fail recorded with the ad unit and the gate it misses.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the refresh trigger, the interval, and the declaration status for each refreshing ad unit above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that auto-refresh on {{site_name}} fires without meeting the viewability and interval gates that keep refreshed impressions legitimate. Slots are refreshing on a plain timer rather than while in view, and at an interval shorter than the 30-second floor Google Ad Manager sets for web refresh, which manufactures impressions readers never saw, lowers the viewable rate, and raises invalid-traffic and policy risk. {{voice_recommend}} gating refresh on the Google Publisher Tag (GPT) impression-viewable event so only in-view slots re-request, holding the interval at 30 seconds or longer, and declaring the refreshing inventory in Ad Manager so the refresh is transmitted to buyers."
+      }
+    },
+    {
+      "id": "gam-refresh-impressions-not-labeled",
+      "title": "Refreshed impressions are not labeled, distorting reporting",
+      "category": "inventory",
+      "subcategory": "lazy_loading_refresh",
+      "impact_score": 2,
+      "impact_rationale": "When a refreshed impression is counted like a first impression, click-through rate and viewable rate blend two different inventory types, and the reconciliation against exchange or supply-side-platform reports drifts because the two sides count refresh differently. The data still looks complete, so the distortion goes unnoticed until a buyer or partner questions the numbers.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "ad-experience"],
+      "educate": {
+        "base": "When a slot refreshes, the new request is a separate impression, but Google Ad Manager has no way to tell a refreshed impression from a first one unless the page tells it. The standard way to tell it is a key-value passed on each refresh request, often a refresh counter that records whether this is the initial load or the first, second, or later refresh. Without that label, every impression on a refreshing unit lands in one undifferentiated bucket.<br><br>The cost of an unlabeled refresh shows up across three numbers. Click-through rate falls when first and refreshed impressions are pooled because refreshed impressions draw fewer clicks and there is no way to separate them. Viewable rate is similarly blended, so a unit's headline viewability mixes the in-view first impression with refreshes that may have been less viewable. The reconciliation against an exchange or supply-side platform (SSP) report drifts when the two systems treat refresh differently, and without a label there is no field to align them on.<br><br>The fix is a key-value set on the refresh request, for example a key that increments with each refresh so reporting can break out the initial impression from later ones. Ad Manager reporting and the targeting picker can then filter or segment on that key, which makes refreshed inventory separable rather than hidden inside the unit total. You may want to confirm the key is present on the refresh request itself, not only on the first load. A label that is set once at page load does not distinguish the refreshes that follow.",
+        "site_type_overlays": {
+          "publishing": "On an editorial site that refreshes in-article or sticky units, a refresh counter key-value lets reporting show how each successive impression performs, so a practitioner can see whether the second and third impressions are worth keeping. You may want to confirm the key increments on each refresh and that reporting can segment on it, rather than reading the unit as a single blended number."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Get started with key-values",
+            "source_url": "https://support.google.com/admanager/answer/188092"
+          },
+          {
+            "source_type": "Google Publisher Tag developer docs",
+            "source_title": "Control ad loading and refresh",
+            "source_url": "https://developers.google.com/publisher-tag/guides/control-ad-loading"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Check whether a refresh key-value is set on the refresh request, then confirm Ad Manager reporting can isolate refreshed impressions from first impressions.",
+        "tools": {
+          "free": {
+            "google_publisher_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open a page that refreshes and launch the Google Publisher Console, then inspect the slot's targeting on the initial request and again after a refresh.",
+                "Record whether a key-value identifying the refresh, for example an incrementing refresh counter, is present on the refresh request and not only on the first load."
+              ]
+            },
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Reporting' and build a report on a refreshing unit that breaks out by the refresh key-value, if one exists.",
+                "Confirm whether the report can separate the initial impression from later refreshes, and note any unit where no refresh key is available to segment on."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per refreshing ad unit, whether a refresh key-value is set on the refresh request and whether Ad Manager reporting can segment refreshed impressions from first impressions on that key. A unit whose refresh request carries an incrementing or refresh-identifying key-value that reporting can break out passes. A unit that refreshes with no such label, leaving refreshed and first impressions pooled, is a fail recorded with the ad unit name.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the refresh key-value status and the reporting segmentation for each refreshing ad unit above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that refreshed impressions on {{site_name}} are not labeled, so reporting cannot separate them from first impressions. Without a key-value on the refresh request, click-through rate and viewable rate blend the initial impression with later refreshes, and the reconciliation against exchange or supply-side-platform (SSP) reports drifts because there is no field to align refresh on. {{voice_recommend}} setting a key-value on each refresh request, such as a counter that increments with every refresh, and confirming that Ad Manager reporting can segment refreshed impressions from first impressions on that key so the inventory reads accurately."
+      }
+    }
+  ]
+}

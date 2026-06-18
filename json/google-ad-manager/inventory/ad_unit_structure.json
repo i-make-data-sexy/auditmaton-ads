@@ -1,0 +1,225 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/admanager/answer/6026938",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The way ad units are defined sets the ceiling on fill, viewability, and layout stability, so a tidy, well-mapped inventory tree pays off across reporting and revenue at once. The checks are quick to run from the Inventory section and a representative page load, with no API connection or data export required. Dormant units, flat size lists on responsive pages, and slots with no defined unfilled behavior each leave revenue or user experience on the table. The fixes are configuration changes in Google Ad Manager and the page tag, not a rebuild, and they take effect from the next request.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Ad units are the named slots in Google Ad Manager (GAM) where a page or app requests an ad, and the way they are structured decides what demand can compete, what sizes can serve, and how the page behaves when a slot is empty. The hierarchy, the size lists, and the unfilled-impression behavior together set the ceiling on fill, viewability, and layout stability. These checks review the inventory tree for dormant units, confirm that responsive pages map sizes to the viewport, and confirm that every monetized slot has a defined behavior when demand does not fill it.",
+  "audit_checks": [
+    {
+      "id": "gam-inventory-orphaned-or-unused-ad-units",
+      "title": "Orphaned or unused ad units clutter the inventory",
+      "category": "inventory",
+      "subcategory": "ad_unit_structure",
+      "impact_score": 2,
+      "impact_rationale": "Ad units that no longer map to a live placement inflate the inventory tree, add noise to reporting, and can still receive requests that show up as unfilled. The clutter slows targeting and forecasting work and obscures which units actually matter, though it rarely costs revenue directly.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "governance"],
+      "educate": {
+        "base": "An ad unit in Google Ad Manager (GAM) is a named place on a page or in an app where the Google Publisher Tag (GPT) requests an ad. Over time a network accumulates ad units that no longer match a live placement, for example a unit built for a page template that was retired, a test unit left behind, or a child unit under a section the site no longer publishes. These are orphaned or unused units, and they stay in the inventory tree until someone archives them.<br><br>Dormant units cause three problems. They inflate the inventory tree, which makes the targeting picker and forecasting slower to work with and harder to read. They add rows to reporting that carry near-zero volume, which dilutes the views that matter. If a retired unit is still referenced in a stray GPT call somewhere on the site, it can keep receiving requests that return unfilled, recording activity for a slot no one is monetizing.<br><br>GAM separates two ways to retire a unit. Archiving makes the unit ineligible for delivery and removes it from the targeting picker in line items and rules, while keeping its historical reporting. Deleting is not the path GAM offers for ad units. Archiving is reversible, so it is the safer choice when you are not certain a unit is truly dead. Per Google's documentation, an archived unit no longer appears by default in the ad units table and has to be surfaced with a filter, which is what keeps the working view clean.<br><br>A few signs point to a unit being orphaned or unused:<ul><li>The unit shows little or no request volume over a recent reporting window</li><li>The unit maps to a page template, section, or app screen that no longer exists</li><li>The unit is a leftover test or duplicate that was never cleaned up</li></ul>You may want to confirm a unit is genuinely dormant before archiving it since a low-volume unit can still be a real seasonal or low-traffic placement. Reading request volume alongside what the unit maps to on the live site is the safer read.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the inventory tree often mirrors the section structure, so retired verticals, sunset article templates, and old sponsorship units are the usual sources of dormant ad units. You may want to walk the tree against the live section map and archive units whose sections no longer publish, rather than leaving them to clutter the targeting picker.",
+          "ecommerce": "On a commerce-content site, category and product-template changes are a frequent source of orphaned units since a unit tied to a discontinued category template can linger after the pages are gone. You may want to confirm each low-volume unit still maps to a live template before deciding whether to archive it."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Structure your inventory",
+            "source_url": "https://support.google.com/admanager/answer/6026938"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Deactivate or archive an Ad Manager ad unit",
+            "source_url": "https://support.google.com/admanager/answer/7062385"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the ad units table for units with little or no recent request volume and check whether each one still maps to a live placement on the site or app.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Inventory', then 'Ad units', to see the full inventory tree.",
+                "Run a reporting view over a recent window with the 'Ad unit' dimension and the 'Total impressions' or 'Ad requests' metric, and sort ascending so the lowest-volume units rise to the top.",
+                "For each low-volume or zero-volume unit, note what it maps to. Compare the unit name and its place in the tree against the live site's section or template structure.",
+                "Note which units are leftover test units, duplicates, or tied to a section, template, or app screen that no longer exists, so they can be archived rather than left in the tree."
+              ]
+            },
+            "google_publisher_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "On a representative live page, open the Google Publisher Console (append '?googfc' to the page URL or use the bookmarklet) to list the ad slots the page actually requests.",
+                "Compare the slots the page requests against the ad units defined in GAM. A unit defined in GAM that no page requests is a candidate for archiving, and a slot the page requests that points to a retired unit is a stray reference to fix."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per low-volume or zero-volume ad unit, whether it still maps to a live placement and its status (active or archived). The inventory passes when active units each map to a real, live placement and the dormant units have been archived. It fails when units that map to nothing retired remain active, or when a retired unit is still receiving requests through a stray GPT reference, recorded with the unit name.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the request volume, what each low-volume unit maps to, and its active or archived status above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Google Ad Manager (GAM) inventory carries ad units that no longer map to a live placement, including low-volume and zero-volume units tied to retired sections or templates. These dormant units inflate the inventory tree, add noise to reporting, and in some cases still receive requests that return unfilled. {{voice_recommend}} archiving the units that map to nothing live, which removes them from the targeting picker while keeping their historical reporting, and fixing any stray tag reference that still points to a retired unit. After the cleanup, confirm the active units each correspond to a real placement on the site."
+      }
+    },
+    {
+      "id": "gam-inventory-sizes-without-responsive-mapping",
+      "title": "Ad unit sizes are defined without responsive size mapping",
+      "category": "inventory",
+      "subcategory": "ad_unit_structure",
+      "impact_score": 3,
+      "impact_rationale": "A flat list of sizes with no responsive mapping lets desktop creatives serve into mobile slots, which hurts viewability and causes layout shift, and it misses demand that wants the size that fits the viewport. On responsive pages the gap shows up in both revenue and Core Web Vitals.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "ad-experience"],
+      "educate": {
+        "base": "A Google Ad Manager (GAM) ad unit lists the creative sizes it can serve, and the Google Publisher Tag (GPT) on the page declares those sizes when it defines the slot. On a responsive site, the same slot renders at different widths on a phone, a tablet, and a desktop. Responsive size mapping is the mechanism that ties the sizes a slot is eligible for to the width of the browser viewport, so a narrow screen requests the sizes that fit it and a wide screen requests the larger ones.<br><br>GPT implements this with the 'defineSizeMapping' method. The publisher builds a mapping of viewport breakpoints to eligible sizes, then attaches it to the slot. Per Google's documentation, GPT detects the viewport size on each request and uses the largest mapping that fits, falling back to the sizes passed to 'defineSlot' if the viewport cannot be determined. Without a mapping, the slot offers its full flat list of sizes at every width.<br><br>A flat size list on a responsive page causes two problems. A desktop creative, for example a 728x90 leaderboard, can win the auction and try to render inside a 360-pixel-wide phone slot, which overflows or scales badly and pushes the viewability score down. The mismatch also moves content as the oversized ad lays out, which adds to Cumulative Layout Shift (CLS), one of the Core Web Vitals. Beyond the user experience, the flat list misses demand. Buyers and the auction work best when the eligible sizes match the space, and a slot that offers the wrong sizes for the device leaves the right-sized demand on the table.<br><br>A few signs point to a missing or incomplete size mapping:<ul><li>The slot's GPT 'defineSlot' call lists desktop and mobile sizes together with no 'defineSizeMapping' attached</li><li>A mobile load serves or attempts to serve a desktop-width creative</li><li>The page shifts as an oversized ad renders, which the field data attributes to ad slots</li></ul>You may want to confirm the size mapping on a representative responsive page at more than one width since a mapping can be present yet leave a breakpoint covered by the wrong size set.",
+        "site_type_overlays": {
+          "publishing": "On a media site, article and homepage templates usually serve the same slots across phone, tablet, and desktop, so an in-content or sidebar unit without a size mapping is where desktop creatives leak onto mobile. You may want to confirm each shared template slot maps its sizes to the viewport since these high-traffic placements carry the most viewability and layout-shift exposure.",
+          "ecommerce": "On a commerce-content site, product and category templates render at very different widths between phone and desktop, so a flat size list on those slots is a common source of mobile layout shift near the buy area. You may want to confirm the slots above and beside the product content map their sizes to the viewport so an oversized ad does not move the page as a shopper scans it."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag developer docs",
+            "source_title": "Ad sizes (responsive ads and defineSizeMapping)",
+            "source_url": "https://developers.google.com/publisher-tag/guides/ad-sizes"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Create or configure an ad unit",
+            "source_url": "https://support.google.com/admanager/answer/10477477"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the sizes a responsive slot is eligible for and whether GPT maps those sizes to the viewport, then load the page at mobile and desktop widths to confirm the right sizes serve.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Inventory', then 'Ad units', and select a unit used on a responsive template.",
+                "Read the unit's defined sizes and note whether the list mixes desktop and mobile sizes that a single slot would offer at every width."
+              ]
+            },
+            "google_publisher_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Load a representative responsive page and open the Google Publisher Console (append '?googfc' to the URL or use the bookmarklet) to inspect the slot's requested sizes.",
+                "Resize the browser to a mobile width and reload, then to a desktop width and reload, noting the requested sizes at each width. If the same full size list is offered at both widths, no effective size mapping is in place.",
+                "View the page source or the GPT setup for the slot and check for a 'defineSizeMapping' call attached to it. A 'defineSlot' that lists every size with no mapping confirms the flat-list pattern."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per responsive slot, the sizes it is eligible for, whether a 'defineSizeMapping' is attached, and what sizes are requested at mobile and desktop widths. A slot passes when its eligible sizes are mapped to the viewport so mobile widths request mobile sizes and desktop widths request desktop sizes. A slot fails when it offers a flat list at every width, recorded with the slot name and the mismatched width.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the eligible sizes, whether a size mapping is attached, and the requested sizes at mobile and desktop widths for each slot above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that responsive slots on {{site_name}} define their sizes as a flat list with no Google Publisher Tag (GPT) size mapping, so the same desktop and mobile sizes are offered at every viewport width. Desktop creatives can then serve into mobile slots, which lowers viewability, adds to Cumulative Layout Shift, and misses the demand that wants the size fitting the screen. {{voice_recommend}} adding a 'defineSizeMapping' to each responsive slot that ties its eligible sizes to viewport breakpoints, so narrow screens request mobile sizes and wide screens request desktop sizes. After the change, reload the page at mobile and desktop widths and confirm the requested sizes match each width."
+      }
+    },
+    {
+      "id": "gam-inventory-no-fallback-for-unfilled",
+      "title": "Ad units have no fallback for unfilled impressions",
+      "category": "inventory",
+      "subcategory": "ad_unit_structure",
+      "impact_score": 2,
+      "impact_rationale": "A slot with no house ad, collapse-on-empty behavior, or backfill leaves a blank box or a held gap when demand does not fill, which wastes the impression and degrades the page. The lost revenue per slot is small, but it recurs on every unfilled request across the network.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "yield"],
+      "educate": {
+        "base": "An unfilled impression in Google Ad Manager (GAM) is an ad request that returns no ad because nothing was eligible to serve. When a monetized slot has no defined behavior for that case, the result is a blank box where the ad would go, or a reserved gap the page held for an ad that never arrived. Either way the impression is wasted and the page reads as broken in that spot.<br><br>There are three common fallbacks, and they are not mutually exclusive. A house line item, a run-of-network catch-all the publisher books for every size, fills the slot with the publisher's own promotion instead of leaving it blank. Collapse-on-empty behavior, set in the Google Publisher Tag (GPT), removes the slot's space when no ad fills it so the layout closes the gap. Backfill, such as AdSense or Ad Exchange running as a catch-all in the network, lets a second source of demand try the request that the primary demand did not fill. Per Google's documentation, a widely targeted run-of-network source like a house line item or backfill is the recommended way to drive unfilled impressions toward zero.<br><br>Collapse-on-empty deserves care. GPT offers 'collapseDiv' with two modes, 'ON_NO_FILL' (the slot is expanded by default and collapses only when it fails to fill) and 'BEFORE_FETCH' (the slot is collapsed by default and expands only when an ad fills). The legacy 'collapseEmptyDivs' method is deprecated in favor of the newer configuration. Google cautions that collapsing a slot after the page has laid out can reflow content, so the mode and the reserved space need to be chosen so the fallback does not trade a blank box for a layout shift.<br><br>A few signs point to a slot having no unfilled fallback:<ul><li>A test load with demand suppressed leaves a visible blank rectangle in the slot</li><li>The slot holds a reserved gap that never closes when no ad serves</li><li>The network has no run-of-network house line item or backfill source covering the slot's sizes</li></ul>You may want to decide per slot whether the better behavior is to fill it with a house ad or backfill, or to collapse it cleanly since a slot in a fixed-height container reads better collapsed while a prominent slot may be worth a house promotion.",
+        "site_type_overlays": {
+          "publishing": "On a media site, in-content and below-the-fold slots are the ones most likely to go unfilled on long-tail pages, so they are where a blank box or held gap shows up most. You may want to pair a run-of-network house line item or backfill with a considered collapse setting on these slots, so an unfilled request becomes either a publisher promotion or a clean close rather than an empty rectangle.",
+          "ecommerce": "On a commerce-content site, slots near the product and buy area are the most damaging to leave blank since an empty rectangle next to a price reads as a broken page. You may want to confirm these slots either backfill, carry a house promotion, or collapse without shifting the surrounding content when demand does not fill."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Troubleshoot unfilled impressions in Ad Manager",
+            "source_url": "https://support.google.com/admanager/answer/1739296"
+          },
+          {
+            "source_type": "Google Publisher Tag developer docs",
+            "source_title": "Collapse empty ad slots",
+            "source_url": "https://developers.google.com/publisher-tag/samples/collapse-empty-ad-slots"
+          },
+          {
+            "source_type": "Google Publisher Tag developer docs",
+            "source_title": "Minimize layout shift",
+            "source_url": "https://developers.google.com/doubleclick-gpt/guides/minimize-layout-shift"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Check what each monetized slot does when demand does not fill it, by reading the network's run-of-network and backfill coverage and by observing the slot on a load where no ad serves.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Delivery', then 'Line items', and look for a run-of-network house line item that targets the slot's sizes as a catch-all.",
+                "Open 'Inventory' settings and note whether AdSense or Ad Exchange backfill is enabled to cover requests the primary demand does not fill.",
+                "Run a reporting view with the 'Ad unit' dimension and the 'Unfilled impressions' metric over a recent window to see which units carry unfilled volume that no fallback is catching."
+              ]
+            },
+            "google_publisher_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Load a representative page and open the Google Publisher Console (append '?googfc' to the URL or use the bookmarklet) to observe how each slot behaves on a request that returns no ad.",
+                "Note whether an unfilled slot shows a blank rectangle, holds a reserved gap, or collapses cleanly, and check the GPT setup for a 'collapseDiv' configuration (or the deprecated 'collapseEmptyDivs') on the slot."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per monetized slot, what happens on an unfilled request, that is whether a house line item or backfill fills it, whether it collapses cleanly, or whether it leaves a blank box or held gap. A slot passes when it has a defined unfilled behavior, a house ad or backfill fills it, or it collapses without shifting surrounding content. A slot fails when an unfilled request leaves a visible blank rectangle or a reserved gap that never closes, recorded with the slot name.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the unfilled behavior, the house or backfill coverage, and the collapse setting for each monetized slot above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that monetized slots on {{site_name}} have no defined behavior when demand does not fill them, so an unfilled request leaves a blank box or a reserved gap rather than a useful result. Each unfilled impression wastes the request and degrades the page, and the loss recurs on every slot that goes unfilled. {{voice_recommend}} giving each monetized slot a fallback, whether a run-of-network house line item, AdSense or Ad Exchange backfill, or a Google Publisher Tag (GPT) collapse-on-empty setting chosen so it does not shift the surrounding content. After the change, load the page on a request with no fill and confirm each slot either serves a fallback or collapses cleanly."
+      }
+    }
+  ]
+}

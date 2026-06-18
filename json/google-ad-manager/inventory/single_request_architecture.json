@@ -1,0 +1,151 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/admanager/answer/181073",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Single Request Architecture decides how every ad slot on a page asks for an ad, so it sits underneath page speed, roadblocks, and competitive separation at the same time. The check is fast to run because the Google Publisher Tag setup is readable in the page source or the Publisher Console. When slots fire separate requests instead of one batched request, the page loses both the load-time benefit and the page-level features that only work within a single request, and the publisher rarely sees the second loss in any report.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Single Request Architecture batches every ad slot on a page into one ad request to Google Ad Manager instead of one request per slot. It improves page load, and it is the request mode that competitive separation and roadblocks depend on, so a setup that skips it or only partly applies it has effects well beyond load time. These checks confirm that multi-slot pages enable single request mode and that the slots which need separation actually share one request.",
+  "audit_checks": [
+    {
+      "id": "gam-sra-not-enabled-multi-slot-pages",
+      "title": "Single Request Architecture is not enabled on multi-slot pages",
+      "category": "inventory",
+      "subcategory": "single_request_architecture",
+      "impact_score": 3,
+      "impact_rationale": "When single request mode is off, each ad slot sends its own request, which adds network round trips and slows the page. It also breaks the page-level features that only hold within one request, so roadblocks and competitive separation stop being enforced even when they are configured in Ad Manager.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["performance", "inventory"],
+      "educate": {
+        "base": "Single Request Architecture (SRA) is a Google Publisher Tag (GPT) request mode that bundles every ad slot defined on a page into one request to Google Ad Manager (GAM), rather than sending a separate request for each slot. The page enables it by calling 'enableSingleRequest' on the pubads service, or the current equivalent through the GPT config. With SRA on, GAM sees all the slots at once and can fill them as a set.<br><br>Without single request mode, each slot fires its own ad request. On a page with several slots that means several round trips, which adds latency and pushes ad rendering later into the load. The performance cost grows with the number of slots, so a heavily monetized template feels it most.<br><br>The slower load is the visible problem. The quieter one is that the page-level features in GAM are enforced only within a single request. Roadblocks (where a set of creatives serve together) and competitive separation (where competing advertisers are kept apart) both depend on GAM choosing the ads for the whole page in one decision. Google's own guidance is that SRA is the recommended request mode and is necessary to guarantee that competitive exclusions and roadblocks are honored, per its <a href='https://developers.google.com/publisher-tag/guides/ad-best-practices' class='tools-link-no-padding' target='_blank'>GPT ad best practices</a>. When slots are split across requests, those features stop applying.<br><br>A few signs point to single request mode being off or incomplete:<ul><li>The GPT setup does not call 'enableSingleRequest' (or the config-based equivalent) before the service is enabled</li><li>Slots are defined and displayed individually, each producing its own ad request in the network log</li><li>Roadblocks or competitive separation are configured in GAM but do not behave as expected on the live page</li></ul>SRA is the recommended default for a multi-slot page. You may want to confirm the page actually batches its slots before assuming the configuration in GAM is being applied because the request shape decides whether it is.",
+        "site_type_overlays": {
+          "publishing": "On a content site where article and section templates carry several ad slots, single request mode is what keeps those slots from each adding a round trip. You may want to check the busiest template first since that is where the extra requests cost the most load time and where roadblocks are most likely to be sold.",
+          "ecommerce": "On a commerce-content page with a product grid plus surrounding ad slots, the ad slots can multiply quickly. You may want to confirm those slots batch into one request so the ads do not compete with product images and scripts for separate connections during the load."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag docs",
+            "source_title": "Ad Best Practices (Single Request Architecture)",
+            "source_url": "https://developers.google.com/publisher-tag/guides/ad-best-practices"
+          },
+          {
+            "source_type": "Google Publisher Tag docs",
+            "source_title": "Control SRA batching",
+            "source_url": "https://developers.google.com/publisher-tag/samples/control-sra-batching"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect the Google Publisher Tag setup on a representative multi-slot page and confirm that the slots batch into a single ad request rather than firing one request each.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Page source and network log",
+              "steps": [
+                "Open a representative page that carries several ad slots and view its source or the GPT initialization script.",
+                "Look for a call to 'enableSingleRequest' on the pubads service, or the equivalent single request setting in the GPT config, set before the service is enabled.",
+                "Open the browser developer tools, then the Network tab, reload the page, and filter for the ad request to Ad Manager. Note whether one batched request covers all the slots or each slot produces its own request."
+              ]
+            },
+            "google_publisher_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "On the same page, open the Google Publisher Console (append the documented query parameter to the URL or use the bookmarklet).",
+                "Review the slots the console lists and how they were requested. Confirm the page's slots were sent together rather than as separate requests."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per representative multi-slot page, whether the GPT setup enables single request mode and whether the network log shows one batched ad request covering all slots. A page that enables single request mode and sends a single batched request passes. A multi-slot page that omits single request mode, or shows one request per slot in the network log, is a fail recorded with the page or template name.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the single request mode setting and the network request observation for each representative multi-slot page above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that Single Request Architecture (SRA) is not enabled on {{site_name}}'s multi-slot pages, so each ad slot fires its own request to Ad Manager. The separate requests add load time, and they stop the page-level features that only hold within one request, so roadblocks and competitive separation are not enforced even where they are configured. {{voice_recommend}} enabling single request mode in the Google Publisher Tag setup so all slots on a page batch into one request, then confirming in the browser network log that a single batched request covers the slots. After the change, recheck a page that uses roadblocks or competitive separation to confirm those features apply."
+      }
+    },
+    {
+      "id": "gam-sra-competitive-separation-broken",
+      "title": "Competitive separation and roadblocks fail without correct SRA setup",
+      "category": "inventory",
+      "subcategory": "single_request_architecture",
+      "impact_score": 2,
+      "impact_rationale": "Competitive exclusion labels and roadblocks are enforced only within a single ad request. When separation-dependent slots are split across requests, or single request mode is only partly applied, competing advertisers can render together on the same page, which breaks the separation promise the publisher sold.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "brand-safety"],
+      "educate": {
+        "base": "Competitive separation in Google Ad Manager (GAM) keeps ads from competing advertisers or brands from serving together on the same page, and roadblocks do the opposite by serving a chosen set of creatives together. Both are page-level decisions, which means Ad Manager has to choose the ads for the whole page in one pass. That only happens when the page sends its slots in one ad request, which is what Single Request Architecture (SRA) does.<br><br>When slots are split across more than one request, Ad Manager decides each request on its own and cannot see the other slots while it fills the current one. Competitive exclusion labels then stop being a guarantee. GAM's guidance on labels is to create one SRA request with all ad slots to serve competitive exclusion labels because multi-request tags do not guarantee exclusions, per its <a href='https://support.google.com/admanager/answer/190582' class='tools-link-no-padding' target='_blank'>About labels</a> documentation. Roadblocks carry the same dependency. Guaranteed roadblocks work only with Google Publisher Tags in single request mode, as described in GAM's <a href='https://support.google.com/admanager/answer/177277' class='tools-link-no-padding' target='_blank'>roadblocks documentation</a>.<br><br>This is why partial SRA is its own failure mode. A page can enable single request mode for most slots yet define a late or dynamically inserted slot outside that batch, or split slots into separate batches for loading reasons. Any slot that needs separation but sits in a different request from the slots it must be separated from can render a competitor alongside them, even though the label is configured correctly in Ad Manager.<br><br>A few signs point to separation being at risk:<ul><li>Slots that share a competitive exclusion label are requested in different ad requests rather than one</li><li>A roadblock is configured in GAM but the full set of creatives does not serve together on the page</li><li>A dynamically inserted or lazily loaded slot fires its own request after the main batch</li></ul>You may want to confirm that every slot which depends on separation is in the same request as the slots it must be kept apart from, then test a live page for competitor co-occurrence. The label is only as strong as the request boundary it sits inside.",
+        "site_type_overlays": {
+          "publishing": "On a media site that sells category-level exclusivity (for example, one automotive advertiser per page), the separation only holds if the page's slots share one request. You may want to verify that the slots in a sponsorship or exclusivity deal are batched together, then load the page repeatedly to confirm a competing advertiser never appears beside the exclusive one.",
+          "ecommerce": "On a commerce-content page, brand-vs-brand separation matters where a category page could show two rival products at once. You may want to confirm the relevant slots share a single request so a competitive exclusion label can actually keep the rivals apart."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "About labels",
+            "source_url": "https://support.google.com/admanager/answer/190582"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "About roadblocks",
+            "source_url": "https://support.google.com/admanager/answer/177277"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that the monetized slots which depend on separation share one ad request, then test a live page for competing advertisers serving together.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Ad Manager UI and page network log",
+              "steps": [
+                "In Ad Manager, open the labels and the line items that carry competitive exclusion labels or roadblock settings, and note which ad units on the page they target.",
+                "On the live page, open the browser developer tools, then the Network tab, reload, and confirm the slots that must be separated appear in the same batched ad request rather than in separate requests.",
+                "Watch for any slot that fires its own request after the main batch, for example a lazily loaded or dynamically inserted slot. A separation-dependent slot in that request sits outside the page-level decision."
+              ]
+            },
+            "google_publisher_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the Google Publisher Console on the page and review how the slots were requested.",
+                "Reload the page several times and watch the creatives that render. Note whether two competing advertisers ever appear together, which signals separation is not being enforced for those slots."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per page that relies on competitive separation or roadblocks, whether the separation-dependent slots share one ad request and whether repeated page loads ever show competing advertisers together. A page where the relevant slots batch into one request and no competitor co-occurrence appears passes. A page that splits those slots across requests, or shows competing advertisers serving together, is a fail recorded with the page name and the slots at fault.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the request grouping and the competitor co-occurrence observation for each separation-dependent page above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that competitive separation and roadblocks are at risk on {{site_name}} because the slots that depend on them are not all served in a single ad request. Ad Manager enforces competitive exclusion labels and roadblocks only within one request, so slots split across requests can let competing advertisers render together, even though the labels are configured correctly. {{voice_recommend}} placing every separation-dependent slot in the same Single Request Architecture (SRA) batch, including any lazily loaded or dynamically inserted slots, then loading the page repeatedly to confirm competing advertisers never appear together. After the change, retest the pages that sell exclusivity or run roadblocks to confirm the separation holds."
+      }
+    }
+  ]
+}

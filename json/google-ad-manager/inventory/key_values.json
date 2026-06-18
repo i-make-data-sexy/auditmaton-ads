@@ -1,0 +1,158 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/admanager/answer/188092",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Key-values are the signal the page hands to Google Ad Manager on every request, so when they are wrong the targeting fails without any error and the data the page passes can carry risk. A key passed but never registered targets nothing, and a key registered but never passed clutters reporting, both of which are quick to confirm by reconciling the registered keys against the setTargeting calls on a live page. The second check is a compliance and privacy matter rather than a tuning one. A key-value that carries an email or a sensitive category violates Google Ad Manager policy and can expose the publisher. Both checks read directly from the page source and the Inventory section of the UI, so the audit needs no data upload.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Key-values are the custom targeting signals a page passes to Google Ad Manager on each ad request, where line items target those pairs to decide what can serve. Their hygiene decides whether targeting works at all and whether the values the page hands over are safe to send. These checks confirm that the keys the page passes reconcile with the keys registered in the network, and that no key-value carries personal or sensitive data.",
+  "audit_checks": [
+    {
+      "id": "gam-keyvalues-unregistered-or-unused-keys",
+      "title": "Targeting passes key-values that are not registered, or defines keys never used",
+      "category": "inventory",
+      "subcategory": "key_values",
+      "impact_score": 2,
+      "impact_rationale": "A page that passes a key Google Ad Manager does not recognize targets nothing, so line items that depend on it never become eligible and the targeting does less than the setup implies, with no error to flag it. A key registered but never passed adds rows to key-value reporting that map to no real traffic, which makes the reports harder to read and can send a yield analysis chasing a signal that is not there.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "data-quality"],
+      "educate": {
+        "base": "Key-values are custom targeting pairs the page hands to Google Ad Manager (GAM) with each ad request. The page sets them with the Google Publisher Tag (GPT), through a 'setTargeting' call, and GAM matches the incoming pairs against line items that target the same key and value to decide what is eligible to serve. The keys themselves are registered once in the network, under Inventory, and only registered keys carry meaning when a request arrives.<br><br>Two failures break the link between what the page passes and what the network knows. The first is a key the page passes that was never registered, or was registered under a different name or spelling. GAM has nothing to match it against, so the request carries a pair that targets no line item, and the targeting that depended on it does nothing. Nothing in the served ad signals the miss, so the gap is only visible by comparing the page's calls against the registered keys.<br><br>The second is a key registered in the network that no page ever passes. It sits in the key-value list and appears in the targeting picker, so a trafficker can build a line item against it, but no request ever supplies a value, so that line item never serves on it. The unused key also shows up in <a href='https://support.google.com/admanager/answer/3108447' class='tools-link-no-padding' target='_blank'>key-value reporting</a> with no traffic behind it, which adds noise to the reports a yield review reads.<br><br>A few signs point to a reconciliation problem:<ul><li>A 'setTargeting' key on a live page has no matching entry under Inventory, then Key-values</li><li>A registered key shows no impressions in key-value reporting across a meaningful window</li><li>The same concept is registered under two near-duplicate keys, for example 'section' and 'sect', and the page passes only one</li></ul>You may want to treat the registered key list as the source of truth and reconcile the page's calls against it, retiring keys that no page passes and correcting any key the page passes under the wrong name.",
+        "site_type_overlays": {
+          "publishing": "On a content site, key-values such as section, author, or content category are often set in a page template and inherited across thousands of URLs, so a single template typo passes an unregistered key on every page in that section. You may want to view source on a representative page from each major template, rather than one URL, to catch a key that is wrong everywhere it renders.",
+          "ecommerce": "On a commerce-content site, key-values that describe the product context, for example category or price band, drive sponsored placements, so a key passed under the wrong name leaves those placements untargeted while still looking configured in the line item. You may want to confirm the product-context keys the page passes match the registered keys before trusting a sponsored line item to target them."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Get started with key-values",
+            "source_url": "https://support.google.com/admanager/answer/188092"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Add key-values",
+            "source_url": "https://support.google.com/admanager/answer/9796369"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Report on key-values",
+            "source_url": "https://support.google.com/admanager/answer/3108447"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Reconcile the key-values a representative page passes through 'setTargeting' against the keys registered under Inventory in Google Ad Manager, and check key-value reporting for registered keys that carry no traffic.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Inventory', then 'Key-values', and record the list of registered keys, noting exact spelling and whether each is predefined or dynamic.",
+                "Open 'Reporting' and run a report over a meaningful window with the key-values dimension, then note any registered key that shows no impressions behind it.",
+                "Compare the registered keys against the keys you collect from the page below, flagging any registered key that no page passes as a candidate to retire."
+              ]
+            },
+            "google_publisher_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Load a representative page from each major template, for example an article and a section index, then open the Google Publisher Console (append '?googfc' to the URL or use the bookmarklet).",
+                "Open the 'Page request' or request details view and read the key-values the page passes on the ad request, recording each key and value.",
+                "View the page source and find the 'setTargeting' calls directly, confirming the keys you see in the console match what the code passes, then flag any key that has no matching entry in the registered key list from GAM."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a representative page per major template, the keys the page passes in 'setTargeting' and the list of registered keys from Inventory, plus any registered key showing no traffic in key-value reporting. The check passes when every key the page passes has a matching registered key with correct spelling, and no registered key sits unused across the reporting window. A key the page passes that is not registered, a key passed under the wrong name, or a registered key with no traffic behind it is a fail recorded with the key name and the page or template where it appears.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the keys each representative page passes and the registered key list from Inventory above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the key-values {{site_name}} passes to Google Ad Manager do not fully reconcile with the keys registered in the network. A key the page passes that is not registered targets no line item, so the targeting that depends on it does nothing, and a registered key that no page passes adds rows with no traffic to key-value reporting. {{voice_recommend}} reconciling the 'setTargeting' calls on a representative page from each template against the registered key list under Inventory, correcting any key passed under the wrong name, and retiring registered keys that no page supplies. After the change, confirm in key-value reporting that each remaining key shows traffic behind it."
+      }
+    },
+    {
+      "id": "gam-keyvalues-sensitive-data-in-targeting",
+      "title": "Key-values carry personal or sensitive data",
+      "category": "inventory",
+      "subcategory": "key_values",
+      "impact_score": 4,
+      "impact_rationale": "A key-value that carries an email address, a user identifier, or a sensitive category such as health or sexual orientation breaks the terms of the Google Ad Manager contract, which prohibit passing data Google could recognize as personally identifiable information. The same value flows into reporting and into the bid request sent to demand partners, so it leaves the publisher's control and exposes the publisher to a policy enforcement action and to liability under privacy law.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "inventory"],
+      "educate": {
+        "base": "Because the publisher chooses both the keys and the values a page passes to Google Ad Manager (GAM), nothing in the platform stops a page from putting personal or sensitive data into a key-value. The terms of the Google Ad Manager contract prohibit passing any information that Google could use or recognize as personally identifiable information (PII), and Google interprets PII as anything that could identify, contact, or precisely locate an individual on its own, for example an email address, a phone number, or a stable user ID.<br><br>The harm runs further than a single ad call. A value passed in 'setTargeting' is recorded in key-value reporting and is included in the bid request GAM sends to demand partners, so a piece of personal data placed in a key-value leaves the publisher's own systems and is shared downstream where the publisher can no longer recall it. Beyond identifiers, passing a sensitive category, for example a value that reveals health status, sexual orientation, or another protected trait, raises a separate compliance problem under privacy law and Google policy even when no single field names the person.<br><br>The risk usually comes from convenience rather than intent. A developer reuses a value already on the page, such as a logged-in user's email or account number, as a targeting key because it is at hand, or a URL pattern that contains an email gets read into a key-value automatically. Google's <a href='https://support.google.com/admanager/answer/6156630' class='tools-link-no-padding' target='_blank'>best practices for avoiding PII</a> describe how identifiers leak through forms, URLs, and verification links, and the network shows a warning when a key name such as 'email' or 'username' suggests a field could carry PII.<br><br>You may want to read the actual values the page passes, not only the key names. A key called 'user' is fine when it holds a non-identifying segment and a problem when it holds an account ID. One approach is to replace any identifying value with a non-identifying proxy, for example a coarse segment or a hashed-and-bucketed group, so the targeting intent survives without sending data Google could recognize as PII.",
+        "site_type_overlays": {
+          "publishing": "On a content site with logged-in readers, the values most at risk are the ones already attached to the session, for example a subscriber email or a registration ID reused to target a loyalty segment. You may want to confirm that any reader-derived key-value carries a coarse segment rather than the underlying identifier, so the segment can target without the identifier leaving your systems.",
+          "ecommerce": "On a commerce-content site, an order confirmation or account page often has the customer's email and order number rendered on it, which makes those fields easy to reuse as a key-value by accident. You may want to inspect the key-values on post-purchase and account pages specifically. Those are where personal data is present and most likely to be passed."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Use acceptable key-values",
+            "source_url": "https://support.google.com/admanager/answer/2604612"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Best practices to avoid sending Personally Identifiable Information (PII)",
+            "source_url": "https://support.google.com/admanager/answer/6156630"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the actual values the page passes in 'setTargeting', not only the key names, and judge whether any value identifies an individual or reveals a sensitive category. Pay attention to pages where personal data is present, for example account and post-purchase pages.",
+        "tools": {
+          "free": {
+            "google_publisher_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Load a page where personal data is likely present, for example a logged-in account page or an order confirmation page, then open the Google Publisher Console (append '?googfc' to the URL).",
+                "Open the request details and read each key-value the page passes, recording the value, not only the key name.",
+                "Flag any value that is an email, a phone number, a full name, a stable account or user ID, or a value that reveals a sensitive category such as health, sexual orientation, or another protected trait."
+              ]
+            },
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Inventory', then 'Key-values', and review the registered keys for names that suggest PII, for example 'email', 'username', or 'userid', noting any that show the PII warning.",
+                "Open 'Reporting' and run a key-values report, then scan the recorded values for any that resemble an email, an identifier, or a sensitive category.",
+                "For any suspect key, confirm against the live page whether the value passed is the raw identifier or a non-identifying proxy."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per inspected page, the key-values passed and whether any value identifies an individual or reveals a sensitive category. The check passes when no key-value carries personal or sensitive information and any reader-derived value is a coarse, non-identifying proxy. A value that is an email, a phone number, a name, a stable user or account ID, or a sensitive category is a fail recorded with the key name, the value type, and the page where it appears, given that the value reaches reporting and the bid request.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the key-values and their values from each inspected page above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more key-values on {{site_name}} carry personal or sensitive data. The terms of the Google Ad Manager contract prohibit passing information that Google could recognize as personally identifiable information, and any value passed in targeting reaches key-value reporting and the bid request sent to demand partners, so the data leaves {{site_name}}'s control and exposes the publisher to policy enforcement and to privacy-law liability. {{voice_recommend}} removing the identifying or sensitive value from the affected key-values and replacing it with a non-identifying proxy such as a coarse segment, then confirming on the live page that no key-value carries an email, an identifier, or a sensitive category."
+      }
+    }
+  ]
+}

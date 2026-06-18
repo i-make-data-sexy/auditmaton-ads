@@ -1,0 +1,157 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/admanager/answer/6013048",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Network-level settings such as the delegation type for child publishers, the time zone, and the currency are chosen early and are fixed once a network has orders, so a wrong choice follows the publisher for the life of the network. The audit is fast because the settings live on two Admin screens, and the cost of leaving them wrong is paid every month in payment routing, supply-chain transparency, and reconciliation. Confirming them once tells the publisher whether the foundation their reporting and payments sit on matches the business they actually run.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Network settings in Google Ad Manager are the configuration the publisher chooses when the network is created and when third-party partners are added, including how child publishers are delegated, the network time zone, and the network currency. Several of these settings lock once the network has orders, so a misconfiguration compounds over time rather than being corrected later. These checks confirm that the delegation type matches the business relationship and that the time zone and currency match how the publisher reconciles revenue.",
+  "audit_checks": [
+    {
+      "id": "gam-network-mcm-delegation-misconfigured",
+      "title": "Multiple Customer Management delegation is misconfigured",
+      "category": "governance",
+      "subcategory": "network_settings",
+      "impact_score": 3,
+      "impact_rationale": "The delegation type and the approval state of child sites determine how payments route and how the supply chain reports the publisher to buyers. A wrong delegation type or an unverified child leaves revenue routed incorrectly or inventory flagged as unauthorized in sellers.json and the SupplyChain object, which buyers can act on by bidding less or not at all.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "transparency"],
+      "educate": {
+        "base": "Multiple Customer Management (MCM) is the Google Ad Manager feature that lets a parent network manage inventory or accounts for child publishers, which is how a network monetizes inventory it does not own and operate. MCM offers two delegation types, and the right one depends on the business relationship between the parent and the child.<br><br>The two delegation types route access and payments differently:<ul><li>Manage Inventory: the child delegates ad requests to the parent, and the parent manages that inventory inside its own network. Reporting appears in the parent network, broken down by child network code, and the parent's tags carry child identifiers.</li><li>Manage Account: the parent gets edit access inside the child's account and manages inventory there, while the child keeps its own settings and tags. A child can have one Manage Account parent plus several Manage Inventory parents, but not the same parent under both types.</li></ul>The wrong delegation type, or a child whose site approval is incomplete, affects payments and supply-chain transparency. Payment routing follows the delegation the parent and child agreed to, so a mismatch sends revenue shares to the wrong place or under the wrong terms. Transparency is the second cost. Buyers read sellers.json and the SupplyChain object to see every entity in the payment path, and an MCM relationship that is not fully set up, for example a child that has not listed the parent as a DIRECT seller in its <a href='https://iabtechlab.com/ads-txt/' class='tools-link-no-padding' target='_blank'>ads.txt</a> file, can show as unauthorized to buyers.<br><br>An auditor confirms two things here. The first is that each child relationship uses the delegation type that matches the agreement. Manage Inventory and Manage Account are not interchangeable. The second is that every child site is verified and approved. A relationship that is invited but not completed leaves inventory monetizing under an incomplete supply chain.",
+        "site_type_overlays": {
+          "publishing": "A media network that represents other publishers' inventory is the core MCM case, so you may want to confirm each represented site is approved and listed in its own ads.txt with the parent as a DIRECT seller. A child that monetizes before that listing is in place can read as unauthorized to buyers and lose bid value."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "About Multiple Customer Management",
+            "source_url": "https://support.google.com/admanager/answer/11130475"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "About Manage Inventory",
+            "source_url": "https://support.google.com/admanager/answer/9611105"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Bid transparency with the SupplyChain object",
+            "source_url": "https://support.google.com/admanager/answer/10368261"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm the delegation type on each child relationship and the approval status of every child site, then check that the supply-chain listing matches.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Admin', then 'Delegation', and review the list of child publisher relationships on the network.",
+                "For each child, note the delegation type recorded, either 'Manage Inventory' or 'Manage Account', and confirm it matches the agreement the publisher describes for that partner.",
+                "Note the approval status of each child relationship. Flag any child that shows as invited, pending, or disapproved rather than active.",
+                "For any child that is active, confirm whether its site is verified and approved. A child monetizing inventory under an incomplete approval is the case that affects transparency."
+              ]
+            },
+            "ads_txt_file": {
+              "label": "ads.txt file",
+              "steps": [
+                "For a sample of child sites, open the site's /ads.txt file in a browser.",
+                "Confirm the parent network is listed as a DIRECT seller with the correct Google seller account ID.",
+                "A child site that omits the parent, or lists it incorrectly, is the supply-chain gap that can mark the inventory as unauthorized to buyers."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per child relationship, the delegation type, whether it matches the stated business agreement, the approval status, and whether the child site lists the parent as a DIRECT seller in ads.txt. A relationship with the agreed delegation type, an active approval, and a matching ads.txt listing passes. A relationship with the wrong delegation type, an incomplete approval, or a missing ads.txt listing is a fail recorded with the child network code and the specific gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the delegation type, approval status, and ads.txt listing for each child relationship above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more Multiple Customer Management (MCM) relationships on {{site_name}} are misconfigured. The delegation type or the child site approval does not match the agreement, which affects how payments route and how the supply chain reports the inventory to buyers. A child whose site is not fully approved, or that does not list the parent as a DIRECT seller in its ads.txt file, can read as unauthorized to buyers and lose bid value. {{voice_recommend}} confirming the delegation type on each child relationship against the actual agreement, completing approval on any child that is still pending, and checking that each child's ads.txt lists the parent network as a DIRECT seller. After the change, recheck the delegation list and a sample of child ads.txt files for a complete supply chain."
+      }
+    },
+    {
+      "id": "gam-network-timezone-currency-mismatch",
+      "title": "Network time zone or currency does not match reporting expectations",
+      "category": "governance",
+      "subcategory": "network_settings",
+      "impact_score": 2,
+      "impact_rationale": "The network time zone and currency are set at network creation and become fixed once orders exist, and every report is expressed in them. A mismatch with the publisher's accounting or with downstream exchange reports produces reconciliation gaps that look like discrepancies but are really clock or currency offsets, which costs analyst time and can mask real problems.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "The network time zone and currency in Google Ad Manager are chosen when the network is created, and they shape every report the network produces. Dates and times are always converted to the network time zone and used as the absolute value that ad serving is based on, so a daily revenue figure in Ad Manager is a day boundary drawn in that time zone, not in the publisher's local zone. The currency works the same way. Revenue reporting is displayed only in the network currency, so every figure a publisher reads is expressed in the currency set at creation.<br><br>Both settings lock once the network has activity. The network time zone is fixed after the first order is created, and the network currency is fixed once any orders exist. A publisher cannot correct a mismatch after that point, so the cost of a wrong choice is paid for the life of the network rather than fixed in an afternoon.<br><br>The problem a mismatch creates is reconciliation that looks like a data discrepancy. When the network time zone differs from the time zone the publisher's accounting uses, a day's revenue in Ad Manager covers a different 24 hours than the same day in the books, and the two never tie out cleanly. When the currency differs from how the publisher books revenue, or from how a downstream supply-side platform or exchange reports the same impressions, the numbers diverge by an exchange-rate offset that reads as a discrepancy. In both cases the figures are correct in their own frame. They are measuring against a different clock or a different currency.<br><br>An auditor records the network time zone and currency from the Admin settings and compares them against how the publisher actually reconciles revenue, including any downstream report the publisher matches Ad Manager against.",
+        "site_type_overlays": {
+          "publishing": "A publisher that reconciles Ad Manager against a supply-side platform or exchange report is where this mismatch surfaces most because the two systems may draw the day boundary in different time zones. You may want to confirm both report in the same time zone and currency before treating any gap between them as a real discrepancy."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Change a user's trafficking time zone",
+            "source_url": "https://support.google.com/admanager/answer/2579808"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Currency settings",
+            "source_url": "https://support.google.com/admanager/answer/177495"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Record the network time zone and currency from the Admin settings, then compare them against how the publisher reconciles revenue.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Admin', then 'Global settings', and then 'Network settings'.",
+                "Note the network time zone and the network currency recorded for the network.",
+                "Note any secondary currencies configured because line items priced in a secondary currency convert to the network currency in reporting."
+              ]
+            },
+            "publisher_accounting": {
+              "label": "Publisher accounting reference",
+              "steps": [
+                "Ask the publisher which time zone and currency their accounting and revenue reconciliation use.",
+                "If the publisher reconciles Ad Manager against a downstream supply-side platform or exchange report, note the time zone and currency that report uses.",
+                "Compare the recorded network time zone and currency against both references and flag any difference."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the network time zone, the network currency, and the time zone and currency the publisher uses for reconciliation, including any downstream report they match against. Network settings that align with how the publisher books and reconciles revenue pass. A network time zone or currency that differs from the publisher's accounting or from a downstream report it is reconciled against is a fail recorded with the specific offset. The setting is fixed, so the reconciliation has to account for it.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the network time zone and currency and the publisher's reconciliation reference above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Google Ad Manager (GAM) network time zone or currency on {{site_name}} does not match how revenue is reconciled. Every report is expressed in the network time zone and currency, and both are fixed once the network has orders, so a mismatch with the publisher's accounting or with a downstream exchange report produces gaps that look like discrepancies but are really clock or currency offsets. {{voice_recommend}} documenting the offset between the network settings and the reconciliation reference so the two can be matched correctly, and aligning any downstream report to the same time zone and currency where that is adjustable. Because the network settings cannot be changed after orders exist, the reconciliation process should account for the offset rather than expect the figures to tie out directly."
+      }
+    }
+  ]
+}

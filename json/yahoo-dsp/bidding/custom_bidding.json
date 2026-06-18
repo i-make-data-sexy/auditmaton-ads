@@ -1,0 +1,171 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Yahoo DSP's bid multipliers are the primary manual lever for shaping bids by signal across exchanges, devices, day parts, domains, and other targeting attributes on a line. Misconfigured or stale multipliers raise or suppress bids in ways that redirect spend toward inventory the practitioner no longer intends to favor. Reviewing the multipliers on each active line takes a few minutes in the Yahoo DSP user interface (UI) and can surface assumptions that have not been revisited since the line launched.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Yahoo DSP uses bid multipliers to let practitioners adjust the effective bid on a line up or down based on specific targeting signals. A multiplier value between 0 and 9.95 is applied to the line's Max CPM price: a value above 1 raises the bid for matching opportunities, a value below 1 lowers it. Supported signals include exchange, device, day part, domain, ad position, audience, and supply group. When two or more multipliers match the same impression, Yahoo DSP applies a multiplier cap to limit how far the combined adjustment can push the bid. These checks confirm that the multipliers on each active line reflect current performance priorities, that the multiplier cap is set deliberately, and that no multiplier is directing spend toward signals that no longer align with the campaign goal.",
+  "audit_checks": [
+    {
+      "id": "yahoo-dsp-bid-multipliers-not-reflecting-performance",
+      "title": "Bid multipliers are not adjusted to reflect meaningful performance differences across signals",
+      "category": "bidding",
+      "subcategory": "custom_bidding",
+      "impact_score": 3,
+      "impact_rationale": "When a line's bid multipliers are set uniformly or left at defaults, the line bids the same Max CPM regardless of which exchange, device type, or day part is producing the better outcomes. Spend distributes in proportion to inventory volume rather than performance, so budget concentrates where there is the most supply rather than where the return is highest.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "performance"],
+      "educate": {
+        "base": "A bid multiplier on a Yahoo DSP line item is a targeting-specific value that raises or lowers the effective bid relative to the line's Max cost per mille (CPM). The value range is 0 to 9.95. A multiplier of 1.0 leaves the bid unchanged. A multiplier of 1.5 tells Yahoo DSP to bid 50 percent above the Max CPM when the impression matches that signal. A multiplier of 0.5 tells it to bid at half the Max CPM.<br><br>Supported signal types include exchange, device, day part, domain, ad position, audience, and supply group. Each signal type can carry its own multiplier, and different exchanges, devices, or hours can each have distinct values on the same line.<br><br>The case for using multipliers arises when performance differs across signals. Two examples:<br><br>A line running across multiple exchanges may see a cost per result that is meaningfully lower on one exchange than another. A multiplier that raises the bid on the better-performing exchange and lowers it on the weaker one directs more budget toward the higher-return inventory without requiring the practitioner to create separate lines per exchange.<br><br>A line targeting both desktop and mobile devices may see conversion rates that differ by device. A device multiplier that reflects that difference allows the line to compete more aggressively where conversions are more likely.<br><br>When multipliers are left at defaults or set uniformly across all values of a signal, the bid shaping adds nothing. The line bids the same amount on every impression and spends in proportion to inventory volume rather than performance signal. A few indicators suggest multipliers may not be calibrated to actual performance:<ul><li>All exchange multipliers on a line carry the same value, or the field is empty</li><li>Device multipliers do not reflect a meaningful difference in cost per result between device types over the past 30 days</li><li>Day-part multipliers are set but have not been reviewed since the line launched</li><li>The line has run long enough to accumulate performance data by signal, but no multiplier adjustments have been made</li></ul>You may want to review the line's performance breakdown by exchange, device, and day part before drawing conclusions about which multiplier values, if any, the data supports.",
+        "site_type_overlays": {
+          "ecommerce": "For a store, device type often produces a meaningful difference in conversion rate between desktop and mobile because checkout completion rates vary by device. You may want to confirm the device multipliers on each active line reflect the actual purchase conversion rate by device, not a proxy such as click-through rate.",
+          "lead_gen": "For a lead-generation advertiser, day-part multipliers can matter when the target audience is reachable during specific hours. You may want to confirm the day-part multipliers reflect when the audience is most likely to complete a form, not just when impressions are cheapest."
+        },
+        "learn_more": [],
+        "learn_more_note": "Yahoo DSP's bid multiplier documentation, including supported signal types and the multiplier formula, is in the Yahoo DSP Help Center, which requires a Yahoo DSP account login to access."
+      },
+      "investigate": {
+        "intro": "Review the bid multiplier settings on each active line and compare the values against the line's available performance breakdown by the same signals.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Open the advertiser, navigate to 'Campaigns', and select the campaign containing the lines you are reviewing.",
+                "Open a line and locate the 'Bid Multipliers' section. Note which signal types have multipliers set and what values are assigned to each.",
+                "For lines with no multipliers set, confirm whether the line has accumulated at least 30 days of delivery. If so, consider whether any signal type shows a performance difference large enough to warrant a multiplier.",
+                "For lines with multipliers set, pull the line's performance report broken down by exchange, device, and day part. Compare the multiplier values against the cost per result by signal. Note any signal where the multiplier direction is opposite to the performance data, or where all values within a signal carry the same multiplier.",
+                "Repeat for each active line in the campaign."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner reviews, per active line, whether bid multipliers are set for at least one signal type where meaningful performance differences exist. A line with no multipliers set but fewer than 30 days of delivery, or one where performance data shows no meaningful difference across any signal, passes. A line with multipliers where the values are uniform across all values of a signal (e.g., every exchange set to 1.0) or where the multiplier direction does not correspond to the performance data available, is flagged with the signal type and the discrepancy observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Review the bid multiplier settings alongside the line's performance breakdown by signal above to complete this evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that bid multipliers on one or more active lines in {{site_name}}'s Yahoo DSP account are not calibrated to reflect meaningful differences in performance across signals. When multipliers are set uniformly or left at defaults, the line bids the same Max CPM regardless of which exchange, device type, or day part produces better results, and spend distributes toward volume rather than return. {{voice_recommend}} reviewing the performance breakdown by exchange, device, and day part for each affected line, then adjusting the multipliers so that higher-performing signals carry a multiplier above 1.0 and lower-performing signals carry one below 1.0."
+      }
+    },
+    {
+      "id": "yahoo-dsp-bid-multipliers-stale-since-launch",
+      "title": "Bid multipliers have not been reviewed since the line launched or since a significant campaign change",
+      "category": "bidding",
+      "subcategory": "custom_bidding",
+      "impact_score": 3,
+      "impact_rationale": "Bid multipliers encode assumptions about which signals produce better results. When the campaign context changes, including creative refreshes, seasonal shifts, audience changes, or a new set of deals, those assumptions may no longer hold. A multiplier that correctly favored one exchange during the initial flight period may be directing spend toward inventory that is no longer the right fit.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "performance"],
+      "educate": {
+        "base": "Bid multipliers on a Yahoo DSP line item are set at a point in time, and the DSP continues to apply those values for the life of the line unless the practitioner updates them. The platform does not recalibrate multiplier values automatically in response to performance changes. If the performance landscape shifts, the multipliers stay fixed at the values they were last set to.<br><br>Several events can make an existing set of multipliers outdated. A creative refresh changes which ad formats or sizes are serving and may shift the relative performance of device types. A seasonal promotion changes which day parts and exchanges produce conversions. A deal restructure changes which supply sources are available to the line, so a supply-group multiplier set for inventory that is no longer included may be inflating bids on deals the line cannot serve.<br><br>Staleness is harder to detect than a misconfiguration because the multipliers continue to apply, the line continues to spend, and the DSP does not surface a warning that the values have not been reviewed. The practitioner has to notice the gap.<br><br>A few signs multipliers may be stale:<ul><li>The line has been running for more than one quarter without a multiplier review</li><li>A significant change to the creative set, audience definition, or deal list has occurred since the multipliers were last set</li><li>The line's performance trend by signal has shifted since launch in a way the current multiplier values do not reflect</li><li>A day-part multiplier prioritizes hours that are no longer peak for the campaign's current creative or offer</li></ul>You may want to confirm when the multipliers were last reviewed relative to when the last material change to the line was made.",
+        "site_type_overlays": {
+          "ecommerce": "For a store, a seasonal promotion, sale period, or catalog change can shift which day parts and devices produce purchases. Multipliers set during a non-promotional period and carried into a promotion, or set during a promotion and carried into the baseline period afterward, may be directing spend in a direction the current offer does not support. You may want to review multipliers at the start and end of each promotional period.",
+          "lead_gen": "For a lead-generation advertiser, a change to the lead form, a shift in the sales team's target geography, or a new audience definition can alter which signals produce qualified submissions. You may want to confirm the multipliers reflect the current definition of a qualified lead, not the definition that was in place at launch."
+        },
+        "learn_more": [],
+        "learn_more_note": "Yahoo DSP's bid multiplier documentation, including the multiplier value range and supported signal types, is in the Yahoo DSP Help Center, which requires a Yahoo DSP account login to access."
+      },
+      "investigate": {
+        "intro": "Review when the bid multipliers on each active line were last updated relative to the line's history of material changes.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Open the advertiser, navigate to 'Campaigns', and select the campaign containing the lines you are reviewing.",
+                "Open a line and locate the 'Bid Multipliers' section. Note the current multiplier values for each signal type.",
+                "Review the line's flight history: note the flight start date, any creative swaps, audience or deal changes, and whether the campaign has run through a seasonal period since the multipliers were set.",
+                "Pull the line's performance report broken down by the same signal types where multipliers are applied, comparing the period when the multipliers were set against the most recent 30 days. Note any signal where the relative performance ranking has changed.",
+                "If the account's change history is accessible, note when the multipliers were last edited and compare that date to when the most recent material change to the line occurred."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per active line with multipliers set, whether the multipliers have been reviewed since the last material change to the line and whether the current values still correspond to the relative performance ranking of each signal. A line whose multipliers were reviewed within the past 30 days, or a line that has had no material changes since the multipliers were set, passes. A line where multipliers have not been reviewed across a seasonal shift, creative refresh, or deal restructure, or where the current performance ranking by signal contradicts the existing multiplier values, is flagged with the nature of the change that prompted the review gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record when the multipliers were last reviewed and when the most recent material change to the line occurred above to complete this evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that bid multipliers on one or more active lines in {{site_name}}'s Yahoo DSP account have not been reviewed since a material change to the line, such as a creative refresh, seasonal shift, or deal restructure. Multipliers encode performance assumptions that can drift out of alignment when the campaign context changes, and the DSP does not recalibrate them automatically. {{voice_recommend}} reviewing the performance breakdown by exchange, device, and day part for each affected line against the current multiplier values, then updating any multiplier whose direction no longer corresponds to the relative performance of that signal."
+      }
+    },
+    {
+      "id": "yahoo-dsp-bid-multiplier-cap-not-set-deliberately",
+      "title": "The multiplier cap is not set deliberately, leaving the effective bid indeterminate when multiple multipliers apply to the same impression",
+      "category": "bidding",
+      "subcategory": "custom_bidding",
+      "impact_score": 2,
+      "impact_rationale": "When a line carries bid multipliers for more than one signal type and an impression matches two or more of them simultaneously, Yahoo DSP applies a multiplier cap to determine the ceiling bid. A cap that has not been set deliberately may allow the effective bid to reach a level the practitioner did not intend, or it may suppress the bid below what the impression opportunity warrants. Either outcome represents a bid that does not reflect the practitioner's intent.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "governance"],
+      "educate": {
+        "base": "Yahoo DSP's bid multiplier system allows multiple multiplier values to apply to the same impression when the impression matches more than one targeting signal. For example, a line with a device multiplier of 1.4 for mobile and an exchange multiplier of 1.3 for a specific exchange would, without a cap, apply both adjustments to a mobile impression from that exchange. The resulting bid could exceed the Max CPM by a factor larger than either individual multiplier.<br><br>Yahoo DSP addresses this through the multiplier cap, which sets the maximum amount the line can bid when two or more multipliers match the same opportunity. The cap functions as a ceiling on the combined effect of stacked multipliers. Without a deliberately chosen cap, the line's effective bid on impression opportunities that match multiple signals may be higher than intended, and on a cost per mille (CPM) basis, those impressions may be purchased at a price that exceeds the campaign's acceptable range.<br><br>The cap does not affect impressions that match only one multiplier. It applies specifically when multiple multipliers would otherwise combine.<br><br>A few conditions that make the cap worth reviewing:<ul><li>The line has multipliers set for more than one signal type simultaneously, such as both exchange and device</li><li>The individual multiplier values are above 1.5, which means combined stacking could push the effective bid well above the Max CPM</li><li>The Max CPM on the line is near the upper bound of what the campaign considers an acceptable impression cost</li><li>The cap was never set explicitly and may be at a default or absent</li></ul>You may want to confirm the multiplier cap value relative to the Max CPM and the individual multiplier values on the line to assess whether the ceiling bid is within the intended range.",
+        "site_type_overlays": {
+          "ecommerce": "For a store, a line targeting both a specific exchange and mobile devices may see the highest overlap during peak shopping hours. You may want to confirm the multiplier cap reflects an acceptable ceiling for mobile impressions from that exchange, not just the theoretical maximum the line could bid.",
+          "lead_gen": "For a lead-generation advertiser, a line with both day-part and device multipliers set may apply both to mobile impressions during peak hours. You may want to confirm the cap is set to a ceiling that reflects the expected return from a qualified submission during that window, not an arbitrary value."
+        },
+        "learn_more": [],
+        "learn_more_note": "Yahoo DSP's multiplier cap documentation, including how the cap applies when multiple bid multipliers match the same impression, is in the Yahoo DSP Help Center, which requires a Yahoo DSP account login to access."
+      },
+      "investigate": {
+        "intro": "Review lines that have bid multipliers set for more than one signal type simultaneously and confirm the multiplier cap is set at a deliberate ceiling.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Open the advertiser, navigate to 'Campaigns', and select the campaign containing the lines you are reviewing.",
+                "Open a line and locate the 'Bid Multipliers' section. Count the number of distinct signal types that have multipliers set with values other than 1.0.",
+                "For any line with multipliers set on two or more signal types, note the multiplier cap value. If the cap is absent or at a default, note it.",
+                "Multiply the highest individual multiplier value across signal types by the line's Max CPM to calculate an approximate ceiling bid at the cap. Assess whether that ceiling is within an acceptable range for the campaign.",
+                "Repeat for each active line that carries multipliers on more than one signal type."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per line with multipliers on two or more signal types, the multiplier cap value and the approximate ceiling bid that cap produces when combined with the line's Max CPM. A line where the cap is set explicitly and the resulting ceiling bid is within the practitioner's acceptable impression cost range passes. A line where no cap is set, where the cap was not reviewed when multipliers were last adjusted, or where the ceiling bid implied by the cap exceeds the campaign's intended cost ceiling, is flagged with the cap value and the calculated ceiling bid.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the multiplier cap value and the approximate ceiling bid for each affected line above to complete this evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more lines in {{site_name}}'s Yahoo DSP account carry bid multipliers on multiple signal types without a deliberately chosen multiplier cap. When two or more multipliers match the same impression simultaneously, the cap determines the ceiling bid. Without a cap set to an intended value, the combined multipliers may push the effective bid above what the campaign considers an acceptable impression cost. {{voice_recommend}} reviewing each line that has multipliers on more than one signal type, calculating the ceiling bid implied by the current cap and Max CPM, and setting the cap to a value that reflects the maximum the campaign should bid on any single impression."
+      }
+    }
+  ]
+}

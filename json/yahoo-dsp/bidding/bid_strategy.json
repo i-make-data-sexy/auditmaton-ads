@@ -1,0 +1,196 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Bid strategy on Yahoo DSP (demand-side platform) is where campaign intent meets the auction. A line whose optimization goal does not match the real campaign objective, whose max cost-per-thousand-impressions (CPM) bid is set too low to compete in the relevant inventory, or that uses a click or viewability proxy where conversion data now exists, will underperform regardless of audience, creative, or budget. These checks are fast: the line's settings panel surfaces the goal type and the max bid in one view, and the campaign's performance data shows whether delivery is healthy and whether the goal metric is tracking toward the advertiser's actual objective.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Yahoo DSP organizes buying under a four-level hierarchy: Advertiser, Campaign, Line, and Ad. The Line is where bid strategy lives. Each line carries a goal type, which tells Yahoo Blueprint Performance (the platform's machine learning optimization engine) what outcome to optimize toward, and a max CPM bid price, which caps the amount the line will pay per thousand impressions. Supported goal types include cost per acquisition (CPA), cost per click (CPC), click-through rate (CTR), cost per completed view (CPCV) for video, viewable CPM (VCPM), and return on ad spend (ROAS), along with a multi-KPI mode that lets advertisers weight two or three goals simultaneously. These checks confirm that the goal type reflects the real campaign objective, that the max CPM bid allows the optimizer to win the inventory needed to meet that goal, and that a proxy goal is not standing in for a conversion goal when conversion signal is available.",
+  "audit_checks": [
+    {
+      "id": "yahoo-dsp-bid-strategy-goal-objective-mismatch",
+      "title": "Line optimization goal does not match the campaign's real objective",
+      "category": "bidding",
+      "subcategory": "bid_strategy",
+      "impact_score": 4,
+      "impact_rationale": "Yahoo Blueprint Performance optimizes bids toward whatever goal type the line specifies. When the goal type diverges from the actual campaign objective, the optimizer steers spend toward the wrong outcome. A line set to minimize cost per click (CPC) on a campaign whose objective is purchases concentrates impressions on users likely to click but not convert, wasting budget on clicks that do not reach the business goal.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "conversion-tracking"],
+      "educate": {
+        "base": "In Yahoo DSP, the goal type on a line tells Yahoo Blueprint Performance what outcome to prioritize when evaluating each impression at bid time. The optimizer bids more on impressions it predicts will produce that goal event, and less on impressions where it predicts the goal event is unlikely. That means the goal type is a direct instruction about what matters, and a mismatched goal type produces spending patterns that are coherent by the platform's logic and counterproductive by the advertiser's.<br><br>A line whose goal type is set to CPC or click-through rate (CTR) on a campaign meant to drive purchases will attract clickers. Clickers and purchasers are different audiences, and optimizing for one does not reliably produce the other. Similarly, a line optimizing for cost per completed view (CPCV) on a campaign meant to generate leads trains the algorithm on video completion behavior rather than lead-form submission behavior. The optimizer has no way to know that the advertiser actually wants leads if the goal type says completed views.<br><br>A few signs point to a goal-objective mismatch:<ul><li>The campaign has a defined business objective, such as purchases, leads, or app installs, but the line goal type is set to a traffic or engagement metric, such as CPC or CTR</li><li>The line's reported performance on the goal metric looks healthy (low CPC, high CTR) while downstream conversion metrics in the advertiser's own reporting are weak relative to spend</li><li>The goal type was selected at launch to get delivery started before a conversion pixel was ready, and has not been updated after the pixel began firing</li></ul>You may want to review each line's goal type against the campaign brief or the advertiser's stated key performance indicator. Yahoo DSP supports multi-KPI optimization through Yahoo Blueprint Performance (YBP), which allows a line to optimize toward two or three goals simultaneously with user-assigned weights. Where the campaign has both an efficiency goal and a conversion goal, multi-KPI mode may let the optimizer serve both without forcing a single goal type that sacrifices one for the other.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser, purchase and add-to-cart events are the natural optimization targets. A line set to CTR or CPC on a product campaign sends spend toward click-prone inventory rather than purchase-prone inventory. You may want to confirm that lines driving to product pages or checkout flows carry a CPA goal tied to the purchase pixel or a ROAS goal tied to the transaction value, not a traffic proxy.",
+          "lead_gen": "For a lead-generation advertiser, form submission or phone-call events are the intended outcome. A line set to CPCV or viewability on a lead campaign optimizes for media quality, not lead generation. You may want to confirm that lines driving to lead forms carry a CPA goal tied to the form submission event, and that the conversion pixel is firing on confirmed form submissions rather than on the form-load page."
+        },
+        "learn_more": [
+          {
+            "source_type": "Yahoo Inc Blog",
+            "source_title": "Beyond One Goal: How Yahoo DSP Delivers Smarter Performance Across Multiple KPIs",
+            "source_url": "https://www.yahooinc.com/blog/beyond-one-goal-how-yahoo-dsp-delivers-smarter-performance-across-multiple-kpis"
+          },
+          {
+            "source_type": "Microsoft Learn, Xandr Documentation",
+            "source_title": "Yahoo Buying Guide: Campaign and Line Setup",
+            "source_url": "https://learn.microsoft.com/en-us/xandr/bidders/yahoo-buying-guide"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each active line's goal type against the campaign's stated objective. Note any line where the goal metric measures a different action than the business outcome the campaign is meant to drive.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Select the advertiser and navigate to the Campaigns page. Open each campaign and review the target KPI set at the campaign level. Note the intended business objective (e.g., purchases, leads, brand reach).",
+                "Navigate to the Lines page for each campaign. For each line, open the line settings and locate the goal type field. Record the goal type alongside the campaign's intended objective.",
+                "Flag any line where the goal type measures a different action than the campaign objective. Common mismatches: a CPC or CTR goal on a campaign meant to drive conversions; a CPCV or viewability goal on a campaign meant to generate leads or purchases.",
+                "For flagged lines, check the line's reported performance metrics in the campaign reporting view. Note whether the goal metric shows efficient performance while downstream conversion volume from the advertiser's pixel is weak relative to spend.",
+                "Record the line name, the current goal type, and the campaign's intended objective for each flagged line."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per line, the goal type and the campaign's stated objective. A line whose goal type directly measures the campaign objective, e.g., a CPA goal on a purchase campaign or a ROAS goal on a revenue campaign, passes. A line whose goal type measures a proxy action where the campaign objective is a downstream conversion event is flagged, recorded with the line name, the current goal type, and the intended objective.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the goal type and the campaign objective for each active line above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more lines in {{site_name}}'s Yahoo DSP (demand-side platform) account carry goal types that do not align with the campaigns' intended outcomes. Yahoo Blueprint Performance optimizes bids toward whatever goal type a line specifies, so a goal type that measures clicks or video completions on a campaign meant to drive purchases trains the optimizer on the wrong behavior and steers spend away from the audience most likely to convert. {{voice_recommend}} updating the goal type on each affected line to reflect the actual campaign objective, confirming the relevant conversion pixel is firing correctly before switching, and considering Yahoo DSP's multi-KPI mode where the campaign needs to balance both an efficiency metric and a downstream conversion goal simultaneously."
+      }
+    },
+    {
+      "id": "yahoo-dsp-bid-strategy-max-bid-throttling-delivery",
+      "title": "Max CPM bid is set too low, restricting the optimizer from winning inventory at the goal",
+      "category": "bidding",
+      "subcategory": "bid_strategy",
+      "impact_score": 3,
+      "impact_rationale": "Yahoo Blueprint Performance can only bid up to the max cost-per-thousand-impressions (CPM) price set on the line. A ceiling that sits below the market clearing price for the targeted inventory means the line loses most auctions before the optimizer can apply its predictions. Budget goes unspent while the campaign falls short of its delivery targets, not because of audience or creative problems but because the bid cap prevents the line from competing.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "data-quality"],
+      "educate": {
+        "base": "Every line in Yahoo DSP carries a max CPM bid price, referred to as 'bidPrice' in the platform's configuration. This value sets a hard ceiling on how much the line will pay for any single thousand impressions. Yahoo Blueprint Performance adjusts bids dynamically within that ceiling based on predicted goal performance, but it cannot exceed the cap under any circumstances.<br><br>When the cap is set at a level below what the targeted inventory actually clears in the auction, the line loses the vast majority of bid requests regardless of how well the optimizer predicts which impressions would convert. The result is a line that paces far below its budget allocation, not because the audience is too narrow or the creative is ineffective, but because the bid price cap eliminates the line from competition before any audience or creative signal can be applied.<br><br>This problem appears on lines that were initially set up with conservative bids to control cost and then never adjusted as campaign learning progressed. It is also frequent on lines targeting premium inventory types, such as connected TV (CTV) or audio, where market CPMs are meaningfully higher than standard display.<br><br>A few signs point to a max CPM ceiling that is constraining delivery:<ul><li>The line has a healthy budget but consistently spends well below its daily allocation, with no frequency cap, audience size, or creative disapproval as an alternative explanation</li><li>The line's win rate in the campaign reporting view is very low relative to bid requests, suggesting the line is entering auctions but losing most of them on price</li><li>The max CPM price on the line is set at a round number, such as $3.00 or $5.00, that suggests a manual estimate rather than a data-driven ceiling informed by actual clearing prices for the targeted inventory</li></ul>You may want to pull the average CPM the line has been paying when it does win impressions. If the average winning CPM is at or near the max bid ceiling, the ceiling is binding the optimizer. Raising the ceiling to a level meaningfully above the recent average clearing price gives Blueprint Performance room to bid on a larger share of auctions without necessarily raising the average cost paid. The optimizer will continue to shade bids based on predicted value.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser with lines running across display, video, and CTV, the appropriate max CPM ceiling varies substantially by format. CTV inventory clears at meaningfully higher CPMs than standard display. A unified max CPM set for display-level costs will prevent the line from competing in CTV or premium video auctions. You may want to confirm that each format-specific line carries a max CPM calibrated to that format's market rate rather than a single figure applied across all channel types.",
+          "lead_gen": "For a lead-generation advertiser targeting professional or high-intent audiences, the max CPM ceiling on a CPA-goal line may need to account for the higher clearing prices associated with premium placements where these audiences concentrate. You may want to review whether any lines targeting contextual categories relevant to the advertiser's product category are being priced out of those placements by a conservatively set ceiling."
+        },
+        "learn_more": [
+          {
+            "source_type": "Microsoft Learn, Xandr Documentation",
+            "source_title": "Yahoo Buying Guide: Line Setup and Targeting",
+            "source_url": "https://learn.microsoft.com/en-us/xandr/bidders/yahoo-buying-guide"
+          }
+        ],
+        "learn_more_note": "Authoritative guidance on Yahoo DSP's max CPM bid mechanics, including how bidPrice interacts with Blueprint Performance's dynamic bid shading, is available in the Yahoo DSP Help Center. Access requires a Yahoo DSP advertiser login.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Identify lines that are underpacing relative to their budgets and compare the max CPM bid against the line's actual average winning CPM to determine whether the ceiling is binding delivery.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Navigate to the Lines page for each campaign. Add or enable the columns for Budget, Daily Spend, and Max CPM Bid Price (bidPrice) in the table view. Filter or sort by spend pacing to surface lines that are consistently spending below their daily budget allocation.",
+                "For each underpacing line, open the line settings and record the max CPM bid price. Then open the line's performance report and record the line's average CPM paid on impressions it won.",
+                "Compare the average CPM paid against the max CPM ceiling. A line whose average winning CPM is within 10 to 15 percent of the ceiling is likely being constrained by the cap. A line whose average winning CPM is well below the ceiling is underpacing for a different reason, such as audience size, creative disapproval, or targeting restrictions.",
+                "Check the line's win rate if the reporting view surfaces it. A low win rate alongside an average winning CPM near the ceiling confirms the cap is the binding constraint.",
+                "Record the line name, the max CPM ceiling, the average winning CPM, and the average daily pacing percentage for each flagged line."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per underpacing line, the max CPM ceiling, the average CPM paid on won impressions, and the average daily spend as a percentage of the daily budget. A line whose average winning CPM is well below the ceiling and whose underdelivery has an identifiable alternative cause, such as audience size or creative issues, passes. A line whose average winning CPM is within 10 to 15 percent of the max CPM ceiling and that consistently paces below 70 percent of its daily budget is flagged as a cap-constrained delivery problem, recorded with the line name, the current ceiling, the average winning CPM, and the pacing percentage.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the max CPM bid, the average winning CPM, and the daily pacing percentage for each underpacing line above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more lines in {{site_name}}'s Yahoo DSP (demand-side platform) account have max cost-per-thousand-impressions (CPM) bid ceilings set below the market clearing price for the inventory the lines are targeting. Yahoo Blueprint Performance can only bid up to the ceiling the line specifies, so a cap that sits below auction clearing prices means the line loses most bid requests before the optimizer can apply its predictions. The result is consistent underdelivery against the line budget, not from an audience or creative problem but from a pricing constraint that removes the line from competition. {{voice_recommend}} pulling the average CPM paid on each affected line's winning impressions and raising the max CPM ceiling to a level meaningfully above that average, then monitoring delivery and average cost for two weeks to confirm the ceiling is no longer binding without materially raising the cost on impressions the line does win."
+      }
+    },
+    {
+      "id": "yahoo-dsp-bid-strategy-proxy-goal-where-conversion-viable",
+      "title": "Line uses a proxy goal where conversion signal is sufficient to support CPA or ROAS optimization",
+      "category": "bidding",
+      "subcategory": "bid_strategy",
+      "impact_score": 3,
+      "impact_rationale": "A proxy goal, such as clicks, CTR, or viewability, is a reasonable starting point when conversion signal is thin. Once the conversion pixel accumulates enough events for Yahoo Blueprint Performance to learn from, the proxy is no longer the best choice. Continuing to optimize for click behavior when purchase or lead data is available leaves performance on the table, as the optimizer could instead weight bids toward the higher-value outcome the conversion signal describes.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "attribution"],
+      "educate": {
+        "base": "Proxy goals, such as cost per click (CPC), click-through rate (CTR), or viewable cost-per-thousand-impressions (VCPM), are often used on lines at launch to give Yahoo Blueprint Performance something to optimize toward before a conversion pixel has accumulated enough events to be useful. This is a sound approach during the early phase of a campaign. The problem arises when the proxy goal remains in place after the conversion pixel has been firing long enough to support a cost per acquisition (CPA) or return on ad spend (ROAS) optimization goal.<br><br>A click-optimized line does not learn that purchasers behave differently from clickers. A viewability-optimized line does not learn that converters come from different placements than viewable-impression audiences. Blueprint Performance cannot connect proxy goal performance to downstream conversion outcomes unless the goal type itself is set to a conversion event. The optimizer learns what it is told to optimize for, and a proxy goal teaches it the wrong thing once better signal is available.<br><br>Switching a line from a proxy goal to a CPA or ROAS goal when conversion data supports it is not a guaranteed improvement on day one. The optimizer goes through a relearning phase as it adjusts bid weights toward the new goal signal. That adjustment period, typically several days to a couple of weeks depending on conversion volume, may show temporary instability in pacing or cost before performance stabilizes at a lower cost per acquisition or higher return on ad spend than the proxy-optimized line was achieving.<br><br>A few signs point to a line where a proxy goal may no longer be the right choice:<ul><li>The line is set to CPC, CTR, or VCPM optimization, and the conversion pixel associated with the campaign's objective has been recording a consistent event volume for four weeks or more</li><li>The campaign's downstream conversion reports show a meaningful volume of attributed conversions while the line goal metric, such as click volume, has been the optimization target throughout</li><li>Other lines in the same account with similar audiences and formats are running CPA or ROAS goals, allowing a comparison of cost per conversion between the proxy-goal and conversion-goal approaches</li></ul>You may want to consider migrating proxy-goal lines to a CPA or ROAS goal one line at a time rather than all at once, monitoring each during the relearning phase before moving the next. Yahoo DSP's multi-KPI mode through Yahoo Blueprint Performance also allows weighting a conversion goal alongside a delivery efficiency goal during the transition, which can smooth the adjustment period.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser, purchase events from a Yahoo DSP conversion pixel are the most direct signal for Blueprint Performance to learn from. A line that has been running a CPC goal on a product campaign for several months while purchase data has accumulated in the background may be meaningfully underperforming relative to what a CPA or ROAS goal could achieve. You may want to compare the cost per purchase on any proxy-goal lines against the cost per purchase on lines in the same account running conversion goals on similar audiences.",
+          "lead_gen": "For a lead-generation advertiser, form submission events are the intended conversion signal. If a line has been running on a CTR goal while the lead form pixel has been firing consistently for four or more weeks, the conversion signal may be sufficient to support a CPA goal tied to the form submission event. You may want to run a brief test with a parallel line using a CPA goal on the same audience and creative to compare the cost per lead before committing the full budget to the switch."
+        },
+        "learn_more": [
+          {
+            "source_type": "Yahoo Inc Blog",
+            "source_title": "Beyond One Goal: How Yahoo DSP Delivers Smarter Performance Across Multiple KPIs",
+            "source_url": "https://www.yahooinc.com/blog/beyond-one-goal-how-yahoo-dsp-delivers-smarter-performance-across-multiple-kpis"
+          }
+        ],
+        "learn_more_note": "Detailed guidance on conversion signal thresholds, goal type migration, and Blueprint Performance relearning periods is available in the Yahoo DSP Help Center. Access requires a Yahoo DSP advertiser login.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Identify lines currently using proxy goals and check whether the conversion pixel associated with the campaign's objective has been recording enough events to support a CPA or ROAS optimization goal.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "On the Lines page, add the goal type column to the table view. Filter for lines using CPC, CTR, or VCPM goals on campaigns whose stated objective is a downstream conversion event, such as a purchase, lead submission, or app install.",
+                "For each proxy-goal line, navigate to the campaign's conversion reporting view or the advertiser's pixel reporting section. Pull the total conversion volume attributed to the campaign or the advertiser over the past 30 days. Note whether the conversion event the campaign is meant to drive has been recording a consistent volume throughout that period.",
+                "Cross-reference the line's start date against the pixel's first-fire date. A line that launched before the pixel was placed and has been running on a proxy goal while the pixel accumulated history is a candidate for goal migration.",
+                "If other lines in the same account are running CPA or ROAS goals on similar audiences and formats, pull their reported cost per conversion and compare against the cost per conversion attributed to the proxy-goal line in the same reporting window.",
+                "Record the line name, the current goal type, the conversion pixel's 30-day event count, the line's attributed conversion volume, and the cost per conversion for each flagged line."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per proxy-goal line, the goal type, the associated conversion pixel's 30-day event count, and the line's attributed conversion volume. A proxy-goal line on a campaign where the conversion pixel has recorded fewer than 20 events in the past 30 days passes, as the signal is too thin to support CPA or ROAS optimization. A proxy-goal line on a campaign where the conversion pixel has recorded a consistent volume of 20 or more events per month over four or more consecutive weeks is flagged as a candidate for goal migration, recorded with the line name, the goal type, the pixel event count, and the attributed conversion volume.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the goal type and the conversion pixel's 30-day event count for each proxy-goal line above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more lines in {{site_name}}'s Yahoo DSP (demand-side platform) account are optimizing toward proxy goals, such as cost per click (CPC) or click-through rate (CTR), while the conversion pixels associated with those campaigns' real objectives have been recording sufficient event volume to support a cost per acquisition (CPA) or return on ad spend (ROAS) goal. Yahoo Blueprint Performance optimizes bids toward whatever goal type the line specifies, so a proxy goal instructs the optimizer to seek click or viewability behavior rather than conversion behavior, even when conversion signal is available. {{voice_recommend}} migrating the affected lines to a CPA or ROAS goal tied to the relevant conversion pixel, doing so one line at a time to monitor the relearning period, and considering Yahoo DSP's multi-KPI mode to balance delivery efficiency alongside the conversion goal during the transition."
+      }
+    }
+  ]
+}

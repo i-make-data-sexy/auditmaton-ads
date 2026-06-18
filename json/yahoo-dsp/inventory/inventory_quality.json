@@ -1,0 +1,204 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Yahoo DSP (demand-side platform) buys across open exchanges and private marketplaces where made-for-advertising (MFA) sites, resold inventory with obscured origins, and unfiltered supply sources compete alongside legitimate placements. Without active controls, budget reaches domains built to farm ad revenue rather than serve real audiences, and the reported impression count can include traffic routed through unauthorized or misrepresented intermediaries. These checks are configuration reviews inside the Yahoo DSP UI and the fixes are targeting adjustments, not rebuilds. Each one directly affects how much of the budget reaches genuine supply.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Inventory quality in Yahoo DSP covers the controls that determine which sites, apps, and supply paths receive budget on open-exchange lines. The platform buys programmatically across a wide range of supply sources, and the default state of a new line does not automatically exclude MFA domains, supply paths without ads.txt authorization signals, or supply without visible chain-of-custody data. These checks confirm that the buyer has applied the available platform filters and that those filters reflect current supply conditions.",
+  "audit_checks": [
+    {
+      "id": "yahoo-dsp-mfa-no-inventory-quality-filter",
+      "title": "Lines buy low-quality or made-for-advertising inventory because no inventory quality targeting is applied",
+      "category": "inventory",
+      "subcategory": "inventory_quality",
+      "impact_score": 4,
+      "impact_rationale": "Made-for-advertising (MFA) sites generate page views for ad revenue rather than audience engagement, so budget directed there produces impressions with no real user attention behind them. Yahoo DSP's open-exchange lines bid on all available supply by default, which includes the full tail of supply quality unless the buyer applies explicit filters. Performance data returned from MFA placements inflates impression and click counts without delivering real outcomes.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "fraud"],
+      "educate": {
+        "base": "Made-for-advertising sites are properties built primarily to serve ads rather than to publish content a real audience seeks out. They generate programmatic inventory at volume, often with low-quality or scraped content, inflated page-view counts, or aggressive ad density. Because they participate in open exchanges, they compete for budget on every line that does not explicitly restrict them.<br><br>Yahoo DSP provides inventory quality targeting settings at the line level. The Yahoo Buying Guide on Microsoft Learn documents that lines can apply 'Bot avoidance', 'Viewability', and 'Contextuals' filters under the Inventory Quality Targeting section of the line's targeting configuration. Bot avoidance blocks sites flagged for fraud and malware; the viewability filter restricts the eligible pool to placements with a strong historical viewability rate; contextuals allow the buyer to target or block specific content categories. These controls work together to narrow the supply pool away from properties built around ad density rather than user value.<br><br>Beyond the platform's built-in filters, the buyer can apply app and site lists to further restrict or block specific domains and app IDs at the line level. A blocklist of domains identified through placement reporting or a third-party verification vendor supplements the platform's automated quality signals.<br><br>A few signs point to this check applying:<ul><li>The line's Inventory Quality Targeting section shows no bot avoidance, viewability, or contextual filters enabled</li><li>A placement or domain report for the past 30 days shows a long tail of unfamiliar or low-authority domains among the top impression sources</li><li>A third-party verification vendor flags MFA or invalid traffic originating from domains still active in the account</li></ul>You may want to review recent placement data for active lines and note any domains whose names or content suggest they were built to capture ad revenue rather than to build an audience.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser, MFA exposure carries an added risk on retargeting lines. Retargeted product ads surfacing on low-quality properties associate branded inventory with content that undercuts brand credibility. You may want to apply the bot avoidance filter on retargeting lines before expanding frequency caps.",
+          "lead_gen": "For a lead-generation advertiser, MFA inventory inflates impression and click volume while producing no real leads, which distorts cost-per-lead benchmarks. You may want to confirm that any performance targets used for budget decisions exclude known MFA domains before drawing conclusions about campaign efficiency."
+        },
+        "learn_more": [
+          {
+            "source_type": "Microsoft Learn (Yahoo DSP)",
+            "source_title": "Yahoo Buying Guide: Inventory Quality Targeting",
+            "source_url": "https://learn.microsoft.com/en-us/xandr/bidders/yahoo-buying-guide"
+          }
+        ],
+        "learn_more_note": "Yahoo DSP's Help Center documentation for inventory quality settings requires a platform login. Log in to your Yahoo DSP account and navigate to the line's Targeting section, then open 'Inventory Quality Targeting' to review the available bot avoidance, viewability, and contextual filter controls.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether the Inventory Quality Targeting filters are enabled on active open-exchange lines, and review recent placement or domain data to understand whether current supply reflects the buyer's quality expectations.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Open the advertiser, then open a campaign that includes open-exchange display, video, native, or connected TV (CTV) lines.",
+                "Select a line and navigate to the Targeting section. Locate the 'Inventory Quality Targeting' area and check whether 'Bot avoidance', 'Viewability', or 'Contextuals' filters are enabled. Note the status for each active line.",
+                "Navigate to the line's reporting view. Pull a placement or domain report for the past 30 days, sorting by impressions descending. Scan the domain column for unfamiliar or low-authority sites and note any domains whose naming or content pattern suggests an MFA purpose.",
+                "If the account uses a third-party brand safety or verification vendor, check that vendor's most recent report for domains or app IDs flagged for invalid traffic or MFA behavior that remain active in Yahoo DSP."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether Inventory Quality Targeting filters are enabled on each active open-exchange line, and whether the placement report shows MFA or low-quality domains among the top impression sources. A pass requires at least bot avoidance to be active and no MFA-pattern domains surfacing prominently in the placement report. A fail is recorded when no inventory quality filter is enabled on a line, or when the placement report shows domains with clear MFA characteristics regardless of whether filters are applied.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the Inventory Quality Targeting filter status and placement report observations above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that active open-exchange lines on {{site_name}}'s Yahoo DSP account have no Inventory Quality Targeting filters enabled. Open-exchange buying distributes spend across a wide range of supply sources by default, and without bot avoidance, viewability, or contextual filters applied, budget reaches properties built to capture ad revenue rather than to build a real audience. {{voice_recommend}} enabling the bot avoidance filter on all active open-exchange lines, reviewing the 30-day placement report to identify and block MFA-pattern domains at the line level, and scheduling a recurring placement report review to add newly identified domains to the blocklist."
+      }
+    },
+    {
+      "id": "yahoo-dsp-ads-txt-signal-not-used",
+      "title": "Lines do not use ads.txt and app-ads.txt authorization signals to filter supply, exposing the buyer to resold or misrepresented inventory",
+      "category": "inventory",
+      "subcategory": "inventory_quality",
+      "impact_score": 4,
+      "impact_rationale": "Ads.txt and app-ads.txt are publisher-controlled files that declare which companies are authorized to sell their inventory. When a buyer does not filter on these signals, budget can reach inventory sold by entities the publisher never authorized, including resellers who misrepresent the domain or app ID in the bid request. The buyer pays for an impression attributed to a premium publisher while the actual supply may be a low-quality or fraudulent property that spoofed the domain.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["fraud", "brand-safety"],
+      "educate": {
+        "base": "Ads.txt ('Authorized Digital Sellers') is an IAB Tech Lab standard that allows publishers to publish a plain-text file on their domain declaring which supply-side platforms (SSPs) and ad networks are authorized to sell their inventory. App-ads.txt extends the same mechanism to mobile app inventory. The file lives at a predictable URL path on the publisher's domain or in the app store developer record, so any buyer or verification system can fetch it and compare the seller ID in a bid request against the publisher's declared authorized sellers.<br><br>When an unauthorized seller sends a bid request claiming to represent a publisher's inventory, comparing the seller ID against the publisher's ads.txt file exposes the mismatch. Filtering on ads.txt compliance means the buyer only bids on inventory where the selling entity appears in the publisher's authorized seller list.<br><br>Yahoo DSP documents 'Ads.txt and App-ads.txt Declaration' as an available targeting option in the line's Targeting section. Enabling this filter restricts the eligible supply pool to inventory where the seller in the bid request is declared in the publisher's ads.txt or app-ads.txt file. Inventory from sellers absent from those files is excluded from bidding.<br><br>The IAB Tech Lab maintains the <a href='https://iabtechlab.com/ads-txt/' class='tools-link-no-padding' target='_blank'>ads.txt specification</a> and the <a href='https://iabtechlab.com/sellers-json/' class='tools-link-no-padding' target='_blank'>sellers.json specification</a>, which works alongside ads.txt to allow buyers to verify the identity of each entity in the supply chain. The <a href='https://github.com/InteractiveAdvertisingBureau/openrtb/blob/master/supplychainobject.md' class='tools-link-no-padding' target='_blank'>OpenRTB Supply Chain object</a> transmits the chain of all intermediaries in the bid request, making it possible to see every entity between the publisher and the buyer rather than only the direct seller.<br><br>A few signs point to this check applying:<ul><li>The line's Targeting section shows no ads.txt or app-ads.txt declaration filter enabled</li><li>The account has no process for reviewing the supply chain nodes attached to winning impressions</li><li>Third-party verification reports flag a meaningful share of impressions as coming from sellers not listed in the publisher's ads.txt file</li></ul>You may want to check whether the ads.txt and app-ads.txt declaration option appears under the line's targeting configuration and confirm whether it is active on each open-exchange line.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser, domain spoofing on open exchange lines can surface brand product ads alongside content on properties the brand would never approve. A retargeting line buying spoofed inventory associates the brand with that supply, not the premium publisher listed in the bid request. You may want to enable the ads.txt filter on all retargeting and prospecting lines before increasing spend on open exchange.",
+          "lead_gen": "For a lead-generation advertiser, impression counts on lines without ads.txt filtering may include a share of inventory from unauthorized sellers whose supply quality and brand adjacency cannot be verified. You may want to enable the ads.txt filter to reduce the proportion of unverifiable supply before using CPL (cost per lead) benchmarks from these lines to set future budgets."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt: Authorized Digital Sellers",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json and OpenRTB Supply Chain Object",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "IAB Tech Lab / GitHub",
+            "source_title": "OpenRTB Supply Chain Object specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/openrtb/blob/master/supplychainobject.md"
+          },
+          {
+            "source_type": "Microsoft Learn (Yahoo DSP)",
+            "source_title": "Yahoo Buying Guide: Ads.txt and App-ads.txt Declaration",
+            "source_url": "https://learn.microsoft.com/en-us/xandr/bidders/yahoo-buying-guide"
+          }
+        ],
+        "learn_more_note": "Yahoo DSP's Help Center documentation for the ads.txt and app-ads.txt declaration targeting option requires a platform login. Log in to your Yahoo DSP account and open the Targeting section of an active line to locate the 'Ads.txt and App-ads.txt Declaration' filter.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether the ads.txt and app-ads.txt declaration filter is enabled on active open-exchange lines, and check whether any third-party verification reports flag impressions from sellers not listed in the relevant publisher ads.txt files.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Open an active campaign and select a line running on open exchange. Navigate to the Targeting section.",
+                "Locate the 'Ads.txt and App-ads.txt Declaration' option. Confirm whether the filter is enabled or disabled. Note the status for each active line in the review.",
+                "If the account uses a third-party verification vendor, open the vendor's supply path or ads.txt compliance report. Note the percentage of impressions flagged as coming from sellers absent from the relevant publisher ads.txt file.",
+                "For any line where the filter is not enabled, note the line name, channel type (display, video, native, connected TV, or audio), and approximate daily spend so the finding can be prioritized by exposure."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per active open-exchange line, whether the ads.txt and app-ads.txt declaration filter is enabled. A pass requires the filter to be active on every open-exchange line. A fail is recorded for any line where the filter is absent, along with the line name and channel type. If a third-party verification report is available, the percentage of non-ads.txt-compliant impressions is also recorded as supporting context.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the ads.txt filter status for each active open-exchange line above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that active open-exchange lines on {{site_name}}'s Yahoo DSP account do not have the ads.txt and app-ads.txt declaration filter enabled. Without this filter, the account bids on supply from sellers that the publisher may have never authorized, including intermediaries that resell or misrepresent inventory in the bid request. The IAB Tech Lab's ads.txt standard exists specifically to let buyers distinguish authorized sellers from unauthorized ones, and leaving the filter off removes that distinction from the buying process. {{voice_recommend}} enabling the ads.txt and app-ads.txt declaration filter on all active open-exchange lines and reviewing any available third-party verification reports to measure the share of historically non-compliant impressions on affected lines."
+      }
+    },
+    {
+      "id": "yahoo-dsp-no-blocklist-on-open-exchange",
+      "title": "No blocklist or allowlist is applied on open-exchange lines, so supply quality depends on platform defaults alone",
+      "category": "inventory",
+      "subcategory": "inventory_quality",
+      "impact_score": 3,
+      "impact_rationale": "Yahoo DSP's platform-level inventory quality controls establish a baseline, but they do not substitute for buyer-maintained blocklists built from the account's own placement data. Domains and app IDs that consistently deliver low engagement, brand-unsafe adjacency, or invalid traffic signals specific to the advertiser's vertical may not be excluded by platform defaults. Relying on defaults alone means the buyer has no mechanism to act on findings from their own placement reports.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "governance"],
+      "educate": {
+        "base": "Yahoo DSP allows buyers to apply app and site lists at the line level to control which domains and app IDs are eligible or excluded from bidding. A blocklist is a site or app list configured to block the entries it contains; an allowlist restricts the line to bidding only on the domains and app IDs included. The choice between the two approaches depends on the campaign's goals and supply breadth.<br><br>The platform's built-in inventory quality filters (bot avoidance, viewability, contextuals) operate on automated signals and platform-side data. They do not incorporate the buyer's own placement history. A buyer who has identified specific domains that convert poorly, generate suspicious click patterns, or sit next to brand-unsafe content needs to act on that data through a blocklist. The platform filter has no visibility into the buyer's performance or brand context.<br><br>Two failure modes appear regularly. The first is a line with no app or site list assigned at all, relying entirely on platform defaults. The second is a line with a list that was created at campaign launch but not maintained as new placement data accumulates. A blocklist that covers domains identified three months ago does not cover new domains that entered the supply pool or surfaced in more recent placement reports.<br><br>A few signs point to this check applying:<ul><li>The line's targeting configuration shows no app or site list assigned in the Inventory section</li><li>Placement reports exist for prior flight periods but no corresponding domains were added to a blocklist</li><li>The account has no documented cadence for reviewing placement data and updating supply lists</li></ul>You may want to check whether a blocklist or allowlist is assigned to each active open-exchange line and when the list was last updated relative to the most recent placement report.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser, an allowlist of curated, high-intent commerce and lifestyle properties can concentrate open-exchange spend on supply most likely to reach an in-market audience. You may want to evaluate whether prospecting lines could benefit from a narrower allowlist rather than a broad blocklist, particularly for lines targeting users near the purchase decision.",
+          "lead_gen": "For a lead-generation advertiser running display or native lines, brand adjacency alongside quality affects form submission rates. You may want to combine a blocklist of domains with low historical lead rates with a review of the content categories adjacent to ad placements on the highest-spend domains."
+        },
+        "learn_more": [
+          {
+            "source_type": "Microsoft Learn (Yahoo DSP)",
+            "source_title": "Yahoo Buying Guide: App/Site List Targeting",
+            "source_url": "https://learn.microsoft.com/en-us/xandr/bidders/yahoo-buying-guide"
+          }
+        ],
+        "learn_more_note": "Yahoo DSP's Help Center documentation for creating and managing app and site lists requires a platform login. Log in to your Yahoo DSP account and navigate to Inventory in the left pane to locate site and app list management options.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether a blocklist or allowlist is assigned to each active open-exchange line, identify when the list was last updated, and check whether placement reports have surfaced domains or app IDs that belong on the list but are not yet added.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Open an active campaign and select an open-exchange line. Navigate to the Targeting section and locate the Inventory area. Check whether an app or site list is assigned. Note whether it is configured as a blocklist or allowlist.",
+                "If a list is assigned, open the Inventory section of the Yahoo DSP left pane and find the list. Review its contents and note the date it was last edited.",
+                "Pull a placement or domain report for the past 30 days for each active open-exchange line. Sort by impressions descending and identify any domains or app IDs with high impression volume and low conversion or engagement rates. Note whether those domains appear in the current blocklist.",
+                "For any line with no list assigned, note the line name, channel type, and approximate daily spend to prioritize where to build the first blocklist."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a blocklist or allowlist is assigned to each active open-exchange line, the date the list was last edited, and whether recent placement reports show domains or app IDs with poor performance signals that are not yet on the list. A pass requires a list to be assigned and updated within 90 days, with no high-spend, low-performance domains absent from the blocklist. A fail is recorded when no list is assigned to a line, or when the list has not been updated in more than 90 days and placement reports show domains that warrant exclusion.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the blocklist or allowlist assignment status, the last-edited date, and any placement report observations above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that active open-exchange lines on {{site_name}}'s Yahoo DSP account have no blocklist or allowlist applied, leaving supply quality dependent on the platform's default filters alone. Platform-level inventory quality controls do not incorporate the buyer's own placement performance data, so domains or app IDs that consistently deliver poor results or sit next to unsuitable content for this specific advertiser remain eligible for bidding. {{voice_recommend}} building a blocklist from the most recent 30-day placement report, assigning it to all active open-exchange lines, and establishing a 90-day review cadence to update the list as new placement data accumulates."
+      }
+    }
+  ]
+}

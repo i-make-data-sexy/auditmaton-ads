@@ -1,0 +1,186 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Koa is the optimization engine that The Trade Desk runs across its Kokai platform. When the goal and the conversion signal feeding it are misconfigured, the system optimizes toward the wrong outcome and the account has no mechanism to self-correct. These checks take under 30 minutes to complete and require only the ad group settings in the platform UI. The payoff is an optimization layer that works toward the real business outcome rather than a proxy that happens to be easy to track.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Koa is The Trade Desk's AI optimization engine, built into the Kokai platform. It adjusts bids in real time based on the optimization goal and conversion signal configured at the ad group level. Because Koa operates automatically, the quality of the outcome depends directly on two things: whether the optimization goal maps to the real business objective, and whether the conversion signal feeding that goal carries enough volume for the system to learn. These checks confirm that the goal is set correctly, that the signal behind it is adequate, and that manual overrides are not preventing the system from working.",
+  "audit_checks": [
+    {
+      "id": "koa-conversion-signal-volume-insufficient",
+      "title": "Koa optimization is active on ad groups with too few conversions to support learning",
+      "category": "bidding",
+      "subcategory": "koa_optimization",
+      "impact_score": 4,
+      "impact_rationale": "When conversion volume is below the threshold Koa needs to model bid decisions, the system makes optimization choices with incomplete information. Spend can shift toward inventory patterns that look favorable in a small sample but do not hold at scale, and the reported cost per acquisition may not reflect what the account will see once volume normalizes.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "data-quality"],
+      "educate": {
+        "base": "Koa optimizes bids by learning which audience segments, inventory sources, and creative combinations are most likely to produce the configured conversion event. That learning depends on receiving enough conversion signals over a short enough time window to distinguish real patterns from noise. When conversions are sparse, the model has less to learn from, and the resulting bid adjustments reflect patterns from a small sample rather than stable performance.<br><br>The Trade Desk does not publish a single minimum conversion number, but the practical threshold that practitioners observe is consistent with what the programmatic industry uses for similar optimization systems: roughly 50 conversions per week per ad group is enough for the model to stabilize. Below that level, the ad group can still run Koa optimization, but the bids are less well-grounded.<br><br>A few signs point to insufficient signal:<ul><li>The ad group's conversion count in the past 30 days is low relative to the budget it consumes</li><li>Cost per conversion fluctuates significantly week over week without an obvious external cause</li><li>The optimization has been active for more than two weeks but performance has not moved toward the goal</li></ul>You may want to consider whether a conversion event further up the funnel, such as an 'Add to Cart' event rather than a purchase, would provide enough signal volume for Koa to learn on while the lower-funnel goal is still tracked. Switching to a higher-volume proxy event and setting the lower-funnel event as a secondary metric keeps the optimization grounded without abandoning the real business goal.",
+        "site_type_overlays": {
+          "ecommerce": "Retail advertisers with seasonal traffic patterns may see Koa signal volume drop significantly outside peak periods. You may want to consider supplementing the purchase event with an 'Add to Cart' or product-page view event as the optimization signal during low-volume windows, then switching back to the purchase event when volume recovers.",
+          "lead_gen": "Lead-generation campaigns often have lower conversion volume than retail campaigns, so the signal threshold becomes a more pressing constraint. You may want to consider using a micro-conversion such as a form start or a quote page visit as the optimization target when completed lead submissions are too sparse for the model to learn from."
+        },
+        "learn_more": [
+          {
+            "source_type": "The Trade Desk",
+            "source_title": "Koa AI optimization — The Trade Desk solutions",
+            "source_url": "https://www.thetradedesk.com/us/our-platform"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm the weekly conversion volume on ad groups running Koa optimization and compare it to the threshold the system needs to produce reliable bid adjustments.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the campaign, navigate to the ad group level, and set the date range to the past 30 days.",
+                "Review the conversion column for each ad group running Koa optimization. Calculate the weekly average by dividing the 30-day total by four.",
+                "Note any ad group with a weekly average below 50 conversions. These are the candidates for this finding.",
+                "For each flagged ad group, check which conversion event is configured as the optimization goal. Note the event name so you can assess whether a higher-volume proxy event is available."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad group running Koa optimization, the 30-day conversion total and the derived weekly average. An ad group with a weekly average at or above 50 conversions passes. An ad group with a weekly average below that threshold is a finding recorded with the ad group name, the optimization event, and the weekly average.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the 30-day conversion count and the optimization event for each Koa-enabled ad group above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more ad groups on {{site_name}} are running Koa optimization with conversion signal volume below the threshold the system needs to learn reliably. When the weekly conversion count is too low, Koa's bid adjustments reflect patterns from a small sample rather than stable audience or inventory signals, which can result in spend distributing in ways that do not hold as volume grows. {{voice_recommend}} either consolidating ad groups to concentrate conversion signal, switching the optimization goal to a higher-volume conversion event that is still commercially meaningful, or pausing Koa optimization on the lowest-signal ad groups until volume recovers. After making the change, allow at least two weeks before evaluating whether cost per conversion has stabilized."
+      }
+    },
+    {
+      "id": "koa-optimization-goal-misaligned-with-business-outcome",
+      "title": "The Koa optimization goal is configured to a proxy metric rather than the real business objective",
+      "category": "bidding",
+      "subcategory": "koa_optimization",
+      "impact_score": 3,
+      "impact_rationale": "Optimizing toward a proxy metric that is easier to track than the real outcome trains Koa to win impressions that produce the proxy, not the business result. The reported cost per proxy event may look healthy while the cost per actual outcome drifts upward, and the discrepancy is difficult to detect without comparing the two in the same view.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "conversion-tracking"],
+      "educate": {
+        "base": "Koa uses the optimization goal configured at the ad group level to decide which impressions to bid on and how much to pay. If that goal is a proxy metric such as a click, a video completion, or a page visit rather than the actual conversion the campaign is meant to drive, the system optimizes toward the proxy. Traffic that generates the proxy but does not convert to the real outcome is treated as a success by the bidding model, and the account pays for it accordingly.<br><br>A few proxy-goal patterns surface here:<ul><li>Optimizing toward clicks when the goal is a purchase or a lead form submission</li><li>Using a video completion rate goal on a campaign whose actual objective is brand search lift or offline sales</li><li>Using a landing page visit as the goal when a form submission or checkout event is trackable and available</li></ul>The proxy goal is often chosen because the real conversion event does not have enough signal volume to support Koa learning, which is a separate signal-volume problem. The correct response to low signal volume is to address the volume constraint, not to substitute a goal that generates abundant signal but does not represent the business outcome.<br><br>You may want to review each ad group's optimization goal against the campaign's stated objective. When a goal is a proxy, consider whether the real conversion event is trackable via the Universal Pixel or a server-to-server event and whether volume is sufficient to support optimization.",
+        "site_type_overlays": {
+          "ecommerce": "Retail campaigns sometimes use 'Add to Cart' as the optimization goal when the purchase event has low volume. 'Add to Cart' is a reasonable signal for Koa when purchase volume is sparse, but you may want to confirm that the two events correlate well for this account. If a meaningful share of 'Add to Cart' events do not result in purchases, the model is optimizing toward a signal that does not represent revenue.",
+          "lead_gen": "Lead-generation campaigns often track multiple funnel stages, and the optimization goal is sometimes set to an upper-funnel event because the lower-funnel event, such as a qualified lead or a sales-accepted lead, either has too little volume or is not passed back from the CRM. You may want to confirm whether a CRM data import or server-to-server event would make the real outcome trackable before accepting a proxy goal as the permanent configuration."
+        },
+        "learn_more": [
+          {
+            "source_type": "The Trade Desk",
+            "source_title": "Koa AI optimization — The Trade Desk solutions",
+            "source_url": "https://www.thetradedesk.com/us/our-platform"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm each ad group's optimization goal and compare it to the campaign's stated business objective. Note any goal that is a proxy for the real outcome rather than the outcome itself.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open each active campaign and navigate to the ad group level.",
+                "For each ad group, record the optimization goal shown in the ad group settings. Common goals include cost per click, cost per view, cost per conversion event, and return on ad spend.",
+                "Compare the optimization goal to the business objective documented in the campaign brief or the campaign name. Note any ad group where the goal is a proxy metric rather than the actual conversion.",
+                "If the Universal Pixel or a server-to-server event is available for the real conversion, note whether it is mapped as the optimization goal or only as a secondary tracked event."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad group, the optimization goal and the business objective the campaign is meant to serve. An ad group whose goal maps directly to the stated business objective passes. An ad group whose goal is a proxy metric, such as a click or a video completion, when the real outcome is a purchase or a lead form submission is a finding recorded with the ad group name, the current goal, and the preferred goal.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the optimization goal and the stated business objective for each ad group above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more ad groups on {{site_name}} are optimizing toward a proxy metric rather than the real business objective. Koa learns from the signal it receives, so when the goal is a click or a page visit rather than a purchase or a lead form submission, the system trains itself to win impressions that produce the proxy. The account may appear to be performing well against the configured goal while the cost per actual business outcome drifts in the wrong direction. {{voice_recommend}} updating the optimization goal to the real conversion event on the affected ad groups, confirming that the Universal Pixel or a server-to-server event fires on that event, and allowing at least two weeks of learning before evaluating performance against the new goal."
+      }
+    },
+    {
+      "id": "koa-optimization-fought-by-manual-bid-overrides",
+      "title": "Manual bid overrides or tight bid caps prevent Koa from adjusting bids within a useful range",
+      "category": "bidding",
+      "subcategory": "koa_optimization",
+      "impact_score": 3,
+      "impact_rationale": "Koa's value comes from adjusting bids up when an impression is likely to convert and down when it is not. A bid cap set below the level Koa needs to win on high-signal inventory, or a manual override that locks the bid to a fixed amount, limits the range of adjustments the system can make and reduces its ability to shift spend toward better inventory.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "data-quality"],
+      "educate": {
+        "base": "Koa adjusts bids in real time within a range the advertiser defines. When a bid cap or a manual bid override narrows that range significantly, the system can only act within a window that may not reflect what the auction actually requires to win on the most valuable impressions.<br><br>Two configurations constrain Koa most often:<ul><li>A bid cap that is set at or near the floor, leaving Koa almost no room to raise bids on high-signal opportunities</li><li>A fixed base bid used without enabling Koa to adjust from it, which is equivalent to running without automation</li></ul>The intent behind both configurations is usually cost control, but the effect is that the account pays a consistent rate for impressions that vary widely in their likelihood of converting. The result is that high-signal impressions are not won at the rate they could be, and low-signal impressions cost as much as high-signal ones because Koa cannot price the difference.<br><br>You may want to consider setting the bid cap at a level that reflects the maximum the account could reasonably pay per impression while still achieving the target cost per conversion. A useful starting point is to run a period with a higher cap and observe where Koa actually bids. If the average winning bid is well below the cap, the cap is not constraining the system. If the winning bids regularly approach the cap, the cap is limiting the range of adjustments Koa can make.",
+        "site_type_overlays": {
+          "ecommerce": "Retail campaigns with clear revenue per conversion data are well-positioned to set bid caps based on the implied value per impression at a target return on ad spend. You may want to confirm that the cap reflects the value math rather than a conservative number set during initial setup and never revisited.",
+          "lead_gen": "For lead-generation campaigns, the bid cap is often set based on a target cost per lead rather than an impression-level value calculation. You may want to confirm that the cap is high enough that Koa can compete on the inventory segments most likely to produce qualified leads, rather than winning only on the lowest-priced impressions."
+        },
+        "learn_more": [
+          {
+            "source_type": "The Trade Desk",
+            "source_title": "The Trade Desk platform — technology and AI",
+            "source_url": "https://www.thetradedesk.com/us/our-platform"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each Koa-enabled ad group's bid cap and base bid settings to determine whether the configured range gives the system room to adjust bids meaningfully.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the campaign and navigate to each ad group running Koa optimization.",
+                "In the ad group settings, locate the bid cap and base bid fields. Record the cap value and whether a fixed base bid is set.",
+                "Compare the bid cap to the average winning bid for the ad group over the past 30 days. If the average winning bid is within 10-15% of the cap, Koa is regularly hitting the ceiling and cannot bid higher on its best opportunities.",
+                "Note any ad group where a fixed base bid is set and Koa's adjustment range has not been explicitly enabled. This configuration is equivalent to running without automation regardless of how the optimization goal is set."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per Koa-enabled ad group, the bid cap, the average winning bid in the past 30 days, and whether a fixed base bid removes Koa's adjustment range. An ad group where the average winning bid is well below the cap and no fixed base bid overrides Koa passes. An ad group where the average winning bid regularly approaches the cap, or where a fixed base bid limits Koa to no adjustment, is a finding recorded with the ad group name, the cap value, and the average winning bid.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the bid cap, average winning bid, and base bid configuration for each Koa-enabled ad group above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more ad groups on {{site_name}} have bid caps or base bid configurations that limit the range within which Koa can adjust bids. When the average winning bid approaches the bid cap, the system cannot increase bids on the impressions it identifies as high-value, which means the account wins those impressions at the same rate as lower-signal inventory rather than prioritizing them. {{voice_recommend}} reviewing the bid cap on the affected ad groups relative to the average winning bid and raising the cap to a level that gives Koa room to differentiate. A practical test is to raise the cap incrementally and monitor whether the cost per conversion improves as Koa gains the ability to bid more aggressively on its best opportunities."
+      }
+    }
+  ]
+}

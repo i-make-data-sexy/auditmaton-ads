@@ -1,0 +1,170 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Predictive clearing reduces what The Trade Desk pays to win impressions in first-price auctions. When it is not configured correctly, or when its interaction with the bid strategy is not understood, the account either overpays for impressions it wins or fails to spend the budget it allocates. The checks take under 30 minutes. All the information needed is in the ad group settings and the delivery report in the platform. The payoff is a lower effective cost per impression on the same inventory without any change to the audiences or the creative.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Predictive clearing is The Trade Desk's bid-shading feature. In a first-price auction, a buyer pays exactly what it bids, so a DSP that submits a full willingness-to-pay bid on every impression leaves money on the table by overpaying relative to the price the impression would have cleared at. Predictive clearing uses historical auction data to estimate the clearing price for each impression and shades the bid down to a price close to that estimate, reducing the gap between what the buyer bids and what the impression actually costs to win. These checks confirm that predictive clearing is active where it should be, that the practitioner understands how it interacts with the bid strategy so the cost reduction does not come at the expense of delivery, and that the setting is applied consistently across ad groups where it fits.",
+  "audit_checks": [
+    {
+      "id": "predictive-clearing-not-enabled",
+      "title": "Predictive clearing is not enabled on ad groups buying first-price inventory",
+      "category": "bidding",
+      "subcategory": "predictive_clearing",
+      "impact_score": 3,
+      "impact_rationale": "Without predictive clearing, the ad group pays its full bid on every impression it wins. In a first-price auction, that is the bid itself, not a price slightly above the next-highest bidder. The gap between the bid and the price the impression would have cleared at is the overpay, and it compounds across the volume of impressions the ad group buys.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "performance"],
+      "educate": {
+        "base": "Most programmatic supply sold through The Trade Desk runs through first-price auctions. In a first-price auction, the winning buyer pays the exact price it submitted. In the second-price auctions that dominated programmatic buying until around 2019, the winner paid one cent above the second-highest bid, so submitting a high bid to win reliably was cheap. First-price mechanics changed that: a buyer that submits an aggressive bid and wins pays the aggressive bid, not a discounted version of it.<br><br>Predictive clearing addresses this by estimating the price an impression is likely to clear at, based on historical auction signals for that type of inventory, and then shading the bid down toward that estimate. The buyer still submits a bid high enough to win the impressions it would have won with the full bid, but it pays less for each one when the clearing price is lower than the original bid.<br><br>Predictive clearing is configured at the ad group level in The Trade Desk's Kokai platform. It is not on by default for all ad groups. An ad group that has the feature turned off submits full bids on all inventory and pays those bids when it wins, with no shading applied.<br><br>A few signs point to predictive clearing being absent where it should be active:<ul><li>The ad group's effective cost per mille (eCPM) is close to or equal to the base bid on most line items</li><li>The ad group settings show predictive clearing as disabled</li><li>No delivery or pacing problem exists that would make disabling the feature a deliberate tradeoff</li></ul>You may want to confirm whether the feature is explicitly disabled or simply never configured. A setting that was never touched lands on whatever the platform default was at the time the ad group was created, which may not match current best practice.",
+        "site_type_overlays": {
+          "ecommerce": "Retail campaigns with high impression volume benefit most from predictive clearing because the cost savings multiply across a large number of winning bids. On a high-spend prospecting ad group, even a modest reduction in eCPM produces a material improvement in return on ad spend. You may want to prioritize this check on ad groups with the highest impression volume.",
+          "lead_gen": "Lead-generation campaigns buying display or video through open exchange inventory run in the same first-price environment as any other demand. The cost reduction from predictive clearing applies equally. You may want to check that ad groups with fixed cost-per-lead targets have predictive clearing on, so the system has room to reduce impression cost while holding delivery."
+        },
+        "learn_more": [],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether predictive clearing is enabled at the ad group level and compare the eCPM against the base bid to see whether the account is paying close to its full bid on won impressions.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the campaign and navigate to the ad group level.",
+                "Select an ad group and open its settings. Locate the bidding section and find the predictive clearing toggle. Note whether it is on or off.",
+                "Repeat for each ad group in scope. Record which ad groups have the feature disabled.",
+                "For ad groups where predictive clearing is off, pull a performance report with eCPM and compare it to the base bid. A ratio of eCPM to base bid close to 1.0 confirms the ad group is paying near its full bid on won impressions."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad group, whether predictive clearing is enabled and the ratio of eCPM to base bid. An ad group with predictive clearing on passes. An ad group with the feature off, and no documented reason such as a deliberate floor-price strategy, is flagged. The eCPM-to-base-bid ratio provides supporting evidence: a ratio near 1.0 on a disabled ad group confirms overpayment is occurring.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the predictive clearing status and the eCPM-to-base-bid ratio for each ad group above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that predictive clearing is not enabled on one or more ad groups in {{site_name}}'s The Trade Desk account. Because most programmatic supply on the platform runs through first-price auctions, ad groups without predictive clearing pay their full bid on every impression they win rather than a price shaded toward what the impression actually clears at. This is a direct cost efficiency gap. {{voice_recommend}} enabling predictive clearing on the affected ad groups and monitoring eCPM in the week after activation to confirm the feature is reducing impression cost without affecting delivery volume."
+      }
+    },
+    {
+      "id": "predictive-clearing-interaction-with-bid-strategy-misunderstood",
+      "title": "Predictive clearing is active but delivery has stalled on ad groups with a fixed cost-per-mille goal",
+      "category": "bidding",
+      "subcategory": "predictive_clearing",
+      "impact_score": 3,
+      "impact_rationale": "Predictive clearing and a fixed cost-per-mille (CPM) goal both constrain the bid from above. When the CPM goal is already tight and predictive clearing shades the bid further down, the ad group may fall below the clearing price on the inventory it needs and stop winning impressions. The account interprets this as a delivery problem without recognizing the interaction as the cause.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "performance"],
+      "educate": {
+        "base": "Predictive clearing reduces the effective bid by estimating the price an impression will clear at and shading the submitted bid toward that estimate. This works well when the ad group's bid is set with room to absorb some downward adjustment and still win competitive inventory. When a bid strategy already caps the bid at a tight fixed CPM, predictive clearing adds a second constraint on top: the submitted bid is the CPM cap, and then predictive clearing shades it further. The result can be a bid that drops below what the inventory requires to win, and the ad group underspends or stops delivering.<br><br>This interaction is not a flaw in predictive clearing. The feature does what it is designed to do. The issue is that the two settings are not calibrated together. A CPM goal that was appropriate without clearing may need to be raised when clearing is active. The clearing mechanism is now responsible for the cost efficiency, not the CPM cap.<br><br>A few signs point to this interaction causing a delivery problem:<ul><li>Predictive clearing is on and the ad group has a fixed CPM goal</li><li>Delivery is at a fraction of the budget pacing target over a period of several days</li><li>The frequency and reach metrics are lower than historical norms for the same targeting settings</li><li>Raising the CPM goal slightly restores delivery without a proportional increase in eCPM</li></ul>You may want to treat predictive clearing and the CPM goal as a pair to calibrate together rather than two independent settings. The CPM goal sets the ceiling; predictive clearing manages how close to that ceiling the ad group actually bids.",
+        "site_type_overlays": {
+          "ecommerce": "Retail prospecting campaigns with strict return-on-ad-spend targets sometimes use a CPM goal as a proxy cost control. When predictive clearing is added without adjusting that goal, the effective bid drops below what broad prospecting inventory requires. You may want to consider relaxing the CPM goal and letting predictive clearing be the mechanism that holds cost down, rather than running both constraints simultaneously.",
+          "lead_gen": "Lead-generation campaigns with a target cost per lead may have a CPM cap set to keep display impression costs in line with the lead goal. That CPM cap interacts with predictive clearing the same way. You may want to assess whether the delivery shortfall traces to the two settings working against each other before adjusting either one independently."
+        },
+        "learn_more": [],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Identify ad groups where predictive clearing is on alongside a fixed CPM goal, and check whether delivery shortfalls correlate with that combination.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the campaign and navigate to the ad group level. Filter for ad groups with predictive clearing enabled.",
+                "For each ad group with predictive clearing on, open the bidding settings and check whether a fixed CPM goal is also set. Record the CPM goal value.",
+                "Pull a delivery report for the past 14 days covering budget pacing, impressions delivered, and eCPM for each flagged ad group.",
+                "Compare actual delivery to the pacing target. An ad group delivering below 70% of its budget target alongside a tight CPM goal and active predictive clearing is a candidate for this finding.",
+                "As a diagnostic test, note the current CPM goal and the eCPM. A gap of more than 20% between the CPM goal and the average eCPM the ad group can win suggests the two settings are compressing the bid below the market."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad group, whether predictive clearing and a fixed CPM goal are both active, the 14-day budget pacing rate, and the ratio of CPM goal to eCPM on won impressions. An ad group that is pacing normally and winning at an eCPM close to its goal passes. An ad group with both settings active, delivery below 70% of target, and an eCPM well below the CPM goal is flagged as a calibration issue between the two constraints.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the CPM goal, pacing rate, and eCPM for each ad group with predictive clearing enabled above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more ad groups in {{site_name}}'s The Trade Desk account have predictive clearing active alongside a fixed cost-per-mille goal, and those ad groups are underdelivering against their budget targets. Predictive clearing shades the bid downward toward the estimated clearing price. When a fixed CPM goal is also set, the two constraints compound and the effective bid may drop below what the inventory requires to win. {{voice_recommend}} reviewing the CPM goal on each affected ad group and calibrating it upward to give predictive clearing room to operate, rather than running both settings as independent cost controls simultaneously."
+      }
+    },
+    {
+      "id": "predictive-clearing-applied-inconsistently",
+      "title": "Predictive clearing is enabled on some ad groups but not others buying the same inventory type",
+      "category": "bidding",
+      "subcategory": "predictive_clearing",
+      "impact_score": 2,
+      "impact_rationale": "Inconsistent application of predictive clearing within a campaign creates an uneven cost structure. Ad groups without the feature pay more per impression than ad groups with it on, on the same inventory type. The overall account cost is higher than it would be if the setting were applied uniformly, and the performance comparison across ad groups is skewed by the cost difference.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "governance"],
+      "educate": {
+        "base": "Predictive clearing is configured independently for each ad group. An account built up over time through duplicating ad groups, running tests, or onboarding across multiple campaigns may end up with some ad groups that have the feature on and others that do not, with no deliberate reason for the difference. The ad groups without predictive clearing bid the same inventory at a higher effective cost, and their performance metrics reflect that higher cost.<br><br>Inconsistency matters for two reasons. First, the ad groups paying more per impression are operating at a structural cost disadvantage relative to their siblings in the same account. Second, any comparison of ad groups that have different predictive clearing settings is confounded by the cost difference: an ad group that appears to perform worse may simply be paying more per impression rather than reaching a worse audience or running a weaker creative.<br><br>A few signs point to inconsistent application:<ul><li>The account has ad groups at similar budget levels targeting the same audience and inventory type, but predictive clearing is on for some and off for others</li><li>The eCPM varies noticeably across ad groups that should otherwise see similar auction dynamics</li><li>The account grew by duplicating ad groups from a template that predates predictive clearing being available or configured</li></ul>You may want to do a systematic review of the predictive clearing setting across all active ad groups rather than checking a sample. A setting that was missed on one ad group during setup is likely missed on others built from the same template.",
+        "site_type_overlays": {
+          "ecommerce": "Retail accounts with many parallel prospecting ad groups targeting similar audiences are particularly exposed to this issue. An ad group built from a duplicate of an older ad group inherits all the original settings, including any that were never updated to reflect current best practice. You may want to audit the full set of active prospecting ad groups for predictive clearing consistency before reviewing individual ad group performance.",
+          "lead_gen": "Lead-generation campaigns that run parallel ad groups for A/B testing may introduce predictive clearing on the new variant and leave it off the control. This conflates the cost difference with the variable being tested. You may want to confirm both variants match on predictive clearing before drawing conclusions from the test."
+        },
+        "learn_more": [],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Audit the predictive clearing setting across all active ad groups and identify gaps between ad groups operating under the same campaign strategy.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Navigate to the campaign list and open each campaign in scope.",
+                "At the ad group level, review the predictive clearing setting for every active ad group. The Kokai platform surfaces this in the bidding section of the ad group settings.",
+                "Group ad groups by campaign and inventory type. Within each group, note which ad groups have predictive clearing on and which have it off.",
+                "Pull an eCPM report for the past 30 days across all active ad groups. Compare eCPM across ad groups within the same campaign. A meaningful eCPM difference between ad groups buying the same inventory type is consistent with uneven predictive clearing configuration.",
+                "Document the full list of ad groups with predictive clearing off that have no documented reason for the setting."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner produces a list of all active ad groups with the predictive clearing status for each. Ad groups with predictive clearing off that buy the same inventory type as sibling ad groups with it on, and where no documented reason for the difference exists, are flagged. The eCPM comparison across ad groups provides supporting evidence for the cost impact.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the predictive clearing status for each active ad group above, grouped by campaign and inventory type, to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that predictive clearing is enabled on some ad groups in {{site_name}}'s The Trade Desk account but not others buying the same inventory type. This creates an uneven cost structure: ad groups without the feature pay more per impression than their siblings, and any performance comparison across those ad groups reflects the cost difference as much as it reflects the actual targeting or creative. {{voice_recommend}} doing a full audit of the predictive clearing setting across all active ad groups, enabling it on any ad group where it is absent without a documented reason, and rechecking eCPM after the change to confirm the cost structure has normalized."
+      }
+    }
+  ]
+}

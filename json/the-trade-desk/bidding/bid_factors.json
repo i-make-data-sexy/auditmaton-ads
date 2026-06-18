@@ -1,0 +1,200 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Bid factors are one of the easier levers to misconfigure in The Trade Desk and one of the harder problems to spot in reporting. A multiplier set on a factor the campaign does not need shifts every bid in that ad group by a fixed percentage, so the account may be overpaying for inventory in some segments and systematically losing auctions in others without any single line in reporting making the cause obvious. These checks take a few minutes against the ad group settings in Kokai and catch the configurations most likely to fight Koa rather than support it.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Bid factors in The Trade Desk's Kokai platform are multipliers applied to the base bid at the ad group level. Each factor adjusts the bid up or down based on a dimension such as device type, site list, recency, or data segment, letting the practitioner shift spend toward the inventory or audience conditions that perform best for the campaign goal. The Trade Desk's Koa artificial intelligence (AI) system also adjusts bids automatically when the ad group's optimization goal and data are in a position to support it. A well-configured ad group sets a realistic base bid, applies only the factors that reflect a genuine signal for the goal, and leaves room for Koa to operate. An ad group carrying stale multipliers from a prior campaign, factors that contradict the goal, or a base bid set so low that no factor can bring it to a clearing price is working against itself on every auction.",
+  "audit_checks": [
+    {
+      "id": "ttd-bid-factors-contradict-koa-goal",
+      "title": "Manual bid factors contradict the ad group optimization goal or conflict with Koa",
+      "category": "bidding",
+      "subcategory": "bid_factors",
+      "impact_score": 3,
+      "impact_rationale": "A multiplier that moves bids in the opposite direction from what Koa would signal on the same dimension divides the optimization signal. The ad group bids higher on segments Koa rates as poor inventory and lower on segments Koa rates as strong, so the AI works from a distorted starting point and the campaign achieves less with the same spend.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "data-quality"],
+      "educate": {
+        "base": "The Trade Desk's Kokai platform lets practitioners set bid factors on dimensions including device type, site list, audience segment, recency, geography, and supply source. Each factor is a multiplier applied to the ad group's base bid before the platform submits to an auction. A factor of 1.5 on a device type raises the bid 50 percent for that device; a factor of 0.5 lowers it by half.<br><br>Koa, The Trade Desk's AI optimization layer, also adjusts bids dynamically based on predicted performance for the ad group's goal. When a manual bid factor and Koa's signal move in the same direction, the result is a stronger, more coherent bid. When they move in opposite directions, the manual factor overrides part of Koa's work. The ad group ends up bidding higher than Koa would recommend on some impressions and lower on others, so the AI's signal is partially nullified by the configuration beneath it.<br><br>The configuration pattern that produces this problem is reusing an ad group's bid factors from a prior campaign without reviewing whether those factors still apply to the current goal. A retargeting ad group that carried a high multiplier on a recency segment from a previous flight and was then repurposed for prospecting now bids up on recency for audiences that have not visited recently, which is backward for a prospecting goal.<br><br>A few signs point to this misalignment:<ul><li>Bid factors are set on more than three or four dimensions simultaneously, with some boosting and some suppressing the same inventory pool the goal depends on</li><li>The ad group's goal changed between flights but the bid factors were not reviewed</li><li>Koa's performance summary flags a dimension where the AI recommendation and the manual factor move in opposite directions</li></ul>You may want to start with the ad group's current optimization goal and ask whether each active factor supports that goal before treating the multiplier values as authoritative.",
+        "site_type_overlays": {
+          "ecommerce": "For a store running a return-on-ad-spend (ROAS) or conversion goal, bid factors on purchase-intent data segments or site list multipliers tied to commerce inventory can support Koa's signal, provided the data is current. You may want to confirm that any segment multiplier reflects actual purchase behavior from this flight period rather than a lookalike segment added during a previous awareness campaign that was never removed.",
+          "lead_gen": "For a lead-generation campaign, a bid factor on a contextual segment relevant to the offer category may help focus spend. You may want to confirm that any device-type multiplier reflects where form completions actually occur for this specific offer. A desktop multiplier carried from a prior campaign may not match the traffic mix of the current audience pool."
+        },
+        "learn_more": [
+          {
+            "source_type": "The Trade Desk",
+            "source_title": "The Trade Desk — Kokai buying platform overview",
+            "source_url": "https://www.thetradedesk.com/us/our-platform"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB specification — real-time bidding standards",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Open the ad group in The Trade Desk platform and review the bid factors currently active. Map each factor to the ad group's current optimization goal to confirm the direction of each multiplier is consistent with what the goal requires.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the campaign in Kokai and navigate to the ad group you are reviewing. Confirm the ad group's current optimization goal, for example 'CPA' or 'ROAS', from the ad group settings.",
+                "Open the bid factors panel for the ad group. List every factor that is active, note the dimension it applies to (e.g., device type, site list, data segment), and note whether the multiplier is above or below 1.0.",
+                "For each factor above 1.0 (meaning the bid is increased for that dimension), ask whether the ad group's reporting shows that dimension delivering better results than average against the optimization goal. A factor boosting a dimension that converts below average for this goal is a candidate for removal or reduction.",
+                "For each factor below 1.0, ask whether suppressing that dimension is intentional for this flight. A factor that was added to exclude a segment for a different campaign may be suppressing inventory the current goal needs.",
+                "Note any factor set on a dimension where Koa also has an active optimization signal for the same goal. The ad group summary in Kokai shows where Koa is actively adjusting. Review whether the manual factor direction matches or contradicts Koa's direction on that dimension.",
+                "Record each conflicting factor, the dimension, and the direction of the conflict for the evaluation."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad group, each active bid factor and whether its direction is consistent with the current optimization goal based on ad group reporting. A factor that boosts a dimension delivering at or above goal passes. A factor that boosts a dimension delivering below goal, or that suppresses inventory the goal depends on, is a fail recorded with the factor dimension and the multiplier value. An ad group with no conflicting factors passes.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each active bid factor, the dimension it applies to, and whether its direction aligns with the ad group's current goal above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more ad groups in {{site_name}}'s The Trade Desk campaigns carry bid factors that work against the ad group's current optimization goal. Manual multipliers set on dimensions where Koa is also optimizing can divide the AI's signal: the ad group bids higher on segments Koa rates poorly and lower on segments Koa rates strongly, so the campaign spends budget less efficiently than it otherwise would. {{voice_recommend}} reviewing each active bid factor against the ad group's current goal, removing or adjusting any multiplier whose direction contradicts what the goal and reporting data support, and then allowing Koa to operate from a cleaner starting point. After the change, monitor the ad group's delivery curve and cost-per-result for the following flight to confirm the optimization is improving."
+      }
+    },
+    {
+      "id": "ttd-bid-factors-stale-from-prior-campaign",
+      "title": "Bid factors carry stale multipliers from a prior campaign or flight",
+      "category": "bidding",
+      "subcategory": "bid_factors",
+      "impact_score": 2,
+      "impact_rationale": "A factor added for a past campaign goal that was never removed shifts every bid on that dimension for the current flight. The effect is invisible in campaign reporting because bid factor history is not surfaced as a line item, so the account overpays or underbids on affected inventory without a signal in the data pointing to the cause.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "governance"],
+      "educate": {
+        "base": "When an ad group is duplicated or repurposed for a new campaign in The Trade Desk, bid factors set during the prior flight carry over with it unless they are explicitly cleared. The new campaign inherits whatever multipliers were in place when the ad group was last active, which may include factors added for a specific event, a seasonal push, a competitor exclusion, or a data segment that no longer has sufficient scale.<br><br>Stale factors differ from contradictory ones in that they may not actively oppose the current goal. A factor on a site list that was added to boost a premium publisher group during a connected television (CTV) campaign may be neutral for a current display campaign. Still, it adds noise to the bid calculation, makes auditing harder, and means the account is paying more for some inventory than the current signal supports.<br><br>The more disruptive version is a suppression factor, set as a multiplier below 1.0, on a dimension that the current campaign actually needs. A factor set to 0.1 on a data segment that was excluded during a prior awareness campaign because it overlapped with an unrelated audience can devastate a current retargeting campaign if that segment is now the core audience.<br><br>A few signs suggest stale factors may be present:<ul><li>The ad group was duplicated from a previous flight and the factors were not reviewed at the time of duplication</li><li>There are more than four or five active factors on an ad group with no clear documented reason for each</li><li>A segment or site list in the bid factors is no longer active in the ad group's targeting, yet the factor still carries a multiplier for it</li></ul>You may want to treat any ad group duplication as a checkpoint to review all inherited bid factors rather than assuming the prior configuration is correct for the new goal.",
+        "site_type_overlays": {
+          "ecommerce": "For a store, a common stale factor pattern is a holiday-season multiplier on a retail-intent data segment that was set during a Q4 push and was never removed when the campaign resumed in Q1. You may want to confirm that any segment multiplier reflects a signal relevant to the current product category and season rather than a high-spend period that has since passed.",
+          "lead_gen": "For a lead-generation campaign, a stale geography multiplier from a campaign targeting a different region can shift spend away from the intended market. You may want to confirm that any geography factor was set deliberately for the current campaign and not inherited from a prior flight with a different regional focus."
+        },
+        "learn_more": [
+          {
+            "source_type": "The Trade Desk",
+            "source_title": "The Trade Desk — platform overview",
+            "source_url": "https://www.thetradedesk.com/us"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Open each active ad group in The Trade Desk platform and review the full list of bid factors. For each factor, confirm that a current, documented reason exists for the multiplier and that the dimension it targets is still relevant to the current campaign goal.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the campaign in Kokai and select an ad group. Navigate to the bid factors panel and view all active multipliers.",
+                "For each factor, note the dimension (site list, data segment, device type, geography, recency, or supply source) and the multiplier value.",
+                "Ask whether the dimension is still part of the ad group's current targeting and whether it is relevant to the current optimization goal. A factor set on a data segment that is no longer loaded in the ad group's audience is a candidate for removal.",
+                "For factors below 1.0, confirm whether the suppression was intentional for the current flight. A suppression factor inherited from a prior campaign can significantly reduce delivery on inventory the current campaign needs.",
+                "Note any factor that cannot be traced to the current campaign brief or goal as a stale candidate. Record the dimension, the multiplier value, and the date the ad group was last reviewed."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad group, each active bid factor and whether it can be justified by the current campaign goal and targeting. A factor with a current, documented reason passes. A factor on a dimension that is no longer in targeting, that traces to a prior campaign goal, or that cannot be justified by the current brief is a stale factor recorded with the ad group name, the dimension, and the multiplier value.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each active bid factor, its dimension, and whether it can be justified by the current campaign above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} stale bid factor multipliers on ad groups in {{site_name}}'s The Trade Desk campaigns. These factors were set during prior flights and carried forward into the current campaign without review. They shift bids on dimensions that may no longer be relevant to the current goal, which means the campaign is paying more for some inventory segments than the current signal supports and may be suppressing delivery on others. {{voice_recommend}} auditing all active bid factors against the current campaign brief, removing any multiplier that cannot be traced to the current goal, and documenting the reason for each retained factor so it can be reviewed at the start of the next flight."
+      }
+    },
+    {
+      "id": "ttd-base-bid-unrealistic-for-inventory",
+      "title": "Base bid is set too low to win impressions on the targeted inventory",
+      "category": "bidding",
+      "subcategory": "bid_factors",
+      "impact_score": 3,
+      "impact_rationale": "When the base bid is below the floor prices of the ad group's targeted inventory, the ad group enters auctions at a price that cannot clear. No bid factor multiplier, however high, can raise the effective bid above its clearing threshold if the base is too far below the market rate, so the campaign underspends and under-delivers regardless of budget or targeting configuration.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "data-quality"],
+      "educate": {
+        "base": "Every ad group in The Trade Desk Kokai platform carries a base bid, expressed as a cost per thousand impressions (CPM), that serves as the starting point for the bid calculation. Bid factor multipliers are applied on top of this base. If the base bid is lower than the floor price of the targeted supply, the ad group submits losing bids on most or all of the inventory it targets, regardless of how the factors are set. A base bid of $1.00 on programmatic guaranteed or private marketplace (PMP) deals with a $5.00 floor will not win impressions no matter what multiplier sits on top of it.<br><br>The problem surfaces in two ways. First, the ad group underpaces against budget because it cannot win enough inventory to spend. Second, the effective CPM the campaign does pay, in the small share of auctions it wins, may be on lower-quality inventory that clears below the base bid. Premium supply consistently priced above the base bid is never won. The account sees underspend and cannot trace it to targeting or creative because the bid itself is the constraint.<br><br>Floor prices in programmatic buying are set by publishers, supply-side platforms (SSPs), and deal terms. Connected television (CTV) and premium video inventory carries higher floors than display. Private marketplace deals often carry negotiated floors that exceed open-market rates. An ad group that was calibrated for open-web display and then had its targeting expanded to include CTV or premium video without a corresponding adjustment to the base bid will face this problem on the new supply.<br><br>A few signs point to a base bid that is too low:<ul><li>The ad group consistently underpaces against its flight budget with no obvious targeting constraint</li><li>Win rates in The Trade Desk reporting are very low relative to bid requests</li><li>The ad group targets premium or private marketplace supply but the base bid is in the range typical for open-web display</li></ul>You may want to compare the base bid to the floor prices shown in the deal or inventory reporting before adjusting other settings.",
+        "site_type_overlays": {
+          "ecommerce": "For a store running a CTV or streaming audio campaign alongside display, the CTV and audio inventory carries higher floor prices than open-web display. You may want to confirm that the base bid for any ad group targeting CTV or streaming audio reflects the floor range for that supply rather than the display CPM used elsewhere in the campaign.",
+          "lead_gen": "For a lead-generation campaign targeting a specific vertical context, such as financial services or healthcare content, premium contextual inventory in those categories carries floor prices that can be meaningfully higher than general display. You may want to confirm the base bid is calibrated to the actual supply mix the ad group is targeting, not to a lower-cost channel used in a prior campaign."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB specification — price floors and bid mechanics",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          },
+          {
+            "source_type": "The Trade Desk",
+            "source_title": "The Trade Desk — about us and platform capabilities",
+            "source_url": "https://www.thetradedesk.com/us/about-us"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the base bid for each ad group against the floor prices for the supply it is targeting. Use The Trade Desk reporting to identify win rate and delivery patterns that point to a bid-floor mismatch.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the ad group in Kokai and note the base bid value in CPM. Also note whether Koa's automated bidding is enabled or whether the ad group is using a fixed CPM.",
+                "Navigate to the ad group's delivery reporting and look at impression volume, budget pacing, and win rate against bid requests if that metric is available in the reporting view.",
+                "Compare the base bid to the floor prices shown in any private marketplace deal the ad group is targeting. If the deal card in Kokai shows a floor rate, confirm the base bid plus any applicable factor multiplier can clear that floor.",
+                "If the ad group targets a mix of supply types, such as display and connected television (CTV), note whether the base bid reflects the higher floor range of the premium supply. CTV floor prices frequently exceed open-web display floors by a factor of three or more.",
+                "If the ad group is consistently underpacing and the inventory availability looks sufficient in the supply forecast, note the base bid as a candidate for review."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad group, the base bid value, the floor price of the primary targeted supply, and the ad group's pacing rate against budget. An ad group whose base bid can clear the floor price of its primary supply and is pacing on or above target passes. An ad group whose base bid is below the floor price of its targeted supply, or that is consistently underpacing against budget without a targeting or audience constraint to explain it, is a fail recorded with the base bid value, the floor price observed, and the pacing rate.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the base bid, the floor price of the primary targeted supply, and the ad group pacing rate above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more ad groups in {{site_name}}'s The Trade Desk campaigns carry a base bid that is below the floor price of the targeted inventory, so the ad group cannot win impressions at the price it is submitting. No bid factor multiplier can compensate when the base itself does not clear the supply's floor, which means the campaign underpaces against its budget and the spending that does occur goes to lower-quality inventory that clears below the base bid. {{voice_recommend}} comparing the base bid for each underpacing ad group to the floor prices reported for its targeted supply, adjusting the base bid to a level that can realistically clear the floor for the primary supply type, and reviewing the delivery curve over the following flight to confirm pacing improves."
+      }
+    }
+  ]
+}

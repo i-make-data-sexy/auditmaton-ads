@@ -1,0 +1,188 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Audience setup in The Trade Desk controls who sees the campaign, how often, and at what cost. A first-party segment that expired last quarter, an audience window set to 30 days on a six-month purchase cycle, or prospecting and retargeting audiences pooled together will each cost money before they surface in reporting. These checks read quickly from the Audiences section in the Kokai platform and from the ad group targeting panel, and the fixes are configuration changes, not rebuilds.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "The Trade Desk serves ads against audience segments defined in the Kokai platform. Segments draw on first-party data uploaded directly, on Unified ID 2.0 (UID2) matches, and on third-party data purchased from The Trade Desk Data Marketplace. Three setup problems reduce delivery or obscure performance without triggering an obvious error: first-party segments that have fallen below the minimum size or expired, membership windows misaligned with the purchase cycle, and prospecting audiences mixed into the same ad group as retargeting audiences. These checks work through each of those in the order that most affects spend.",
+  "audit_checks": [
+    {
+      "id": "ttd-first-party-audience-size-and-freshness",
+      "title": "First-party audience segments are too small or have expired",
+      "category": "targeting",
+      "subcategory": "audience_setup",
+      "impact_score": 4,
+      "impact_rationale": "An ad group targeting only an expired or undersized first-party segment delivers nothing or falls back to broader supply at a higher effective cost per result. The Kokai platform continues to run the ad group without surfacing a campaign-level alert, so the budget burns with no audience.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["targeting", "data-quality"],
+      "educate": {
+        "base": "The Trade Desk requires a first-party audience segment to meet a minimum addressable size before it serves. Segments below that threshold show a status indicator in the Audiences section of the Kokai platform but do not automatically pause the ad groups that target them. A segment that once qualified may fall below the floor if uploads stop, if UID2 tokens in the segment age out, or if the CRM file the segment was built from has not been refreshed.<br><br>Unified ID 2.0 (UID2) tokens have a finite validity period. The UID2 framework rotates tokens regularly, and a segment populated from a static file upload will shrink as tokens cycle unless the advertiser re-uploads or refreshes through an automated feed. A segment built from a customer file uploaded six months ago may look populated in the platform but deliver to far fewer users than the count suggests.<br><br>A few signs point to this problem:<ul><li>The segment status in the Audiences section shows a warning or a size below the delivery threshold</li><li>An ad group targeting only this segment shows impressions close to zero despite sufficient budget and bids</li><li>The last upload date on the segment is more than 30 days old and no automated refresh is configured</li></ul>You may want to confirm both the segment status and the upload history before concluding the ad group has an inventory or bid problem. A stale or undersized audience is the simpler explanation for delivery gaps on well-funded ad groups.<br><br>The <a href='https://unifiedid.com/docs/intro' class='tools-link-no-padding' target='_blank'>UID2 documentation</a> covers how tokens rotate and how advertisers and data providers should structure refreshes to maintain segment health.",
+        "site_type_overlays": {
+          "ecommerce": "For a store, the most affected segments are purchase suppression lists built from order confirmation data and loyalty audiences built from repeat purchaser CRM files. Both depend on frequent uploads to stay current. You may want to check whether the post-purchase suppression segment is current enough to exclude recent buyers. An expired suppression list will re-target customers who just converted.",
+          "lead_gen": "For a lead-generation advertiser, the most affected segment is typically a lead suppression list built from submitted form data. A stale suppression list delivers ads to people who already submitted, which wastes budget and creates a poor experience. You may want to confirm the form data pipeline feeds the segment on a cadence that matches the lead volume."
+        },
+        "learn_more": [
+          {
+            "source_type": "UID2 Documentation",
+            "source_title": "Unified ID 2.0 overview",
+            "source_url": "https://unifiedid.com/docs/intro"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm the status, size, and upload history of each first-party segment targeted by active ad groups.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the Kokai platform and navigate to the Audiences section. Select the advertiser.",
+                "For each first-party segment targeted by a live ad group, note the segment status indicator, the current estimated size, and the last upload or refresh date.",
+                "If the status shows a warning or the size is at or below the platform's delivery threshold, note the segment name and the last upload date.",
+                "Return to the campaign and open the ad group that targets the flagged segment. Check the impression delivery for the past 14 days. Near-zero impressions on an otherwise well-funded ad group with no other explanation points to the segment as the constraint.",
+                "Confirm whether an automated feed or API refresh is configured for the segment, or whether all uploads have been manual."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per first-party segment targeted by an active ad group, the segment status, the current size relative to the delivery threshold, and the date of the last upload. A segment showing a healthy status, a size above the threshold, and an upload within the past 30 days passes. A segment below the threshold, showing a warning status, or with no upload in more than 30 days is a fail recorded with the segment name, the last upload date, and the ad groups it affects.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the segment status, size, and last upload date for each first-party segment targeted by an active ad group above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more first-party audience segments targeting active ad groups on {{site_name}} have fallen below the delivery threshold or have not been refreshed recently enough to reflect current membership. When a segment drops below the minimum size, The Trade Desk continues to run the ad group but has no addressable audience to match, so budget spends with no delivery or falls back to broader supply at a higher cost per result. {{voice_recommend}} reviewing the segment status and upload history for each affected segment, re-uploading the customer file or configuring an automated feed, and confirming the segment size returns above the delivery threshold before the ad group resumes normal delivery."
+      }
+    },
+    {
+      "id": "ttd-audience-membership-window-misaligned",
+      "title": "Audience membership windows do not match the purchase cycle",
+      "category": "targeting",
+      "subcategory": "audience_setup",
+      "impact_score": 3,
+      "impact_rationale": "A window set shorter than the purchase cycle drops users before they convert, reducing the retargeting pool and raising cost per acquisition. A window set far longer than the cycle keeps users in the pool after intent has faded, diluting the audience and weakening the signal that drives Koa optimization.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["targeting", "attribution"],
+      "educate": {
+        "base": "The Trade Desk's audience membership window controls how long a user remains in a segment after the qualifying action that added them. For pixel-based retargeting segments, the window starts when the Universal Pixel fires a qualifying event. For CRM-based first-party segments, the window is set at segment creation and determines when uploaded records age out.<br><br>A window that is too short removes users before they have had a reasonable opportunity to convert. If the average consideration period for a product is 21 days but the membership window is 7 days, the retargeting segment will drop a portion of in-market users before the campaign has a chance to reach them again. The ad group will look like it is running against a stable audience but will churn through members faster than the product's natural cycle allows.<br><br>A window set far longer than the cycle has the opposite effect. Users who visited a site 90 days ago and either converted or moved on remain in the pool, making the segment larger but weaker. Koa, The Trade Desk's AI optimization layer, learns bid signals from this audience. A pool diluted with users who are no longer in-market weakens the signal and raises the bids needed to reach the users who still are.<br><br>Matching the window to the purchase cycle is a judgment call that requires knowing how the product is bought. Considered purchases, such as enterprise software or high-value travel, support longer windows. Commodity or impulse purchases do not. The platform default is not necessarily the right setting for the advertiser's product. You may want to confirm that whoever set the audience window had the purchase cycle in mind rather than accepting the default.",
+        "site_type_overlays": {
+          "ecommerce": "For a store, the membership window should reflect how long a shopper typically takes from first product page visit to checkout. A general-merchandise retailer may see most conversions within 7 days of the first visit; a furniture or appliance retailer may see a 30-to-60-day cycle. Setting a 3-day window on a 30-day product will drop most of the retargeting pool before they convert.",
+          "lead_gen": "For a lead-generation advertiser, the window should reflect the sales cycle from first content engagement to form submission. A software trial that converts within a week calls for a different window than a complex B2B service where the prospect takes two months to reach a decision."
+        },
+        "learn_more": [
+          {
+            "source_type": "UID2 Documentation",
+            "source_title": "Frequently asked questions about UID2",
+            "source_url": "https://unifiedid.com/docs/getting-started/gs-faqs"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm the membership window set on each active audience segment and compare it to the known or estimated purchase cycle for the product.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Navigate to the Audiences section in the Kokai platform and open each segment used in active ad groups.",
+                "Record the membership duration set on the segment. For pixel-based segments, this is the lookback window. For CRM segments, note the expiration setting.",
+                "Ask the client or account team what the typical purchase cycle is for the product being advertised. If that information is not available, use the path-to-conversion data in the measurement section of the platform as a proxy.",
+                "Compare the membership window to the purchase cycle. Flag any segment where the window is shorter than the typical consideration period or longer than twice the typical consideration period.",
+                "For segments with a mismatch, note the segment name, the current window, and the recommended window based on the purchase cycle."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per active audience segment, the current membership window and the purchase cycle estimate for the product. A segment whose window covers the typical consideration period, without extending more than twice that period, passes. A segment whose window falls short of the typical consideration period is a fail recorded with the segment name, the current window, and the estimated purchase cycle. A segment whose window greatly exceeds the purchase cycle is also flagged for audience dilution.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the membership window and the purchase cycle estimate for each active audience segment above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the audience membership windows on {{site_name}}'s retargeting segments do not align with the product's purchase cycle. A window shorter than the consideration period drops users before they have a reasonable opportunity to convert, shrinking the retargeting pool mid-funnel. A window far longer than the cycle dilutes the audience with users who have already converted or moved on, weakening the signal that Koa uses to optimize bids. {{voice_recommend}} reviewing the membership window on each affected segment, aligning it to the typical consideration period for the product, and monitoring the segment size and cost per acquisition in the two weeks following the change."
+      }
+    },
+    {
+      "id": "ttd-prospecting-retargeting-not-separated",
+      "title": "Prospecting and retargeting audiences share the same ad group",
+      "category": "targeting",
+      "subcategory": "audience_setup",
+      "impact_score": 3,
+      "impact_rationale": "When a high-intent retargeting segment and a broad prospecting audience share one ad group, the budget and creative are identical for both, the performance data is blended so neither goal is measurable on its own, and Koa optimizes toward a mixed signal that reflects neither acquisition nor retention.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["targeting", "bidding"],
+      "educate": {
+        "base": "In The Trade Desk's Kokai hierarchy, the ad group is the level where audiences are applied, budgets are set, and bids are configured. Separating prospecting from retargeting at the ad group level is the structural requirement for measuring and funding each goal independently.<br><br>When both audience types share one ad group, several problems follow. The budget does not differentiate between a user who has never heard of the brand and one who added an item to a cart. The creative that works for a first-touch prospecting user, who needs category context, is not the same creative that works for a high-intent retargeting user, who needs urgency or a reminder. The performance metrics that result are a blend of both audiences, making it impossible to evaluate whether prospecting or retargeting is driving the return on ad spend (ROAS).<br><br>Koa, The Trade Desk's optimization layer, bids based on the signal it reads from the ad group's results. A mixed audience produces a mixed signal, and Koa will optimize toward whatever the majority of the audience looks like, which is typically the larger prospecting pool. The retargeting users get bid prices calibrated for prospecting, which may be too low to win the impressions on the users most likely to convert.<br><br>The fix is to split the audiences into separate ad groups within the same campaign. Each ad group gets its own budget, creative, and bid. The prospecting ad group should also carry an exclusion for users already in the retargeting segment, so the same user does not appear in both. You may want to confirm that exclusion is in place when separating the ad groups.",
+        "site_type_overlays": {
+          "ecommerce": "For a store, the most common mixed-audience setup is a site-visitor retargeting segment combined with a lookalike or third-party prospecting segment in a single ad group. Separating them lets the account see the return on the retargeting investment and set a higher bid for cart abandoners specifically, rather than blending that high-intent segment with prospecting traffic.",
+          "lead_gen": "For a lead-generation advertiser, the separation that matters most is between engaged site visitors who have viewed a key page, such as a pricing or features page, and cold prospecting audiences. These two groups respond to different messages and represent different stages of the funnel. Blending them means the campaign cannot serve a relevant message to either."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Europe",
+            "source_title": "Transparency and Consent Framework",
+            "source_url": "https://iabeurope.eu/tcf-2-0/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether active ad groups combine prospecting and retargeting audiences, and whether audience exclusions prevent the same user from appearing in both when they are separated.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the campaign in the Kokai platform and navigate to the ad group targeting panel.",
+                "For each ad group, note all audience segments applied in the targeting section. Look for any ad group that includes both a first-party retargeting segment, such as a Universal Pixel visitor or cart-abandoner segment, and a broad third-party or lookalike prospecting segment simultaneously.",
+                "Flag ad groups where the audience list mixes high-intent retargeting users with broad prospecting audiences.",
+                "For ad groups that are already separated into prospecting and retargeting, confirm that the prospecting ad group carries an audience exclusion for the retargeting segment. An ad group without that exclusion will deliver to the same users in both ad groups."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per active ad group, the audience segments applied and whether the combination mixes prospecting and retargeting intent. An ad group that targets only one audience type, with an exclusion in the prospecting ad group for users in the retargeting segment, passes. An ad group that applies both audience types in the same targeting rule is a fail, recorded with the ad group name and the segments involved.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the audience segments applied to each active ad group above, and note whether any ad group mixes prospecting and retargeting audiences."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that prospecting and retargeting audiences are combined within the same ad groups on {{site_name}}'s campaigns in The Trade Desk. With both audience types sharing one ad group, the budget does not differentiate by intent, the creative cannot speak to either group specifically, and the performance data is blended so neither goal is measurable on its own. Koa optimizes toward the mixed audience signal rather than toward conversion signals from the retargeting pool. {{voice_recommend}} splitting the affected ad groups so prospecting and retargeting each have their own ad group with a dedicated budget and creative set, and adding an audience exclusion to the prospecting ad group so users already in the retargeting segment are not served prospecting creative."
+      }
+    }
+  ]
+}

@@ -1,0 +1,206 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Creative QA failures in The Trade Desk surface as silent delivery drops. A creative held in policy review stops spending the moment it enters review, yet the ad group continues reporting an active status, so the budget disappears without a clear signal. Landing-page errors and broken tracking tags follow the same pattern: spend runs, impressions count, but the campaign either drives traffic nowhere useful or logs no conversions. These checks take a few minutes to run in the platform's creative library and against a live click-through. The fixes are replacements or resubmissions, not architectural changes.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Creative QA in The Trade Desk covers the last-mile checks between an approved brief and actual delivery. A creative can be built correctly and still fail to serve because a click-through URL points to a page that no longer exists, a third-party tracking tag was wired to a test endpoint instead of production, or the creative entered policy review and the ad group continued running without it. These checks confirm that destination URLs are live and correct, that impression and click tags are firing in the right environment, and that no creative in the flight is held or paused for compliance reasons.",
+  "audit_checks": [
+    {
+      "id": "creative-click-through-urls-broken-or-misrouted",
+      "title": "Click-through URLs point to broken or wrong landing pages",
+      "category": "creative",
+      "subcategory": "creative_qa",
+      "impact_score": 3,
+      "impact_rationale": "Every click that lands on a 404 or on the wrong page converts nothing and wastes the cost-per-click. The campaign still reports impressions and clicks, so the problem reads as poor click-to-conversion rate rather than a broken URL, and the root cause can stay invisible across an entire flight.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "data-quality"],
+      "educate": {
+        "base": "The Trade Desk stores a click-through URL on each creative. When a user clicks the ad, the platform's click tracker appends its own redirect before handing off to that destination. A URL that worked at trafficking time can fail later because the landing page was taken down, the page was moved without a redirect, or the URL was entered with a typo in the first place.<br><br>The symptom is a click that reaches the platform's tracker and then bounces. Reporting shows the click, the redirect fires, and nothing after it converts. Because The Trade Desk's own redirect appears healthy, the breakage is not visible in platform delivery metrics. It only surfaces in site analytics, where sessions from the ad source begin on an error page or disappear entirely.<br><br>A few signs point to this:<ul><li>Clicks are present in The Trade Desk but the site shows no sessions from the corresponding ad source, or sessions begin on a 404 page</li><li>The URL in the creative library contains a query string fragment that was truncated during entry</li><li>The destination was recently migrated and the old URL was not redirected</li></ul>You may want to click through every active creative before a flight launches and again after any site migration, rather than relying on platform delivery data to surface a broken destination.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, click-through URLs point to product or category pages that are seasonally delisted, out of stock, or reorganized. You may want to confirm each URL resolves to a live, purchasable page rather than a category with no results or a 404.",
+          "lead_gen": "On a lead-generation site, the landing page itself frequently carries the UTM parameters and form prefill logic the campaign depends on. You may want to confirm the full URL, including any query string, resolves correctly and that the form on the destination page is active."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "IAB New Ad Portfolio: Creative Advertising Guidelines",
+            "source_url": "https://www.iab.com/guidelines/iab-new-ad-portfolio/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that each active creative's click-through URL resolves to the intended destination.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the Creatives section of your advertiser. Filter to 'Active' status and work through each creative that is currently assigned to a running ad group.",
+                "Copy the click-through URL from each creative's detail view. Paste it into a browser, following any redirects, and confirm it lands on the intended page with the correct content.",
+                "For creatives with UTM parameters or tracking redirects in the URL, confirm the full string resolves correctly rather than stopping at an intermediate redirect.",
+                "Note any creative whose URL returns a 404, a generic home page, or the wrong product or section. Record the creative name and the destination you observed."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per active creative, the click-through URL and the destination observed. A URL that resolves to the intended, live landing page passes. A URL that returns an error page, redirects to an unintended destination, or is truncated is a fail recorded with the creative name and the observed destination.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the click-through URL and the observed destination for each active creative above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more active creatives on {{site_name}}'s The Trade Desk campaigns point to broken or incorrect landing pages. Clicks are reaching The Trade Desk's redirect but landing on error pages or wrong destinations, so the traffic is lost after the click and no conversion can occur. {{voice_recommend}} updating the click-through URL on each affected creative to the correct live destination and confirming the full URL resolves in a browser before the updated creative goes back into rotation."
+      }
+    },
+    {
+      "id": "creative-third-party-tags-not-firing-in-production",
+      "title": "Third-party impression, click, or verification tags are wired to a test endpoint or not firing",
+      "category": "creative",
+      "subcategory": "creative_qa",
+      "impact_score": 3,
+      "impact_rationale": "A third-party tag wired to a test endpoint or pointing at a stale domain means the advertiser's measurement vendor, brand-safety verification tool, or attribution partner receives no data from the flight. Reporting from those vendors is blank, discrepancies between platform and third-party counts go undetected, and any verification the tag was meant to enforce, such as viewability or fraud filtering, does not run.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "data-quality"],
+      "educate": {
+        "base": "The Trade Desk supports third-party tracking tags on each creative for impression counting, click tracking, and verification. These tags are typically supplied by measurement vendors such as DoubleVerify or Integral Ad Science (IAS), by the advertiser's ad server, or by an attribution partner. The tag fires each time the creative serves or is clicked, and the vendor on the other end of the tag logs the event.<br><br>Tags fail to fire for several reasons. A tag URL that was copied from a staging or test environment points at a domain that accepts requests but does not write to the live reporting database. A tag that references a deprecated URL pattern returns an error and the impression goes uncounted. A tag that is malformed, such as one missing a required macro, fires but populates the vendor's report with blank or zero values for the field the macro was meant to supply.<br><br>In The Trade Desk, third-party tags are attached at the creative level and separated by type: impression tags, click tags, and JavaScript tags each have their own field. A few signs point to a tagging problem:<ul><li>The vendor's dashboard shows zero impressions for the campaign period while The Trade Desk reports normal delivery</li><li>The tag URL contains the word 'test', 'staging', or 'dev' in the domain or path</li><li>The tag was copied from a prior flight without updating the placement or campaign macros it references</li></ul>You may want to confirm each tag against the vendor's live tag specification before the flight launches, rather than relying on the first day's discrepancy to surface the problem.",
+        "site_type_overlays": {
+          "ecommerce": "On a store running brand-safety verification via DoubleVerify or IAS, a tag pointed at a test environment means the verification vendor cannot block non-brand-safe impressions in real time. You may want to confirm the tag is the production version supplied by the vendor for this specific campaign.",
+          "lead_gen": "On a lead-generation campaign using a third-party attribution partner's impression tag, a misfired tag means the partner records no impressions and the view-through attribution window produces no conversions. You may want to confirm the tag URL and all macros with the attribution vendor before the flight goes live."
+        },
+        "learn_more": [
+          {
+            "source_type": "DoubleVerify",
+            "source_title": "DoubleVerify: Media Effectiveness Platform",
+            "source_url": "https://www.doubleverify.com/"
+          },
+          {
+            "source_type": "Integral Ad Science",
+            "source_title": "Integral Ad Science: Global Media Measurement and Optimization",
+            "source_url": "https://integralads.com/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that each active creative's third-party tags reference production endpoints and are firing correctly.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the Creatives section for the advertiser. Select an active creative and open its tag fields: impression tags, click tags, and any JavaScript tags applied.",
+                "Read each tag URL. Look for 'test', 'staging', 'qa', or 'dev' in the domain or path. If any URL contains those strings, the tag is not pointed at the live production endpoint.",
+                "Check whether the tag URL uses any macros, such as a placement ID or campaign ID placeholder. Confirm those macros are in the format the platform expects rather than still containing the literal placeholder text.",
+                "For each tag, cross-reference the count the vendor reports for the first 24-48 hours of the flight against The Trade Desk's impression count for the same creative. A vendor count near zero while The Trade Desk shows normal delivery points to a tag that is not firing in production."
+              ]
+            }
+          },
+          "paid": {
+            "doubleverify": {
+              "label": "DoubleVerify (if used)",
+              "steps": [
+                "Log into the DoubleVerify portal and pull an impression report for the campaign's active dates.",
+                "Compare the DoubleVerify impression count against The Trade Desk's impression count for the same creative over the same period. A count of zero or near-zero from DoubleVerify while The Trade Desk shows normal delivery confirms the tag is not firing."
+              ]
+            },
+            "ias": {
+              "label": "Integral Ad Science (if used)",
+              "steps": [
+                "Log into the IAS Signal portal and pull an impression count for the campaign.",
+                "Compare the IAS count to The Trade Desk count for the same creative and date range. A significant gap in favor of The Trade Desk confirms the IAS tag is not registering impressions."
+              ]
+            }
+          }
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per creative, the third-party tags present and whether each tag URL references a production endpoint. A creative whose tags point to confirmed production URLs and whose vendor counts align with The Trade Desk impression counts passes. A creative with a tag URL containing test or staging strings, or whose vendor count is zero or near-zero while The Trade Desk reports normal delivery, is a fail recorded with the creative name and the tag in question.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the tag URLs and the vendor count versus The Trade Desk count for each active creative above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more active creatives on {{site_name}}'s The Trade Desk campaigns carry third-party tracking tags that are wired to a test endpoint or are not registering impressions with the vendor. The measurement or verification vendor receives no data from the affected impressions, so any reporting, brand-safety enforcement, or attribution those tags were meant to support is absent for the duration of the flight. {{voice_recommend}} replacing each affected tag with the production version supplied by the vendor, confirming that all macros are correctly formatted, and rechecking the vendor's dashboard after the first 24 hours to confirm counts are aligning with The Trade Desk delivery figures."
+      }
+    },
+    {
+      "id": "creative-held-in-policy-review-blocking-delivery",
+      "title": "Creatives are held in policy review and not delivering",
+      "category": "creative",
+      "subcategory": "creative_qa",
+      "impact_score": 3,
+      "impact_rationale": "A creative in review does not serve, but the ad group it belongs to continues reporting as active and spending against other creatives in the rotation, or underdelivering if it was the sole creative. When review blocks the only creative in a format, the format goes dark without a visible alert, and the budget allocated to that format is either unspent or concentrated on whatever remains in rotation.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "governance"],
+      "educate": {
+        "base": "The Trade Desk reviews creatives for compliance with its policies and with the policies of the supply partners and exchanges through which the creative will serve. A creative can enter review at trafficking, when a material edit is made to an existing creative, or when a supply partner reassesses its inventory rules. While in review, the creative does not deliver.<br><br>The platform marks held creatives with a status indicator in the creative library, but it does not push an alert to the campaign manager's dashboard. An ad group that has one creative in review and one approved continues running on the approved creative and reporting normal delivery. The format gap only becomes visible when you look at the creative library directly or notice that a specific format, size, or placement type is underperforming relative to others.<br><br>A few signs point to a creative held in review:<ul><li>An ad group is active and spending but delivery for a specific size or format is lower than expected relative to other sizes in the same flight</li><li>The creative library shows a status other than 'Active' or 'Approved' for one or more creatives assigned to a running ad group</li><li>A creative was recently edited, such as a URL change or copy revision, which can trigger a new review cycle on some supply paths</li></ul>You may want to check the creative library status for all creatives assigned to active ad groups at the start of a flight and after any creative edit, rather than waiting for delivery patterns to surface the problem.",
+        "site_type_overlays": {
+          "ecommerce": "On a store, promotional creatives tied to a sale or seasonal event are especially at risk because they are typically trafficked close to the event date, leaving little time to resolve a review hold before the window closes. You may want to submit time-sensitive creatives several days before the campaign start to allow for review cycles.",
+          "lead_gen": "On a lead-generation campaign, a creative held for a regulated industry category, such as financial services or healthcare, may require additional documentation or a specific disclaimer before it clears review. You may want to confirm the review hold reason in the creative detail view and address any policy requirement before resubmitting."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "IAB New Ad Portfolio: Advertising Creative Guidelines",
+            "source_url": "https://www.iab.com/guidelines/iab-new-ad-portfolio/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm the status of every creative assigned to active ad groups and identify any held in review.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the Creatives section for the advertiser. Filter the list to show all creatives that are currently assigned to an active ad group.",
+                "Review the status column for each creative. A status other than 'Active' or 'Approved' indicates the creative is not delivering. Note any creative showing 'In Review', 'Rejected', 'Paused by Supply Partner', or a similar held state.",
+                "For each held creative, open its detail view and read the review reason if one is shown. Some holds list the specific policy or supply partner whose rule triggered the hold; others only show a general status.",
+                "Map each held creative back to the ad groups it belongs to. Check whether those ad groups have other approved creatives serving in its place, or whether the held creative is the only one in a given size or format."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per active ad group, the status of each assigned creative. An ad group whose creatives are all approved and active passes. An ad group with one or more creatives in a held or rejected status is flagged, with the creative name, its status, the review reason if available, and whether other approved creatives exist for that format in the same rotation.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the creative status and review reason for each creative assigned to active ad groups above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more creatives on {{site_name}}'s The Trade Desk campaigns are held in policy review and are not delivering. The affected ad groups are running without those creatives, which means either the budget is concentrated on the remaining creatives in rotation or, where the held creative was the only one for a given format, the format is not serving at all. {{voice_recommend}} reviewing the hold reason for each affected creative in the creative library, addressing any policy requirement or documentation the platform requests, and resubmitting. For time-sensitive flights, you may want to prepare a compliant replacement creative to keep the format in rotation while the original is under review."
+      }
+    }
+  ]
+}

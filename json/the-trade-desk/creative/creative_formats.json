@@ -1,0 +1,193 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The Trade Desk enters an ad group into an auction only when it holds a creative that satisfies the placement's format and size requirement. A missing format costs impressions without generating an error in the platform. The ad group appears to be pacing normally while sitting out every auction that requires the absent format. Checking creative format coverage is a read-only review of what is already uploaded, so the effort is low relative to the impressions the gap is losing.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "The Trade Desk (TTD) assigns creatives to ad groups within the Kokai platform, and an ad group enters an auction only when it holds a creative that matches the placement's declared format and size. Display campaigns need a set of standard IAB sizes, video campaigns require compliant VAST tags with the correct aspect ratio and duration, audio campaigns need VAST audio tags, connected TV (CTV) campaigns require VAST creatives sized for the television screen, and native campaigns require a defined set of assets. These checks confirm that the formats assigned to each ad group cover the channels and inventory types being targeted, that the highest-reach standard display sizes are present, and that flexible or multi-size creatives are used where they widen the pool of auctions the ad group can enter.",
+  "audit_checks": [
+    {
+      "id": "ttd-creative-format-gaps-for-targeted-channels",
+      "title": "Creative formats do not cover all channels targeted by the ad group, causing missed auctions",
+      "category": "creative",
+      "subcategory": "creative_formats",
+      "impact_score": 3,
+      "impact_rationale": "An ad group that targets a channel without a matching creative format is ineligible for every auction on that channel. The campaign spends its budget on the channels it does match while the uncovered channels go uncontested, and the Kokai interface does not surface a delivery warning, so the gap can persist for the full flight.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "data-quality"],
+      "educate": {
+        "base": "The Trade Desk (TTD) operates across several distinct inventory channels: display, video, audio, connected TV (CTV), digital out-of-home (DOOH), and native. Each channel has its own technical format requirement. Display placements declare a pixel size and accept image or HTML5 creatives that match. Video and audio placements require a <a href='https://iabtechlab.com/vast/' class='tools-link-no-padding' target='_blank'>Video Ad Serving Template (VAST)</a> tag. CTV placements also use VAST but with dimensions and bitrate requirements sized for television screens rather than desktop browsers. In-app placements on mobile require creatives that conform to the <a href='https://iabtechlab.com/mraid/' class='tools-link-no-padding' target='_blank'>MRAID 3.0 standard</a> for interactive rich media. Native placements require a structured asset set including a title, image, logo, and call-to-action text passed through the <a href='https://iabtechlab.com/standards/openrtb/' class='tools-link-no-padding' target='_blank'>OpenRTB</a> native object.<br><br>When an ad group is set up to target display and CTV inventory but holds only display image creatives, the ad group enters display auctions and sits out every CTV auction. No delivery error appears. The impression log shows zero CTV delivery, which can look like a targeting or pacing issue rather than a creative format gap.<br><br>A few signs point to a format mismatch between the ad group's targeting and its creatives:<ul><li>The ad group targets a channel type but shows zero or near-zero delivery on that channel in campaign reporting</li><li>The creative rotation for the ad group lists only one format type while the ad group's inventory targeting spans multiple channel types</li><li>A private marketplace (PMP) deal was added to the ad group after initial setup and no creative matching the deal's format was uploaded</li></ul>You may want to cross-reference the ad group's channel targeting against the format types assigned to it before the flight begins, rather than diagnosing the gap from pacing data after spend has run.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser running prospecting or retargeting in The Trade Desk, CTV and display often run in the same campaign. You may want to confirm the ad group holds both a display creative and a compliant VAST CTV creative if it targets both channel types. CTV impressions frequently account for a large share of available inventory on TTD's premium supply, and a missing VAST tag on a CTV-targeted ad group loses that inventory entirely.",
+          "lead_gen": "For a lead-generation advertiser, display and audio are a frequent combination for reaching a professional audience. You may want to confirm that an ad group targeting audio inventory holds a VAST audio tag in addition to any display creatives. Audio placements do not accept image creatives, so the two format types cannot substitute for each other."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "VAST: Video Ad Serving Template",
+            "source_url": "https://iabtechlab.com/vast/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "MRAID 3.0: Mobile Rich Media Ad Interface Definitions",
+            "source_url": "https://iabtechlab.com/mraid/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm the format types assigned to each ad group, then compare them against the channels and inventory types the ad group targets.",
+        "tools": {
+          "free": {
+            "ttd_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the campaign in The Trade Desk UI and navigate to the ad group you want to review.",
+                "Open the ad group's 'Creatives' tab and note every format type listed: display (size), video (VAST), audio (VAST audio), CTV (VAST), or native (asset set).",
+                "Return to the ad group's targeting settings and note every channel type or inventory type it targets: display exchanges, video, audio, CTV apps, DOOH, or native.",
+                "For each targeted channel type, confirm at least one creative of the matching format is assigned. Record any channel that has targeting configured but no matching creative.",
+                "Open campaign performance reporting filtered to the ad group. Check delivery by channel type or supply type. A channel with targeting enabled but zero or minimal impressions over a meaningful period points to a format gap worth investigating."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad group checked, the channel types targeted and the creative format types assigned. An ad group that holds at least one correctly formatted creative for each targeted channel type passes. An ad group that targets a channel with no matching creative format is a fail, recorded with the ad group name and the channel or channels without matching creatives.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the targeted channel types and assigned creative format types for each ad group above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more ad groups in {{site_name}}'s The Trade Desk campaigns are targeting inventory channels for which no matching creative format is assigned. An ad group without a creative that satisfies the placement's format requirement is ineligible for every auction on that channel, so the campaign is not competing for the inventory its targeting is configured to reach. {{voice_recommend}} auditing the creative format types assigned to each affected ad group against the channels it targets, uploading any missing format types, and verifying delivery by channel in reporting after the next full flight day."
+      }
+    },
+    {
+      "id": "ttd-high-volume-display-sizes-absent",
+      "title": "High-volume standard display sizes are absent from the advertiser's creative library",
+      "category": "creative",
+      "subcategory": "creative_formats",
+      "impact_score": 3,
+      "impact_rationale": "The five IAB standard display sizes that carry the highest impression volume (300x250, 728x90, 160x600, 300x600, 320x50) account for the majority of available open-exchange display inventory. A creative library that omits two or more of them limits the auction pool available to every display ad group in the advertiser's account, and each missing size represents a persistent gap across all current and future campaigns.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "data-quality"],
+      "educate": {
+        "base": "The Trade Desk (TTD) holds display creatives at the advertiser level and assigns them to ad groups. When an advertiser's creative library is built around a narrow set of sizes, every display ad group launched from that advertiser is constrained from the start. Producing a missing size once makes it available to all current and future ad groups, so the fix is a one-time asset production effort that improves auction eligibility across the account.<br><br>The five standard display sizes that carry the highest impression volume across open exchanges and supply-side platform (SSP) inventory are listed here:<ul><li>300x250: medium rectangle, the highest-volume size on most desktop and mobile exchanges</li><li>728x90: leaderboard, dominant on desktop news and content sites</li><li>160x600: wide skyscraper, standard on sidebar placements across content publishers</li><li>300x600: half-page, a premium desktop placement with above-average viewability</li><li>320x50: mobile banner, the baseline size for mobile browser inventory</li></ul>A creative library that covers all five enters auctions across the broadest range of publisher environments. A library built around only 300x250 and 728x90 sits out every auction that specifies one of the other three sizes.<br><br>You may want to treat a missing size as an asset production priority when it appears in the supply types the advertiser's ad groups are targeting, rather than waiting for impression data to surface the gap after spend has run.",
+        "site_type_overlays": {
+          "ecommerce": "Retail and ecommerce advertisers buying display inventory through The Trade Desk see a significant portion of impressions delivered on mobile browsers, where 320x50 is the baseline size. You may want to confirm that 320x50 is in the creative library alongside the desktop sizes. A desktop-only library performs well on desktop placement data but misses mobile supply entirely.",
+          "lead_gen": "Lead-generation advertisers running display campaigns through TTD on professional or financial content see stronger viewability rates on 300x600 half-page placements, which appear on desktop news and industry publications. You may want to confirm the half-page is in the creative library if the campaign's audience targeting draws on professional or intent-based segments."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB specification",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Audit the advertiser's creative library against the five standard display sizes and note which are absent.",
+        "tools": {
+          "free": {
+            "ttd_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Navigate to the advertiser level in The Trade Desk UI and open the 'Creatives' section.",
+                "Filter by creative type 'Display' or 'Banner'. Review the size or dimensions listed for each creative.",
+                "Note which of the five standard sizes (300x250, 728x90, 160x600, 300x600, 320x50) are present in the library and which are absent.",
+                "Record each absent size. A size missing from the library cannot be assigned to any ad group, so the gap applies to all current and future display campaigns in the advertiser."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records which of the five standard display sizes (300x250, 728x90, 160x600, 300x600, 320x50) are present and which are absent from the advertiser's creative library. An advertiser with all five present passes. An advertiser missing one or more is a fail, recorded with the missing sizes.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which of the five standard display sizes are present and which are absent from the creative library above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s The Trade Desk creative library is missing one or more of the five standard display sizes that account for the majority of open-exchange display inventory. A size absent from the library cannot be assigned to any ad group, so the gap limits auction eligibility across every display campaign in the account. {{voice_recommend}} producing and uploading the missing sizes, prioritizing the sizes that appear most frequently in the supply types and exchanges the account's ad groups target."
+      }
+    },
+    {
+      "id": "ttd-multi-size-or-flexible-creatives-not-used",
+      "title": "Multi-size or flexible creative assignments are not used where they would widen eligible display inventory",
+      "category": "creative",
+      "subcategory": "creative_formats",
+      "impact_score": 2,
+      "impact_rationale": "The Trade Desk allows an ad group to be assigned creatives across multiple sizes simultaneously. An ad group with only one or two sizes assigned enters fewer auctions than one with four or five, even when the additional creatives are already in the library. The gap is a configuration decision, not an asset production problem, so the fix is low effort relative to the additional auction eligibility it restores.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "targeting"],
+      "educate": {
+        "base": "The Trade Desk (TTD) supports assigning multiple display creatives of different sizes to a single ad group. At auction time, Kokai selects the creative whose size matches the placement's requirement. An ad group with all five standard sizes assigned enters auctions that accept any of those sizes. An ad group with only one or two sizes assigned sits out every auction that specifies a size not in its creative set, even if the other sizes are already present elsewhere in the advertiser's library and would require no additional production work to assign.<br><br>This is distinct from the asset library gap in the previous check. The sizes can exist in the library and still be absent from a specific ad group's rotation. The assignment step is a separate configuration decision at the ad group level, and it is the one most often left incomplete when a campaign is set up under time pressure.<br><br>A few signs point to an ad group that would benefit from broader creative assignment:<ul><li>The ad group's creative rotation shows only one or two sizes while the advertiser's library holds three or more standard sizes</li><li>The ad group's impression delivery rate is low relative to its bid, which points to low auction eligibility rather than a pricing problem</li><li>The ad group targets open-exchange or broad supply sources where multiple size types are available simultaneously</li></ul>You may want to check the creative assignment on open-exchange display ad groups specifically. Private marketplace (PMP) deals often specify a single required size, so the assignment flexibility matters most for open-exchange buying.",
+        "site_type_overlays": {
+          "ecommerce": "Retail advertisers running open-exchange retargeting in The Trade Desk benefit from broad size assignment because the placements available on retail-adjacent content span desktop and mobile sizes. You may want to confirm that retargeting ad groups hold at least one desktop display size and at least one mobile banner size, so the same ad group reaches the audience across both environments.",
+          "lead_gen": "Lead-generation advertisers buying open-exchange display in The Trade Desk can reach a wider range of placements on professional and financial content by assigning both 300x250 and 300x600 to the same ad group. You may want to confirm the ad group holds both if the advertiser's library already contains them. The 300x600 half-page carries above-average viewability on the desktop content categories where B2B lead-gen audiences browse."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB specification",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "For each open-exchange display ad group, confirm how many standard sizes are assigned and compare that against what the advertiser's library holds.",
+        "tools": {
+          "free": {
+            "ttd_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the campaign and navigate to each display ad group targeting open-exchange inventory.",
+                "Open the ad group's 'Creatives' tab. Count how many distinct display sizes are assigned to this ad group.",
+                "Return to the advertiser's creative library and note how many standard display sizes are available there.",
+                "If the library holds more standard sizes than are assigned to the ad group, record the ad group name and the sizes present in the library but absent from the ad group's rotation.",
+                "Exclude PMP deal-only ad groups from this review. Deals typically specify a required size, so assigning additional sizes adds no eligibility benefit there."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per open-exchange display ad group, the number of distinct sizes assigned and the number of standard sizes available in the advertiser's library. An ad group that holds all available standard sizes from the library passes. An ad group that holds fewer than the library contains is a candidate for additional assignment, recorded with the ad group name and the sizes in the library that are not assigned.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the sizes assigned to each open-exchange display ad group and the sizes available in the advertiser's library above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that several open-exchange display ad groups in {{site_name}}'s The Trade Desk campaigns hold fewer creative sizes than the advertiser's library contains. The additional sizes are already produced and available, but they have not been assigned to the affected ad groups, so those ad groups are sitting out auctions they would otherwise enter. {{voice_recommend}} reviewing the creative assignment on each open-exchange display ad group and adding the standard sizes from the library that are not yet assigned, prioritizing ad groups with low impression delivery relative to their bid."
+      }
+    }
+  ]
+}

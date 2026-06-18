@@ -1,0 +1,201 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Creative spec mismatches are among the fastest sources of rejected or degraded delivery in programmatic. A video ad trafficked at the wrong bitrate or without a VAST-compliant wrapper goes unfilled rather than rendering at a lower quality. A CTV creative served at 720p into premium 4K inventory reduces quality and can trigger rejection by the supply source. An audio creative missing a companion display unit runs blind on platforms that require one. These checks are quick to complete in The Trade Desk UI and in the creative preview, and fixing a spec problem corrects delivery from the next impression forward.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "The Trade Desk serves video, connected TV (CTV), and audio creatives against supply that carries specific technical requirements. VAST governs how the ad server and the video or audio player exchange metadata, duration limits, and skip signals. CTV inventory adds higher resolution and format constraints that standard online video does not always require. Audio inventory, particularly streaming audio, may require a companion display unit alongside the audio tag. These checks confirm that each creative type is trafficked with the right specs for the supply it targets.",
+  "audit_checks": [
+    {
+      "id": "ttd-video-vast-spec-mismatch",
+      "title": "Video creatives do not meet VAST version or duration requirements for the targeted supply",
+      "category": "creative",
+      "subcategory": "video_ctv_audio_creative",
+      "impact_score": 3,
+      "impact_rationale": "A video creative served with an outdated VAST version, an unsupported wrapper depth, or a duration that exceeds the placement limit goes unfilled at the impression level. The campaign paces against its budget but delivers fewer ads than expected, and the gap does not surface as an error in most campaign reports.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "ad-experience"],
+      "educate": {
+        "base": "The <a href='https://iabtechlab.com/standards/vast/' class='tools-link-no-padding' target='_blank'>Video Ad Serving Template (VAST)</a> is the XML-based standard that governs how an ad server delivers a video creative to a video player. VAST defines the creative's duration, skip offset, tracking pixels, media file URLs, and wrapper chain depth. Most programmatic video supply requires VAST 3.0 or higher, and a meaningful portion of premium supply now requires VAST 4.x, which adds support for verification signals, interactivity, and the 2024 CTV addendum for higher-resolution creative.<br><br>Two specification mismatches produce silent delivery failures. First, a VAST wrapper chain that exceeds the supply source's allowed depth, typically two to four hops, causes the player to stop resolving and the impression to go unfilled. Second, a creative whose declared duration exceeds the slot duration is rejected before rendering. A 30-second creative trafficked into a 15-second pre-roll slot does not trim, it is dropped.<br><br>Skip settings are a third source of mismatch. VAST defines a skip offset that tells the player when to display a skip button. Some publishers override the skip offset with their own rules. When the creative declares itself non-skippable but the supply source enforces a skip at five seconds, the player behavior does not match what the advertiser paid for and the creative may be flagged in the supply partner's quality review.<br><br>A few signs point to VAST spec issues:<ul><li>The creative's VAST inspection in The Trade Desk UI shows wrapper hops greater than the supply partner's documented limit</li><li>The creative's declared duration is longer than the ad slot it is mapped to</li><li>The skip offset in the VAST tag conflicts with the skip policy documented by the supply source</li></ul>You may want to review each video creative's VAST tag in the creative preview before the flight launches. Catching a wrapper depth issue before delivery starts is faster than diagnosing an unfilled rate after the fact.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser running product video, the purchase funnel often uses short 6-second or 15-second non-skippable formats for retargeting. You may want to confirm that retargeting creatives are encoded at the right duration for those slots. A 30-second brand spot trafficked into a 15-second retargeting placement goes unfilled rather than trimming.",
+          "lead_gen": "Lead-generation campaigns frequently run longer-form video, such as 30-second or 60-second explanatory spots, against supply that prefers shorter pre-rolls. You may want to confirm the media plan maps creative duration to slot duration before the flight activates."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "VAST standard and CTV 2024 addendum",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          }
+        ],
+        "impactful_updates": [
+          {
+            "update_title": "VAST CTV 2024 addendum published",
+            "update_description": "The IAB Tech Lab published the VAST CTV 2024 addendum, which adds support for higher-resolution creative registration and icons aligned to the Digital Services Act. Premium CTV supply increasingly expects VAST 4.x compliance.",
+            "update_link": "https://iabtechlab.com/standards/vast/"
+          }
+        ]
+      },
+      "investigate": {
+        "intro": "Inspect each video creative's VAST tag in The Trade Desk UI and compare the declared duration, wrapper depth, and skip offset against the requirements of the supply sources the ad group targets.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Navigate to the Creatives section of the advertiser and open a video creative.",
+                "Open the creative preview and find the VAST tag or VAST inspection view. Note the number of wrapper hops the tag resolves through before reaching the inline media file.",
+                "Note the declared duration in the VAST tag and compare it to the slot duration documented for the supply sources in the ad group's supply targeting.",
+                "Note the skip offset value. Cross-reference the skip policy documented by the supply partner to confirm the values are compatible.",
+                "Repeat for each video creative active on the campaign."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per video creative, the wrapper hop count, the declared duration, and the skip offset, and compares each against the supply partner's documented requirements. A creative whose wrapper depth is within the limit, whose duration matches the slot, and whose skip offset is compatible passes. A creative with a wrapper chain that exceeds the documented limit, a duration longer than its target slot, or a skip offset that conflicts with the supply policy is a fail recorded with the creative name and the specific mismatch.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the VAST wrapper depth, declared duration, and skip offset for each video creative above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more video creatives on {{site_name}}'s campaign do not meet the VAST version, duration, or skip requirements of the targeted supply. A creative whose wrapper chain exceeds the supply source's hop limit, or whose declared duration is longer than the ad slot, goes unfilled rather than delivering at a reduced quality, so the mismatch suppresses delivery without surfacing a visible error. {{voice_recommend}} auditing each active video creative's VAST tag for wrapper depth, declared duration, and skip offset, and correcting any creative that falls outside the supply partner's documented requirements before the next flight launches."
+      }
+    },
+    {
+      "id": "ttd-ctv-resolution-format-mismatch",
+      "title": "CTV creatives do not meet the resolution or format requirements for connected TV inventory",
+      "category": "creative",
+      "subcategory": "video_ctv_audio_creative",
+      "impact_score": 3,
+      "impact_rationale": "CTV supply sources enforce stricter format and resolution requirements than standard online video because the content renders on large living-room screens where compression artifacts and aspect-ratio distortion are visible. A creative that clears online video requirements but fails CTV requirements is rejected at the supply level, reducing fill on premium inventory the campaign bid to win.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "ad-experience"],
+      "educate": {
+        "base": "Connected TV (CTV) supply is served to television screens where production quality is visible in a way that desktop or mobile screens do not always reveal. CTV supply sources, including those accessible through The Trade Desk's OpenPath direct publisher integrations, publish technical minimums for resolution, bitrate, file format, and aspect ratio that are higher than the minimums for standard online video.<br><br>A creative that meets the minimum requirements for an online video pre-roll may not meet CTV requirements. A 720p MP4 at a low bitrate may render acceptably on a desktop browser but will be rejected by a CTV app that requires 1080p at a minimum bitrate of 5 Mbps. Similarly, a creative with black bars from a 4:3 master stretched to a 16:9 frame is rejected by supply sources that validate aspect ratio.<br><br>The 2024 VAST CTV addendum from the IAB Tech Lab introduced additional signals for higher-resolution creative registration, meaning supply partners now have a standardized way to communicate resolution requirements to buyers. The Trade Desk passes these signals when the supply source includes them, and a creative that does not meet the declared minimum is filtered before the bid response is constructed.<br><br>A few signs point to a CTV creative spec problem:<ul><li>The creative's resolution falls below 1080p for placements targeting premium CTV supply</li><li>The file format is not MP4 with H.264 encoding, which is the baseline accepted by the broadest range of CTV players</li><li>The bitrate is below the documented minimum for the CTV supply sources in the targeting</li><li>The aspect ratio is not 16:9 in the source file before encoding</li></ul>You may want to review creative specs against the supply source's published requirements before trafficking a CTV-specific flight. A short-form online video repurposed for CTV without re-encoding is a situation worth checking.",
+        "site_type_overlays": {
+          "ecommerce": "Retail CTV campaigns, such as streaming ads tied to seasonal promotions, often repurpose existing TV spots. You may want to confirm the broadcast master was encoded to the resolution and bitrate the CTV supply sources require, rather than relying on the compressed version that may have been produced for digital display.",
+          "lead_gen": "Lead-generation advertisers running CTV for the first time may not have produced a version of their creative at the resolution CTV requires. You may want to confirm a CTV-specific master exists before the flight launches. Upscaling a lower-resolution source file does not satisfy a supply source's resolution requirement."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "VAST standard and CTV 2024 addendum",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the resolution, bitrate, file format, and aspect ratio of each CTV creative in The Trade Desk UI and compare them to the published requirements of the CTV supply sources the ad group targets.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Navigate to the Creatives section and filter for video creatives associated with CTV-targeted ad groups.",
+                "Open each CTV creative and review the resolution, bitrate, file format, and aspect ratio displayed in the creative detail view.",
+                "Compare the creative's specs to the documented minimum requirements for the CTV supply sources in the targeting. Supply source technical requirements are typically available in The Trade Desk's supply partner documentation or directly from the publisher.",
+                "Note any creative whose resolution is below 1080p, whose bitrate falls below the supply source's minimum, whose format is not MP4 or H.264, or whose aspect ratio is not 16:9.",
+                "Flag those creatives for re-encoding or replacement before the flight activates."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per CTV creative, the resolution, bitrate, file format, and aspect ratio, and compares each against the CTV supply sources' documented minimums. A creative that meets or exceeds the resolution minimum, the bitrate minimum, the accepted format, and a 16:9 aspect ratio passes. A creative that falls below any of those minimums for the supply it targets is a fail recorded with the creative name and the specific spec that falls short.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the resolution, bitrate, file format, and aspect ratio for each CTV creative above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more CTV creatives on {{site_name}}'s campaign do not meet the resolution or format requirements of the CTV supply sources they target. CTV inventory is served to television screens where production quality is more visible than on desktop or mobile, and supply sources reject creatives that fall below their technical minimums rather than rendering a lower-quality version. {{voice_recommend}} re-encoding any creative that falls below the resolution, bitrate, or format requirements of the targeted CTV supply, and confirming the replacement meets the supply source's documented minimums before trafficking the updated creative."
+      }
+    },
+    {
+      "id": "ttd-audio-companion-spec-mismatch",
+      "title": "Audio creatives do not meet channel format specs or companion display requirements",
+      "category": "creative",
+      "subcategory": "video_ctv_audio_creative",
+      "impact_score": 2,
+      "impact_rationale": "Streaming audio supply sources often require a companion display unit alongside the audio tag. When a companion is required but absent, the audio placement either goes unfilled or renders only the audio with a blank companion slot. Either outcome reduces the impression quality and may cause the supply source to deprioritize the buyer.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "ad-experience"],
+      "educate": {
+        "base": "Streaming audio supply served through The Trade Desk follows the VAST 4.1 or higher standard, which superseded the earlier Digital Audio Ad Serving Template (DAAST) for audio ad delivery. VAST 4.1 added native audio support, meaning an audio creative is trafficked as a VAST tag with an audio media file rather than as a separate audio-specific format.<br><br>Most streaming audio placements include a companion display slot, a static image or HTML banner that renders on the streaming app's interface while the audio plays. The companion is part of the placement specification: a 300x250 image alongside a 30-second audio spot is a typical configuration. When a companion is required by the supply source and the creative does not include one, the supply source may reject the bid, fill the companion slot with a house ad, or render the audio without a visible brand presence in the app.<br><br>Audio creatives also have format requirements. The accepted audio encoding is typically MP3 or AAC at a minimum bitrate of 128 kbps, and some supply sources require a maximum duration of 15 or 30 seconds for non-skippable audio. A creative encoded at a lower bitrate or at a duration longer than the placement supports is rejected at the supply level, not in the campaign report.<br><br>A few signs point to audio spec issues:<ul><li>The audio creative in The Trade Desk UI does not include a companion display asset</li><li>The audio file is encoded below the minimum bitrate the supply source documents</li><li>The declared duration exceeds the placement's maximum for non-skippable audio</li></ul>You may want to review each audio creative's configuration in The Trade Desk UI before the flight launches to confirm the companion asset is present and the encoding meets the supply source's requirements.",
+        "site_type_overlays": {
+          "ecommerce": "Retail advertisers running streaming audio for promotional campaigns, such as sale announcements, may find the companion display unit the stronger brand moment. You may want to confirm the companion image is sized correctly for the supply source and uses clear promotional messaging. A missing companion leaves the audio running without a visual call to action.",
+          "lead_gen": "Lead-generation campaigns using streaming audio to reach a specific demographic may find that audio-only delivery without a companion reduces the opportunity to present a URL or a visual brand element. You may want to confirm a companion asset is included and that it carries the campaign's destination URL in the click-through."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Digital Audio Ad Serving Template (DAAST), deprecated in favor of VAST 4.1+",
+            "source_url": "https://iabtechlab.com/standards/digital-audio-ad-serving-template-daast/"
+          }
+        ],
+        "impactful_updates": [
+          {
+            "update_title": "DAAST deprecated, VAST 4.1 now the standard for audio ad serving",
+            "update_description": "The IAB Tech Lab deprecated DAAST and directed audio ad serving to VAST 4.1 or higher. Programmatic audio supply on The Trade Desk follows VAST-based delivery.",
+            "update_link": "https://iabtechlab.com/standards/digital-audio-ad-serving-template-daast/"
+          }
+        ]
+      },
+      "investigate": {
+        "intro": "Review each audio creative in The Trade Desk UI for the presence of a companion display asset, the audio encoding format and bitrate, and the declared duration, then compare against the requirements of the streaming audio supply sources in the targeting.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Navigate to the Creatives section and filter for audio creatives associated with audio-targeted ad groups.",
+                "Open each audio creative and confirm whether a companion display asset is attached. Note the companion's dimensions and whether a click-through URL is set.",
+                "Review the audio file's encoding format and bitrate. Confirm both are within the range the supply source accepts.",
+                "Note the declared duration and compare it to the maximum duration the supply source documents for non-skippable audio.",
+                "Flag any audio creative that is missing a companion where one is required, or that falls outside the encoding or duration limits."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per audio creative, whether a companion display asset is present where required, the audio encoding format and bitrate, and the declared duration. A creative that includes a required companion, is encoded in an accepted format at or above the minimum bitrate, and whose duration fits the placement passes. A creative missing a required companion, encoded below the minimum bitrate, or longer than the placement's non-skippable maximum is a fail recorded with the creative name and the specific gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the companion presence, encoding format, bitrate, and duration for each audio creative above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more audio creatives on {{site_name}}'s campaign are missing required companion display assets, fall below the encoding bitrate the supply source requires, or exceed the maximum duration for non-skippable audio placements. Supply sources that require a companion display unit alongside the audio may reject the bid or fill the companion slot with a default asset when the advertiser's companion is absent, reducing brand presence during playback. {{voice_recommend}} attaching a correctly sized companion display asset to each audio creative that runs on supply requiring one, confirming the audio file is encoded at or above the minimum bitrate, and verifying the duration fits within the placement's non-skippable limit."
+      }
+    }
+  ]
+}

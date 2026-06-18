@@ -608,6 +608,28 @@ CATEGORY_METADATA = {
             "description": "Viewability measurement against the MRC standard, and attention metrics",
         },
     },
+    "nielsen-dar": {
+        "governance": {
+            "display_name": "Governance",
+            "icon_class": "fa-solid fa-scale-balanced",
+            "description": "Campaign setup, tag deployment, and user access",
+        },
+        "coverage": {
+            "display_name": "Coverage",
+            "icon_class": "fa-solid fa-chart-pie",
+            "description": "Measured coverage and platform coverage",
+        },
+        "audience": {
+            "display_name": "Audience",
+            "icon_class": "fa-solid fa-users",
+            "description": "On-target delivery, demographic composition, reach and frequency, and audience guarantees",
+        },
+        "measurement": {
+            "display_name": "Measurement",
+            "icon_class": "fa-solid fa-chart-line",
+            "description": "Cross-platform deduplication, reconciliation, and reporting",
+        },
+    },
     "google-tag-manager": {
         "container-structure": {
             "display_name": "Container Structure",

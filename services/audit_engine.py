@@ -413,6 +413,53 @@ CATEGORY_METADATA = {
             "description": "Floodlight conversions, attribution windows, and brand lift reporting",
         },
     },
+    "the-trade-desk": {
+        "governance": {
+            "display_name": "Governance",
+            "icon_class": "fa-solid fa-scale-balanced",
+            "description": "Seat and advertiser structure, user permissions, and naming conventions",
+        },
+        "campaigns": {
+            "display_name": "Campaigns",
+            "icon_class": "fa-solid fa-rectangle-list",
+            "description": "Campaign and ad group structure, budget pacing, and flight scheduling",
+        },
+        "identity": {
+            "display_name": "Identity",
+            "icon_class": "fa-solid fa-fingerprint",
+            "description": "Unified ID 2.0 adoption, identity resolution, and first-party data onboarding",
+        },
+        "inventory": {
+            "display_name": "Inventory",
+            "icon_class": "fa-solid fa-boxes-stacked",
+            "description": "Supply sources and OpenPath, deals and private marketplace, and supply chain quality",
+        },
+        "targeting": {
+            "display_name": "Targeting",
+            "icon_class": "fa-solid fa-crosshairs",
+            "description": "Audience setup, the Data Marketplace, frequency, and exclusions",
+        },
+        "bidding": {
+            "display_name": "Bidding",
+            "icon_class": "fa-solid fa-hand-holding-dollar",
+            "description": "Koa optimization, bid factors, and predictive clearing",
+        },
+        "creative": {
+            "display_name": "Creative",
+            "icon_class": "fa-solid fa-palette",
+            "description": "Creative formats, QA, and video, connected TV, and audio creative",
+        },
+        "brand-safety": {
+            "display_name": "Brand Safety",
+            "icon_class": "fa-solid fa-shield-halved",
+            "description": "Pre-bid avoidance, third-party verification, and invalid traffic",
+        },
+        "measurement": {
+            "display_name": "Measurement",
+            "icon_class": "fa-solid fa-chart-line",
+            "description": "Conversion tracking, attribution, and the measurement marketplace",
+        },
+    },
     "google-tag-manager": {
         "container-structure": {
             "display_name": "Container Structure",

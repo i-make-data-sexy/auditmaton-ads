@@ -4,7 +4,7 @@
   "subcat_img_credit": "",
   "important_note": "",
   "important_note_url": "",
-  "google_guidance": "",
+  "google_guidance": "https://iabtechlab.com/standards/vast/",
   "worth_it": "Yes",
   "worth_it_explanation": "Video and connected TV (CTV) creatives on Yahoo DSP break in ways that budget reports will not surface. A Video Ad Serving Template (VAST) tag with too many wrapper redirects can time out on publishers that enforce strict chain limits, leaving the line item pacing normally while no impressions deliver. A CTV creative that fails the platform's minimum resolution or bitrate threshold gets rejected at the publisher level before it ever reaches a viewer. Video event tracking (the quartile and completion pixels wired inside the VAST XML) is how Yahoo DSP and any third-party measurement vendor record whether viewers actually watched, and a missing tracking element means those metrics come back empty or inaccurate for the entire flight. None of these problems produces an obvious error in the Yahoo DSP UI; each one shows up only when you look at the right number at the right level.",
   "worth_it_visible": "Yes",
@@ -24,7 +24,10 @@
       "image_count": 0,
       "conditional": null,
       "column_dependencies": [],
-      "theme_tags": ["creative", "performance"],
+      "theme_tags": [
+        "creative",
+        "performance"
+      ],
       "educate": {
         "base": "A Video Ad Serving Template (VAST) tag delivers a video creative by pointing the player to an XML document. When that document contains a <code>&lt;Wrapper&gt;</code> element instead of an <code>&lt;InLine&gt;</code> element, the player must follow a redirect to a second VAST document before it can reach the media file. Each additional <code>&lt;Wrapper&gt;</code> layer adds a network round-trip and increases the time before the creative begins playing.<br><br>Publishers that serve premium inventory, including most CTV publishers, impose strict limits on wrapper depth to protect the viewer experience. The IAB Tech Lab recommends a maximum of two wrapper redirects before reaching the inline creative, and major supply sources reject tags that exceed this threshold. A VAST chain of three or more wrappers is a common cause of CTV creative rejection even when the same tag serves without issue on standard desktop video supply.<br><br>Yahoo DSP accepts third-party VAST tags for video line items. When a tag is trafficked through a third-party ad server, the number of wrapper layers depends on how the tag was built at the ad server, not on anything set inside Yahoo DSP itself. Practitioners who receive tags from creative production teams or third-party measurement vendors may not know how many wrapper layers the tag contains.<br><br>A few signs point to a wrapper-depth problem:<ul><li>A line item targeting CTV or premium video inventory shows lower delivery than expected against its budget pace</li><li>The creative was built at a third-party ad server and the VAST URL was trafficked into Yahoo DSP without inspection of the underlying XML</li><li>The same creative shows normal delivery on open-exchange desktop placements but reduced delivery on CTV or premium publisher placements</li></ul>You may want to paste each third-party VAST tag URL into a browser and count the number of <code>&lt;Wrapper&gt;</code> elements before reaching an <code>&lt;InLine&gt;</code> element. If the count exceeds two, work with the tag provider to flatten the chain before the creative serves on premium or CTV supply.",
         "site_type_overlays": {
@@ -87,7 +90,10 @@
       "image_count": 0,
       "conditional": null,
       "column_dependencies": [],
-      "theme_tags": ["creative", "ad-experience"],
+      "theme_tags": [
+        "creative",
+        "ad-experience"
+      ],
       "educate": {
         "base": "Connected TV (CTV) environments serve full-screen video on large displays, often in a home theater setting. Publishers in this environment enforce higher technical minimums than open-exchange desktop video supply because the viewing experience degrades noticeably when a lower-quality asset is upscaled to fill a large screen.<br><br>The standard minimum for OTT and CTV inventory across major publishers is 1280x720 resolution and a minimum bitrate of 2,000 kbps, with premium publishers such as Hulu and NBC Universal (NBCU) requiring 15,000 kbps or higher and resolutions of 1920x1080. Duration on CTV is typically constrained to 15 or 30 seconds, with some publishers accepting 6 seconds for bumper placements and up to 60 seconds for long-form content. A creative built to desktop video standards (e.g., 640x360 at 500 kbps) will be rejected on the publishers that carry the most valuable CTV inventory.<br><br>VPAID is not supported on CTV placements. CTV players run in app environments on smart TVs and streaming devices that do not execute JavaScript, so any creative that relies on VPAID for rendering or measurement will not serve on CTV supply. The recommended format for CTV is a VAST creative with an MP4 media file at the required resolution and bitrate. For more detail on publisher-specific requirements, see the <a href='https://learn.microsoft.com/en-us/xandr/invest/creative-ctv-guidelines-and-specifications' class='tools-link-no-padding' target='_blank'>Microsoft Invest CTV creative guidelines</a>, which reflect the underlying Xandr platform that Yahoo DSP uses for supply access.<br><br>A few signs point to a CTV spec mismatch:<ul><li>A line item targeting CTV inventory shows impression delivery well below the pacing target despite normal overall budget spend</li><li>The creative was produced at standard web video specifications and was not rebuilt to CTV standards before being trafficked to a CTV line item</li><li>A creative uses a VPAID tag rather than a VAST MP4 tag</li></ul>You may want to check the technical properties of each creative assigned to CTV line items (file type, resolution, and bitrate) before the campaign launches rather than after the delivery shortfall appears in reporting.",
         "site_type_overlays": {
@@ -156,7 +162,10 @@
       "image_count": 0,
       "conditional": null,
       "column_dependencies": [],
-      "theme_tags": ["creative", "performance"],
+      "theme_tags": [
+        "creative",
+        "performance"
+      ],
       "educate": {
         "base": "The Video Ad Serving Template (VAST) specification defines a set of tracking events that the video player fires as the creative plays. The four quartile events are <code>firstQuartile</code> (25% of the video played), <code>midpoint</code> (50%), <code>thirdQuartile</code> (75%), and <code>complete</code> (100%). Each event is a URL that the player calls when playback reaches that point. When these URLs are declared in the VAST XML's <code>&lt;TrackingEvents&gt;</code> block, the ad server or measurement vendor records the signal. When they are absent, no signal is sent and the metric is not captured.<br><br>For CTV inventory, completion tracking carries additional weight because CTV placements are non-skippable on most publishers and completion rates above 90% are standard for the environment. A completion rate that appears low or that shows as zero on a CTV line item is a strong signal that tracking events are missing from the creative rather than that viewers are abandoning the ad.<br><br>Yahoo DSP automatically wraps third-party creatives to provide impression and click tracking, but quartile and completion events must be declared in the VAST XML by the tag provider. The <a href='https://iabtechlab.com/standards/vast/' class='tools-link-no-padding' target='_blank'>IAB Tech Lab VAST standard</a> defines the full list of supported tracking event types across VAST 2.0, 3.0, and 4.x. A VAST tag that declares a media file without a <code>&lt;TrackingEvents&gt;</code> block, or that includes an impression pixel but omits the quartile events, will deliver the creative but return no playback data to the reporting system.<br><br>A few signs point to missing tracking events:<ul><li>A video line item shows impression delivery but zero or very low completion rate in Yahoo DSP reporting</li><li>The VAST tag was built by a production team that was not briefed on measurement requirements</li><li>A third-party measurement vendor's pixel is present in the tag but the platform's own quartile events are absent</li></ul>You may want to inspect the <code>&lt;TrackingEvents&gt;</code> block in each active VAST tag and confirm that all four quartile events and a <code>complete</code> event are declared before the campaign begins delivering impressions.",
         "site_type_overlays": {

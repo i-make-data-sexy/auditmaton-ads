@@ -562,7 +562,7 @@ CATEGORY_METADATA = {
         },
         "coverage": {
             "display_name": "Coverage",
-            "icon_class": "fa-solid fa-chart-pie",
+            "icon_class": "fa-solid fa-satellite-dish",
             "description": "Measured rate and coverage across channels and formats",
         },
         "brand-safety": {
@@ -572,7 +572,7 @@ CATEGORY_METADATA = {
         },
         "fraud": {
             "display_name": "Fraud",
-            "icon_class": "fa-solid fa-robot",
+            "icon_class": "fa-solid fa-user-secret",
             "description": "Fraud Lab IVT and SIVT detection, and pre-bid fraud avoidance",
         },
         "viewability": {
@@ -589,7 +589,7 @@ CATEGORY_METADATA = {
         },
         "coverage": {
             "display_name": "Coverage",
-            "icon_class": "fa-solid fa-chart-pie",
+            "icon_class": "fa-solid fa-satellite-dish",
             "description": "Measured rate and coverage across channels and formats",
         },
         "brand-safety": {
@@ -599,7 +599,7 @@ CATEGORY_METADATA = {
         },
         "fraud": {
             "display_name": "Fraud",
-            "icon_class": "fa-solid fa-robot",
+            "icon_class": "fa-solid fa-user-secret",
             "description": "IVT and SIVT detection, and pre-bid fraud avoidance",
         },
         "viewability": {
@@ -616,7 +616,7 @@ CATEGORY_METADATA = {
         },
         "coverage": {
             "display_name": "Coverage",
-            "icon_class": "fa-solid fa-chart-pie",
+            "icon_class": "fa-solid fa-satellite-dish",
             "description": "Measured coverage and platform coverage",
         },
         "audience": {

@@ -1,0 +1,201 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Identity resolution settings in The Trade Desk control how the platform recognizes a person across devices and whether it treats a household as one audience or as many individuals. A misconfigured identity graph means the same person sees the ad too many times on one device and not at all on another, frequency caps fail, and reach is measured incorrectly. The settings are a handful of ad-group-level choices, not a rebuild, and correcting them improves both efficiency and measurement accuracy from the next campaign forward.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "The Trade Desk uses Unified ID 2.0 (UID2) as its primary deterministic identity signal, supplemented by probabilistic signals where UID2 coverage is absent. Identity graph settings at the ad-group level determine how The Trade Desk resolves a person's devices into a single identity profile, whether it uses deterministic or probabilistic resolution, and whether it treats a household as one unit or as separate individuals. These choices shape frequency capping, audience reach, and how first-party data activates across environments such as connected TV (CTV), mobile, and desktop. The checks here confirm that each setting aligns with the campaign's actual goal and the advertiser's privacy posture.",
+  "audit_checks": [
+    {
+      "id": "ttd-cross-device-graph-settings-misaligned",
+      "title": "Cross-device identity graph settings do not match the campaign frequency and reach goals",
+      "category": "identity",
+      "subcategory": "identity_resolution",
+      "impact_score": 3,
+      "impact_rationale": "When the identity graph setting does not match the campaign goal, frequency caps apply to one device instead of the person, so the same person receives the ad more times than the cap allows across their phone, laptop, and CTV. Reported reach counts devices rather than people, overstating how many individuals the campaign actually covered.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["targeting", "data-quality"],
+      "educate": {
+        "base": "The Trade Desk resolves a person's multiple devices into a single identity using its identity graph, which draws on UID2 tokens and probabilistic signals. The ad-group settings control which graph the platform uses and how broadly it extends device connections beyond a confirmed deterministic match. The choice affects two things that practitioners often treat as separate: frequency capping and reach reporting.<br><br>Frequency capping in The Trade Desk applies at the level the graph resolves. If the graph does not connect a person's phone to their laptop, a cap of three impressions per person becomes a cap of three per device, so the same person may receive six impressions before either device's counter trips the limit. Reach reports carry the same problem in reverse: a campaign that reached 500,000 devices may have reached far fewer people if many of those devices belong to the same individuals.<br><br>A few signs point to a graph-setting mismatch:<ul><li>Frequency distribution in reporting shows many users near the cap limit but reach is higher than expected for the budget</li><li>The ad group uses a device-level cap but the campaign objective is brand reach or awareness, where person-level capping is the appropriate unit</li><li>Connected TV and mobile are both active in the campaign but the identity graph selected does not cover the CTV-to-mobile connection</li></ul>You may want to confirm the graph setting against the campaign's stated objective before launch, not after the impression data accumulates.",
+        "site_type_overlays": {
+          "ecommerce": "For a direct-response campaign targeting known buyers, you may want to confirm that the identity graph connects the same shopper's mobile browsing and desktop checkout sessions. A misaligned graph can show the shopper upper-funnel creative after they have already converted on a different device.",
+          "lead_gen": "For a lead-generation campaign, person-level frequency control reduces the risk of fatiguing a prospect with repeat exposures on each of their devices before they have had a chance to respond."
+        },
+        "learn_more": [
+          {
+            "source_type": "UID2 Documentation",
+            "source_title": "UID2 overview for DSPs",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-dsps"
+          },
+          {
+            "source_type": "UID2 Documentation",
+            "source_title": "Unified ID 2.0 overview",
+            "source_url": "https://unifiedid.com/docs/intro"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm which identity graph is selected at the ad-group level and whether that selection matches the frequency cap unit and the reach objective.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the campaign, select an ad group, and navigate to its targeting settings.",
+                "Find the identity or cross-device graph setting. Note whether it is set to a device-level, household-level, or person-level graph, and which graph provider is selected.",
+                "Compare that setting against the ad group's frequency cap unit. If the cap is set per person but the graph is device-level, the cap is not enforcing what it appears to enforce.",
+                "Check whether connected TV inventory is active. CTV placements are TV-set identifiers that require an identity graph capable of bridging the TV to mobile and desktop before person-level frequency applies across all three."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad group, the identity graph setting, the frequency cap unit, and whether CTV inventory is active. An ad group whose graph setting matches its frequency cap unit passes. An ad group with a person-level frequency cap but a device-level graph, or with CTV active but no cross-environment graph, is a fail recorded with the ad group name and the specific mismatch.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the graph setting, frequency cap unit, and CTV status for each ad group above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more ad groups in {{site_name}}'s campaigns use a cross-device identity graph setting that does not match the campaign's frequency cap unit. Frequency caps set at the person level do not enforce correctly when the graph resolves at the device level, so the same person may receive more impressions than the cap allows across their devices, and reach reporting counts devices rather than people. {{voice_recommend}} confirming the graph setting against the frequency cap unit for each active ad group and selecting a graph that spans the environments the campaign serves, including connected TV where applicable."
+      }
+    },
+    {
+      "id": "ttd-deterministic-probabilistic-resolution-undecided",
+      "title": "Deterministic versus probabilistic resolution is not chosen deliberately for the use case",
+      "category": "identity",
+      "subcategory": "identity_resolution",
+      "impact_score": 3,
+      "impact_rationale": "Running probabilistic resolution when UID2 coverage in the audience is strong passes up match accuracy that is already available. Running deterministic-only resolution when UID2 coverage is thin restricts addressable reach without a corresponding gain in accuracy, and the campaign underdelivers against its target audience.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["targeting", "data-quality"],
+      "educate": {
+        "base": "UID2 is a deterministic identity signal: it derives from a user's authenticated email or phone number, hashed and encrypted, so a match between a publisher's UID2 token and an advertiser's audience segment is an exact, consented connection. Probabilistic resolution works differently, inferring that two devices belong to the same person from behavioral and contextual signals such as shared IP addresses, browsing patterns, and device type. Neither approach is universally better; the right choice depends on audience composition and campaign requirements.<br><br>When UID2 coverage in an audience is high, such as with a first-party customer list where most customers are identifiable by authenticated email, deterministic resolution produces accurate matches and confident frequency control. Probabilistic resolution adds reach by extending to devices where no UID2 exists, but those extensions are inferences rather than confirmed matches, which reduces targeting precision.<br><br>When UID2 coverage is thin, such as a prospecting audience built on contextual signals where few users are authenticated, deterministic-only resolution addresses a narrow slice of the eligible inventory. Extending to probabilistic signals recovers addressable reach that would otherwise be forfeit.<br><br>A few signs point to a resolution mode that was not set deliberately:<ul><li>The ad group defaults to the platform's out-of-the-box setting without a review of audience composition</li><li>A first-party retargeting campaign uses probabilistic resolution, diluting the precision of an audience that was built on known customers</li><li>A prospecting campaign uses deterministic-only resolution and underdelivers, with logs showing high bid participation but low match rates</li></ul>You may want to review audience composition before setting the resolution mode rather than accepting the default.",
+        "site_type_overlays": {
+          "ecommerce": "For a remarketing campaign built on a first-party customer list, you may want to confirm that the resolution mode is set to deterministic where UID2 coverage supports it. Probabilistic extensions on a high-coverage first-party list can dilute audience precision by adding devices that share an IP with a known customer but do not belong to that person.",
+          "lead_gen": "For a prospecting campaign targeting cold audiences, you may want to confirm that probabilistic resolution is allowed so that the platform can address users who have not authenticated and therefore have no UID2 token, which is a significant share of open-web inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "UID2 Documentation",
+            "source_title": "UID2 overview for advertisers",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-advertisers"
+          },
+          {
+            "source_type": "UID2 Documentation",
+            "source_title": "UID2 overview — deterministic identity framework",
+            "source_url": "https://unifiedid.com/docs/intro"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm which resolution mode each ad group uses and whether that choice matches the audience composition.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the ad group and navigate to its targeting or audience settings.",
+                "Identify whether the identity resolution is set to deterministic only, probabilistic only, or a blended mode that uses deterministic where available and falls back to probabilistic.",
+                "Review the audience segments attached to the ad group. Note whether the audience derives from authenticated first-party data, such as a customer list uploaded via UID2 integration, or from third-party and contextual signals where UID2 coverage is likely lower.",
+                "Compare the resolution mode to the audience type. A first-party authenticated audience on probabilistic-only resolution, or a cold prospecting audience on deterministic-only resolution, warrants a change."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad group, the resolution mode and the primary audience type. A first-party authenticated audience with deterministic resolution (or blended with deterministic prioritized) passes. A cold prospecting audience with blended or probabilistic resolution passes. A first-party authenticated audience on probabilistic-only, or a cold prospecting audience on deterministic-only with delivery logs showing underdelivery, is a fail recorded with the ad group name and the audience type.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the resolution mode and audience type for each ad group above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more ad groups in {{site_name}}'s campaigns use an identity resolution mode that does not match the composition of the audience they target. A first-party customer audience running on probabilistic resolution gives up the match accuracy that UID2 already provides; a cold prospecting audience running on deterministic-only resolution limits addressable reach without a corresponding gain in precision. {{voice_recommend}} reviewing the resolution mode for each ad group against its audience type and adjusting to deterministic or blended resolution for first-party audiences, and to blended or probabilistic for prospecting audiences where UID2 coverage is low."
+      }
+    },
+    {
+      "id": "ttd-household-vs-individual-resolution-misaligned",
+      "title": "Household versus individual resolution does not fit the product or the privacy posture",
+      "category": "identity",
+      "subcategory": "identity_resolution",
+      "impact_score": 2,
+      "impact_rationale": "A household product targeting at the individual level splits the buying decision across separate audience profiles that may never converge, reducing the efficiency of both targeting and measurement. An advertiser with a restrictive privacy policy running household-level resolution consolidates devices that belong to different adults, which broadens the data footprint beyond what the policy may contemplate.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["targeting", "privacy"],
+      "educate": {
+        "base": "The Trade Desk's identity graph can resolve devices at either the individual level or the household level. Individual resolution connects devices that belong to the same person: a single adult's phone, laptop, and tablet become one profile. Household resolution goes further, connecting all authenticated and inferred devices that share a home, which may include several adults and their respective devices.<br><br>The appropriate level depends on two factors: the product being advertised and the advertiser's privacy posture.<br><br>For products where the purchase decision involves more than one person in a home, household resolution reaches all the relevant decision-makers rather than only one. A streaming service subscription, a home appliance, or a family travel product may benefit from messaging reaching both adults. For products where the decision is individual, such as a financial product or a health-related service, individual resolution is more precise and avoids serving an ad meant for one person to a different adult in the same household.<br><br>On the privacy side, household resolution joins the data footprints of multiple adults. An advertiser whose privacy policy limits data use to the consenting individual, or whose product category requires care around sensitive data, may not want a setting that extends audience membership to other household members by inference.<br><br>A few signs point to a resolution level that was not set deliberately:<ul><li>The default platform setting was accepted without reviewing whether the product is individual or household in nature</li><li>The product involves health, finance, or another sensitive category, but household resolution is active</li><li>Reach reporting shows the campaign addresses households rather than individuals, but the creative and offer are tailored to a single person</li></ul>You may want to confirm the resolution level against the product type and the applicable privacy policy before the campaign runs at scale.",
+        "site_type_overlays": {
+          "ecommerce": "For a retailer selling products where the buyer and the recipient are often different people in the same home, you may want to confirm whether household resolution serves the campaign goal. A household gift category benefits from household resolution; a personal care or health-related category may not.",
+          "lead_gen": "For a lead-generation campaign where the lead must be a specific, identifiable individual such as a decision-maker at a company, individual resolution is more appropriate than household resolution, which could route impressions to other people at the same address."
+        },
+        "learn_more": [
+          {
+            "source_type": "EUID Documentation",
+            "source_title": "European Unified ID overview",
+            "source_url": "https://euid.eu/docs/intro"
+          },
+          {
+            "source_type": "UID2 Documentation",
+            "source_title": "UID2 overview",
+            "source_url": "https://unifiedid.com/docs/intro"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm the resolution level setting and compare it against the product type and the advertiser's privacy policy.",
+        "tools": {
+          "free": {
+            "the_trade_desk_ui": {
+              "label": "The Trade Desk UI",
+              "steps": [
+                "Open the ad group and locate its identity or audience resolution setting.",
+                "Note whether the setting is individual-level or household-level resolution.",
+                "Review the advertiser's product category. Note whether it is a shared household product or an individual product, and whether the category involves sensitive data such as health, finance, or personal wellbeing.",
+                "If the product category is sensitive or the advertiser's privacy policy limits data use to the consenting individual, confirm that household resolution is not active."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad group, the resolution level and the product type. A household product with household resolution passes. An individual product with individual resolution passes. A sensitive-category product with household resolution is a fail recorded with the ad group name and the product category. An individual product with household resolution, where no deliberate rationale exists, is also recorded as a finding.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the resolution level and the product type for each ad group above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the identity resolution level in {{site_name}}'s campaign does not align with the product type or the advertiser's privacy posture. Running household-level resolution on a product meant for an individual, or on a sensitive product category, extends the data footprint to additional household members by inference and may conflict with the applicable privacy policy. Running individual-level resolution on a product where household members share the buying decision limits the campaign's ability to reach all relevant people. {{voice_recommend}} reviewing the resolution level for each ad group against the product category and the privacy policy, and adjusting to individual resolution for sensitive or personal products and to household resolution only where the product and policy support it."
+      }
+    }
+  ]
+}

@@ -674,6 +674,60 @@ CATEGORY_METADATA = {
             "description": "Cross-screen deduplication, outcomes, and reporting",
         },
     },
+    # Auditmaton: Ads (supply side). Google Ad Manager is the first
+    # supply-side platform, so its categories set the canonical supply
+    # vocabulary: Monetization, Buyers, Supply Chain, and Delivery are new
+    # canonical names with their own unique icons (see DEPLOY.md invariant
+    # #7). Governance, Inventory, Brand Safety, Privacy, and Measurement
+    # reuse the existing demand-side names and icons (same concept, same
+    # icon).
+    "google-ad-manager": {
+        "governance": {
+            "display_name": "Governance",
+            "icon_class": "fa-solid fa-scale-balanced",
+            "description": "Network configuration, access roles, and naming conventions",
+        },
+        "inventory": {
+            "display_name": "Inventory",
+            "icon_class": "fa-solid fa-boxes-stacked",
+            "description": "Ad units, sizes, key-values, and request architecture",
+        },
+        "delivery": {
+            "display_name": "Delivery",
+            "icon_class": "fa-solid fa-truck-fast",
+            "description": "Direct-sold line item priority, competitive separation, and pacing",
+        },
+        "monetization": {
+            "display_name": "Monetization",
+            "icon_class": "fa-solid fa-sack-dollar",
+            "description": "Unified pricing rules, price floors, and yield groups",
+        },
+        "buyers": {
+            "display_name": "Buyers",
+            "icon_class": "fa-solid fa-handshake",
+            "description": "Authorized Buyers, Open Bidding, and programmatic deals",
+        },
+        "supply-chain": {
+            "display_name": "Supply Chain",
+            "icon_class": "fa-solid fa-file-shield",
+            "description": "ads.txt, sellers.json, and made-for-advertising risk",
+        },
+        "brand-safety": {
+            "display_name": "Brand Safety",
+            "icon_class": "fa-solid fa-shield-halved",
+            "description": "Blocking controls, ad review, and ad quality",
+        },
+        "privacy": {
+            "display_name": "Privacy",
+            "icon_class": "fa-solid fa-user-shield",
+            "description": "Consent signals, restricted data processing, and Privacy Sandbox",
+        },
+        "measurement": {
+            "display_name": "Measurement",
+            "icon_class": "fa-solid fa-chart-line",
+            "description": "Discrepancy reconciliation, report accuracy, and request counting",
+        },
+    },
     "google-tag-manager": {
         "container-structure": {
             "display_name": "Container Structure",
@@ -978,6 +1032,9 @@ DISPLAY_ACRONYMS = {
     "pdp": "PDP", "cdp": "CDP", "crm": "CRM", "gtm": "GTM", "ga4": "GA4",
     "gsc": "GSC", "nap": "NAP", "ymyl": "YMYL", "eeat": "EEAT", "b2b": "B2B",
     "b2c": "B2C", "openpath": "OpenPath", "pmax": "PMax", "connectid": "ConnectID", "acr": "ACR",
+    # Google Ad Manager (supply side)
+    "upr": "UPR", "adx": "AdX", "sra": "SRA", "rdp": "RDP", "ppid": "PPID",
+    "mcm": "MCM", "sco": "SCO", "npa": "NPA",
 }
 
 
@@ -1043,6 +1100,8 @@ def _format_display_name(file_key):
         "ai_overview_visibility": "AI Overview Visibility",
         "ymyl_compliance": "YMYL Compliance",
         "video_seo": "Video SEO",
+        "ads_txt": "ads.txt",
+        "sellers_json": "sellers.json",
     }
 
     if file_key in overrides:

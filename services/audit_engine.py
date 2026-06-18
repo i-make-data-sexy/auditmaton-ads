@@ -790,6 +790,52 @@ def _substitute_template_vars(obj, variables):
     return obj
 
 
+# Acronyms and initialisms that must keep their canonical casing in display
+# names. Naive .title() turns "creative_qa" into "Creative Qa"; this map
+# restores "QA". Keyed by the lowercased slug token. Add new ones here as
+# platforms introduce them. For ambiguous tokens whose meaning depends on the
+# whole slug (e.g., a standalone "qa" meaning Q&A in SEO content rather than
+# quality assurance), use the full-slug `overrides` dict in
+# _format_display_name instead, which is checked first.
+DISPLAY_ACRONYMS = {
+    "qa": "QA", "faq": "FAQ", "api": "API", "url": "URL", "id": "ID", "ui": "UI",
+    "ux": "UX", "seo": "SEO", "ai": "AI", "llm": "LLM", "kpi": "KPI",
+    "roas": "ROAS", "roi": "ROI", "cpa": "CPA", "cpc": "CPC", "cpm": "CPM",
+    "cpv": "CPV", "aov": "AOV", "sku": "SKU", "ctr": "CTR", "ctv": "CTV",
+    "stv": "STV", "ooh": "OOH", "dooh": "DOOH", "dsp": "DSP", "ssp": "SSP",
+    "amc": "AMC", "asin": "ASIN", "pmp": "PMP", "pg": "PG", "io": "IO",
+    "ntb": "NTB", "uid2": "UID2", "euid": "EUID", "cm360": "CM360",
+    "dv360": "DV360", "ivt": "IVT", "givt": "GIVT", "sivt": "SIVT",
+    "mfa": "MFA", "gdpr": "GDPR", "ccpa": "CCPA", "cpra": "CPRA",
+    "tcf": "TCF", "gpp": "GPP", "cmp": "CMP", "capi": "CAPI", "vast": "VAST",
+    "pdp": "PDP", "cdp": "CDP", "crm": "CRM", "gtm": "GTM", "ga4": "GA4",
+    "gsc": "GSC", "nap": "NAP", "ymyl": "YMYL", "eeat": "EEAT", "b2b": "B2B",
+    "b2c": "B2C", "openpath": "OpenPath", "pmax": "PMax",
+}
+
+
+def _smart_titlecase(text):
+    """
+    Title-cases a space-separated string while preserving known acronyms.
+
+    Each token is looked up in DISPLAY_ACRONYMS (case-insensitively); a match
+    keeps its canonical casing (e.g., "qa" -> "QA"), otherwise the token is
+    capitalized normally. Unlike str.title(), this leaves acronyms uppercase.
+
+    Args:
+        text (str): A space-separated string (underscores already replaced).
+
+    Returns:
+        str: The title-cased string with acronyms preserved.
+    """
+    words = []
+    for word in text.split():
+        if not word:
+            continue
+        words.append(DISPLAY_ACRONYMS.get(word.lower(), word[:1].upper() + word[1:]))
+    return " ".join(words)
+
+
 def _format_display_name(file_key):
     """
     Converts a JSON file key into a human-readable display name.
@@ -835,8 +881,8 @@ def _format_display_name(file_key):
     if file_key in overrides:
         return overrides[file_key]
 
-    # Default: replace underscores with spaces, title-case
-    return file_key.replace("_", " ").title()
+    # Default: replace underscores with spaces, title-case with acronyms preserved
+    return _smart_titlecase(file_key.replace("_", " "))
 
 
 # ========================================================================

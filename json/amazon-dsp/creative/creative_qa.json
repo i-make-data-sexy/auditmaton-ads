@@ -1,0 +1,208 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://advertising.amazon.com/resources/ad-specs/dsp",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Three failure modes in Amazon DSP creative QA produce zero delivery without any budget error surfacing in the campaign view: a broken or out-of-stock click destination, a creative held in moderation, and a third-party tracker that never fires. Each one is silent by design. This check costs a few minutes per creative and catches the issues before they drain flight budget.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Amazon DSP creative quality assurance (QA) covers the three failure modes that block delivery or corrupt measurement without raising a budget alert. A click destination that is down or routes to an out-of-stock Amazon Standard Identification Number (ASIN) wastes every click the creative earns. A creative held in Amazon's moderation queue blocks the entire line item from serving. A third-party impression or click tracker that is misconfigured drops third-party measurement from otherwise healthy delivery without any signal in the DSP console. These checks confirm that destinations are live and correct, that creatives have cleared moderation, and that any third-party trackers fire on delivery.",
+  "audit_checks": [
+    {
+      "id": "creative-qa-click-destination-broken-or-out-of-stock",
+      "title": "Click destination is broken, out of stock, or routes to an incorrect ASIN",
+      "category": "creative",
+      "subcategory": "creative_qa",
+      "impact_score": 4,
+      "impact_rationale": "Every click the creative earns goes to a dead or unbuyable destination. For endemic advertisers, an ASIN that is out of stock or suppressed on the product detail page converts nothing. For non-endemic advertisers, a broken landing page wastes the full click cost. The creative may serve at full budget while generating no return, and the Amazon DSP reporting UI does not flag a broken destination as an error.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "data-quality"],
+      "educate": {
+        "base": "Every Amazon DSP creative carries a click-through URL (CTU) that sends a user somewhere after they click. For endemic advertisers, that destination is typically a product detail page (PDP), an Amazon Store, or a curated landing page on Amazon. For non-endemic advertisers, it points to an off-Amazon site tracked with the Amazon Ad Tag pixel. When the destination is broken or routes to the wrong place, the click cost is spent but the visit never converts.<br><br>For endemic advertisers the most consequential failure is a CTU that resolves to an ASIN that is out of stock, suppressed from search, or no longer in the Amazon catalog. Amazon shows an 'unavailable' state on the PDP that gives the shopper nowhere to go. The creative continues to serve at the line item's pacing, impressions and clicks accumulate, and the campaign looks active while converting nothing. The Amazon DSP reporting console does not surface a 'destination unavailable' warning alongside the creative.<br><br>A few signs point to this issue:<ul><li>The creative's CTU contains an ASIN that is no longer buyable on Amazon.com</li><li>The CTU redirects to a generic category page or the Amazon home page rather than the intended product or Store</li><li>Click-through rate is within normal range but conversion rate is zero or near zero on the affected line item</li><li>The destination site returns a 404 or redirects to an unrelated page for non-endemic advertisers</li></ul>You may want to check each creative's CTU by following it in a browser session that mirrors a typical user, including any geo or device targeting in use, before concluding the destination is correct.",
+        "site_type_overlays": {
+          "ecommerce": "For endemic advertisers sending traffic to Amazon PDPs, you may want to verify that the ASIN is in stock in the sizes, colors, or configurations featured in the creative. A creative showing a red jacket that routes to a PDP where red is out of stock will disappoint the shopper who clicked specifically for that variant. Checking the 'Add to Cart' state for the specific variant is more reliable than checking the ASIN-level page alone.",
+          "lead_gen": "For non-endemic advertisers sending traffic off Amazon, you may want to confirm the landing page loads correctly on both desktop and mobile, that any UTM or Amazon attribution parameters in the CTU are preserved through any redirects, and that the page content matches the creative's offer. A mismatch between creative and landing page degrades the user experience and can affect attribution if the parameter chain breaks."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon DSP ad dimensions and specifications",
+            "source_url": "https://advertising.amazon.com/resources/ad-specs/dsp"
+          },
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon DSP additional policies",
+            "source_url": "https://advertising.amazon.com/resources/ad-policy/amazon-dsp-additional-policies"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "For each active creative, follow its CTU in a browser and confirm the destination is live, matches the offer in the creative, and is buyable or actionable.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Navigate to the campaign, open the order, then the line item, and select the 'Creatives' tab.",
+                "For each active creative, note the click-through URL shown in the creative details panel.",
+                "Open the CTU in a browser. For endemic creatives, confirm the ASIN is in stock and the 'Add to Cart' or 'Buy Now' button is active. For non-endemic creatives, confirm the page loads and matches the creative's offer.",
+                "If the CTU includes an ASIN, you may also search for that ASIN directly on Amazon.com to confirm its catalog status is active."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per active creative, whether the CTU resolved to a live and buyable destination. A CTU that returns the correct product or page with the item available to purchase or the form accessible to fill passes. A CTU that routes to an out-of-stock ASIN, a 404, a generic home page, or an unrelated page is a fail recorded with the creative name and the CTU.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the destination status and any issues for each creative above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more Amazon DSP creatives on {{site_name}}'s campaigns route to a destination that is broken, out of stock, or incorrect. Clicks are spending against a destination that cannot convert, so the click budget on the affected line items produces no return. {{voice_recommend}} updating the click-through URL on each affected creative to a live, buyable destination that matches the creative's offer, and re-checking the destination after any catalog or site change that could affect availability."
+      }
+    },
+    {
+      "id": "creative-qa-creative-held-in-moderation",
+      "title": "One or more creatives are held in Amazon moderation and blocking line item delivery",
+      "category": "creative",
+      "subcategory": "creative_qa",
+      "impact_score": 3,
+      "impact_rationale": "A creative in moderation does not serve. If it is the only active creative on a line item, that line item goes dark until the creative clears or a replacement is added. The campaign pacing view shows underdelivery but does not always surface moderation as the cause, so the issue can persist through a flight without being diagnosed.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "data-quality"],
+      "educate": {
+        "base": "Amazon reviews every creative before it serves on its network. The review covers policy compliance, technical specifications, and content standards. A creative that does not pass this review sits in a 'In Moderation' or 'Rejected' status in the Amazon DSP console. While it is in that state it does not deliver impressions regardless of budget, targeting, or bid settings on the line item.<br><br>Moderation can take 3 to 5 business days for display creatives and longer for video or managed service formats, per Amazon's published <a href='https://advertising.amazon.com/resources/ad-policy/production-timelines' class='tools-link-no-padding' target='_blank'>creative delivery lead times</a>. A creative submitted too close to a flight start date may still be in review when the campaign goes live. Resubmitting a rejected creative with the same issue that caused the rejection restarts the clock without resolving the problem.<br><br>A few signs point to a moderation issue:<ul><li>The line item has zero impressions despite a healthy budget, active targeting, and competitive bids</li><li>The creative status in the DSP console shows 'In Moderation', 'Under Review', or 'Rejected'</li><li>The campaign launched recently and no creatives on the line item have an 'Active' status yet</li><li>A creative was recently edited or re-uploaded and has reverted to a review state</li></ul>You may want to check creative status at the line item level rather than at the campaign level, as a campaign summary view can show overall spend while individual line items are dark.",
+        "site_type_overlays": {
+          "ecommerce": "Endemic advertisers may see moderation holds when creatives reference pricing, product claims, or promotional language that does not match current Amazon catalog data. You may want to confirm that any price or offer shown in the creative reflects what is currently live on the product detail page before resubmitting.",
+          "lead_gen": "Non-endemic advertisers may see rejections for destination-related reasons, including a landing page that Amazon's review system cannot confirm as compliant. You may want to check that the landing page is publicly accessible, loads quickly, and does not contain content categories that Amazon restricts."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Creative delivery lead times",
+            "source_url": "https://advertising.amazon.com/resources/ad-policy/production-timelines"
+          },
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon Ads technical guidelines",
+            "source_url": "https://advertising.amazon.com/resources/ad-policy/technical-guidelines"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Check the creative status for each active line item in the Amazon DSP console. A line item with no active creatives delivers no impressions.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open the campaign, navigate to the order, and open the relevant line item.",
+                "Select the 'Creatives' tab and review the status column for each creative. Note any creatives showing 'In Moderation', 'Under Review', or 'Rejected'.",
+                "For rejected creatives, open the creative detail to read the rejection reason. Amazon provides a reason category that indicates whether the issue is technical (file spec), content (policy), or destination-related.",
+                "Confirm that at least one creative on the line item shows an 'Active' status. A line item with all creatives in a non-active state will not serve regardless of other settings."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per line item, whether at least one creative has an 'Active' moderation status. A line item with at least one active creative passes this check. A line item where all creatives are 'In Moderation', 'Under Review', or 'Rejected' is a fail recorded with the line item name and the status of each creative.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the creative status for each line item above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more line items on {{site_name}}'s Amazon DSP campaigns have creatives held in moderation or rejected, which has prevented those line items from serving impressions. {{voice_recommend}} reviewing the rejection reason for each affected creative, resolving the flagged issue before resubmitting, and confirming that at least one creative per line item reaches an active status before the flight end date. For time-sensitive flights, {{voice_recommend}} submitting a replacement creative rather than waiting for a resubmission review cycle."
+      }
+    },
+    {
+      "id": "creative-qa-third-party-trackers-not-firing",
+      "title": "Third-party impression or click trackers are misconfigured and not recording delivery",
+      "category": "creative",
+      "subcategory": "creative_qa",
+      "impact_score": 3,
+      "impact_rationale": "When a third-party tracker is misconfigured, the verification or measurement vendor receives no data for the flight. The advertiser loses independent delivery verification, viewability data, or brand safety reporting for that period. The campaign delivers and spends normally, so the measurement gap is invisible unless the vendor's dashboard is checked against the DSP's own impression count.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "data-quality"],
+      "educate": {
+        "base": "Amazon DSP allows third-party impression trackers and click trackers to be appended to creatives, subject to the accepted vendor list in Amazon's <a href='https://advertising.amazon.com/resources/ad-policy/technical-guidelines' class='tools-link-no-padding' target='_blank'>technical guidelines</a>. These trackers serve two purposes: independent delivery verification and measurement from vendors such as DoubleVerify, Integral Ad Science, and Moat; and attribution or viewability data for the advertiser's own analytics stack. When a tracker URL is entered incorrectly, points to a domain not on Amazon's approved list, or uses a macro that Amazon does not fire, the vendor's server receives no pings despite normal delivery in the DSP.<br><br>The failure is silent because the Amazon DSP reporting console records impressions and clicks based on its own delivery signal, not on third-party pings. The campaign appears healthy in the DSP, while the verification vendor's dashboard shows zero or partial delivery. This discrepancy surfaces only when the two data sources are compared.<br><br>A few signs point to a tracker issue:<ul><li>The third-party verification vendor's dashboard shows zero impressions for a flight that is clearly spending in Amazon DSP</li><li>A tracker URL in the creative contains a typo, a broken macro, or a domain not on Amazon's accepted list</li><li>The creative was duplicated from another platform's setup and carried over tracker URLs that use non-Amazon macro formats</li><li>A tracker was updated in the vendor's system but the new URL was not applied to the creative in the DSP</li></ul>You may want to confirm both the tracker URL syntax and the vendor's accepted-domain status before concluding the tracker is correctly configured.",
+        "site_type_overlays": {
+          "ecommerce": "For endemic advertisers, third-party trackers are less common because Amazon Attribution and Amazon Marketing Cloud (AMC) provide first-party measurement. If a tracker is in use, you may want to confirm it does not conflict with the Amazon Ad Tag pixel already on the product detail page destination.",
+          "lead_gen": "For non-endemic advertisers, third-party impression and click trackers carry more weight because Amazon's own attribution relies on the Amazon Ad Tag pixel on the destination site. If that pixel is not deployed, the only independent record of delivery may come from the third-party tracker. You may want to confirm the tracker URL, the macro format, and the vendor's accepted-domain status together."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon Ads technical guidelines",
+            "source_url": "https://advertising.amazon.com/resources/ad-policy/technical-guidelines"
+          },
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon DSP ad dimensions and specifications",
+            "source_url": "https://advertising.amazon.com/resources/ad-specs/dsp"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "For each creative that uses third-party trackers, confirm the tracker URL is correctly formed, uses an Amazon-approved domain, and that the vendor's dashboard reflects delivery.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open the creative detail for each creative that should carry a third-party tracker. Find the impression tracker and click tracker fields.",
+                "Read the full tracker URL and check it for typos, broken macros, or placeholder text that was not replaced (e.g., a literal '%click_url%' that the DSP does not expand).",
+                "Confirm the tracker domain is on Amazon's accepted third-party vendor list per the technical guidelines. A domain not on the list will be blocked by Amazon's ad server."
+              ]
+            },
+            "third_party_vendor_dashboard": {
+              "label": "Third-party verification or measurement vendor dashboard",
+              "steps": [
+                "Open the vendor's reporting dashboard (e.g., DoubleVerify, IAS, or Moat) and pull impressions for the date range when the Amazon DSP campaign was active.",
+                "Compare the vendor's impression count against the Amazon DSP reporting console's impression count for the same line item and date range.",
+                "A large discrepancy, for example, many thousands of impressions in Amazon DSP and zero in the vendor's dashboard, points to a tracker that is not firing. A small discrepancy is expected given methodology differences."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per creative with a third-party tracker, whether the tracker URL is correctly formed and whether the vendor's dashboard reflects delivery that is reasonably close to the Amazon DSP console's count. A tracker URL that is well-formed, uses an approved domain, and whose vendor dashboard shows delivery within expected variance passes. A tracker URL with a syntax error, an unapproved domain, or a vendor dashboard showing zero impressions against non-zero DSP delivery is a fail recorded with the creative name and the specific issue.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the tracker status and vendor dashboard comparison for each creative above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more Amazon DSP creatives on {{site_name}}'s campaigns have third-party impression or click trackers that are not recording delivery. The Amazon DSP console shows normal delivery while the verification vendor's dashboard shows zero or near-zero impressions for the same period, indicating the tracker is not firing. {{voice_recommend}} reviewing the tracker URL for each affected creative, correcting any syntax errors or broken macros, confirming the vendor domain is on Amazon's accepted list, and reapplying the corrected tracker URL to the creative before the next active flight."
+      }
+    }
+  ]
+}

@@ -1,0 +1,231 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://advertising.amazon.com/resources/ad-specs/dsp/video",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Amazon DSP video runs across Amazon-owned inventory where spec non-compliance causes rejection or silent delivery failures, not just degraded quality. An out-of-spec streaming TV (STV) creative will not serve on Prime Video or Fire TV, meaning spend allocated to those placements either goes undelivered or falls back to lower-quality exchange inventory. The checks here take fifteen minutes against Amazon's published spec pages and the DSP console's creative health view. The fix, re-exporting the asset to the correct bitrate or duration, happens outside the DSP, but finding the problem early prevents a full campaign flight at reduced reach.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Amazon DSP runs video and STV creatives across a tiered inventory stack: Prime Video, Fire TV, Twitch, and third-party apps and exchanges. Each tier carries its own technical requirements, and an asset that passes the online video spec may still fail the Prime Video spec. These checks confirm that video assets meet the accepted durations and formats for the placements they target, that STV creatives clear the higher bitrate floor Prime Video requires, and that audio-only assets for Amazon Music and Echo placements meet the channel's own spec.",
+  "audit_checks": [
+    {
+      "id": "video-olv-creative-spec-noncompliance",
+      "title": "Online video (OLV) creatives do not meet Amazon DSP format or duration requirements",
+      "category": "creative",
+      "subcategory": "video_stv_creative",
+      "impact_score": 3,
+      "impact_rationale": "A creative that fails Amazon's format or duration spec is rejected at trafficking and will not serve. Campaigns launch with missing inventory coverage, and the problem may not surface until delivery reports show zero impressions on the affected line items.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "ad-experience"],
+      "educate": {
+        "base": "Amazon DSP <a href='https://advertising.amazon.com/resources/ad-specs/dsp/video/online-video-ads' class='tools-link-no-padding' target='_blank'>online video (OLV) ad specs</a> set the floor for video creatives running across third-party web and app inventory, Twitch, and Amazon-owned display surfaces. The accepted durations are 6 to 120 seconds, with recommended lengths of 6, 15, 20, 30, or 60 seconds. The minimum resolution for site-served assets is 1920x1080 at a minimum bitrate of 4 Mbps (8 Mbps recommended); third-party-served assets may use 640x360 at 2 Mbps. Video must be encoded in H.264, MPEG-2, or MPEG-4 with AAC audio, delivered as an MP4, TS, or MPG file up to 500 MB. Audio tracks require a minimum bitrate of 192 kbps (128 kbps for third-party served) at 44.1 kHz or 48 kHz, with a minimum of two channels.<br><br>The vertical format, 9:16 at 1080x1920, is accepted but currently limited to Twitch and Amazon Publisher Direct supply. If a line item targets a mix of exchanges, submitting only the vertical asset leaves most placements without a creative to serve.<br><br>Third-party VAST tags must be Inline VAST 2.0 or VAST 3.0. VPAID 2 is accepted for online video but not for streaming TV, so an asset that works on OLV may need a separate tag for STV placements.<br><br>A few signs point to a spec problem:<ul><li>The DSP console's creative health view flags one or more creatives as rejected or under review</li><li>Delivery on a line item shows significantly fewer impressions than the forecast</li><li>The creative export came from a social platform or vendor whose defaults do not match Amazon's bitrate or duration requirements</li></ul>You may want to cross-reference each asset's technical metadata against the spec page before trafficking. A mismatch caught before launch avoids a rejection and a gap in delivery.",
+        "site_type_overlays": {
+          "ecommerce": "For endemic advertisers running product-focused video, the 6-second duration is a useful format for lower-funnel retargeting where a brief product reminder serves the goal. You may want to confirm the 6-second cut meets Amazon's minimum bitrate. Short assets are sometimes exported at lower quality than longer ones.",
+          "lead_gen": "For non-endemic advertisers driving to an off-Amazon destination, the 15- or 30-second duration gives enough room for a brand message and a call to action. You may want to confirm the asset was exported at 4 Mbps or above. Assets produced for social channels are often exported below this floor."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Online video (OLV) ad specs",
+            "source_url": "https://advertising.amazon.com/resources/ad-specs/dsp/video/online-video-ads"
+          },
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon DSP video ads — specs and requirements",
+            "source_url": "https://advertising.amazon.com/resources/ad-specs/dsp/video"
+          }
+        ],
+        "impactful_updates": [
+          {
+            "update_title": "Vertical video (9:16) accepted for Twitch and Amazon Publisher Direct",
+            "update_description": "Amazon DSP now accepts 9:16 vertical video (1080x1920 site-served, 360x640 third-party served) on Twitch and Amazon Publisher Direct supply. Campaigns targeting broader exchange inventory still require the 16:9 horizontal format.",
+            "update_link": "https://advertising.amazon.com/resources/ad-specs/dsp/video/online-video-ads",
+            "update_date": ""
+          }
+        ]
+      },
+      "investigate": {
+        "intro": "Confirm each OLV creative's format, resolution, bitrate, duration, and VAST tag type against Amazon's published spec.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Navigate to 'Creative library' in the Amazon DSP console and open the relevant advertiser.",
+                "Review the status column for each video creative. A creative showing 'Rejected' or 'Under review' indicates a spec or policy issue. Select the creative to read the rejection reason.",
+                "For creatives that show as active, note the duration, format, and dimensions listed in the creative detail panel and compare them against the OLV spec: minimum 6 seconds, 1920x1080 at 4 Mbps for site-served assets."
+              ]
+            },
+            "mediainfo_or_ffprobe": {
+              "label": "MediaInfo or ffprobe (local tool)",
+              "steps": [
+                "Open the source video file in MediaInfo or run ffprobe on it to read the codec, resolution, bitrate, frame rate, duration, audio sample rate, and audio bitrate.",
+                "Compare each value against the Amazon OLV spec: H.264, MPEG-2, or MPEG-4 codec; 1920x1080 minimum; 4 Mbps video bitrate minimum for site-served; AAC audio at 192 kbps minimum; 44.1 kHz or 48 kHz sample rate.",
+                "Note any field that falls below spec and flag the asset for re-export before trafficking."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each OLV creative, the practitioner records the duration, resolution, video bitrate, audio bitrate, codec, file format, and the DSP console status. A creative that meets all spec minimums and shows an active status passes. A creative with a rejected status, a bitrate below 4 Mbps for site-served assets, a resolution below 1920x1080, or a duration outside the 6- to 120-second range is a fail recorded with the creative name and the specific field at fault.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the spec values and DSP console status for each OLV creative above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more online video creatives on {{site_name}}'s Amazon DSP campaigns do not meet Amazon's OLV format or duration requirements. Out-of-spec creatives are rejected at trafficking and will not serve, leaving affected line items with no delivery or fewer impressions than the campaign forecast. {{voice_recommend}} re-exporting the flagged assets to meet Amazon's minimums: H.264 or MPEG-4 encoding, 1920x1080 resolution at a minimum of 4 Mbps, AAC audio at 192 kbps minimum, and a duration between 6 and 120 seconds. After re-upload, confirm each creative reaches an active status in the DSP console's creative library before the line items go live."
+      }
+    },
+    {
+      "id": "stv-creative-below-prime-video-bitrate-floor",
+      "title": "Streaming TV creatives do not meet the Prime Video bitrate floor",
+      "category": "creative",
+      "subcategory": "video_stv_creative",
+      "impact_score": 3,
+      "impact_rationale": "Prime Video requires a minimum bitrate of 15 Mbps and recommends 50 Mbps. An asset below that floor cannot serve on Prime Video or Fire TV Channels, so spend targeting those placements either goes undelivered or falls back to lower-quality third-party app inventory that only requires 8 Mbps.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "ad-experience"],
+      "educate": {
+        "base": "Amazon DSP's <a href='https://advertising.amazon.com/resources/ad-specs/dsp/video/streaming-tv-prime-video-ads' class='tools-link-no-padding' target='_blank'>streaming TV (STV) and Prime Video ad specs</a> set a higher bitrate requirement than the online video spec. Prime Video requires a minimum of 15 Mbps; Amazon recommends 50 Mbps for Prime Video campaigns. Twitch and Fire TV Channels require a minimum of 8 Mbps. Third-party STV apps on exchanges accept lower bitrates, but Prime Video and Fire TV Channels will not serve an asset below their floor.<br><br>The accepted durations for Prime Video in the United States are 15, 30, 45, and 60 seconds. Twitch in the United States accepts 15 and 30 seconds. Third-party STV apps accept 6, 10, 15, 20, 30, 45, 60, 75, and 90 seconds. A creative that is the right duration for one surface may be the wrong duration for another within the same line item.<br><br>The file must be delivered as MP4, M2T, TS, MPG, MPEG, M2P, M2TS, or PS, encoded in H.264, MPEG-2, or MPEG-4 with AAC audio. The minimum frame size is 1920x1080 at a 16:9 aspect ratio. The maximum file size for site-served assets is 500 MB. VPAID is not accepted for STV placements; the tag must be Inline VAST 2.0 or VAST 3.0.<br><br>Amazon's January 2026 multi-channel video workflow allows a single STV creative that also meets OLV specs to serve across Fire TV, Alexa, and Fire tablet surfaces in a unified campaign. If the STV asset is the only creative in the campaign, it must satisfy both the STV and OLV bitrate floors to benefit from that workflow.<br><br>A few signs point to a bitrate problem:<ul><li>The creative library shows the asset as active but delivery on Prime Video placements is low or absent</li><li>The source file was exported for broadcast at a bitrate Amazon's STV tools interpret as below the 15 Mbps floor</li><li>MediaInfo or ffprobe reads a bitrate below 15 Mbps on the source file</li></ul>You may want to verify the bitrate of the source file before uploading. Amazon's creative health tool may not surface a bitrate warning until after the asset has been reviewed.",
+        "site_type_overlays": {
+          "ecommerce": "Endemic advertisers running STV on Prime Video to drive product consideration benefit most from the 30-second duration, which gives enough time to show the product in use and link it to an Amazon detail page. You may want to confirm the 30-second cut was exported at 15 Mbps or above, and that the companion display asset meets the STV display spec if the line item uses one.",
+          "lead_gen": "Non-endemic advertisers using Prime Video for brand awareness typically run 15- or 30-second spots. You may want to confirm the asset was exported at 50 Mbps if the campaign targets Prime Video specifically. A bitrate at the 15 Mbps floor may be accepted but will not deliver the quality that Prime Video inventory commands."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Streaming TV and Prime Video ad specs",
+            "source_url": "https://advertising.amazon.com/resources/ad-specs/dsp/video/streaming-tv-prime-video-ads"
+          },
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Streamline multi-channel creative for video ad campaigns across Amazon",
+            "source_url": "https://advertising.amazon.com/resources/whats-new/streamline-creative-for-multi-channel-video-ad-campaign"
+          }
+        ],
+        "impactful_updates": [
+          {
+            "update_title": "Single STV creative now serves across Fire TV, Alexa, and Fire tablet (January 2026)",
+            "update_description": "Amazon launched a multi-channel video workflow in January 2026 that automatically generates optimized variants for Fire TV, Alexa, and Fire tablet when a single STV creative also meets OLV specifications. Campaigns that previously required separate creatives per surface can now use one asset, provided it clears both the STV and OLV bitrate floors.",
+            "update_link": "https://advertising.amazon.com/resources/whats-new/streamline-creative-for-multi-channel-video-ad-campaign",
+            "update_date": "2026-01"
+          }
+        ]
+      },
+      "investigate": {
+        "intro": "Confirm each STV creative's bitrate, duration, and VAST tag type against the Prime Video and Twitch spec requirements.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open 'Creative library' in the Amazon DSP console and filter for video creatives associated with STV line items.",
+                "Check the status of each creative and read any rejection details. A creative rejected for a technical spec issue will identify the field at fault.",
+                "Review the line item's delivery report and filter by supply source. Low or zero delivery on Prime Video or Fire TV Channels placements alongside normal delivery on third-party apps points to an asset that meets the 8 Mbps floor for exchanges but not the 15 Mbps floor for Amazon-owned inventory."
+              ]
+            },
+            "mediainfo_or_ffprobe": {
+              "label": "MediaInfo or ffprobe (local tool)",
+              "steps": [
+                "Open the source video file in MediaInfo or run ffprobe on it to read the overall bitrate.",
+                "Compare the bitrate against the Prime Video minimum of 15 Mbps. Note whether the file meets the recommended 50 Mbps for Prime Video campaigns or only the exchange minimum of 8 Mbps.",
+                "Also confirm the duration matches the accepted values for the intended supply source: 15, 30, 45, or 60 seconds for Prime Video in the United States; 15 or 30 seconds for Twitch."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each STV creative, the practitioner records the video bitrate, duration, file format, VAST tag type, and delivery performance by supply source. A creative with a bitrate of 15 Mbps or above, an accepted duration for the intended supply sources, and normal delivery across Prime Video placements passes. A creative with a bitrate below 15 Mbps that targets Prime Video, or a creative with a duration not accepted by the intended supply source, is a fail recorded with the creative name and the field at fault.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the bitrate, duration, and supply-source delivery for each STV creative above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more streaming TV creatives on {{site_name}}'s Amazon DSP campaigns fall below Prime Video's minimum bitrate of 15 Mbps. Assets below this floor cannot serve on Prime Video or Fire TV Channels, so spend allocated to those placements either goes undelivered or falls back to third-party app inventory. {{voice_recommend}} re-exporting the flagged assets at a minimum of 15 Mbps, and at 50 Mbps if the campaign targets Prime Video specifically, and confirming the duration matches the accepted values for each intended supply source before re-uploading to the DSP creative library."
+      }
+    },
+    {
+      "id": "audio-creative-spec-noncompliance",
+      "title": "Audio creatives do not meet Amazon DSP audio ad format or duration requirements",
+      "category": "creative",
+      "subcategory": "video_stv_creative",
+      "impact_score": 2,
+      "impact_rationale": "An audio creative that fails the format or duration spec is rejected and will not serve on Amazon Music, Alexa, or Echo placements. A Twitch audio placement additionally requires a duration of 12 to 15 seconds or 27 to 30 seconds; an asset outside those windows will not fill that supply.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["creative", "ad-experience"],
+      "educate": {
+        "base": "Amazon DSP audio ads serve on Amazon Music's ad-supported tier, Alexa-enabled devices, and third-party audio supply including Twitch. The <a href='https://advertising.amazon.com/resources/ad-specs/audio-ads' class='tools-link-no-padding' target='_blank'>Amazon audio ad specifications</a> set a duration range of 10 to 30 seconds; any duration within that window is accepted. The file must be WAV, MP3, or OGG and must not exceed 3 MB. The audio must be at least 192 kbps, root mean square (RMS) normalized to -14 dBFS, with a peak level normalized to -0.2 dBFS.<br><br>Twitch inventory carries a stricter duration window than Amazon Music. For a Twitch audio placement to fill, the creative must be 12 to 15 seconds or 27 to 30 seconds. An asset that is 20 seconds long falls between both windows and will not serve on Twitch.<br><br>Each audio ad must include a companion banner for visual display on devices and surfaces that show images alongside the audio. The required companion banner dimensions are 1024x1024 pixels; a 300x250 pixel banner is optional. Both are JPEG or PNG, with a maximum file size of 750 KB. A missing or incorrectly sized companion banner can cause the ad to serve audio without a companion on surfaces that require one, or to be rejected outright.<br><br>A few signs point to an audio spec problem:<ul><li>The DSP console's creative library shows the audio creative as rejected or under review</li><li>Delivery on Amazon Music or Alexa line items is absent despite a confirmed active campaign</li><li>The source WAV or MP3 file was produced at a sample rate below 44.1 kHz or at a peak level above -0.2 dBFS</li></ul>You may want to verify the normalized loudness of the audio file before upload. A file that sounds correct in playback may still fail Amazon's loudness floor when measured against the -14 dBFS RMS standard.",
+        "site_type_overlays": {
+          "ecommerce": "Endemic advertisers using audio to drive product discovery on Amazon Music may want to confirm the companion banner features the product image at the correct 1024x1024 size. The companion drives the click that leads to the product detail page on surfaces that display it.",
+          "lead_gen": "Non-endemic advertisers using audio for brand awareness may want to confirm the creative ends with a clear spoken call to action. Alexa-enabled placements may support voice-interactive elements that respond to the Alexa call-to-action prompt."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Audio ads ad specifications",
+            "source_url": "https://advertising.amazon.com/resources/ad-specs/audio-ads"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm each audio creative's format, duration, loudness normalization, and companion banner against Amazon's audio ad spec.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open 'Creative library' in the Amazon DSP console and filter for audio creatives.",
+                "Check each creative's status. A rejected status will include a reason; note whether the rejection cites duration, file format, loudness, or a missing companion banner.",
+                "For active audio creatives, confirm a companion banner is attached and note its dimensions."
+              ]
+            },
+            "loudness_meter_or_daw": {
+              "label": "Loudness meter or digital audio workstation (DAW)",
+              "steps": [
+                "Open the source audio file in a DAW or run it through an integrated loudness meter (e.g., ffmpeg with the ebur128 filter) to measure RMS loudness in LUFS and peak level in dBFS.",
+                "Confirm the integrated loudness is at or below -14 dBFS RMS and the peak is at or below -0.2 dBFS. A file above the peak limit will not pass Amazon's spec.",
+                "Confirm the duration is between 10 and 30 seconds. If the line item targets Twitch inventory, confirm the duration is specifically 12 to 15 seconds or 27 to 30 seconds."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each audio creative, the practitioner records the duration, file format, measured RMS loudness, peak level, companion banner dimensions, and DSP console status. A creative with a duration of 10 to 30 seconds, a WAV, MP3, or OGG file under 3 MB, loudness at -14 dBFS RMS and peak at -0.2 dBFS, and a 1024x1024 companion banner passes. A creative with a rejected status, a duration outside the accepted range, loudness above the peak limit, or a missing or incorrectly sized companion banner is a fail recorded with the creative name and the field at fault.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the duration, loudness measurements, companion banner dimensions, and DSP console status for each audio creative above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more audio creatives on {{site_name}}'s Amazon DSP campaigns do not meet Amazon's audio ad format or duration requirements. Out-of-spec audio creatives are rejected and will not serve on Amazon Music, Alexa, or Twitch placements, leaving audio line items with no delivery. {{voice_recommend}} re-exporting the flagged assets to meet Amazon's audio spec: WAV, MP3, or OGG format under 3 MB, a duration of 10 to 30 seconds (12 to 15 or 27 to 30 seconds if Twitch is in the placement mix), normalized to -14 dBFS RMS with a peak at -0.2 dBFS, and a 1024x1024 companion banner attached before re-upload."
+      }
+    }
+  ]
+}

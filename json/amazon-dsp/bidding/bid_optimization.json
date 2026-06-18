@@ -1,0 +1,202 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://advertising.amazon.com/products/amazon-dsp",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Amazon DSP's bid optimization uses Amazon's first-party purchase and streaming signals to move spend toward impressions that are more likely to convert, and it does this work automatically at a scale a human bid manager cannot replicate by hand. These checks confirm that the optimization is switched on where the account has the signal to support it, that the goal the algorithm pursues matches the outcome the campaign actually needs, and that manual bid caps are not fighting the automation and undoing the signal advantage. The checks are read-only: the practitioner inspects line item settings in the Amazon DSP console and records what they find. Remediation is a configuration change, not a rebuild.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Amazon DSP offers automated bid optimization at the line item level. The algorithm draws on Amazon's first-party shopping, browsing, and streaming signals to estimate which impressions are most likely to reach the optimization goal and bids accordingly. That estimation only works well when the line item has enough conversion signal, when the goal is set to the real outcome, and when manual bid settings do not constrain the algorithm below what the market requires. These checks confirm that each of those three conditions holds.",
+  "audit_checks": [
+    {
+      "id": "amazon-dsp-bid-optimization-not-enabled-where-signal-supports-it",
+      "title": "Bid optimization is not enabled on line items that have enough conversion signal to use it",
+      "category": "bidding",
+      "subcategory": "bid_optimization",
+      "impact_score": 3,
+      "impact_rationale": "A line item left on a fixed or dynamic cost-per-thousand impressions (CPM) bid when it has enough purchase or engagement signal to support goal-based optimization foregoes the algorithm's ability to concentrate spend on higher-converting impressions. The campaign delivers the budget but not as efficiently as the available signal would allow.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "conversion-tracking"],
+      "educate": {
+        "base": "Amazon DSP line items offer two broad bidding modes. A fixed or dynamic CPM bid pays a set or range-constrained price per impression regardless of how likely that impression is to convert. Goal-based optimization, by contrast, adjusts bids impression by impression using Amazon's first-party shopping and streaming signals to pursue a specific outcome, such as a purchase, a detail page view, or a reach target.<br><br>Goal-based optimization requires a minimum amount of conversion signal before it can bid meaningfully. Amazon recommends a threshold of roughly 25 to 30 relevant events in a 30-day window before switching a line item to optimization. Below that threshold the algorithm has too little data to bid accurately and may underperform a well-set fixed CPM. At or above that threshold, a fixed CPM bid gives up the signal advantage.<br><br>A few signs point to this check applying to a line item:<ul><li>The line item has been running for more than 30 days with a consistent purchase or engagement event firing</li><li>The line item uses a fixed CPM or a dynamic CPM with no optimization goal set</li><li>Conversion volume in the Amazon DSP reporting tab meets or exceeds the threshold Amazon cites</li></ul>You may want to review each line item's current bidding mode against its reported conversion volume before deciding whether to switch. Switching too early, before sufficient signal accumulates, can cause erratic delivery.",
+        "site_type_overlays": {
+          "ecommerce": "For an endemic advertiser selling products on Amazon, the relevant conversion events, such as an Amazon Standard Identification Number (ASIN) purchase or an 'add to cart' action, are already tracked through Amazon's closed-loop measurement system. This removes the tagging dependency that makes threshold-checking harder on off-Amazon destinations. You may want to confirm that the campaign's product listing is in stock and eligible to purchase before switching to purchase-optimized bidding. The algorithm will still route spend toward the listing even when it cannot convert.",
+          "lead_gen": "For a non-endemic advertiser driving traffic off Amazon, the optimization signal comes from the Amazon Ad Tag (AAT) pixel rather than Amazon's native purchase data. You may want to confirm the AAT pixel is firing correctly on the destination's thank-you or confirmation page before enabling goal-based optimization. Optimizing toward an event that is not recording will produce unpredictable delivery."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon DSP: Advertise with a demand-side platform",
+            "source_url": "https://advertising.amazon.com/products/amazon-dsp"
+          },
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon Marketing Cloud: Discover advertising insights",
+            "source_url": "https://advertising.amazon.com/solutions/products/amazon-marketing-cloud"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Open each line item in the Amazon DSP console and record its current bidding mode and the conversion volume reported for the relevant event over the past 30 days.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Navigate to 'Orders', select the order, then open the line item you want to review.",
+                "Find the 'Bidding' section and note whether the line item uses a fixed CPM, dynamic CPM, or a goal-based optimization mode. If goal-based, note the optimization goal selected.",
+                "Open the 'Reporting' tab for the line item. Set the date range to the past 30 days and look at the conversion column for the event type relevant to the campaign goal, such as purchases or detail page views.",
+                "Record the event count. If it is at or above roughly 25 to 30 events and the line item is still on a fixed or dynamic CPM, note it as a candidate for switching to goal-based optimization."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per line item, the current bidding mode and the 30-day conversion event count. A line item on goal-based optimization passes. A line item on fixed or dynamic CPM with fewer than 25 events in the past 30 days passes as not yet ready. A line item on fixed or dynamic CPM with 25 or more events in the past 30 days is a fail recorded with the line item name and the event count.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the bidding mode and the 30-day conversion count for each line item above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more Amazon DSP line items on {{site_name}}'s account have accumulated enough conversion signal to support goal-based optimization but are still running on a fixed or dynamic CPM bid. These line items are bidding a uniform price per impression rather than using Amazon's first-party signals to concentrate spend on impressions more likely to result in the campaign's conversion goal. {{voice_recommend}} switching the affected line items to goal-based optimization now that the conversion volume threshold has been reached, confirming that the conversion event firing on the destination matches the optimization goal selected, and monitoring delivery for the first 48 to 72 hours after the change to confirm the algorithm is pacing normally."
+      }
+    },
+    {
+      "id": "amazon-dsp-optimization-goal-set-to-proxy-rather-than-real-outcome",
+      "title": "Optimization goal is set to a proxy metric rather than the campaign's actual outcome",
+      "category": "bidding",
+      "subcategory": "bid_optimization",
+      "impact_score": 3,
+      "impact_rationale": "A line item optimizing for click-throughs when purchase data is available, or for reach when the campaign objective is new-to-brand sales, directs the algorithm toward a signal that does not align with the real business outcome. The algorithm performs as instructed, but its instructions do not match the goal, so spend is concentrated on impressions that do not advance the campaign's purpose.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "conversion-tracking"],
+      "educate": {
+        "base": "Amazon DSP's goal-based optimization supports several optimization goals, including purchases, detail page views (DPVs), reach, and video completion rates, among others. Each goal instructs the algorithm to find impressions most likely to produce that specific outcome. Choosing a goal that does not match the campaign's purpose means the algorithm optimizes for the wrong signal even when it is working correctly.<br><br>A campaign running display ads for an endemic advertiser with the goal of driving ASIN purchases should be set to purchase optimization, not click-through or DPV optimization, unless the full-funnel strategy is intentional and the line items are segmented by funnel stage. A campaign with a reach goal but no downstream measurement of brand impact provides little evidence that the reach goal served the business.<br><br>The mismatch is sometimes introduced when a line item is cloned from a template or a prior flight without updating the goal to match the current campaign brief. A few signs point to a mismatch:<ul><li>The line item's stated goal in the brief or media plan differs from the optimization goal recorded in the console</li><li>The line item is optimizing for clicks or DPVs when purchase-level signal is available and the campaign is sales-focused</li><li>The line item is a prospecting flight set to purchase optimization without a separate retargeting flight to close, which pushes the algorithm toward a goal it is unlikely to find in a cold audience</li></ul>You may want to check whether the goal set at the line item level reflects the campaign strategy written in the brief, and whether that strategy aligns with the signal the account can actually track.",
+        "site_type_overlays": {
+          "ecommerce": "For an endemic advertiser, Amazon provides the full purchase funnel in a single walled-garden environment, making it possible to set purchase, new-to-brand (NTB), or subscribe-and-save goals directly. You may want to confirm that the line item's goal reflects which stage of the funnel it serves rather than defaulting to a generic 'click' or 'DPV' goal inherited from a prior flight.",
+          "lead_gen": "For a non-endemic advertiser, the optimization goals available depend on the Amazon Ad Tag (AAT) pixel events configured on the advertiser's site. If the pixel is only recording page visits and not form submissions or purchases, the available goals will reflect that limitation. You may want to confirm that the AAT pixel records the right event before setting an optimization goal that depends on it."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon DSP: Advertise with a demand-side platform",
+            "source_url": "https://advertising.amazon.com/products/amazon-dsp"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "For each goal-optimized line item, compare the optimization goal in the Amazon DSP console against the campaign objective recorded in the brief or media plan.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open the line item and navigate to the 'Bidding' section. Record the optimization goal currently set, for example 'Purchase', 'Detail page view', 'Reach', or 'Video completion rate'.",
+                "Confirm the campaign objective from the brief or the order-level notes. Note whether the goal at the line item level matches the stated objective.",
+                "If the line item is set to click or DPV optimization, open the 'Reporting' tab and check whether purchase-level conversion data is present. If purchase signal is available and the campaign is sales-focused, record this as a mismatch.",
+                "If the line item is a prospecting flight, confirm whether a separate retargeting line item is present in the same order to close the funnel. A prospecting line item set to purchase optimization with no retargeting companion is a signal of goal misalignment."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per goal-optimized line item, the optimization goal set in the console and the campaign objective from the brief. A line item whose optimization goal matches the campaign objective and the available signal passes. A line item whose goal differs from the campaign objective, or whose goal cannot be supported by the signal the account tracks, is a fail recorded with the line item name, the goal set, and the goal the campaign requires.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the optimization goal set in the console and the campaign objective from the brief for each goal-optimized line item above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more Amazon DSP line items on {{site_name}}'s account are set to optimize for a proxy metric, such as clicks or detail page views, rather than the outcome the campaign is designed to drive. The algorithm is performing as configured, but the configuration does not align with the campaign objective, so spend is directed toward impressions associated with the proxy signal rather than the real conversion goal. {{voice_recommend}} updating the affected line items to an optimization goal that matches the campaign's stated objective, confirming that the relevant conversion signal, such as purchase events or AAT pixel events, is recording correctly before the change, and reviewing delivery and cost-per-outcome metrics in the first week after updating to confirm the algorithm is responding to the corrected goal."
+      }
+    },
+    {
+      "id": "amazon-dsp-manual-bid-overrides-fighting-optimization",
+      "title": "Manual bid caps are constraining the optimization algorithm on goal-optimized line items",
+      "category": "bidding",
+      "subcategory": "bid_optimization",
+      "impact_score": 2,
+      "impact_rationale": "A goal-optimized line item with a maximum CPM cap set below the market clearing price cannot win the impressions the algorithm identifies as most likely to convert. The algorithm's signal advantage is present but the bid cap prevents it from acting on that signal, so the line item under-delivers or concentrates on lower-quality inventory that clears below the cap.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["bidding", "data-quality"],
+      "educate": {
+        "base": "Amazon DSP allows advertisers to set maximum CPM caps on goal-optimized line items. The cap prevents the algorithm from bidding above the specified price per thousand impressions. When the cap is set at or above the market clearing price for the inventory the algorithm wants, it works as a safeguard against runaway spend. When the cap is set below that clearing price, the algorithm is cut off from the impressions it has identified as high-value, so it either under-delivers or shifts spend to cheaper inventory that converts at a lower rate.<br><br>Manual bid caps introduced during a previous flight or copied from a conservative test are a source of this constraint. They may have been appropriate at a lower budget or on a narrower audience but become restrictive as the line item scales or as auction prices rise.<br><br>Amazon Marketing Cloud (AMC) can surface impression-level bid loss data that shows whether the line item is frequently losing to the cap. A few signs point to cap-related constraint without AMC access:<ul><li>The line item has a max CPM cap set and its delivery rate is consistently below 80 percent of the daily budget</li><li>The line item's average CPM is sitting very close to the cap value</li><li>The line item has a goal-optimized bid mode but its cost-per-outcome is higher than a comparable uncapped line item in the same order</li></ul>You may want to review whether the cap reflects current auction conditions rather than the conditions in place when the line item was first created.",
+        "site_type_overlays": {
+          "ecommerce": "For an endemic advertiser running purchase-optimized line items, the Amazon-owned inventory that converts at the highest rate, such as placements on Amazon.com product pages and search results, typically clears at higher CPMs than third-party exchange inventory. A cap set on blended average CPM from a prior flight may be too low for the owned-and-operated placements the algorithm prefers.",
+          "lead_gen": "For a non-endemic advertiser with a reach or DPV goal, a tight max CPM cap can restrict access to streaming TV (STV) and online video (OLV) inventory, which clears at higher CPMs than display. If the campaign's brief calls for video reach but the line item's cap is calibrated to display CPM rates, the line item may deliver largely on display despite the creative being video."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon DSP: Advertise with a demand-side platform",
+            "source_url": "https://advertising.amazon.com/products/amazon-dsp"
+          },
+          {
+            "source_type": "Amazon Ads",
+            "source_title": "Amazon Marketing Cloud: Discover advertising insights",
+            "source_url": "https://advertising.amazon.com/solutions/products/amazon-marketing-cloud"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Check each goal-optimized line item for a max CPM cap, then compare that cap to the line item's actual average CPM and delivery rate.",
+        "tools": {
+          "free": {
+            "amazon_dsp_console": {
+              "label": "Amazon DSP console",
+              "steps": [
+                "Open the line item and navigate to the 'Bidding' section. Note whether a maximum CPM cap is set. If one is set, record the cap value.",
+                "Open the 'Reporting' tab for the line item. Set the date range to the past 14 days and record the average CPM. If the average CPM is within 10 to 15 percent of the cap, the line item may be bumping against the cap regularly.",
+                "Record the budget delivery rate for the same period. If the line item is spending less than 80 percent of its daily budget while a cap is in place, the cap may be preventing the algorithm from winning the impressions it needs to pace."
+              ]
+            },
+            "amazon_marketing_cloud": {
+              "label": "Amazon Marketing Cloud (AMC)",
+              "steps": [
+                "If the account has AMC access, run a query against impression-level bid data to identify the share of auction opportunities lost because the max CPM cap was below the winning bid.",
+                "A high share of cap-related bid losses on a goal-optimized line item confirms the cap is restricting the algorithm rather than protecting the budget."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per goal-optimized line item, whether a max CPM cap is set, the cap value, the average CPM over the past 14 days, and the delivery rate. A line item with no cap, or with a cap at least 20 percent above the average CPM and a delivery rate above 80 percent, passes. A line item with a cap within 15 percent of the average CPM, or a delivery rate below 80 percent with a cap in place, is a fail recorded with the line item name, the cap value, the average CPM, and the delivery rate.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a max CPM cap is set, the cap value, the average CPM, and the delivery rate for each goal-optimized line item above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more goal-optimized Amazon DSP line items on {{site_name}}'s account have maximum CPM caps that appear to be constraining the algorithm's ability to win the impressions it targets. The average CPM is running close to the cap value, and the delivery rate is below the budget, which points to the cap cutting off access to higher-value inventory rather than preventing overspend. {{voice_recommend}} reviewing the cap values against current auction conditions, raising or removing caps on line items where the average CPM confirms the cap is binding, and monitoring delivery rate and cost-per-outcome in the 48 to 72 hours after the change to confirm the algorithm can now pace normally."
+      }
+    }
+  ]
+}

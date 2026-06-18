@@ -1,0 +1,199 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Nielsen Digital Ad Ratings (DAR) reports are most useful when the numbers they produce are understood relative to the ad server and platform data they sit alongside. Without reconciliation, a gap between DAR-measured impressions and ad-server-delivered impressions may reflect normal methodology differences or a real tagging problem, and there is no way to tell which. These checks confirm that impression coverage is reviewed against the ad server, that DAR demographic results are compared against platform-native audience data, and that any persistent discrepancy is traced to a cause rather than left without explanation.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Reconciliation is the process of comparing DAR output against the other sources of truth a campaign produces: the ad server's delivered impression count, the demand-side platform's (DSP) or walled garden's own demographic reporting, and any prior reconciliation baselines. Some discrepancy between DAR and those other sources is expected. DAR uses a hybrid methodology that calibrates panel-based audience data against census inputs, which will produce different impression and demographic counts than a DSP's logged-in user graph or an ad server's direct count. These checks confirm that the expected sources of discrepancy are understood, that the DAR impression count is reviewed against the ad server, that demographic results are compared against platform-native reporting, and that discrepancies are investigated to a root cause rather than noted and closed.",
+  "audit_checks": [
+    {
+      "id": "nielsen-dar-impression-count-not-reconciled-against-ad-server",
+      "title": "DAR-measured impressions are not reconciled against the ad server or DSP delivered impression count",
+      "category": "measurement",
+      "subcategory": "reconciliation",
+      "impact_score": 3,
+      "impact_rationale": "When the DAR impression count is never compared against the ad server, a coverage gap or a tagging problem can persist through an entire campaign flight. The team reports DAR audience figures built on an impression base that may be materially incomplete, and there is no record that would allow the discrepancy to be investigated after the campaign ends.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "governance"],
+      "educate": {
+        "base": "Nielsen Digital Ad Ratings (DAR) measures impressions through tags placed on ad creatives or served via a pixel integration. The count DAR reports reflects only the impressions where the tag fired and data reached Nielsen's collection infrastructure. The ad server records every impression it delivers, regardless of whether the DAR tag fired on that impression. The two numbers will not match exactly, and a modest gap is expected, but a large gap signals a coverage problem worth investigating before it affects the audience figures DAR calculates from that impression base.<br><br>Nielsen's implementation documentation describes a regular discrepancy-check process in which Nielsen's team compares the client's ad server or third-party reporting against DAR's count, typically every 7 to 14 days during a live campaign. This check requires the client to provide delivered impression data. Without it, Nielsen has no reference point to confirm whether the tags are firing across all placements as intended.<br><br>Common causes of a gap between DAR and the ad server include tags missing from one or more placements, tags placed incorrectly relative to the ad unit so that they fire inconsistently, server-side delivery paths where a browser-based tag cannot fire, and counting methodology differences such as how each system handles ad refreshes or cached impressions. Some of these are tag problems that can be corrected during the campaign; others are methodological differences that affect the numbers but not the quality of the measurement.<br><br>A few signs this check applies:<ul><li>No documentation exists showing that the DAR impression count was compared against the ad server at any point during the campaign</li><li>The campaign used a server-side or programmatic delivery path for some or all placements, and it was not confirmed whether the DAR tag type used supports that delivery method</li><li>The gap between the DAR-reported impression count and the ad server count exceeds a range the team would consider within normal methodology differences, and no root-cause investigation was conducted</li></ul>You may want to confirm that a delivered impression figure from the ad server is shared with Nielsen at the start of the campaign so the discrepancy check process can run on a consistent schedule.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser running a DAR-measured campaign across display and video inventory, you may want to confirm that the impression count from the ad server or demand-side platform (DSP) was shared with Nielsen so that placement-level gaps can be identified before the audience figures are finalized.",
+          "lead_gen": "For a lead-generation advertiser using DAR to validate demographic reach across video placements, you may want to confirm that the delivery path used for each placement supports the DAR tag type selected, and that the ad server impression total was provided to Nielsen for the discrepancy check."
+        },
+        "learn_more": [
+          {
+            "source_type": "Nielsen Engineering Portal",
+            "source_title": "DAR Tag Implementation Guide: discrepancy checks and impression tracking",
+            "source_url": "https://engineeringportal.nielsen.com/wiki/DAR_Tag_Implementation_Guide"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether an ad server impression count was provided to Nielsen during the campaign and whether a discrepancy check was completed.",
+        "tools": {
+          "free": {
+            "nielsen_dar": {
+              "label": "Nielsen DAR",
+              "steps": [
+                "Open the DAR reporting interface and pull the total impression count for the campaign at the campaign or line-item level. Note the date range and the total impressions Nielsen recorded.",
+                "Pull the delivered impression count for the same campaign and date range from the ad server or DSP. Use the same level of granularity (total campaign, or broken out by placement if DAR is reported by placement).",
+                "Calculate the percentage difference: (ad server impressions minus DAR impressions) divided by ad server impressions, expressed as a percentage. A difference above roughly 10 to 20 percent warrants investigation.",
+                "Check whether a discrepancy report or email from Nielsen's team is on file. Nielsen's implementation process includes a check typically every 7 to 14 days. If no such document exists, the discrepancy check was not completed.",
+                "If the gap is material, review the placement list in the ad server against the tagging map in DAR to identify any placements where a DAR tag was not present or was placed incorrectly."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the DAR impression count, the ad server impression count, and the percentage difference. A campaign where the difference is within an acceptable range and a discrepancy check was documented passes. A campaign where no discrepancy check was conducted, or where the gap exceeds the expected range with no root-cause documentation, is a fail, recorded with the impression counts and the percentage gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the DAR impression count, the ad server impression count, and the percentage difference above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the DAR-measured impression count for {{site_name}} was not reconciled against the ad server delivered impression count during the campaign. Without a comparison, a coverage gap caused by missing or misfiring tags remains undetected, and the audience figures DAR reports are built on an impression base that may be incomplete. {{voice_recommend}} sharing the ad server impression total with Nielsen at the campaign's start to enable the regular discrepancy check process, reviewing the placement tagging map against the ad server placement list, and documenting the discrepancy percentage at each check interval so that any new gap can be identified while the campaign is still running."
+      }
+    },
+    {
+      "id": "nielsen-dar-demographics-not-compared-against-platform-native-reporting",
+      "title": "DAR demographic results are not compared against the platform's own audience reporting",
+      "category": "measurement",
+      "subcategory": "reconciliation",
+      "impact_score": 3,
+      "impact_rationale": "DAR provides a third-party, panel-calibrated view of who saw the ads. A DSP or walled garden platform provides its own view, drawn from its logged-in user graph. Both views are useful. When they are never compared, a persistent disagreement between the two sources remains unexplained, and the team cannot determine which figure to report to a client or use for optimization.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "performance"],
+      "educate": {
+        "base": "Nielsen Digital Ad Ratings (DAR) measures who saw a campaign's ads using a hybrid methodology: a panel of opted-in participants provides a demographic truth set, which Nielsen uses to calibrate census-level data collected from publishers, platforms, and third-party data partners. The result is a demographic estimate that is independent of any single platform's user-identity data.<br><br>A DSP or walled garden platform produces its own demographic view using different inputs. Meta, for example, uses its logged-in user graph. Google uses signed-in Google accounts and modeled data. The Xandr (Microsoft Invest) DAR integration pulls demographic metrics directly from Nielsen into the platform reporting interface, but those figures still reflect Nielsen's methodology, not the platform's own identity resolution.<br><br>Because the two sources use different methodologies, some demographic discrepancy between them is expected. A DAR on-target percentage (OTP) of 68 percent and a platform-native demographic report showing 74 percent for the same demographic does not necessarily indicate a problem. Understanding the direction and magnitude of the difference, and whether it is consistent across placements and time periods, is the useful work. Where the two sources diverge significantly and consistently, the difference points to something worth investigating: a demographic targeting segment configured differently in the platform than it is in the DAR setup, a co-viewing assumption in DAR that does not match the device type reported by the platform, or an age-and-gender demographic bucket definition that differs between the two systems.<br><br>A few signs this check applies:<ul><li>The post-campaign report includes DAR demographic metrics but no comparison column or note referencing the platform's own demographic reporting for the same flight</li><li>The OTP from DAR differs from the platform's demographic delivery report by more than a few percentage points and no explanation is documented</li><li>The campaign targeted a specific age and gender demographic and optimization decisions were made from either DAR data or platform data, but not from a comparison of both</li></ul>You may want to pull both the DAR demographic report and the platform's demographic delivery report for the same date range and note the direction and magnitude of any difference before drawing optimization conclusions from either.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser measuring whether a product campaign reached its target demographic, you may want to confirm that the DAR on-target percentage was compared against the platform's own age-and-gender delivery breakdown so that any divergence in how each source defines the target group is identified and documented.",
+          "lead_gen": "For a lead-generation advertiser using DAR to validate whether a B2B or B2C audience profile was reached, you may want to confirm that the DAR demographic report was placed alongside the platform's own demographic delivery data, and that any difference in the reported on-target rate was noted with a brief explanation."
+        },
+        "learn_more": [
+          {
+            "source_type": "Microsoft Learn",
+            "source_title": "Metrics for Nielsen Digital Ad Ratings: on-target percent, unique audience, GRP, and average frequency",
+            "source_url": "https://learn.microsoft.com/en-us/xandr/invest/nielsen-dar-metrics"
+          },
+          {
+            "source_type": "Microsoft Learn",
+            "source_title": "Measure Demographic Targeting Success with Nielsen Digital Ad Ratings",
+            "source_url": "https://learn.microsoft.com/en-us/xandr/invest/nielsen-digital-ad-ratings"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Pull the DAR demographic report and the platform's own demographic delivery report for the same campaign and date range. Compare the on-target percentage and unique audience figures between the two sources.",
+        "tools": {
+          "free": {
+            "nielsen_dar": {
+              "label": "Nielsen DAR",
+              "steps": [
+                "Open the DAR reporting interface and pull the demographic breakdown report for the campaign. Record the on-target percentage (OTP), unique audience, and average frequency for the target demographic.",
+                "Open the DSP or platform's own demographic delivery report for the same campaign and the same date range. Record the platform's equivalent figures: the percentage of impressions delivered to the target demographic and the unique audience count if the platform provides one.",
+                "Calculate the difference in OTP between DAR and the platform. Note whether the difference is consistent across all placements or concentrated in specific placements or time periods.",
+                "Check whether the demographic bucket definitions match between the two sources. For example, confirm that 'Adults 25-54' in the DAR report corresponds to the same age range in the platform's demographic targeting configuration.",
+                "If the platform uses co-viewing estimates (for example, connected TV placements where multiple household members may watch), confirm whether DAR's co-viewing assumption was applied and whether the platform reports the same placement type the same way."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the DAR OTP and the platform OTP for the target demographic. A campaign where both were compared, any difference was noted and attributed to a known methodological difference, and the results are reported with appropriate context passes. A campaign where DAR demographics were reported without any reference to the platform's demographic data, or where a significant difference was noted but not investigated, is a fail, recorded with the OTP figures from each source and the percentage difference.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the DAR on-target percentage and the platform demographic delivery percentage for the target demographic above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s DAR demographic results were not compared against the platform's own demographic delivery reporting during or after the campaign flight. DAR uses a panel-calibrated methodology that will produce different on-target percentages than a DSP's or walled garden's logged-in user graph, and some difference between the two sources is expected. Without placing both figures alongside each other, a persistent and potentially explainable disagreement between the two views goes uninvestigated, and either source may be reported to a client or used for optimization without the context the other provides. {{voice_recommend}} pulling both the DAR demographic report and the platform demographic delivery report for the same campaign and date range, noting the direction and magnitude of any difference, and documenting whether the difference is attributable to a known methodological source such as co-viewing estimates, demographic bucket alignment, or identity-resolution methodology."
+      }
+    },
+    {
+      "id": "nielsen-dar-discrepancy-not-investigated-to-root-cause",
+      "title": "A DAR discrepancy is documented but not traced to a root cause",
+      "category": "measurement",
+      "subcategory": "reconciliation",
+      "impact_score": 2,
+      "impact_rationale": "Noting a discrepancy without investigating it closes the item on paper but leaves the team without the information they need to trust one source over another, correct a real problem, or explain the difference to a client. A discrepancy between a panel-calibrated measurement and an ad server count can stem from methodological differences that require no action, or from a tagging or attribution-window error that does.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "governance"],
+      "educate": {
+        "base": "When a reconciliation comparison between Nielsen Digital Ad Ratings (DAR) and an ad server or platform produces a discrepancy, that comparison is only the first step. The second step is determining whether the discrepancy is expected or unexpected, and whether it is methodological or operational.<br><br>Expected and methodological discrepancies arise from well-understood differences in how each system counts. DAR uses a hybrid panel-and-census approach. The Media Rating Council's (MRC) digital audience-based measurement standards document how third-party audience measurement methodologies are expected to diverge from direct ad server counts, and the MRC accreditation process for DAR confirms that Nielsen's methodology meets those standards. A practitioner who understands where DAR diverges from an ad server count, and why, can document that understanding and close the investigation. A practitioner who does not investigate cannot tell a client whether a 15 percent impression gap reflects a normal methodology difference or a tag that stopped firing on week two of the campaign.<br><br>Common root causes in the operational category include tag placement errors where the DAR tag is on a different firing event than the ad server's impression pixel, time-zone or reporting-window differences where one source includes a final day the other excludes, attribution-window differences where the two sources use different lookback periods for impression counting, and server-side delivery paths where a browser-based DAR tag cannot fire. Common root causes in the methodological category include DAR's cross-device deduplication producing a lower unique reach count than a platform that counts device identifiers, DAR's co-viewing estimates adding audience that the ad server does not count, and the DAR panel's demographic calibration producing an age-and-gender composition that differs from what the platform's own identity data shows.<br><br>A few signs this check applies:<ul><li>A post-campaign or mid-flight note acknowledges that DAR and the ad server show different impression counts, but no follow-up document describes what caused the difference</li><li>The team concluded that the discrepancy was 'within normal range' without specifying which elements were reviewed to reach that conclusion</li><li>A persistent discrepancy across multiple campaigns with the same advertiser or the same publisher has not been escalated to Nielsen's technical team for review</li></ul>You may want to confirm that any discrepancy noted during reconciliation is followed by a brief written explanation of the most likely cause, even if the conclusion is that the difference is methodological and requires no action.",
+        "site_type_overlays": {
+          "ecommerce": "For an ecommerce advertiser where DAR is used to report unique reach and on-target percentage to a client or brand team, you may want to confirm that any noted discrepancy between DAR and the ad server is accompanied by a written explanation the client team can review, even if the explanation is that the difference reflects known methodological factors.",
+          "lead_gen": "For a lead-generation advertiser where DAR results inform audience strategy for a follow-on campaign, you may want to confirm that any discrepancy between DAR audience figures and the DSP's own reporting was investigated before the DAR figures were used to size or target the next flight."
+        },
+        "learn_more": [
+          {
+            "source_type": "MRC Standards",
+            "source_title": "MRC Digital Audience-Based Measurement Standards",
+            "source_url": "https://mediaratingcouncil.org/sites/default/files/Standards/MRC%20Digital%20Audience-Based%20Measurement%20Standards%20Final%201.0.pdf"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Nielsen Digital Ad Ratings pacing and reports in Google Ad Manager",
+            "source_url": "https://support.google.com/admanager/answer/6166836"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review any existing discrepancy notes for the campaign and confirm whether a root cause was documented.",
+        "tools": {
+          "free": {
+            "nielsen_dar": {
+              "label": "Nielsen DAR",
+              "steps": [
+                "Locate any reconciliation notes, emails, or reports for the campaign that reference a discrepancy between DAR and another source. Note the discrepancy percentage and the date it was identified.",
+                "For each documented discrepancy, check whether a root cause was recorded. Look for notes distinguishing methodological sources (DAR panel calibration, cross-device deduplication, co-viewing estimates) from operational sources (tag gaps, time-zone differences, attribution-window mismatches).",
+                "If a tag-level coverage gap was suspected, confirm whether a placement-by-placement tag audit was completed. The DAR tag implementation process includes a template for comparing placement-level delivery against placement-level DAR pings.",
+                "If the discrepancy was attributed to time-zone or reporting-window differences, confirm whether the date ranges were aligned between sources before the comparison was made.",
+                "If the discrepancy was large enough to affect the audience figures reported to a client or used for optimization, confirm whether Nielsen's technical team was engaged and whether an explanation was received in writing."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a root cause was documented for each noted discrepancy. A discrepancy with a written explanation that attributes the gap to a specific methodological or operational cause passes, even if the cause was methodological and required no corrective action. A discrepancy that was noted as 'within range' or 'acceptable' without a specific cause documented, or one that was never followed up, is a fail, recorded with the discrepancy percentage and the absence of a root-cause explanation.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a root cause was documented for the observed discrepancy, and the specific cause identified if one was recorded, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s campaign had a noted discrepancy between Nielsen DAR and the ad server or platform, but no root cause was documented. Noting a discrepancy and closing it as within range without identifying the specific source leaves the team without the context to distinguish a methodological difference that requires no action from a tag gap or attribution-window error that does. {{voice_recommend}} following each reconciliation comparison with a brief written explanation that identifies whether the discrepancy source is methodological (DAR panel calibration, cross-device deduplication, co-viewing estimates) or operational (tag gaps, time-zone misalignment, attribution-window differences), and escalating persistent unexplained discrepancies to Nielsen's technical team for review."
+      }
+    }
+  ]
+}

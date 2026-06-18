@@ -1,0 +1,196 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "First-party data is the foundation of audience targeting, retargeting, and suppression in Yahoo DSP. Without it, campaigns run on third-party data segments alone, which have no connection to the advertiser's own customers. The onboarding check is configuration work, not a rebuild: confirming whether a Yahoo Dot pixel is firing, whether a customer list has been uploaded, and whether the resulting segment has a usable match rate each costs nothing beyond reading numbers already visible in the platform. A low match rate or a stale segment is a silent problem that does not surface in delivery metrics until someone looks directly at the audience tab.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "First-party data onboarding in Yahoo DSP connects an advertiser's customer records and pixel-derived audiences to Yahoo ConnectID so those audiences can power targeting, retargeting, and suppression across Yahoo's inventory. The two primary onboarding paths are the Yahoo Dot pixel, which collects behavioral signals from site visitors and builds audiences automatically, and direct customer list uploads, which match hashed personally identifiable information (PII) such as email addresses against Yahoo's identity graph via the DataX API or a CSV file upload. These checks confirm that the data is actually onboarded, that the resulting segments have a match rate high enough to be actionable, and that the segments are refreshed on a cadence that reflects the current state of the advertiser's customer base.",
+  "audit_checks": [
+    {
+      "id": "yahoo-dsp-first-party-data-not-onboarded",
+      "title": "First-party data is not onboarded into Yahoo DSP",
+      "category": "identity",
+      "subcategory": "first_party_data_onboarding",
+      "impact_score": 3,
+      "impact_rationale": "Without onboarded first-party data, campaigns cannot target the advertiser's own customers, suppress recent converters from prospecting, or build lookalike audiences from a known customer seed. Targeting runs entirely on third-party data, which has no direct relationship to the advertiser's actual customer records and provides no fallback when third-party identifiers become unavailable.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["targeting", "data-quality"],
+      "educate": {
+        "base": "Yahoo DSP uses Yahoo ConnectID as its primary identity framework for matching first-party advertiser data to addressable inventory. Yahoo ConnectID is built on Yahoo's proprietary identity graph of logged-in users across Yahoo-owned properties including Yahoo News, Yahoo Sports, and Yahoo Finance, and it uses deterministic signals, specifically hashed email addresses or phone numbers, to resolve matches across Yahoo's supply.<br><br>Advertisers onboard first-party data through two paths. The Yahoo Dot pixel, placed on the advertiser's website, collects behavioral signals from visitors in real time and builds retargeting audiences automatically within the platform. Customer records, such as a CRM list of email addresses, can be uploaded as a CSV file or transmitted via the DataX API; Yahoo hashes the PII and matches the records against its ConnectID graph to produce an addressable segment. Both paths are described in Yahoo's <a href='https://legal.yahoo.com/xw/en/yahoo/privacy/enterprise/pixelandcustomaudience/index.html' class='tools-link-no-padding' target='_blank'>Pixel and Custom Audience Policy</a>, which confirms that advertisers may provide hashed emails and mobile IDs via DataX or CSV for custom audience creation.<br><br>An account that has not completed either path lacks any first-party identity layer. All targeting draws from third-party data segments purchased through Yahoo DSP's audience marketplace, and there is no suppression mechanism tied to the advertiser's own customers. Lookalike audience generation, which requires a first-party seed, is also unavailable.<br><br>A few signs point to first-party data not being onboarded:<ul><li>The Audiences section of the account shows no first-party segments, only third-party marketplace audiences</li><li>No Yahoo Dot pixel appears in the Measurement or Tags section of the platform</li><li>Line targeting in all active campaigns references only third-party audience segments</li></ul>You may want to confirm with the account team which onboarding path, pixel, CSV upload, or DataX integration, was originally scoped. Each path has different setup and maintenance requirements.",
+        "site_type_overlays": {
+          "ecommerce": "For a retailer, first-party onboarding typically starts with a purchase history list for loyalty-based targeting and a suppression list to exclude recent buyers from prospecting campaigns. You may want to confirm both lists are onboarded, not just one. A purchase history list alone without a suppression segment still lets recent converters see prospecting ads.",
+          "lead_gen": "For a lead-generation advertiser, the most valuable first-party segments are usually a converted-lead list to suppress from acquisition campaigns and a high-intent-visitor audience built from the Yahoo Dot pixel on key landing pages. You may want to confirm whether the pixel is placed on form confirmation pages so that converter audiences populate automatically."
+        },
+        "learn_more": [
+          {
+            "source_type": "Yahoo Legal",
+            "source_title": "Yahoo Pixel and Custom Audience Policy",
+            "source_url": "https://legal.yahoo.com/xw/en/yahoo/privacy/enterprise/pixelandcustomaudience/index.html"
+          },
+          {
+            "source_type": "GitHub",
+            "source_title": "Yahoo ConnectID: technical overview and implementation guide",
+            "source_url": "https://github.com/yahoo/yahoo-connectid"
+          }
+        ],
+        "learn_more_note": "Yahoo DSP's Help Center documentation on pixel setup, audience creation, and customer list uploads requires a Yahoo DSP account login to access (help.yahooinc.com/dsp). Contact your Yahoo DSP account team for platform-specific guidance on which onboarding path is configured for your advertiser.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether the account has a Yahoo Dot pixel firing and whether any first-party audience segments have been onboarded, either from the pixel or from a customer list upload.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Navigate to the Audiences section of the account. Look for any segments labeled as first-party or created from pixel data or customer uploads. An audience list showing only third-party marketplace segments indicates no first-party onboarding.",
+                "Navigate to Measurement or Tags and confirm whether a Yahoo Dot pixel has been created for this advertiser. A missing pixel, or one with no recent activity, indicates that pixel-based audience building is not in use.",
+                "Review the targeting applied to each active line. Note whether any first-party audience segments appear in the include or exclude targeting, or whether all audience references point to third-party marketplace segments only."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether any first-party audience segments appear in the Audiences section, whether a Yahoo Dot pixel exists and shows recent activity, and whether any active lines apply first-party segments to targeting or suppression. An account with at least one onboarded first-party segment that is applied to at least one active line passes. An account with no first-party segments, or with a pixel that exists but has not built any audience, is a fail recorded with the segment count and the lines affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether first-party audience segments exist, whether a Yahoo Dot pixel is active, and whether any active lines apply first-party segments, then review the evaluation above."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Yahoo DSP account has no first-party audience data onboarded. Without a Yahoo Dot pixel building retargeting audiences or a customer list matched against Yahoo ConnectID, campaigns cannot target the advertiser's own customers, suppress recent converters from prospecting, or seed lookalike audiences from known buyers. All targeting draws from third-party marketplace segments with no connection to the advertiser's actual customer records. {{voice_recommend}} implementing the Yahoo Dot pixel on key site pages and uploading a hashed customer list via CSV or the DataX API so that first-party segments are available for targeting and suppression in active lines."
+      }
+    },
+    {
+      "id": "yahoo-dsp-first-party-match-rate-too-low",
+      "title": "Onboarded customer list has a low match rate against Yahoo ConnectID",
+      "category": "identity",
+      "subcategory": "first_party_data_onboarding",
+      "impact_score": 3,
+      "impact_rationale": "A low match rate means the uploaded customer list resolves to a fraction of the expected segment size. The segment nominally exists in the account but does not reflect the breadth of the advertiser's customer base, so targeting and suppression both operate on a much smaller audience than the CRM data would support. Prospecting campaigns may reach customers who should have been suppressed, and retargeting campaigns reach fewer past visitors than the site traffic would indicate.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "targeting"],
+      "educate": {
+        "base": "When an advertiser uploads a customer list to Yahoo DSP, the platform accepts hashed email addresses or mobile device identifiers and attempts to resolve each record against Yahoo ConnectID, Yahoo's identity graph of logged-in users across its owned-and-operated properties and partner publisher network. The resulting segment size reflects only the records that resolve to a ConnectID identifier Yahoo can reach in its supply. Records that do not resolve because the email has no associated ConnectID, the hash was formatted incorrectly, or the user has opted out, do not enter the segment.<br><br>Yahoo ConnectID relies on deterministic signals, specifically SHA-256 hashed emails that have been lowercased and trimmed of whitespace before hashing. A list that was hashed without normalizing case, or that mixes raw and hashed records, produces inconsistent hashes for the same underlying addresses, which reduces the resolvable pool. The <a href='https://github.com/yahoo/yahoo-connectid' class='tools-link-no-padding' target='_blank'>Yahoo ConnectID technical documentation</a> confirms that the system accepts raw email addresses or SHA-256 hashed emails of lowercase and trimmed values, and that approval and registration with Yahoo's account team is required before an integration goes live.<br><br>Several factors reduce match rates beyond formatting issues. Email addresses associated with domains that users access infrequently on Yahoo-connected devices, such as corporate or ISP-issued addresses, match less reliably than consumer webmail domains. Users who have opted out of Yahoo ConnectID tracking are excluded from the addressable pool regardless of whether their records are formatted correctly. Consent requirements in jurisdictions covered by applicable privacy regulations reduce the matchable pool in those regions further.<br><br>A few signs point to a low match rate being the issue:<ul><li>The resolved segment size in the Audiences section is much smaller than the number of records uploaded</li><li>The upload file contains a mix of email address cases or records from predominantly corporate email domains</li><li>The segment has not grown despite ongoing customer acquisition and repeated uploads</li></ul>You may want to confirm that the upload file normalizes all email addresses to lowercase and removes leading and trailing whitespace before hashing. This formatting step has the most consistent impact on match rates for ConnectID-based segments.",
+        "site_type_overlays": {
+          "ecommerce": "For a retailer, a low match rate on a purchase history list reduces the quality of both suppression and lookalike seeding. You may want to check whether the upload file draws from email addresses collected at checkout, which tend to be consumer webmail addresses and match more reliably, rather than from a broader CRM export that may include corporate or infrequently used addresses.",
+          "lead_gen": "For a lead-generation advertiser, a low match rate on a converted-lead list means the seed audience for lookalike campaigns is smaller than the actual conversion volume would support. You may want to confirm whether the email addresses in the upload file match the format captured on the lead form. CRM exports sometimes transform addresses, for example converting to uppercase, in ways that produce different hashes."
+        },
+        "learn_more": [
+          {
+            "source_type": "GitHub",
+            "source_title": "Yahoo ConnectID: identity signals accepted and formatting requirements",
+            "source_url": "https://github.com/yahoo/yahoo-connectid"
+          },
+          {
+            "source_type": "Yahoo Legal",
+            "source_title": "Yahoo Pixel and Custom Audience Policy",
+            "source_url": "https://legal.yahoo.com/xw/en/yahoo/privacy/enterprise/pixelandcustomaudience/index.html"
+          }
+        ],
+        "learn_more_note": "Yahoo DSP's documentation on match rate metrics and the matched-record download report is in the Yahoo DSP Help Center, which requires a platform login (help.yahooinc.com/dsp). Contact your Yahoo DSP account team for guidance on interpreting the matched metric for a specific upload.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Compare the uploaded record count to the resolved segment size in the platform, and check the upload file for formatting issues that reduce match rates against Yahoo ConnectID.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Navigate to the Audiences section and open each first-party segment built from a customer list upload. Note the resolved segment size shown alongside the number of records that were submitted.",
+                "Calculate a rough match rate by dividing the resolved segment size by the number of records uploaded. A resolved size much smaller than the upload warrants a review of the upload file's formatting and the email domains present in the list.",
+                "If the platform surfaces a matched metric link or a download of matched records for the upload, use it to confirm the proportion of records that resolved. A high unmatched count alongside a consistent formatting issue is the most correctable cause of a low match rate."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the submitted record count and the resolved segment size for each customer-list-based audience, then calculates the match rate. A segment with a resolved size that represents a reasonable proportion of the uploaded list and is large enough for its intended use, whether targeting, suppression, or lookalike seeding, passes. A segment with a resolved size far smaller than the upload, or too small to serve its intended purpose at any meaningful scale, is a fail recorded with the segment name, the submitted count, the resolved count, and any formatting issue identified in the upload file.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the submitted record count and the resolved segment size for each customer-list audience above to calculate the match rate and evaluate it."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more customer-list audience segments in {{site_name}}'s Yahoo DSP account have a resolved size much smaller than the number of records uploaded, indicating a low match rate against Yahoo ConnectID. The segment nominally exists in the account but does not reflect the full customer base, so targeting and suppression both operate on a fraction of the expected audience. {{voice_recommend}} reviewing the upload file for email address formatting: all addresses should be lowercased and stripped of whitespace before SHA-256 hashing, which is the format Yahoo ConnectID requires for deterministic matching. If formatting is already correct, the domain mix in the list, such as a high share of corporate or infrequently used email addresses, may be limiting the resolvable pool."
+      }
+    },
+    {
+      "id": "yahoo-dsp-first-party-segments-stale",
+      "title": "Onboarded first-party segments are not refreshed on a regular cadence",
+      "category": "identity",
+      "subcategory": "first_party_data_onboarding",
+      "impact_score": 2,
+      "impact_rationale": "A segment that was accurate at upload diverges from the current customer base as new customers are acquired and past customers churn. Suppression lists grow stale and allow recently converted customers back into prospecting campaigns. Retargeting and lookalike segments draw on an outdated picture of the audience, reducing the relevance of the targeting to the current business.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "targeting"],
+      "educate": {
+        "base": "A customer list uploaded to Yahoo DSP reflects the state of the advertiser's CRM at the moment of upload. After that point, the segment and the live customer base diverge in two directions simultaneously. New customers added to the CRM after the upload are absent from the segment, so they cannot be targeted or suppressed by it. Customers who have churned or whose addresses are no longer current remain in the segment until it is refreshed with a new upload or an updated DataX submission.<br><br>The Yahoo ConnectID identity graph is continuously updated as users interact with Yahoo-owned properties. A segment built from a static upload does not benefit from those graph updates for records that were not in the original file. The practical effect is that the gap between the segment and the actual customer base widens the longer the upload goes without a refresh.<br><br>The effect of a stale segment varies by use case. A suppression list that is not refreshed stops excluding new converters from prospecting campaigns for however long the gap persists. A lookalike seed that is not refreshed models audience expansion against past customers rather than the current customer base. A retargeting segment that is not refreshed may contain records for users who have not visited the site or made a purchase in many months. Yahoo's <a href='https://legal.yahoo.com/xw/en/yahoo/privacy/enterprise/pixelandcustomaudience/index.html' class='tools-link-no-padding' target='_blank'>Pixel and Custom Audience Policy</a> also requires that advertisers promptly remove records from custom audience segments when a user opts out, which makes a regular refresh cadence a compliance matter as well as a data-quality one.<br><br>A few signs point to stale segments:<ul><li>The last-updated date on the segment is many months old despite ongoing customer acquisition or site traffic</li><li>The upload process is manual with no documented schedule, and no one in the account team can confirm when it last ran</li><li>The segment predates a significant change in the customer base, such as a product launch, a seasonal sales period, or a change in the CRM system</li></ul>You may want to confirm how the segment is being maintained. An automated DataX API integration refreshes the segment on a defined schedule, while a manual CSV upload depends on someone actively running the process at an agreed cadence.",
+        "site_type_overlays": {
+          "ecommerce": "For a retailer with ongoing purchases, a suppression list that is not refreshed regularly will include recent buyers in prospecting campaigns for as long as the gap persists. You may want to confirm the suppression segment refresh cadence relative to the purchase volume. A store with frequent transactions accumulates new converters quickly, and each one represents a wasted prospecting impression until the list is updated.",
+          "lead_gen": "For a lead-generation advertiser, a converted-lead suppression list that is not refreshed means recently closed leads continue to receive acquisition ads. You may want to confirm how quickly the CRM export feeds back into the uploaded segment after a lead is marked converted in the system."
+        },
+        "learn_more": [
+          {
+            "source_type": "Yahoo Legal",
+            "source_title": "Yahoo Pixel and Custom Audience Policy: opt-out and data removal requirements",
+            "source_url": "https://legal.yahoo.com/xw/en/yahoo/privacy/enterprise/pixelandcustomaudience/index.html"
+          }
+        ],
+        "learn_more_note": "Yahoo DSP's documentation on DataX API integration for automated audience refresh and on the segment last-updated display in the platform is in the Yahoo DSP Help Center, which requires a platform login (help.yahooinc.com/dsp). Contact your Yahoo DSP account team to confirm what refresh cadence is possible for your onboarding method.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Check the last-updated date on each first-party audience segment and confirm whether a documented refresh process is in place.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Navigate to the Audiences section and note the last-updated date displayed for each first-party segment built from a customer list upload. A date many months in the past, combined with active customer acquisition, is a signal the segment is stale.",
+                "For any segment with a last-updated date more than 30 days old, ask the account team or the data owner whether the segment is maintained on a regular schedule or was uploaded once and not revisited.",
+                "If the account uses a DataX API integration to manage uploads, confirm with the technical owner whether automated refresh is configured, at what cadence it runs, and whether any recent runs returned errors or incomplete uploads."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the last-updated date for each first-party customer-list segment and the refresh cadence, if any is documented. A segment with a confirmed refresh process running at least monthly, or one maintained through an automated DataX integration that runs on a defined schedule, passes. A segment with a last-updated date more than 30 days old and no documented refresh process is a fail recorded with the segment name, the last-updated date, and the use case (suppression, targeting, or lookalike seeding) so the priority of the fix can be assessed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the last-updated date and the refresh process, if any, for each first-party customer-list segment above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more first-party audience segments in {{site_name}}'s Yahoo DSP account have not been refreshed on a regular cadence. Stale segments diverge from the current customer base as new customers are acquired and past customers churn, so suppression coverage degrades and targeting draws on an outdated picture of the audience. In addition, Yahoo's custom audience policy requires that advertiser segments be updated promptly when users opt out, making a regular refresh cadence a compliance obligation as well as a data-quality one. {{voice_recommend}} establishing a refresh schedule aligned to the account's customer acquisition rate, with suppression segments refreshed at least monthly. Where uploads are currently manual, you may want to consider a DataX API integration that automates the refresh so the segment stays current without depending on a manual process."
+      }
+    }
+  ]
+}

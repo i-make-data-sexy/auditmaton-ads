@@ -1,0 +1,172 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The Yahoo DSP (demand-side platform) Advertiser is the boundary that determines which Dot pixels, audiences, and inventory groups belong to a brand. Campaigns and lines inherit configuration from their parent Advertiser, and seat-level defaults flow down through every Advertiser unless overrides are applied. A seat whose Advertiser structure was set up quickly or grown without a deliberate organizing principle can allow conversion data, retargeting audiences, or frequency caps from one brand to influence campaigns running for a different brand. These checks are inspectable in the Yahoo DSP UI without any data export.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "In Yahoo DSP, a seat holds one or more Advertisers, and the Advertiser is the level at which core data assets attach. Dot pixels (Yahoo's conversion and audience tracking tags), custom audience uploads, and inventory groups all live under a specific Advertiser. Campaigns sit below the Advertiser, and Lines sit below the Campaign. Settings established at the Advertiser level, including time zone, currency, and default targeting configurations, cascade to every Campaign and Line underneath it. The seat itself can hold certain shared audience types that any of its Advertisers can access, but conversion rule audiences and device ID or email-based custom audiences are tied to a single Advertiser. When that hierarchy is structured deliberately, conversion data stays scoped to the right brand, audiences remain isolated, and seat-level configuration applies predictably across the account.",
+  "audit_checks": [
+    {
+      "id": "yahoo-dsp-advertisers-not-separated-by-brand",
+      "title": "Distinct brands or clients are co-mingled under one Advertiser",
+      "category": "governance",
+      "subcategory": "account_advertiser_structure",
+      "impact_score": 3,
+      "impact_rationale": "In Yahoo DSP, conversion rule audiences and device ID or email-based custom audiences are tied to a single Advertiser, not to the seat as a whole. When two distinct brands share one Advertiser, their Dot pixel conversion events, retargeting audiences, and lookalike models draw from a combined data pool. Campaign performance reports cannot be separated cleanly by brand, and frequency caps apply across both brands' campaigns rather than per brand. The problem compounds as campaign volume grows.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "Yahoo DSP structures its hierarchy as Seat > Advertiser > Campaign > Line. The Advertiser is the level at which most data assets attach. Dot pixels (Yahoo's on-site conversion and audience tracking tags) are created and managed under a specific Advertiser. Audiences built from those pixels, including retargeting pools and conversion rule audiences, belong to that same Advertiser. Campaigns under that Advertiser can target and measure against those assets; campaigns under a different Advertiser in the same seat cannot access them by default.<br><br>When a seat is set up quickly or grows organically, it is not unusual for a single Advertiser to hold campaigns for multiple brands, product lines, or client organizations that have no meaningful data relationship to each other. A holding company runs two unrelated verticals under one Advertiser. An agency manages campaigns for three clients inside the same Advertiser. A company with a primary brand and a test brand keeps them together because separating them was never a priority.<br><br>The consequence is data bleed. A Dot pixel installed on Brand A's website fires conversion events that are accessible to Brand B's campaigns because both sit under the same Advertiser. A lookalike audience built from Brand A's converters appears in Brand B's audience library. Frequency caps at the Campaign level apply across both brands' users rather than per brand. None of this surfaces as an error in the UI; the platform is functioning as configured.<br><br>A few situations suggest the Advertiser structure should be reviewed:<ul><li>One Advertiser holds Campaigns that reference different brand names, domains, or conversion goals with no audience overlap in practice</li><li>A Dot pixel fires on more than one distinct brand's website under the same Advertiser</li><li>An agency manages multiple client brands under one Advertiser rather than giving each client its own Advertiser</li><li>First-party audience uploads from different brands or clients are visible in the same Advertiser's audience library</li></ul>You may want to map each active Advertiser to the brand or business unit it represents before evaluating whether the current separation is appropriate.",
+        "site_type_overlays": {
+          "ecommerce": "For ecommerce accounts running multiple store brands or regional storefronts, you may want to confirm that each distinct brand or storefront has its own Advertiser so that purchase conversion events, retargeting pools, and customer email uploads from one storefront do not influence audience models or attribution for another.",
+          "lead_gen": "For lead-generation accounts managing multiple clients or distinct product lines, you may want to confirm that each client or product line has its own Advertiser so that form-fill conversion events and CRM-based audience uploads from one business do not appear in another's targeting library."
+        },
+        "learn_more": [],
+        "learn_more_note": "Yahoo DSP's platform documentation for this topic is in the Yahoo DSP Help Central, which requires a logged-in seat and is not publicly accessible. No public reference is linked here. Practitioners with platform access can find detailed guidance on the Advertiser hierarchy and audience scoping in the in-platform Help Center.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the Advertiser list under the seat and evaluate whether each Advertiser maps to a single, coherent brand or business unit.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Log in to Yahoo DSP and navigate to the seat-level view to see all Advertisers under it.",
+                "For each Advertiser, open its settings and note its name, associated website domain, and any description. Identify whether the Advertiser holds Campaigns for more than one distinct brand, client, or business unit.",
+                "Open each Advertiser's Pixels section and review which Dot pixels are attached. Note whether any pixel fires on a domain that does not belong to the same brand the Advertiser represents.",
+                "Open each Advertiser's Audiences section and review whether audience segments from distinct brands or clients are visible under the same Advertiser.",
+                "Cross-reference the Campaign list for each Advertiser. If Campaigns reference different brand names, landing domains, or unrelated conversion goals, record the Advertiser as a candidate for restructuring."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each Advertiser under the seat, the practitioner records the organizing principle (brand, client, product line) and whether any Dot pixels, audience segments, or Campaign naming patterns suggest unrelated entities share the Advertiser. An Advertiser that maps cleanly to one brand or business unit passes. An Advertiser that holds Campaigns or data assets from distinct, unrelated entities is a fail, recorded with the Advertiser name and the conflicting entities identified.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the Advertiser name and the organizing principle or structural issue observed for each Advertiser above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Advertiser structure under {{site_name}}'s Yahoo DSP seat does not consistently separate distinct brands or clients into their own Advertisers. Unrelated brands sharing one Advertiser means their Dot pixel conversion events, retargeting audiences, and audience uploads are accessible to each other's Campaigns, which distorts audience models, muddies conversion attribution, and prevents clean per-brand reporting. {{voice_recommend}} mapping each current Advertiser to the brand or business unit it represents, identifying any that hold Campaigns or data assets for more than one distinct entity, and creating separate Advertisers where the separation is warranted."
+      }
+    },
+    {
+      "id": "yahoo-dsp-pixels-audiences-scoped-to-wrong-advertiser",
+      "title": "Dot pixels or audience segments are attached to the wrong Advertiser",
+      "category": "governance",
+      "subcategory": "account_advertiser_structure",
+      "impact_score": 3,
+      "impact_rationale": "A Dot pixel or audience segment attached to the wrong Advertiser is either unavailable where it is needed or visible where it should not be. Conversion events that do not reach the right Advertiser cannot feed conversion reporting or inform campaign optimization. Audience segments that leak across Advertisers expose first-party data to Campaigns that have no business accessing it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "In Yahoo DSP, Dot pixels are created under a specific Advertiser. The pixel fires on a website and sends conversion events and audience membership signals to that Advertiser's data library. Campaigns under that Advertiser can use those events for conversion tracking and retargeting. Campaigns under a different Advertiser in the same seat cannot access them by default.<br><br>The same scoping applies to custom audience uploads. Device ID lists, email and phone number uploads, and IP address audiences are all Advertiser-level assets. An audience uploaded under Advertiser A is not available to Advertiser B's Campaigns even if both sit under the same seat. This is by design, but it means a pixel or upload assigned to the wrong Advertiser during setup creates a gap that is invisible at the Campaign level. The Campaign runs and fires impressions, but the conversion signal never arrives because the pixel's data belongs to a different Advertiser entity.<br><br>The issue can surface in a few ways. A Dot pixel is visible in the platform but the Campaign targeting that site's converters cannot find the corresponding retargeting audience. Conversion reports for a Campaign show no activity even though the Advertiser's site is processing transactions. An audience segment a team uploaded for retargeting does not appear in the Campaign's targeting options even though it exists under the seat.<br><br>The check is a mapping exercise: confirm that each Dot pixel is assigned to the Advertiser that owns the property it fires on, and that custom audience uploads land under the Advertiser whose Campaigns will use them. You may want to verify this mapping in the Advertiser's Pixels and Audiences sections before concluding that a missing signal is a tag-firing problem.",
+        "site_type_overlays": {
+          "ecommerce": "For ecommerce accounts, you may want to confirm that the Dot pixel assigned to each storefront's purchase confirmation page is attached to the Advertiser running that storefront's Campaigns, so that purchase events feed the correct conversion reports and campaign optimization.",
+          "lead_gen": "For lead-generation accounts, you may want to confirm that form-submission conversion events and CRM-based audience uploads are attached to the Advertiser whose Campaigns target those leads, so that attribution and retargeting audiences reflect the correct funnel."
+        },
+        "learn_more": [],
+        "learn_more_note": "Yahoo DSP's pixel and audience documentation is in the Yahoo DSP Help Central, which requires a logged-in seat and is not publicly accessible. No public reference is linked here. Practitioners with platform access can find detailed guidance on Dot pixel creation, scoping, and audience assignment in the in-platform Help Center.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that each Dot pixel is assigned to the Advertiser that owns the property it fires on, and that custom audience segments are accessible to the Campaigns that need them.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Navigate to each Advertiser's Pixels section and review the list of Dot pixels attached. For each pixel, note the Advertiser it belongs to and the domain or property it is intended to fire on.",
+                "Cross-reference each pixel's assigned Advertiser with the Campaigns targeting that property's converters. If the Campaigns and the pixel belong to different Advertisers, the conversion events are not reaching those Campaigns.",
+                "Open each Advertiser's Audiences section and review the custom audience list. Confirm that device ID lists, email-based uploads, and retargeting segments built from a brand's first-party data are attached to the same Advertiser running that brand's Campaigns.",
+                "For any audience segment that appears to be missing from a Campaign's targeting options, check whether it exists under a different Advertiser in the same seat before concluding the data was never uploaded."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each Dot pixel and custom audience segment under the seat, the practitioner records the Advertiser it is attached to and confirms that the Campaigns intended to use it belong to the same Advertiser. A pixel or segment accessible to the Campaigns that need it and isolated from Campaigns that should not have access passes. A pixel or segment attached to the wrong Advertiser, making it unavailable to the intended Campaigns or visible to unintended ones, is a fail recorded with the asset name and the Advertiser mismatch.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the pixel or segment name and the Advertiser assignment for each asset above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more Dot pixels or custom audience segments under {{site_name}}'s Yahoo DSP seat are assigned to an Advertiser that does not match the Campaigns intended to use them. Conversion events and audience membership signals from those assets are not reaching the Campaigns that need them, which creates gaps in conversion reporting and limits the effectiveness of retargeting and audience-based optimization. {{voice_recommend}} auditing each Dot pixel and custom audience segment in the Advertiser's Pixels and Audiences sections to confirm the assigned Advertiser matches the Campaigns targeting those properties or audiences, and reassigning any assets that are misaligned."
+      }
+    },
+    {
+      "id": "yahoo-dsp-seat-audience-types-not-reviewed-per-advertiser",
+      "title": "Seat-level and Advertiser-level audience types have not been deliberately assigned",
+      "category": "governance",
+      "subcategory": "account_advertiser_structure",
+      "impact_score": 2,
+      "impact_rationale": "In Yahoo DSP, certain audience types can be defined at either the seat level or the Advertiser level. Seat-level audiences are accessible to every Advertiser under the seat, while Advertiser-level audiences are restricted to the Advertiser they belong to. A team that creates audiences without considering whether they should be seat-level or Advertiser-level can inadvertently share first-party data across brands, or build targeting segments that are inaccessible to the Campaigns that need them because they were scoped to the wrong level.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "Yahoo DSP distinguishes between seat-level and Advertiser-level audiences. Seat-level audiences are shared resources accessible to any Advertiser within the seat. Advertiser-level audiences are tied to a single Advertiser and not visible to sibling Advertisers.<br><br>The distinction matters for several audience types. Composite audiences, mail domain audiences, mail event audiences, point of interest audiences, and search keyword audiences can be defined at either the seat level or the Advertiser level. Device ID audiences, email and phone number audiences, IP address audiences, and lookalike audiences are Advertiser-level only and cannot be shared across the seat.<br><br>When audience creation is handled on a campaign-by-campaign basis without a deliberate policy, the scoping often reflects whoever set up the audience rather than a considered decision about data access. A contextual audience built around a product category gets created at the seat level so any Advertiser can use it, which may be appropriate. A retargeting segment built from a specific brand's site visitors also gets created at the seat level by mistake, which exposes that brand's first-party data to campaigns running for a different brand or client under the same seat.<br><br>Conversion rule audiences carry an additional constraint: they can only be built for one Advertiser at a time, not for the seat as a whole. A team that expects a conversion-based audience to be available seat-wide will find it absent from other Advertisers' targeting libraries, and the gap is not always obvious from the Campaign view.<br><br>A few situations warrant a deliberate review of audience level assignments:<ul><li>Contextual or keyword audiences that should be available to multiple Advertisers are currently Advertiser-level and duplicated manually under each one</li><li>Retargeting or CRM-based audiences that should be Advertiser-restricted are currently at the seat level and accessible to all Advertisers</li><li>Conversion rule audiences are expected in Campaign targeting but do not appear because they were built at the seat level rather than the Advertiser level</li></ul>You may want to review each audience's scope setting in the Audiences section and confirm the level matches the intended access policy.",
+        "site_type_overlays": {
+          "ecommerce": "For ecommerce accounts, you may want to confirm that purchase-based retargeting segments and customer email uploads are set to Advertiser-level scope so they are not accessible to Campaigns running for a different brand or storefront under the same seat.",
+          "lead_gen": "For lead-generation accounts managing multiple clients, you may want to confirm that conversion rule audiences and CRM-based segments are Advertiser-level so that one client's lead data does not surface as a targeting option for another client's Campaigns."
+        },
+        "learn_more": [],
+        "learn_more_note": "Yahoo DSP's documentation on audience level types (seat vs. Advertiser) is in the Yahoo DSP Help Central, which requires a logged-in seat and is not publicly accessible. No public reference is linked here. Practitioners with platform access can find detailed guidance on audience scoping in the Audiences section of the in-platform Help Center.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each audience in the seat and Advertiser libraries and confirm that the seat-level or Advertiser-level assignment reflects the intended access policy.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Navigate to the seat-level Audiences section and review all audiences currently defined at the seat level. Note the audience type and consider whether seat-wide access is appropriate for each one.",
+                "For any retargeting or CRM-based segment at the seat level, identify which brand's first-party data it was built from. If it belongs to a specific brand, consider whether it should be moved to that brand's Advertiser-level audience library instead.",
+                "Navigate to each Advertiser's Audiences section and review Advertiser-level audiences. Identify any contextual or keyword audiences that are duplicated manually under multiple Advertisers and could be consolidated at the seat level.",
+                "For each Advertiser running conversion-based retargeting, confirm that conversion rule audiences are present and set to Advertiser-level scope. If a conversion rule audience is expected but missing from the targeting options, check whether it was mistakenly built at the seat level or assigned to a different Advertiser."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "For each audience in the seat and Advertiser libraries, the practitioner records the audience type and the scope level (seat or Advertiser) and confirms that the assignment reflects an intentional access policy. An audience whose scope level matches the intended access (seat-level for shared contextual resources, Advertiser-level for brand-specific first-party data) passes. An audience whose scope level creates unintended cross-brand access or unintended inaccessibility is a fail recorded with the audience name, the current scope level, and the intended level.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the audience name and current scope level for each audience above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that audience scope assignments under {{site_name}}'s Yahoo DSP seat have not been reviewed against a deliberate access policy. Some audiences that should be restricted to a single Advertiser are currently defined at the seat level, making brand-specific first-party data accessible to Campaigns it was not intended for. In some cases the opposite issue is present: contextual or keyword audiences that multiple Advertisers should share are duplicated at the Advertiser level rather than consolidated at the seat level. {{voice_recommend}} reviewing each audience in both the seat and Advertiser libraries, confirming the scope level matches the intended access policy, and correcting any assignments that create unintended cross-brand data access or unnecessary duplication."
+      }
+    }
+  ]
+}

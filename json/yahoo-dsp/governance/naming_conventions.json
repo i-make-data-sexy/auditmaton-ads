@@ -1,0 +1,171 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Naming conventions are one of the few governance decisions that cannot be corrected retroactively without touching every object in the account. A line named 'US_Prospecting_CTV_TechBuyers_Q3' can be filtered, pivoted, and rolled up in any reporting tool without a single manual annotation. A line named 'Line 14' cannot. The check is a read-only inspection of live object names against a documented standard, so it takes minutes, and the fix is low-effort going forward once a standard is written, shared, and adopted by every account user and agency partner.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Naming conventions give every Campaign, Line, and Ad in Yahoo DSP a structured label that encodes the dimensions the team reports on, such as channel, audience segment, geography, and funnel stage. Yahoo DSP organizes buying under a four-level hierarchy: Advertiser, Campaign, Line, and Ad, with creatives attached at the Ad level. A consistent naming pattern across all levels lets analysts filter and roll up performance in Yahoo DSP's Report Builder and in any downstream tool, such as a data warehouse export, a spreadsheet, or a business intelligence dashboard, without relying on manual annotation. These checks confirm that a documented standard exists, that live objects follow it, and that the standard captures the dimensions the account actually reports on.",
+  "audit_checks": [
+    {
+      "id": "yahoo-dsp-naming-no-documented-standard",
+      "title": "No documented naming standard exists for Campaigns and Lines",
+      "category": "governance",
+      "subcategory": "naming_conventions",
+      "impact_score": 3,
+      "impact_rationale": "Without a written standard, names accumulate in ad hoc patterns. When a new team member or agency partner is added, names diverge further and rollup reporting breaks down at the points where name patterns change.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "A naming convention is a written rule that defines the format and allowed values for Campaign and Line names before anyone creates a new object. Without one, names are invented at creation time and reflect whatever the creator thought was useful in that moment. The result across a live account is a set of names with inconsistent separators, different capitalization, different orderings of the same dimensions, and missing values where a creator skipped a field they did not think mattered.<br><br>Yahoo DSP organizes buying under a four-level hierarchy: Advertiser, Campaign, Line, and Ad. The Line is the level where targeting decisions live, such as audience segments, channels, geographies, and bid strategies. Yahoo DSP's Report Builder exposes Campaign, Line, Ad, and Creative as the primary dimensions for splitting performance data. Any downstream tool that reads those names as strings depends on them being consistent to filter or group correctly. A Campaign named 'US_Brand_CTV_Q3' and a Campaign named 'Q3_CTV_US_Brand' carry the same information but cannot be reliably matched by a regex or a string split because the field order differs.<br><br>A practical standard documents the following for each hierarchy level:<ul><li>The fields to include, in a fixed order (e.g., market, funnel stage, channel, audience, flight quarter)</li><li>The separator character (underscores are machine-friendly; hyphens and pipes are also used)</li><li>The allowed values per field, or at minimum the field's purpose</li><li>The capitalization rule (all-caps abbreviations, title case, or all-lowercase)</li></ul>You may want to confirm the standard is written in a shared document that every account user and agency partner can access, not just understood informally by the person who built the account.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser, the naming standard should encode product category or brand alongside funnel stage so performance can be split between prospecting for a specific category and retargeting buyers of another. You may want to confirm the standard reserves a field for product line or category at the Line level.",
+          "lead_gen": "For a lead-generation advertiser, the naming standard should encode the offer or landing page variant alongside audience type so performance across different lead forms can be separated in reporting. You may want to confirm the standard reserves a field for offer or creative theme at the Line level."
+        },
+        "learn_more": [],
+        "learn_more_note": "Yahoo DSP's authoritative guidance on campaign structure, naming, and the four-level object hierarchy (Advertiser, Campaign, Line, Ad) is maintained in the Yahoo DSP Help Center, which requires a logged-in seat to access. No public reference is linked here. Your Yahoo account representative or agency partner can point you to the relevant sections of the Help Center.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether a documented naming standard exists and whether the account's current Campaign and Line names follow a discernible pattern.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Log in to Yahoo DSP and navigate to the Advertiser whose account you are auditing.",
+                "Open the Campaigns view and scan the names of the five most recent Campaigns. Note the separator character, the field order, and whether the same dimensions appear in the same position across names.",
+                "Select one Campaign and open its Lines. Repeat the same scan for Line names. Note whether the Line names extend the Campaign naming pattern or use a different structure.",
+                "Ask the account owner to share the written naming convention document. If no document exists, note that the standard is informal or absent."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a documented naming standard exists (yes or no) and whether the current Campaign and Line names follow a consistent pattern. A documented standard with names that match the pattern passes. An account with no documented standard, or with a standard that the live names do not follow, is a fail recorded with a sample of the inconsistent names.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a documented standard exists and note a sample of Campaign and Line names above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Yahoo DSP account does not have a documented naming convention for Campaigns and Lines. Names in the account follow different structures depending on when they were created, which prevents consistent filtering and rollup in reporting tools outside the platform. {{voice_recommend}} drafting a written standard that specifies the field order, separator character, allowed values per field, and capitalization rule for both Campaign and Line names, then applying it to new objects going forward."
+      }
+    },
+    {
+      "id": "yahoo-dsp-naming-dimensions-missing",
+      "title": "Naming standard omits reporting dimensions the team relies on",
+      "category": "governance",
+      "subcategory": "naming_conventions",
+      "impact_score": 3,
+      "impact_rationale": "A standard that exists but does not encode key reporting dimensions forces analysts to maintain a separate mapping table or apply manual filters to split performance by those dimensions. The reporting gap is the same as having no standard for that dimension.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "The value of a naming convention comes from the dimensions it encodes. A standard that captures only campaign flight date and channel but omits audience type leaves analysts unable to split performance by audience segment without opening each Line individually. A standard that omits geography leaves a multi-market advertiser unable to roll up by market in a dashboard that reads names as the primary grouping key.<br><br>In Yahoo DSP, the Line is the level where most targeting decisions are set: audience segments, channel environments (display, native, video, connected TV (CTV), audio, and digital-out-of-home (DOOH)), geographies, and bid strategies are configured at the Line level. The Line name is therefore the label that carries the most analytical weight in reporting. A Line named 'Line_07' contains none of the targeting context the configuration holds. A Line named 'US_Prospecting_CTV_TechBuyers_Q3' encodes market, funnel stage, channel, audience, and flight in a single filterable string.<br><br>A few questions identify the gaps in an existing standard:<ul><li>Does the team report performance by geography? If yes, is geo encoded in the name?</li><li>Does the team report by funnel stage (prospecting versus retargeting)? If yes, is stage encoded?</li><li>Does the team report by channel or environment (CTV, display, audio, native, DOOH)? If yes, is channel encoded?</li><li>Does the team report by audience segment? If yes, is segment encoded?</li></ul>You may want to compare the dimensions in the team's standard reporting views against the fields the naming convention captures. Any dimension that appears as a reporting filter but is absent from the name structure is a gap.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser running both prospecting and dynamic retargeting, the naming standard should distinguish those two Line types clearly. Their expected click-through rates and return on ad spend differ, and combining them in a rollup obscures both.",
+          "lead_gen": "For a lead-generation advertiser, the naming standard should distinguish between Lines targeting cold audiences and those retargeting site visitors or customer relationship management (CRM) lists. Cost per lead typically differs substantially between the two, and a combined view hides the difference."
+        },
+        "learn_more": [],
+        "learn_more_note": "Yahoo DSP's authoritative guidance on reporting dimensions and Line-level targeting configuration is maintained in the Yahoo DSP Help Center, which requires a logged-in seat to access. No public reference is linked here. Your Yahoo account representative or agency partner can point you to the relevant sections of the Help Center.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Compare the dimensions the team uses in reporting against the fields the current naming convention encodes to identify gaps.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Open the reporting section of Yahoo DSP (Report Builder) and review the breakdown dimensions the team applies most often, such as geography, channel, audience, or funnel stage.",
+                "Open the Campaigns and Lines views and read the names of active objects. For each reporting dimension the team uses, confirm whether that dimension is present as a field in the name.",
+                "Note any dimension that appears in report breakdowns but is absent from object names. These are the gaps the standard should address."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each reporting dimension the team uses and whether that dimension is present in the naming standard. A standard that encodes all reporting dimensions passes. A standard that omits one or more reporting dimensions is a fail recorded with the missing dimensions listed by name.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "List the team's reporting dimensions and note which are present or absent in the naming standard above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Yahoo DSP naming standard does not encode all of the dimensions the team uses in performance reporting. Dimensions absent from object names cannot be filtered or rolled up in tools that read names as the primary grouping key, so reporting on those dimensions requires manual annotation or a separate mapping table. {{voice_recommend}} reviewing the team's standard report breakdowns and updating the naming convention to include a field for each reporting dimension, applying the updated standard to new Lines going forward."
+      }
+    },
+    {
+      "id": "yahoo-dsp-naming-inconsistency-across-users",
+      "title": "Naming inconsistency across team members or agency partners prevents reliable filtering",
+      "category": "governance",
+      "subcategory": "naming_conventions",
+      "impact_score": 3,
+      "impact_rationale": "Even when a written standard exists, inconsistent adoption breaks filtering and rollup at the points where names diverge. Agency-managed accounts are particularly susceptible because multiple people create objects across different work sessions without a shared enforcement mechanism.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "A naming convention is only as useful as its adoption. An account where one team member uses underscores and another uses hyphens, where one spells out 'Connected-TV' and another abbreviates it 'CTV', or where an agency partner omits the market field entirely produces a set of names that partially match the standard and partially do not. Regex-based filters and automated reports that rely on positional field parsing break on the non-conforming names.<br><br>In Yahoo DSP accounts managed by agencies or by more than one internal team member, naming drift accumulates gradually. Each inconsistency is small, but the aggregate effect is that Campaign and Line names cannot be reliably grouped by any single parsing rule. The reporting tools that depend on name structure begin to produce partial or misleading rollups, and analysts compensate by manually reviewing individual objects rather than filtering by name.<br><br>A few conditions indicate whether inconsistency is present:<ul><li>Multiple separator characters appear across Campaign names in the same account (e.g., some use underscores, others use hyphens)</li><li>The same dimension value appears in different positions across Line names (e.g., channel appears first in some names and third in others)</li><li>Abbreviations for the same concept vary across objects (e.g., 'CTV', 'ConnectedTV', 'ctv')</li><li>Objects created by different users or during different time periods show visibly different name structures</li></ul>You may want to confirm that every account user and agency partner has access to the written naming standard and that new object creation is reviewed against it before lines are activated.",
+        "site_type_overlays": {
+          "ecommerce": "For a retail advertiser with agency-managed campaigns, you may want to confirm that the agency's naming template matches the brand's internal standard precisely, including separator characters and abbreviations for product categories. Even minor deviations will break automated rollup reports by product line.",
+          "lead_gen": "For a lead-generation advertiser running A/B tests across multiple Lines, inconsistent naming makes it difficult to identify which test variant a Line belongs to when reviewing results. You may want to confirm that the naming standard includes a field for test variant and that it is applied consistently across all test Lines."
+        },
+        "learn_more": [],
+        "learn_more_note": "Yahoo DSP's authoritative guidance on account governance and multi-user access is maintained in the Yahoo DSP Help Center, which requires a logged-in seat to access. No public reference is linked here. Your Yahoo account representative or agency partner can point you to the relevant sections of the Help Center.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review Campaign and Line names across the account to identify deviations from the documented standard, with attention to objects created by different users or at different points in time.",
+        "tools": {
+          "free": {
+            "yahoo_dsp_ui": {
+              "label": "Yahoo DSP UI",
+              "steps": [
+                "Log in to Yahoo DSP and open the Campaigns view for the Advertiser you are auditing.",
+                "Sort or filter Campaigns by creation date to surface objects created during different time periods or campaigns that were set up by different team members.",
+                "Compare the name structure of Campaigns created at different times: note any differences in separator character, field order, capitalization, or abbreviation style.",
+                "Open the Lines view for two or three Campaigns and compare Line name structures across them. Note any Lines whose names deviate from the pattern used in other Campaigns.",
+                "If the account has an agency partner, identify which Campaigns or Lines the agency created and compare their naming patterns to those created internally."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether naming patterns are consistent across Campaigns and Lines regardless of who created them. An account where all objects follow the documented standard regardless of creator passes. An account where naming patterns vary by creator, time period, or agency passes with a note if the variance is minor, and fails if the variance is significant enough to break filtering or automated rollup reports.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Note a sample of Campaign and Line names created by different users or at different time periods above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} naming inconsistencies across Campaigns and Lines in {{site_name}}'s Yahoo DSP account. Object names created at different times or by different team members follow different structures, preventing reliable filtering and automated rollup in reporting tools that depend on consistent name patterns. {{voice_recommend}} auditing all active Campaign and Line names against the written standard, renaming objects that deviate on a cadence that aligns with natural account maintenance windows, and establishing a review step for new object creation so names are confirmed against the standard before Lines are activated."
+      }
+    }
+  ]
+}

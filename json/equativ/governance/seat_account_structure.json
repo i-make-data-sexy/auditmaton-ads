@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The seat and account structure in Equativ is the layer where reporting, payment, and supply-chain identity all resolve. When that structure is fragmented across duplicate seats, or carries inactive entities no one closed, the publisher's revenue gets split across views that should be one, and stale identifiers can linger in sellers.json where buyers read them. The check is a review of structure the publisher already has rather than a rebuild, so it costs reading time, and the finding points to a concrete consolidation or cleanup the publisher can act on.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "A publisher's Equativ setup carries a seller account and one or more seats or network entities that demand reads through when it buys the inventory. That structure decides how revenue and payments roll up, and it feeds the seller identity that appears in the publisher's sellers.json file. This subcategory is about keeping that structure clean. These checks confirm that seats and entities are consolidated rather than fragmented into duplicates that split reporting, and that inactive or orphaned seats and integrations are identified and closed rather than left to linger in the supply chain.",
+  "audit_checks": [
+    {
+      "id": "equativ-seat-account-structure-fragmented-duplicate-seats",
+      "title": "Reporting and payments are split across duplicate or fragmented seats",
+      "category": "governance",
+      "subcategory": "seat_account_structure",
+      "impact_score": 3,
+      "impact_rationale": "When the same inventory runs through more than one seat or network entity, revenue and payment totals split across views that should consolidate into one. A publisher reading a single seat sees a partial picture, payouts arrive against several identifiers rather than one, and the seller identity exposed to buyers fragments along the same lines, so a structure meant to organize the account instead obscures it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "Equativ (formerly Smart AdServer) gives a publisher a seller account and, beneath it, one or more network or seat entities that demand-side buyers read through to reach the inventory. In a Prebid integration, that entity surfaces as the network identifier the adapter requires, the value Equativ provisions and a buyer's bid request resolves against. The structure is meant to organize a publisher's inventory and route payment to the right place. When it fragments into duplicate seats covering the same inventory, it starts working against both of those goals.<br><br>Fragmentation usually arrives by accretion rather than by decision. A second seat gets provisioned for a test that never gets retired. A reorganization or a contact change spins up a fresh entity instead of reusing the existing one. A separate seat is created for one demand partner and then quietly used for inventory that the main seat already covers. None of these is wrong on the day it happens, and each leaves a duplicate behind.<br><br>The cost shows up in three places. Reporting splits, so a publisher reading one seat sees only part of the revenue and has to stitch several views together to see the whole. Payment splits, so payouts arrive against several identifiers and reconciliation takes longer than it should. Seller identity splits because each entity that sells inventory can appear as its own seller in the publisher's sellers.json file, and the IAB Tech Lab specification holds that a single seller_id should map to one selling legal entity. Duplicate seats for one publisher's inventory blur that mapping for the buyers who read it.<br><br>A few signs point to fragmented or duplicate seats:<ul><li>The same ad units or domains run through more than one seat or network identifier with no clear reason for the split</li><li>Revenue reporting requires combining several seat-level views to see the publisher's full total</li><li>Payments arrive against multiple entities that resolve to the same legal seller</li><li>The publisher's sellers.json lists several entries for inventory that one entity could carry</li></ul>You may want to confirm that each active seat maps to a distinct, intentional slice of inventory rather than overlapping with another. One approach is to list every seat and network identifier, match each to the inventory and demand it actually serves, and consolidate any that cover the same ground.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a redesign or a section spin-off can leave a seat behind that still carries some article inventory while a newer seat carries the rest. You may want to map each seat to the sections and domains it serves so a single seat covers the site's inventory rather than two seats splitting it, which keeps revenue reporting and the site's seller identity in one place.",
+          "ecommerce": "On a commerce-content site, a seat created for a seasonal campaign or a single retail partner can outlive its purpose and keep serving general inventory afterward. You may want to confirm that commercial and editorial inventory route through an intended seat structure rather than scattered duplicates, so payouts reconcile against one entity per legal seller."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Equativ for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/bidders/equativ.html"
+          },
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "List every seat and network identifier under the publisher's Equativ account, match each to the inventory and demand it serves, and look for cases where more than one seat covers the same inventory.",
+        "tools": {
+          "free": {
+            "equativ_console": {
+              "label": "Equativ console",
+              "steps": [
+                "Sign in to the Equativ console and list every network or seat entity under the publisher's seller account.",
+                "For each entity, record the network identifier and the inventory it covers, including the sites, domains, and ad units it serves.",
+                "Flag any case where two or more entities cover the same inventory, and note whether the split has a stated reason or arose by accretion.",
+                "Record how revenue and payment roll up across the entities, and whether the publisher's full total requires combining several seat-level views."
+              ]
+            },
+            "sellers_json_review": {
+              "label": "sellers.json review",
+              "steps": [
+                "Open the publisher's sellers.json file, or the exchange entry that represents the publisher, and list each seller_id and the legal entity named against it.",
+                "Match each seller_id to a seat or network entity in the Equativ console.",
+                "Note any case where several seller entries resolve to the same legal seller, which points to a seat structure that one entity could consolidate."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records every seat and network identifier alongside the inventory and demand each serves, and how revenue, payment, and seller identity roll up across them. A structure where each active seat maps to a distinct, intentional slice of inventory and the publisher's reporting and payment consolidate cleanly passes. A structure where duplicate seats cover the same inventory, reporting requires stitching several views together, or several sellers.json entries resolve to one legal seller is a fail recorded with the seats that overlap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each seat and network identifier with the inventory it serves and how reporting and payment roll up above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs inventory through duplicate or fragmented seats in Equativ, so revenue reporting and payment split across views that should consolidate into one. The same inventory served by more than one network entity means a single seat shows only part of the total, payouts arrive against several identifiers, and the seller identity exposed to buyers fragments because the sellers.json standard holds that one seller_id should map to one selling legal entity. {{voice_recommend}} listing every seat and network identifier, matching each to the inventory and demand it serves, and consolidating any that cover the same ground onto a single intended entity. After the consolidation, confirm that reporting and payment roll up to one total per legal seller and that the publisher's sellers.json reflects the cleaned structure."
+      }
+    },
+    {
+      "id": "equativ-seat-account-structure-orphaned-inactive-seats",
+      "title": "Inactive or orphaned seats and integrations are left open",
+      "category": "governance",
+      "subcategory": "seat_account_structure",
+      "impact_score": 2,
+      "impact_rationale": "A seat or integration that no longer carries live inventory but stays open is a loose end in the supply chain. Its identifier can linger in the publisher's sellers.json where buyers still read it, an unused integration keeps a path open that no one monitors, and an orphaned entity with no clear owner is harder to reconcile or to close cleanly later.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "Seats, network entities, and demand integrations accumulate over the life of a publisher's Equativ account. A seat gets set up for a partner that later churns. An integration gets enabled for a test, a format trial, or a one-off campaign and then sits idle once the work ends. A staff change leaves an entity with no clear owner. Each of these stops carrying live inventory at some point, and unless someone closes it, it stays open.<br><br>An open but inactive seat is a loose end rather than an immediate failure, and the cost is mostly the kind that surfaces later. The entity's identifier can remain in the publisher's sellers.json file, so buyers reading the supply chain still see a seller that no longer sells anything, which works against the transparency the file exists to provide. An idle integration keeps a path into the publisher's inventory open that no one is watching. An orphaned entity with no named owner is harder to reconcile against payment, and harder to close cleanly because no one is certain what it touches.<br><br>The IAB Tech Lab guidance on sellers.json frames the file as a current statement of who sells a publisher's inventory, which means entries for entities that have gone inactive should come out as part of keeping the file accurate. Closing the seat or integration in Equativ and removing the matching sellers.json entry are two halves of the same cleanup.<br><br>A few signs point to inactive or orphaned seats and integrations:<ul><li>A seat or network entity has served no live inventory for an extended period yet remains active in the console</li><li>A demand integration was enabled for a test or a partner that has since ended and was never disabled</li><li>An entity has no named owner, so no one can say what it touches or whether it is safe to close</li><li>The publisher's sellers.json lists a seller that no longer maps to any live inventory</li></ul>You may want to confirm that every active seat and integration still serves live inventory and has a named owner. One approach is to review each entity against recent delivery, identify those that have gone idle, and close them in Equativ while removing the matching sellers.json entry.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a seat or integration set up for a sponsorship, a launch, or a partner that has since ended can sit idle long after the work is done. You may want to review each seat against recent delivery and close the ones serving no live inventory, then remove their sellers.json entries so buyers read a current picture of who sells the site's inventory.",
+          "ecommerce": "On a commerce-content site, integrations enabled for a seasonal retail push or a short-lived partner can linger past the campaign. You may want to confirm that each active integration still carries live inventory and has a named owner, and close any that ended so the supply path and the seller list stay current."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Equativ for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/bidders/equativ.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each seat, network entity, and demand integration against recent delivery to find any that no longer serve live inventory or that have no named owner, and check whether they still appear in the publisher's sellers.json.",
+        "tools": {
+          "free": {
+            "equativ_console": {
+              "label": "Equativ console",
+              "steps": [
+                "Sign in to the Equativ console and list every seat, network entity, and demand integration under the publisher's account.",
+                "For each one, check recent delivery and record whether it has served live inventory over the review period or has gone idle.",
+                "Record the named owner for each entity, and flag any that have no owner the publisher can identify.",
+                "Note any integration that was enabled for a test or a partner that has since ended and was never disabled."
+              ]
+            },
+            "sellers_json_review": {
+              "label": "sellers.json review",
+              "steps": [
+                "Open the publisher's sellers.json file and list each seller entry.",
+                "Match each entry to a seat or network entity in the console and check whether that entity still serves live inventory.",
+                "Flag any seller entry that maps to an inactive or orphaned entity because those should come out to keep the file a current statement of who sells the inventory."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each seat, network entity, and integration with its recent delivery, its named owner, and whether it still appears in sellers.json. A setup where every active entity serves live inventory, carries a named owner, and matches a current sellers.json entry passes. A setup with seats or integrations that have gone idle, entities with no owner, or sellers.json entries that map to inactive entities is a fail recorded with the entities that should be closed or removed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each seat and integration with its recent delivery, owner, and sellers.json status above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has seats or integrations in Equativ that no longer serve live inventory yet remain open, and in some cases an entity carries no named owner. An inactive seat is a loose end in the supply chain because its identifier can linger in the publisher's sellers.json where buyers still read it, an idle integration keeps an unmonitored path into the inventory, and an orphaned entity is harder to reconcile or close. {{voice_recommend}} reviewing each seat, network entity, and integration against recent delivery, closing the ones that serve no live inventory, assigning an owner to any that should stay, and removing the matching sellers.json entries for the closed ones. After the cleanup, confirm that every active entity serves live inventory and that the publisher's sellers.json reflects only entities that still sell."
+      }
+    }
+  ]
+}

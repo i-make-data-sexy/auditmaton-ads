@@ -1,0 +1,154 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Header bidding configuration decides how long the page waits for bids and which demand sources compete for each impression, so it sits at the point where fill rate, the value of each impression, and page speed all meet. A timeout set too short cuts off bids that would have cleared, one set too long slows the page and costs Core Web Vitals, and a bidder list that grew without pruning adds latency for demand that no longer wins. The check is a review of settings the publisher already controls in the Equativ wrapper and integration, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration change the publisher can test.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Equativ, the sell-side platform and ad server formerly known as Smart AdServer (Smart), integrates with a publisher's header-bidding setup, and because it is Prebid-compatible the wrapper that runs the auction is usually Prebid.js. The settings in that wrapper, the auction timeout and the list of demand connections, decide how long the page waits for bids and which bidders compete for each impression. This subcategory is about those configuration choices rather than the pricing of any single deal. These checks confirm that the timeout balances fill against latency on purpose, and that the enabled bidders and their client-side or server-side placement are deliberate rather than accumulated over time.",
+  "audit_checks": [
+    {
+      "id": "equativ-header-bidding-config-timeout-not-tuned",
+      "title": "Auction timeout is left at a default rather than tuned to the page",
+      "category": "monetization",
+      "subcategory": "header_bidding_config",
+      "impact_score": 3,
+      "impact_rationale": "The auction timeout sets how long the page waits for bids before it gives up and calls the ad server. Set too short, it cuts off demand that would have cleared, so fill and revenue drop. Set too long, it delays the ad call and the content around it, which hurts page speed and Core Web Vitals. A timeout left at an installer default rather than measured against the publisher's own bid-response times sits at one of those two costs without the publisher knowing which.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "When a page runs header bidding through a Prebid.js wrapper, the auction timeout is the clock that decides how long the page waits for bidders to respond before it stops the auction and sends the result to the ad server. Equativ, the sell-side platform and ad server formerly known as Smart AdServer (Smart), bids into that auction like any other demand source, so the timeout governs how much of a chance Equativ and the other connected bidders get to respond. Prebid sets this with the 'bidderTimeout' setting, and a separate failsafe timeout acts as a safety net that calls the ad server if something in the auction stalls.<br><br>The timeout is a trade, not a number to maximize. A short timeout protects page speed because the ad call fires sooner, but it cuts off bidders whose responses arrive after the clock runs out, so demand that would have cleared never enters the auction. A long timeout gives every bidder time to respond and often lifts fill and the price each impression clears at, but it delays the ad and the content laid out around it, which shows up in Core Web Vitals and in how the page feels to a reader. The right value is the one that captures most of the bid responses without making the reader wait.<br><br>Prebid's own guidance frames the timeout as a value each publisher has to determine for their own pages, weighing average time on page, the value of the inventory, and the network delay a typical reader sees. It also calls for setting the failsafe meaningfully longer than the auction timeout so it only fires when the auction genuinely fails. A timeout copied from an installer default, or carried over from an old setup and never revisited, has not been measured against any of that.<br><br>The way to tune it is to read where bid responses actually land. Most bidders respond within a window, and a tail arrives late. Setting the timeout to capture the bulk of responses while dropping only the slow tail keeps fill high without paying for the slowest bidders on every impression. If a publisher runs server-side bidding as well, Prebid recommends the server timeout sit below the overall auction timeout, often within 50 to 75 percent of it, to leave room for the network round trip.<br><br>A few signs point to a timeout that was set by default rather than tuned:<ul><li>The auction timeout matches a round installer default with no record of it being measured against bid-response data</li><li>The failsafe timeout is missing, or is set close to or below the auction timeout rather than meaningfully longer</li><li>No one can say what share of bid responses the current timeout captures or how it was chosen</li></ul>You may want to confirm that the timeout reflects the publisher's own bid-response times rather than a copied default. One approach is to read the distribution of response times across the active bidders, then set the auction timeout to capture the bulk of them and recheck fill rate and page-speed metrics after the change.",
+        "site_type_overlays": {
+          "publishing": "On a media site, readers move through articles and the ad needs to be in place before they scroll past the slot, so a long timeout that delays the ad can mean the impression is never seen. You may want to read response times on the article templates specifically and set a timeout that captures most bids without holding up the layout. Editorial pages live and die on scroll depth.",
+          "ecommerce": "On a commerce-content site, page speed feeds directly into how readers move toward a purchase, so a timeout that drags out the ad call competes with the buying flow. You may want to tune the timeout against the response times seen on product and category pages, where the cost of a slow page is highest, rather than on a blended average across all page types."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Prebid.js Timeouts",
+            "source_url": "https://docs.prebid.org/features/timeouts.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "pbjs.setConfig: Bidder Timeouts",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/setConfig.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the auction timeout and failsafe timeout set in the wrapper, then read the bid-response times across the active bidders to see whether the timeout captures most responses or cuts them off.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Header-bidding wrapper configuration",
+              "steps": [
+                "Open the Prebid.js configuration the publisher uses and record the 'bidderTimeout' value and the failsafe timeout that calls the ad server.",
+                "Confirm whether the failsafe timeout is set meaningfully longer than the auction timeout or is missing or set close to it.",
+                "If server-side bidding is in use, record the server timeout in 's2sConfig' and check whether it sits below the overall auction timeout.",
+                "Ask the publisher how the timeout value was chosen and whether it was ever measured against bid-response data, and record the answer."
+              ]
+            },
+            "browser_console": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load a representative page and open the network panel, then watch the bid requests and the responses from the active bidders.",
+                "Note roughly where the bulk of bid responses land relative to the configured timeout and where the slow tail begins.",
+                "Check whether the ad call fires when bids are still arriving, which points to a timeout cutting demand off, or well after responses settle, which points to a timeout longer than the page needs."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the auction timeout, the failsafe timeout, and where the bulk of bid responses land for the active bidders. A timeout that captures most bid responses while dropping only a slow tail, paired with a failsafe set meaningfully longer, passes. A timeout left at a default that cuts off a meaningful share of bid responses, or one long enough to delay the ad after responses have settled, is a fail recorded with the timeout values and the response-time read that shows the mismatch.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the auction timeout, the failsafe timeout, and where bid responses land above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs its header-bidding auction on a timeout left at a default rather than one tuned to the page's own bid-response times. The auction timeout is a trade between fill and page speed. Set too short it cuts off demand that would have cleared, and set too long it delays the ad and the content around it, which shows up in Core Web Vitals. {{voice_recommend}} reading the distribution of bid-response times across the active bidders, then setting the auction timeout to capture the bulk of responses while dropping only the slow tail, and setting the failsafe timeout meaningfully longer so it fires only when the auction genuinely stalls. After the change, recheck fill rate and page-speed metrics to confirm the timeout fits the page."
+      }
+    },
+    {
+      "id": "equativ-header-bidding-config-bidder-bloat-and-placement",
+      "title": "Enabled bidders are not justified and server-side placement is not deliberate",
+      "category": "monetization",
+      "subcategory": "header_bidding_config",
+      "impact_score": 3,
+      "impact_rationale": "Every enabled bidder adds a request the page has to wait on, so a list that grew without pruning carries demand that rarely wins while still costing latency on every auction. Whether each bidder runs client-side or server-side also moves results. Server-side bidders reach fewer cookies and often bid less often or lower, while client-side bidders add weight to the browser. A bidder list and placement carried over by default rather than reviewed leaves both fill and page speed shaped by accident.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "A header-bidding setup enables a list of demand connections that bid on each impression, and Equativ, the sell-side platform and ad server formerly known as Smart AdServer (Smart), is one of them alongside whatever other bidders the publisher has added over time. Two configuration choices shape how that list performs. The first is which bidders are enabled at all. The second is whether each bidder runs client-side, sending its request from the reader's browser, or server-side through Prebid Server, which sends one request to a server that calls the bidders for it.<br><br>The cost of an unreviewed bidder list is latency. Each enabled bidder is a request the auction waits on within the timeout, so a list that grew as demand partners were added and never pruned carries bidders that win rarely while still adding to the time and weight of every auction. The question is not how many bidders is correct in the abstract, it is whether each enabled bidder earns its place by winning often enough to justify the request it adds. A bidder that has not won a meaningful share of auctions over a recent window is a candidate to drop.<br><br>The client-side versus server-side choice is a separate trade. Prebid's guidance notes that client-side bidders can set and read third-party cookies more readily than server-side bidders, so moving a bidder to the server often makes it bid less often or at a lower price. Server-side bidding, on the other hand, moves the work of calling many bidders off the browser and onto a server, which can be faster and lighter on the page. Most publishers run a hybrid, keeping the highest-value bidders client-side where they bid strongest and routing others server-side to hold down browser load. The placement of each bidder should follow that logic rather than sit wherever it landed when it was added.<br><br>Prebid supports measuring the placement choice rather than guessing at it. The server-to-server testing module lets a publisher route a defined share of traffic through the server and compare it against the client-side path, so the decision to move a bidder server-side can rest on a revenue and fill read rather than an assumption. That turns placement into a measured result.<br><br>A few signs point to a bidder list and placement that were not reviewed:<ul><li>The enabled bidder list has grown over time with no record of which bidders win often enough to justify the request they add</li><li>Bidders run client-side or server-side by however they were first added, with no comparison of how each performs in either path</li><li>Low-win bidders sit alongside strong demand on every auction, adding latency without contributing fill or price</li></ul>You may want to confirm that each enabled bidder earns its place and that its client-side or server-side placement is deliberate. One approach is to read win rate and revenue per bidder over a recent window, drop the bidders that rarely win, and use a server-to-server test to compare placement for the bidders worth keeping.",
+        "site_type_overlays": {
+          "publishing": "On a media site with high page-view volume, every redundant bidder multiplies across a large number of auctions, so latency from an unpruned list adds up across the audience. You may want to read win rate per bidder on the article templates and keep the list to the demand that wins there. The slowest bidders cost the most on the pages readers see most.",
+          "ecommerce": "On a commerce-content site, browser weight competes with the buying flow, so routing lower-value bidders server-side can keep product and category pages lighter while the strongest demand stays client-side. You may want to run a server-to-server test on the commercial pages specifically to see whether moving a bidder to the server holds revenue while reducing page weight."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Server Documentation",
+            "source_title": "Prebid Server Overview",
+            "source_url": "https://docs.prebid.org/prebid-server/overview/prebid-server-overview.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Module: Server-to-Server Testing",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/s2sTesting.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the enabled bidder list, read how often each bidder wins over a recent window, and record whether each runs client-side or server-side and whether that placement was ever compared.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Header-bidding wrapper configuration",
+              "steps": [
+                "Open the Prebid.js configuration and list every enabled bidder on the ad units in scope.",
+                "For each bidder, record whether it runs client-side or server-side, reading the 's2sConfig' block to see which bidders are routed through Prebid Server.",
+                "Ask the publisher when the bidder list was last reviewed and whether any server-side versus client-side comparison was run, and record the answer."
+              ]
+            },
+            "wrapper_analytics": {
+              "label": "Header-bidding analytics or reporting",
+              "steps": [
+                "Build a read of win rate, revenue, and bid rate per bidder over a recent window long enough to be representative.",
+                "Identify bidders that rarely win or contribute little revenue while still bidding on every auction. These add latency without earning their request.",
+                "For bidders worth keeping, note whether their client-side or server-side placement has been compared on revenue and fill, or whether it was set by default when the bidder was added."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the enabled bidders, the win rate and revenue for each over a recent window, and whether each runs client-side or server-side along with any comparison of that placement. A bidder list where each enabled bidder wins often enough to justify its request and placement rests on a comparison passes. A list carrying low-win bidders that add latency without contributing fill, or placements set by default with no comparison, is a fail recorded with the bidders and the win-rate read that supports dropping or moving them.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the enabled bidders, their win rates, and their client-side or server-side placement above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs a header-bidding bidder list that has grown without review, with client-side and server-side placement set by default rather than compared. Every enabled bidder adds a request the auction waits on, so low-win bidders cost latency on each impression without earning it, and placement matters because server-side bidders reach fewer cookies and tend to bid less often or lower while client-side bidders add weight to the browser. {{voice_recommend}} reading win rate and revenue per bidder over a recent window, dropping the bidders that rarely win, and using a server-to-server test to compare placement for the bidders worth keeping. After the change, recheck fill rate, revenue, and page-speed metrics to confirm the list and placement fit the inventory."
+      }
+    }
+  ]
+}

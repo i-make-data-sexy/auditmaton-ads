@@ -1,0 +1,177 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Yield settings decide how much of the demand reaching the publisher actually competes for each impression and what price that competition clears at. Auction dynamics that throttle requests too aggressively, or a refresh that fires before an impression is viewed, both trade revenue away in ways that do not show up unless someone reads the configuration against the reporting. The check is a review of settings the publisher already runs on Equativ and in Prebid, so it costs reading time rather than rebuild time, and the finding points to a concrete auction or refresh decision the publisher can test.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Yield optimization on a sell-side platform is the work of getting the most value from each impression without losing the demand that creates that value. Equativ runs a first-price auction, so the clearing price is the winning bid itself rather than a second-price step-down, which changes how floors, throttling, and refresh interact with revenue. This subcategory looks at two settings that move yield in opposite directions when they are misjudged. Auction and traffic-shaping configuration can quietly reduce the demand that competes for an impression, and ad refresh can either capture genuine new demand or recycle low-value impressions that erode price and viewability. These checks confirm that both are deliberate choices backed by reporting rather than defaults left in place.",
+  "audit_checks": [
+    {
+      "id": "equativ-yield-optimization-auction-dynamics-throttling",
+      "title": "First-price auction dynamics and traffic shaping are not reviewed against lost demand",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "Traffic shaping and bidder throttling reduce the volume of bid requests sent to demand, which lowers infrastructure cost and can improve page performance. In a first-price auction the winning bid sets the price, so a request that never reaches a willing bidder removes a bid that could have won. Throttling tuned for cost or speed without a read on the revenue it sheds can lose demand the publisher cannot see, which is why this sits above a routine hygiene check without rising to a catastrophic gap.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Equativ runs a first-price auction, which means the impression clears at the winning bid itself rather than one increment above the runner-up. That detail matters for yield because every bid that reaches the auction has a direct effect on the clearing price, and any bid that is filtered out before the auction is a bid that can no longer win. Floors, bidder selection, and traffic shaping all decide which demand gets to compete, so they are not neutral plumbing. They set the ceiling on what an impression can earn.<br><br>Traffic shaping and bidder throttling are the settings that decide how many demand partners receive a bid request for a given impression. Sending every request to every bidder raises infrastructure cost, adds latency to the page, and sends partners requests they rarely win. Throttling trims that by predicting which bidders are likely to respond and skipping the rest, which is the idea behind a real-time data module that filters bidders before the auction. The same goal drives the sustainability guidance to call fewer bidders selectively rather than fan out to all of them. Tuned well, this keeps the bidders that win and drops the ones that only add cost.<br><br>The risk is tuning throttling for cost or speed alone and reading the result only on those terms. A configuration that cuts request volume looks like a win on the infrastructure bill and the latency chart, but in a first-price auction it can also remove a bidder that occasionally placed the top bid. When that happens the lost revenue does not announce itself because the auction simply has one fewer competitor and clears slightly lower across many impressions. The audit question is whether the throttling and auction settings were judged against the revenue they shed, not only the cost they saved.<br><br>A few signs point to auction dynamics tuned without a read on lost demand:<ul><li>Bidder throttling or a traffic-shaping module is active but no before-and-after comparison of revenue, fill rate, and win rate exists for it</li><li>The publisher can describe the cost or latency the throttling saved but cannot say what it did to clearing price</li><li>Floors, timeouts, or bidder limits were changed to chase page speed with no record of the yield effect</li></ul>You may want to confirm that the auction and traffic-shaping settings were judged on yield as well as cost. One approach is to run the current throttling against a less-throttled configuration on comparable inventory and read revenue, fill rate, and win rate across both before settling on the tuning.",
+        "site_type_overlays": {
+          "publishing": "On a media site, premium placements such as a homepage unit or a sponsorship-adjacent slot draw the strongest demand, so throttling that trims bidders there can shed exactly the high bids that set the price. You may want to apply lighter throttling to the premium inventory and reserve aggressive request trimming for the filler inventory where the lost bids are worth less.",
+          "ecommerce": "On a commerce-content site, product and category pages reach an audience closer to a purchase and tend to attract higher bids than editorial pages. You may want to confirm that traffic shaping does not trim demand on the commercial inventory the same way it does on editorial pages because the bids it removes there carry more value."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Publisher Sustainability Best Practices for Header Bidding",
+            "source_url": "https://docs.prebid.org/support/sustainability-publishers.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Optimize header bidding setup",
+            "source_url": "https://docs.prebid.org/overview/how-many-bidders-for-header-bidding.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Module - Price Floors for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/floors.html"
+          }
+        ],
+        "learn_more_note": "Equativ's detailed configuration documentation for its auction dynamics and traffic-shaping controls is in the partner portal (login required). The Prebid references above cover the equivalent first-price auction and bidder-throttling mechanics. Equativ is Prebid-compatible.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which traffic-shaping or bidder-throttling controls are active across Equativ and any Prebid setup, and look for a before-and-after read that shows what they did to revenue and win rate, not only to cost and latency.",
+        "tools": {
+          "free": {
+            "equativ_console": {
+              "label": "Equativ console",
+              "steps": [
+                "Open the auction or yield configuration for the inventory under review and list which demand partners are eligible to receive a bid request.",
+                "Note any traffic-shaping, request-reduction, or bidder-throttling setting that limits how many partners are called per impression, and record the basis for the limit.",
+                "Record whether the throttling applies uniformly across inventory or whether premium and filler inventory are treated differently.",
+                "Ask the publisher whether any comparison of throttled versus less-throttled configuration was run, and record the result and when it was measured."
+              ]
+            },
+            "prebid_config": {
+              "label": "Prebid configuration",
+              "steps": [
+                "If the publisher runs Prebid alongside or feeding Equativ, review the configured bidders and any real-time data module that filters bidders before the auction.",
+                "Note the auction timeout and any bidder limits because a short timeout or a tight bidder cap also shapes how much demand reaches the auction.",
+                "Record whether the floors module is active and whether floor enforcement is rejecting bids in a way that interacts with the throttling."
+              ]
+            },
+            "ssp_reporting": {
+              "label": "Equativ reporting",
+              "steps": [
+                "Build a report broken out by the inventory under review, with revenue, impressions, fill rate, win rate, and average clearing price.",
+                "Compare a period or a slice running the current throttling against a less-throttled period or slice, if one exists, to see whether trimming requests raised cost efficiency without lowering clearing price.",
+                "Note whether the data supports the current throttling or whether no comparison slice exists to judge it against."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records which traffic-shaping and bidder-throttling controls are active, the basis for each, and whether any comparison of throttled versus less-throttled configuration exists with a result on record covering revenue, fill rate, and win rate. A setup where throttling is deliberate and backed by a yield comparison passes. A setup where throttling is tuned for cost or latency alone, with no read on the demand it sheds, is a fail recorded with the inventory and the settings affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the active throttling and traffic-shaping settings and whether a throttled-versus-less-throttled comparison exists above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs traffic shaping or bidder throttling on its Equativ auction without a read on the demand it sheds. Equativ uses a first-price auction, so the winning bid sets the price and every bidder filtered out before the auction is a bid that can no longer win, which means throttling tuned for cost or latency alone can lower clearing price across many impressions without showing up. {{voice_recommend}} comparing the current throttling against a less-throttled configuration on comparable inventory and reading revenue, fill rate, and win rate across both, with lighter throttling held on the premium inventory where the high bids set the price. After the comparison, keep whichever configuration the yield data supports for each slice of inventory."
+      }
+    },
+    {
+      "id": "equativ-yield-optimization-ad-refresh-viewability",
+      "title": "Ad refresh is not gated on viewability and inflates low-value impressions",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "Refresh that fires on a timer alone counts impressions a user may never have seen, which raises impression volume while lowering the viewable rate buyers measure and pay against. A low viewable rate pushes buyers toward lower bids or away from the inventory, so a refresh meant to add revenue can erode the price of every impression. The damage builds across the whole refreshed inventory rather than at one placement, which keeps it above a minor hygiene item without reaching a catastrophic gap.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Ad refresh replaces the creative in a slot with a new auction while the user stays on the page, which gives a single placement more than one chance to earn. Done with care it captures genuine new demand, for example on a long article or an infinite-scroll feed where a slot stays in view for minutes. Done carelessly it recycles impressions a user has scrolled past or never saw, which adds impression count without adding value and pulls down the metrics buyers judge the inventory on.<br><br>The setting that separates the two is the trigger. A refresh on a fixed timer alone fires whether or not the slot is in view, so it can run an auction for an impression the user has already scrolled past. A refresh gated on viewability waits until the slot has been seen, often for the duration the IAB viewability guidelines define, before it counts the current impression and runs the next auction. Prebid offers a bid-viewability event for exactly this, fired through the IntersectionObserver interface so a publisher can hold the refresh until the impression is genuinely viewable. There is a second failure mode worth checking alongside the trigger. When a slot is refreshed by calling the ad server refresh directly without clearing the prior header-bidding targeting, the same winning line item can be re-sent and re-rendered repeatedly, so the auction is not actually rerun.<br><br>A first-price auction sharpens the cost of getting refresh wrong. The clearing price is the winning bid, and buyers set those bids partly on the viewable rate they expect from the inventory. A refresh that inflates impression volume with unviewed or duplicate impressions lowers the viewable rate across the slot, and a lower viewable rate gives buyers a reason to bid less or to spend elsewhere. The extra impressions a timer-based refresh creates can therefore arrive with a lower price attached, so the placement runs more auctions for less revenue per impression.<br><br>A few signs point to a refresh that is not protecting yield:<ul><li>Refresh fires on a fixed interval with no viewability condition, so it can run for slots that are out of view</li><li>The viewable rate on refreshed slots sits below the rate on non-refreshed slots, which suggests refresh is counting unviewed impressions</li><li>Refreshed slots show repeated identical creatives, which points to the ad server being refreshed without the prior header-bidding targeting being cleared first</li></ul>You may want to confirm that refresh is gated on viewability and that each refresh reruns the auction rather than recycling the prior winner. One approach is to read the viewable rate and average price on refreshed slots against non-refreshed slots before deciding the refresh is earning its place.",
+        "site_type_overlays": {
+          "publishing": "On a media site, long-form articles and infinite-scroll feeds keep a slot in view long enough that a viewability-gated refresh can capture real new demand, while a short landing page rarely holds a slot long enough to justify refresh at all. You may want to gate refresh on viewability and apply it to the inventory where slots actually stay in view rather than across every placement.",
+          "ecommerce": "On a commerce-content site, product and category pages where a shopper compares options can keep a slot in view, but a fast checkout or cart flow does not. You may want to confirm refresh is gated on viewability and limited to the browsing inventory, so the higher-intent pages are not filled with unviewed refreshed impressions that lower the rate buyers measure."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Individual Ad Unit Refresh / Infinite Scroll for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/examples/adunit-refresh.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Bid Viewability - Ad Server Independent",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/bidViewableIO.html"
+          }
+        ],
+        "learn_more_note": "Equativ's refresh configuration for its own ad server and tags is documented in the partner portal (login required). The Prebid references above cover the equivalent refresh and bid-viewability mechanics. Equativ is Prebid-compatible.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review how ad refresh is triggered across the inventory, whether a viewability condition gates it, and whether the viewable rate and price on refreshed slots hold up against non-refreshed slots.",
+        "tools": {
+          "free": {
+            "equativ_console": {
+              "label": "Equativ console",
+              "steps": [
+                "Open the tag or ad server configuration for the slots under review and record whether refresh is enabled and on which placements.",
+                "Note the refresh trigger for each placement, distinguishing a fixed-timer refresh from one gated on a viewability condition.",
+                "Record whether refreshed slots rerun the auction with fresh demand or re-render the prior winner, which points to targeting that was not cleared before refresh."
+              ]
+            },
+            "prebid_config": {
+              "label": "Prebid configuration",
+              "steps": [
+                "If the publisher runs Prebid, check whether a bid-viewability module is enabled to fire the viewability event that can gate refresh.",
+                "Review the refresh logic to confirm it requests fresh bids and clears the prior header-bidding targeting before refreshing the ad server, rather than refreshing the ad server alone.",
+                "Note the interval or viewability threshold used and whether it matches the duration the inventory's slots actually stay in view."
+              ]
+            },
+            "ssp_reporting": {
+              "label": "Equativ reporting",
+              "steps": [
+                "Build a report broken out by placement with viewable rate, impressions, average clearing price, and revenue, separating refreshed slots from non-refreshed slots.",
+                "Compare the viewable rate and average price on refreshed slots against non-refreshed slots to see whether refresh is adding value or diluting it.",
+                "Note any placement where refresh raised impression count but lowered viewable rate or average price, which points to a refresh that is inflating low-value impressions."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per placement, whether refresh is enabled, what triggers it, whether a viewability condition gates it, and whether each refresh reruns the auction rather than re-rendering the prior winner, alongside the viewable rate and average price for refreshed versus non-refreshed slots. A refresh gated on viewability whose refreshed slots hold their viewable rate and price passes. A timer-only refresh, or one whose refreshed slots show a lower viewable rate or price than non-refreshed slots, is a fail recorded with the placements affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the refresh trigger per placement and the viewable rate and price for refreshed versus non-refreshed slots above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} refreshes ad slots on a timer without gating the refresh on viewability, so impressions are counted and re-auctioned whether or not the slot was seen. Equativ runs a first-price auction where the winning bid sets the price, and buyers bid partly on the viewable rate they expect, so a refresh that inflates volume with unviewed impressions lowers that rate and gives buyers a reason to bid less across the inventory. {{voice_recommend}} gating refresh on a viewability condition, confirming each refresh reruns the auction rather than re-rendering the prior winner, and limiting refresh to the inventory where slots stay in view. After the change, compare the viewable rate and average price on refreshed slots against non-refreshed slots to confirm refresh is adding value rather than diluting it."
+      }
+    }
+  ]
+}

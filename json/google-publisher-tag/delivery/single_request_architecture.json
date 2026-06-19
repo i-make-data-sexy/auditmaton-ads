@@ -1,0 +1,166 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://developers.google.com/publisher-tag/guides/ad-best-practices",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Single Request Architecture (SRA) controls whether a page with several ad slots fetches them in one ad request or many. Beyond cutting request overhead, SRA is what lets Google Ad Manager (GAM) honor roadblocks and competitive exclusions across a page, so a setup that skips it loses both a performance gain and two delivery features the publisher may be relying on. The check reads the Google Publisher Tag (GPT) implementation a publisher already has on the page, so it costs reading time rather than rebuild time, and the finding points to a concrete change in how slots are configured and displayed.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "SRA decides whether GPT bundles a page's ad slots into one ad request or fires a separate request per slot. On a page with several slots, SRA reduces request overhead and, more importantly, is what allows GAM to enforce roadblocks and competitive exclusions across the whole page. This subcategory is about whether SRA is turned on where it applies and whether the slots are configured and displayed in a way that lets SRA actually bundle them. These checks confirm that a multi-slot page requests its ads as one batch rather than slot by slot.",
+  "audit_checks": [
+    {
+      "id": "google-publisher-tag-single-request-architecture-not-enabled-multi-slot",
+      "title": "Single request mode is off on pages with several ad slots",
+      "category": "delivery",
+      "subcategory": "single_request_architecture",
+      "impact_score": 3,
+      "impact_rationale": "With single request mode off, a page with several slots fires a separate ad request for each one, which adds request overhead and, more consequentially, prevents Google Ad Manager from honoring roadblocks and competitive exclusions across the page. A publisher relying on those features, or paying the cost of extra requests on a slot-heavy page, loses both without a signal that anything is wrong.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "inventory",
+        "performance"
+      ],
+      "educate": {
+        "base": "Single Request Architecture (SRA) is the Google Publisher Tag (GPT) request mode that bundles a page's ad slots into one ad request instead of sending a separate request for each slot. A publisher turns it on with the legacy <a href='https://developers.google.com/publisher-tag/reference' class='tools-link-no-padding' target='_blank'>enableSingleRequest()</a> call on the pubads service, or with the current <a href='https://developers.google.com/publisher-tag/guides/ad-best-practices' class='tools-link-no-padding' target='_blank'>singleRequest config via setConfig()</a>. With the mode off, GPT falls back to a request per slot, so a page carrying five slots sends five ad requests rather than one.<br><br>The request count is the visible cost, but it is not the largest one. SRA is what lets Google Ad Manager (GAM) reason about the whole page at once, which is a precondition for two delivery features. Roadblocks, where one advertiser takes every slot on the page, and competitive exclusions, where two advertisers in the same category are kept off the same page, both depend on GAM seeing all of the page's slots in a single request. With separate requests, GAM evaluates each slot on its own and cannot guarantee either behavior.<br><br>The check applies to pages that carry more than one slot. On a single-slot page, SRA and per-slot requests resolve to the same one request, so the setting makes no practical difference there. The question is whether the multi-slot pages, the ones where bundling matters, have the mode turned on.<br><br>A few signs point to single request mode being off on a multi-slot page:<ul><li>The page makes no enableSingleRequest() call and no setConfig() call setting singleRequest to true</li><li>The network panel shows several separate ad requests to securepubads on a page that defines several slots</li><li>The publisher relies on roadblocks or competitive exclusions but the page requests slots individually, so GAM cannot honor them</li></ul>You may want to confirm that multi-slot pages enable single request mode. One approach is to read the GPT setup for the enabling call and watch the network panel to see whether the page sends one bundled ad request or one per slot.",
+        "site_type_overlays": {
+          "publishing": "On a media site, article and section pages often carry several slots at once, such as a leaderboard, an in-content unit, and a sidebar. You may want to confirm single request mode is on across those templates so the slots request as one batch and GAM can honor any roadblock or competitive exclusion the publisher sells against the page.",
+          "ecommerce": "On a commerce-content site, product and category pages can stack several slots around the listings. You may want to confirm those templates enable single request mode so the page sends one bundled request rather than one per slot, which keeps roadblocks and category exclusions enforceable across the page."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag",
+            "source_title": "Ad Best Practices",
+            "source_url": "https://developers.google.com/publisher-tag/guides/ad-best-practices"
+          },
+          {
+            "source_type": "Google Publisher Tag",
+            "source_title": "GPT Reference (PubAdsService)",
+            "source_url": "https://developers.google.com/publisher-tag/reference"
+          },
+          {
+            "source_type": "Google Publisher Tag",
+            "source_title": "General Best Practices",
+            "source_url": "https://developers.google.com/publisher-tag/guides/general-best-practices"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Check whether the page enables single request mode and confirm what the network shows by counting the ad requests a multi-slot page sends.",
+        "tools": {
+          "free": {
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the Google Publisher Console on a page with several slots by appending '?googfc' to the URL or running the googfc bookmarklet.",
+                "Open the 'Page request' or 'Request' view and read how many ad requests the page issued.",
+                "Confirm whether the slots were fetched together in one request or whether each slot generated its own request.",
+                "Note the page template the result came from since single request mode is set per page rather than per slot."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open DevTools, go to the 'Network' tab, filter for 'securepubads', and reload a page that defines several slots.",
+                "Count the ad requests. One bundled request across all slots points to single request mode on. One request per slot points to it being off.",
+                "Search the page source or the GPT setup for an 'enableSingleRequest()' call or a 'setConfig' call setting 'singleRequest' to true, and record whether either is present."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each multi-slot page template, whether the Google Publisher Tag (GPT) setup enables single request mode through enableSingleRequest() or setConfig(), and what the network shows for the number of ad requests. A multi-slot page that enables the mode and sends one bundled request passes. A multi-slot page that sends a request per slot with no enabling call is a fail recorded with the template and the slot count affected. Single-slot pages are out of scope since the mode makes no practical difference there.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether each multi-slot template enables single request mode and how many ad requests it sends above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that multi-slot pages on {{site_name}} do not enable single request mode, so each slot fires its own ad request instead of one bundled request. Single Request Architecture (SRA) cuts request overhead, and it is also what lets Google Ad Manager (GAM) honor roadblocks and competitive exclusions across a page, which a request-per-slot setup cannot guarantee. {{voice_recommend}} turning on single request mode on the multi-slot templates through the singleRequest config in setConfig(), then watching the network panel to confirm the page sends one bundled ad request rather than one per slot. After the change, recheck any roadblock or competitive exclusion the publisher sells to confirm GAM now enforces it across the page."
+      }
+    },
+    {
+      "id": "google-publisher-tag-single-request-architecture-slots-not-batched",
+      "title": "Slots are defined and displayed one at a time, which defeats batching",
+      "category": "delivery",
+      "subcategory": "single_request_architecture",
+      "impact_score": 3,
+      "impact_rationale": "Single request mode bundles only the slots that are defined and configured before the first display() call. When slots are defined and displayed one at a time, the first display() fires before the later slots exist, so each lands in its own request and the page never bundles even with the mode on, losing the request savings and the page-level enforcement of roadblocks and competitive exclusions.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "performance",
+        "inventory"
+      ],
+      "educate": {
+        "base": "Turning on Single Request Architecture (SRA) is only half of the setup. The mode bundles the slots that are defined and fully configured before the first call to <a href='https://developers.google.com/publisher-tag/guides/get-started' class='tools-link-no-padding' target='_blank'>display()</a> because that first display() is what triggers the bundled ad request. Any slot defined after that point misses the batch and lands in a request of its own, which means how the page sequences its Google Publisher Tag (GPT) calls decides whether SRA can do its job.<br><br>The pattern that defeats batching is defining and displaying each slot in turn, where the code defines slot one and displays it, then defines slot two and displays it, and so on. The first display() fires while only slot one exists, so the bundled request goes out with a single slot, and every later slot, defined after that trigger, generates its own request. The mode is on, but the page still behaves as though it were off because the slots were never available to bundle together.<br><br>The pattern that lets SRA work is to define and configure all of the page's slots first, ideally in the document head before the first display(), and then call display() once they are all in place. Google's guidance is to set targeting, category exclusions, and other slot configuration before that first display() because only values set before the trigger are included in the bundled request. This is sometimes described as a define-then-display ordering rather than an interleaved define-display-define-display sequence.<br><br>A few signs point to slots being defined one at a time rather than batched:<ul><li>The code defines a slot and calls display() for it before defining the next slot, repeating per slot</li><li>The network panel shows several ad requests on a page that has single request mode enabled, which means batching never happened</li><li>Slot targeting or category exclusions are set after the first display() call, so they miss the bundled request</li></ul>You may want to confirm that the page defines and configures all of its slots before the first display() call. One approach is to read the GPT call order in the page source and watch the network panel to confirm a single bundled request rather than one per slot.",
+        "site_type_overlays": {
+          "publishing": "On a media site, slots are sometimes injected as the reader scrolls or as content modules render, which can push a slot's definition past the first display() call. You may want to confirm the slots present at page load are defined and configured before that first display() so they bundle, and to treat lazily injected slots as a separate, intentional pattern rather than an accident of ordering.",
+          "ecommerce": "On a commerce-content site, product and category templates may render slots alongside dynamic listing components, which can interleave slot definitions with display() calls. You may want to confirm the page defines and configures its load-time slots up front before the first display() so single request mode can bundle them into one request."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag",
+            "source_title": "Ad Best Practices",
+            "source_url": "https://developers.google.com/publisher-tag/guides/ad-best-practices"
+          },
+          {
+            "source_type": "Google Publisher Tag",
+            "source_title": "Get Started with Google Publisher Tag",
+            "source_url": "https://developers.google.com/publisher-tag/guides/get-started"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the order of the Google Publisher Tag (GPT) calls on the page and confirm against the network whether slots are bundled or requested one at a time.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open DevTools and view the page source or the GPT setup script, then trace the order of defineSlot() and display() calls.",
+                "Confirm whether all slots are defined and configured before the first display(), or whether each slot is defined and displayed in turn.",
+                "Go to the 'Network' tab, filter for 'securepubads', reload the page, and count the ad requests to see whether the slots bundled into one request or fired separately.",
+                "Note any slot targeting or category exclusion set after the first display(), which leaves those values out of the bundled request."
+              ]
+            },
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the Google Publisher Console by appending '?googfc' to the page URL or running the googfc bookmarklet.",
+                "Read the request view to confirm how many ad requests the page issued and which slots were included in each.",
+                "Confirm whether the slots defined at page load were bundled into one request or split across several, which points to interleaved define-and-display ordering."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the order of the Google Publisher Tag (GPT) calls on each multi-slot page, whether all load-time slots are defined and configured before the first display(), and how many ad requests the network shows. A page that defines and configures its slots before the first display() and sends one bundled request passes. A page that defines and displays slots one at a time, so each slot lands in its own request despite single request mode being on, is a fail recorded with the template and the call order observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the GPT call order and the number of ad requests for each multi-slot template above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} defines and displays its ad slots one at a time, so the first display() call fires before the later slots exist and single request mode never bundles them. Single Request Architecture (SRA) bundles only the slots defined and configured before that first display(), which means an interleaved define-and-display sequence leaves each slot in its own request even with the mode on. {{voice_recommend}} reordering the Google Publisher Tag (GPT) calls so all load-time slots are defined and configured first, with display() called once afterward, then confirming in the network panel that the page sends one bundled ad request. After the change, recheck that slot targeting and category exclusions are set before the first display() so they are included in the bundled request."
+      }
+    }
+  ]
+}

@@ -1,0 +1,175 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/admanager/answer/6286179?hl=en",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Ad refresh decides whether a slot reloads a new ad without a full page load, which can lift revenue per session, so it sits close to yield while carrying real policy and experience risk. Refresh that fires on a blind timer, ignores viewability, or mishandles the correlator on the reloaded request can break Active View measurement, undercount the impression, or trip a Google Ad Manager policy violation. The check is a review of the refresh logic a publisher already runs through the Google Publisher Tag, so it costs reading the page code and the refresh declaration rather than a rebuild, and the finding points to a concrete change in the refresh trigger or the targeting passed on reload.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Ad refresh reloads the ad in a slot without reloading the whole page, which a publisher implements through the Google Publisher Tag (GPT) refresh() method. Done well, it raises the number of paid impressions in a long session without harming the user. Done on a blind timer with no viewability gate, or without resetting the correlator and targeting on the reloaded request, it can break measurement, undercount revenue, and violate Google Ad Manager (GAM) refresh policy. This subcategory looks at how refresh is gated and how the refreshed request is built, so the audit confirms that refresh is a deliberate, policy-compliant choice rather than a timer dropped on every slot.",
+  "audit_checks": [
+    {
+      "id": "google-publisher-tag-ad-refresh-not-gated-on-viewability-and-interval",
+      "title": "Refresh fires on a blind timer rather than gated on viewability and a minimum interval",
+      "category": "delivery",
+      "subcategory": "ad_refresh",
+      "impact_score": 3,
+      "impact_rationale": "Refresh on a fixed timer reloads ads whether or not the slot is in view and whether or not enough time has passed, which can serve impressions a user never sees and refresh faster than Google Ad Manager refresh policy allows. That undercuts viewability, wastes advertiser spend on unseen ads, and risks a policy violation, so the refresh trigger is a real revenue and compliance lever rather than cosmetic.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "yield",
+        "ad-experience"
+      ],
+      "educate": {
+        "base": "The Google Publisher Tag (GPT) refresh() method reloads the ad in a slot without reloading the page. The question that decides whether refresh helps or hurts is what triggers it. A refresh that fires on a blind timer, calling refresh() every thirty seconds regardless of what the user is doing, reloads ads in slots that may be far below the fold and never seen. Each of those reloads counts as a new impression that an advertiser pays for and a viewability vendor scores as unviewed, so the timer trades measurable, paid-for attention for raw impression volume.<br><br>A refresh worth running is gated on two conditions before it fires. The first is viewability, so the slot reloads only while it is actually in the user's view. GPT exposes the impressionViewable event through the PubAdsService, which lets the page start a refresh timer for a slot only once that slot has been seen, and pause or reset it when the slot leaves the viewport. The second is a sensible minimum interval between refreshes, long enough that the user has a real chance to look at each ad before the next one loads.<br><br>Those two gates are also what Google Ad Manager (GAM) refresh policy requires a publisher to declare. A publisher must declare which inventory refreshes, the trigger type, and the minimum interval between refreshes, and the behavior on the page has to match the declaration. GAM sets a minimum of thirty seconds for event-driven and time-based refresh triggers, with no minimum for refresh tied to a direct user action. Refresh that fires faster than declared, or on inventory never declared as refreshing, is a policy violation that Google detects and flags.<br><br>A few signs point to refresh running on a blind timer rather than a gated trigger:<ul><li>refresh() is called on a fixed setInterval with no check that the slot is in view</li><li>The refresh interval on the page is shorter than thirty seconds, or shorter than the interval declared in Google Ad Manager</li><li>No refreshing inventory is declared in Google Ad Manager even though the page reloads ads</li><li>Below-the-fold slots refresh at the same cadence as in-view slots</li></ul>You may want to confirm that refresh is gated on viewability and a minimum interval and that the page behavior matches the Google Ad Manager declaration. One approach is to read the refresh logic in the page code, watch the ad requests fire in the browser, and compare the cadence and the declared inventory against what actually reloads.",
+        "site_type_overlays": {
+          "publishing": "On a media site running the Google Publisher Tag, long-form articles and live-blog pages keep a user on the page long enough that refresh can add real value, but only on slots the reader actually reaches. You may want to gate refresh on the impressionViewable event for each slot and pause the timer when a slot scrolls out of view, so a sticky footer or sidebar unit refreshes while seen rather than on a blind timer that counts unseen reloads.",
+          "ecommerce": "On a commerce-content site running the Google Publisher Tag, product and category pages can hold attention while a shopper compares items, which suits a viewability-gated refresh on the in-view slots. You may want to confirm that refresh fires only while the slot is visible and that any below-the-fold unit on a long category page does not reload until the shopper scrolls it into view."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag",
+            "source_title": "Refresh ad slots",
+            "source_url": "https://developers.google.com/publisher-tag/samples/refresh"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Declare inventory that refreshes",
+            "source_url": "https://support.google.com/admanager/answer/6286179?hl=en"
+          },
+          {
+            "source_type": "Google Publisher Tag",
+            "source_title": "Ad best practices",
+            "source_url": "https://developers.google.com/publisher-tag/guides/ad-best-practices"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the refresh logic in the page code, watch the ad requests reload in the browser, and compare the trigger, the interval, and the declared refreshing inventory against the behavior on the page.",
+        "tools": {
+          "free": {
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the page and launch the Google Publisher Console by appending '?googfc' to the URL or running the googfc bookmarklet.",
+                "Open the 'Page request' or delivery view and watch whether slots issue new ad requests over time, which shows refresh firing.",
+                "Note which slots refresh, roughly how often, and whether slots below the fold refresh on the same cadence as in-view slots.",
+                "Cross-check the slots that refresh against the inventory the publisher declared as refreshing in Google Ad Manager."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open DevTools, go to the 'Network' tab, and filter for requests to 'securepubads.g.doubleclick.net' to see GPT ad requests.",
+                "Leave the page idle and watch whether new ad requests fire on a timer, then measure the interval between successive requests for the same slot.",
+                "Scroll a refreshing slot out of view and check whether it keeps issuing requests, which would show refresh is not gated on viewability.",
+                "In the 'Sources' tab, search the page code for 'refresh(', 'setInterval', and 'impressionViewable' to see how the refresh trigger is built."
+              ]
+            },
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Inventory', then the inventory or ad unit rules, and review the refresh declaration for the units that reload on the page.",
+                "Record the declared refresh trigger type and the declared minimum interval for each refreshing unit.",
+                "Compare the declared trigger and interval against the cadence observed in the browser, and note any unit that refreshes without a declaration or faster than declared."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per refreshing slot, the trigger (timer versus viewability gated), the measured interval between refreshes, and whether the inventory is declared as refreshing in Google Ad Manager with a matching trigger and interval. A setup where refresh fires only while the slot is in view, at or above the declared minimum interval, and matches the Google Ad Manager declaration passes. A setup where refresh fires on a blind timer, at an interval shorter than thirty seconds or shorter than declared, or on inventory not declared as refreshing is a fail recorded with the slots and intervals affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the refresh trigger, the measured interval, and the Google Ad Manager refresh declaration for each refreshing slot above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} refreshes ad slots on a blind timer rather than gating refresh on viewability and a sensible minimum interval. Refresh on a fixed timer reloads ads whether or not the slot is in view, which counts impressions a user never sees and can fire faster than Google Ad Manager (GAM) refresh policy allows, breaking viewability and risking a policy violation. {{voice_recommend}} gating refresh on the impressionViewable event so a slot reloads only while seen, holding the interval at or above the thirty-second minimum that Google Ad Manager sets for time-based and event-driven triggers, and declaring the refreshing inventory so the page behavior matches the declaration. After the change, watch the ad requests in the browser to confirm refresh fires only on in-view slots at the declared cadence."
+      }
+    },
+    {
+      "id": "google-publisher-tag-ad-refresh-correlator-and-targeting-mishandled-on-reload",
+      "title": "Targeting and the correlator are mishandled on the refreshed request",
+      "category": "delivery",
+      "subcategory": "ad_refresh",
+      "impact_score": 3,
+      "impact_rationale": "When a slot refreshes, the reloaded request inherits whatever targeting the slot was last set to and keeps the same correlator as the original page view unless the publisher changes it. Stale targeting can send the refreshed request with key-values that no longer match the page state, and a shared correlator can cause Google Ad Manager to treat the refresh as part of the same request set, which affects how the impression is counted and competed, so the reloaded request can be targeted and counted differently from what the publisher intends.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "yield",
+        "ad-experience"
+      ],
+      "educate": {
+        "base": "A refresh through the Google Publisher Tag (GPT) is not a fresh page load. When refresh() reloads a slot, two pieces of state carry over from the original request unless the publisher deliberately changes them, and both decide how the refreshed impression is targeted and counted.<br><br>The first is targeting. A slot keeps whatever key-values were last applied to it, so a refreshed request goes out with the targeting the slot held at the moment refresh() ran. If the page state has moved on, for example the user has navigated within a single-page section or a content module has changed, the refreshed request can carry key-values that no longer describe what is on screen. Refresh is the right moment to clear and reset slot-level targeting so the reloaded request reflects the current page state rather than a stale snapshot.<br><br>The second is the correlator. GPT sends a correlator value that is the same across every ad request from one page view and unique across page views, which Google Ad Manager (GAM) uses to group the requests of a single page view together for competition and counting. A refresh that keeps the original correlator tells Google Ad Manager the reloaded request belongs to the same page view as the first one. The GPT PubAdsService exposes updateCorrelator(), which changes the correlator to start a new page view, so a publisher can decide whether a given refresh should be counted as part of the original page view or as a new one. Calling refresh() without considering the correlator leaves that decision to the default rather than to the publisher's intent.<br><br>A few signs point to targeting or the correlator being mishandled on refresh:<ul><li>refresh() is called without resetting slot-level targeting, so reloaded requests carry the key-values from page load</li><li>Single-page navigation changes the content but the refreshed ad request still sends the old key-values</li><li>updateCorrelator() is never called even where the publisher intends each refresh to count as a new page view</li><li>Reporting shows refreshed impressions grouped or competed in a way the publisher did not intend</li></ul>You may want to confirm that each refresh sets the targeting the publisher intends for the reloaded request and handles the correlator deliberately. One approach is to inspect the refreshed ad request in the browser, read the key-values and correlator it sends, and compare them against what the page state and the publisher's intent call for.",
+        "site_type_overlays": {
+          "publishing": "On a media site running the Google Publisher Tag, a long article or a live blog can change context as the reader moves through it, so a refreshed slot should send targeting that matches the section in view rather than the key-values set at page load. You may want to reset slot-level targeting on each refresh and decide, per placement, whether the refresh should call updateCorrelator() to count as a new page view.",
+          "ecommerce": "On a commerce-content site running the Google Publisher Tag, a shopper moving between product views within a single page can leave a refreshed slot carrying targeting for the product they have left. You may want to reset the slot's key-values to the current product on refresh and handle the correlator deliberately so the reloaded request is targeted and counted as the publisher intends."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag",
+            "source_title": "GPT API reference (refresh and updateCorrelator)",
+            "source_url": "https://developers.google.com/publisher-tag/reference"
+          },
+          {
+            "source_type": "Google Publisher Tag",
+            "source_title": "Refresh ad slots",
+            "source_url": "https://developers.google.com/publisher-tag/samples/refresh"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect a refreshed ad request in the browser, read the targeting key-values and the correlator it sends, and compare them against the page state and the publisher's intent for how the refresh should be counted.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open DevTools, go to the 'Network' tab, and filter for requests to 'securepubads.g.doubleclick.net'.",
+                "Trigger a refresh on a slot, open the reloaded request, and read its query parameters, noting the targeting key-values (the 'prev_scp' or slot-level key-values) and the 'cookie' and 'correlator' values.",
+                "Compare the correlator on the refreshed request against the correlator on the original page-load request to see whether updateCorrelator() ran.",
+                "In the 'Sources' tab, search the page code for 'clearTargeting', 'setTargeting', and 'updateCorrelator' to see how targeting and the correlator are handled on refresh."
+              ]
+            },
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the page with '?googfc' or the googfc bookmarklet to launch the Google Publisher Console.",
+                "Open the slot detail for a refreshing slot and review the targeting key-values applied to it before and after a refresh.",
+                "Note whether the key-values on the refreshed slot match the current page state or carry stale values from page load."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per refreshing slot, whether slot-level targeting is reset to the current page state on refresh and whether the correlator is handled deliberately (left intact to count as the same page view or changed with updateCorrelator() to count as a new one) in line with the publisher's intent. A setup where refreshed requests carry targeting that matches the page state and a correlator handled to match intent passes. A setup where refreshed requests send stale targeting, or where the correlator is left to the default against the publisher's intent, is a fail recorded with the slots and the mismatch found.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether targeting is reset and how the correlator is handled on each refreshed request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} reloads ad slots without resetting targeting and without handling the correlator deliberately, so refreshed requests can carry stale key-values and inherit the original page view's correlator. A reloaded request keeps the targeting the slot last held and the same correlator as the first request unless the page changes them, which can target the refresh against outdated page state and group it with the original page view in Google Ad Manager (GAM) against the publisher's intent. {{voice_recommend}} resetting slot-level targeting on each refresh so the reloaded request reflects the current page state, and calling updateCorrelator() where a refresh should count as a new page view, in the Google Publisher Tag (GPT) refresh logic. After the change, inspect a refreshed request in the browser to confirm the key-values and correlator match what the page state and the counting intent call for."
+      }
+    }
+  ]
+}

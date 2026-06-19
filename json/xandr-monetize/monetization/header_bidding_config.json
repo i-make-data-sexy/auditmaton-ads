@@ -1,0 +1,140 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Header bidding decides how many demand sources compete for each impression and how long the page waits for them, so its configuration sits at the point where fill rate, the value of each impression, and page speed all meet. A timeout set too short cuts off bids that would have cleared, and one set too long slows the page and risks losing the impression. A bidder list grown by accumulation rather than review adds latency for demand that no longer earns its place. The check is a review of settings the publisher already has in Microsoft Monetize and its wrapper, so it costs reading time rather than rebuild time, and each finding points to a concrete configuration the publisher can adjust and measure.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Microsoft Monetize (formerly Xandr Monetize) is Prebid-compatible, so a publisher running header bidding through it configures the same auction mechanics Prebid governs. Two of those mechanics carry most of the trade between revenue and page experience. The first is the auction timeout, which sets how long the page waits for bids before it calls the ad server. The second is the demand connection list and where each bidder runs, client-side in the browser or server-side. This subcategory reviews whether those two settings reflect deliberate, measured choices rather than defaults left in place or a bidder list that grew without review.",
+  "audit_checks": [
+    {
+      "id": "xandr-monetize-header-bidding-config-timeout-not-tuned",
+      "title": "The auction timeout is not tuned to balance fill against latency",
+      "category": "monetization",
+      "subcategory": "header_bidding_config",
+      "impact_score": 3,
+      "impact_rationale": "The auction timeout sets how long the page waits for bids before it calls the ad server. Set it too short and bids that would have cleared arrive too late to count, lowering fill and revenue. Set it too long and the page slows, which hurts page experience and can lose the impression entirely. A timeout left at a default or copied from another setup without measurement sits at neither balance point on purpose.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "In header bidding, the auction timeout is the window the page holds open for demand sources to respond with a bid before it stops waiting and calls the ad server. Microsoft Monetize (formerly Xandr Monetize) runs on a Prebid-compatible wrapper, so the timeout works the way Prebid documents it. The page sets a value in milliseconds, collects whatever bids arrive inside that window, and passes the winner to the ad server when the window closes or every bidder has answered, whichever comes first.<br><br>The setting is a balance, not a maximum. A timeout set short cuts the auction off early, so a bidder whose response would have cleared but arrived a moment late never enters the auction, and that lost bid lowers both fill and the price the impression clears at. A timeout set long keeps the page waiting, which delays the ad and the surrounding content, hurts the page experience, and on a reader who scrolls or leaves can lose the impression before it ever renders. The right value sits between those failures, and it depends on the publisher's bidders, audience geography, and device mix rather than a single number that fits everyone.<br><br>Prebid's guidance frames the auction timeout as a value the publisher determines by weighing these factors rather than a fixed recommendation, and it notes that a server-side timeout must be set lower than the page-level auction timeout so server bids return in time to count. A common failure is a timeout copied from another property, accepted as a wrapper default, or set once and never revisited against bid-response timing data.<br><br>A few signs point to a timeout that was set rather than tuned:<ul><li>The auction timeout matches a generic default or a value carried over from a different site, with no record of why it fits this inventory</li><li>No bid-response timing data has been reviewed to see what share of bids arrive inside the current window versus just outside it</li><li>A server-side timeout, where server-side demand is in use, is not set below the page-level auction timeout, so server bids can arrive too late to count</li></ul>You may want to confirm the timeout was chosen against this property's own bid-timing data. One approach is to read the distribution of bid response times, then set the timeout where it captures the bids worth waiting for without holding the page open for stragglers.",
+        "site_type_overlays": {
+          "publishing": "On a media site, readers often arrive from a slower mobile connection and scroll quickly, so a timeout held open too long can lose the impression before the ad renders. You may want to read bid-response timing split by device and connection, then consider a timeout that fits the mobile audience rather than one tuned for a faster desktop visit.",
+          "ecommerce": "On a commerce-content site, product and category pages already carry weight from images and scripts, so a long auction timeout adds to a page that is slow before the ad call. You may want to weigh the timeout against the page's existing load time so the auction does not push an already heavy commercial page past the point where the shopper waits."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Timeouts",
+            "source_url": "https://docs.prebid.org/features/timeouts.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Analyze Header Bidding Setup",
+            "source_url": "https://docs.prebid.org/overview/optimal-header-bidding-setup.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the configured auction timeout, any server-side timeout in use, and whether bid-response timing data was read before the value was set.",
+        "tools": {
+          "free": {
+            "prebid_inspection": {
+              "label": "Prebid auction inspection",
+              "steps": [
+                "Open the page in a browser and inspect the Prebid configuration to read the configured auction timeout in milliseconds.",
+                "Where server-side demand is in use, find the server-side timeout and confirm it is set below the page-level auction timeout.",
+                "Use a header-bidding analysis tool to record bid response times across the active bidders and note what share of bids arrive inside the current timeout versus just outside it.",
+                "Ask the publisher how the timeout value was chosen and whether any timing data was reviewed, and record the answer."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the configured auction timeout, any server-side timeout, and whether bid-response timing data was reviewed before the value was set. A timeout chosen against this property's own timing data, with any server-side timeout set below the page-level timeout, passes. A timeout matching a generic default or carried over with no timing review, or a server-side timeout set at or above the page-level timeout, is a fail recorded with the values found.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the configured auction timeout, any server-side timeout, and whether timing data was reviewed above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs an auction timeout that was set rather than tuned to this property's own bid-response timing. The timeout sets how long the page waits for bids before it calls the ad server, so a value too short drops bids that would have cleared and a value too long slows the page and risks losing the impression. {{voice_recommend}} reading the distribution of bid response times across the active bidders, then setting the timeout where it captures the bids worth waiting for without holding the page open for stragglers, and confirming any server-side timeout sits below the page-level timeout so server bids return in time to count. After the change, recheck fill rate, average price, and page load to confirm the timeout fits this inventory."
+      }
+    },
+    {
+      "id": "xandr-monetize-header-bidding-config-bidders-not-justified",
+      "title": "Enabled bidders and their client-side or server-side placement are not justified",
+      "category": "monetization",
+      "subcategory": "header_bidding_config",
+      "impact_score": 3,
+      "impact_rationale": "Each enabled demand connection adds a request to the auction, and client-side bidders each add a call from the browser, which adds latency. A bidder list that grew by accumulation can carry demand that rarely wins yet still slows every auction. Placing bidders client-side when they could run server-side keeps that load on the browser. Neither is catastrophic, but both trade page speed and clean competition for demand that no longer earns its place.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "A header-bidding setup connects a publisher to demand sources that compete for each impression. Microsoft Monetize (formerly Xandr Monetize) is Prebid-compatible, so the same rule of thumb Prebid documents applies. Each bidder added to the auction brings demand, but it also brings a request, and the requests are not free. A client-side bidder runs in the browser and adds a network call from the reader's device on every auction. A server-side bidder routes through a server, so the browser makes one call that fans out to many bidders behind it, which keeps the load off the device.<br><br>Two questions decide whether the bidder list is healthy. The first is whether each enabled bidder earns its place. A list that grew over time, with partners added during tests or onboarded and never removed, can carry demand that rarely wins yet still adds a request and latency to every auction. Prebid's guidance is to aim for a small set of client-side partners and to review them on results, removing the ones that do not contribute. The second question is placement. Prebid lets a publisher run bidders client-side, server-side, or a mix, and moving low-contributing or numerous bidders to the server side lightens the browser because the device makes one call instead of many.<br><br>The audit question is not how many bidders is correct in the abstract since that depends on the inventory and the demand available. The question is whether the current list and its placement were chosen deliberately and reviewed against results, or whether the list accumulated and every bidder defaults to client-side regardless of how much it adds.<br><br>A few signs point to a bidder list and placement that were not reviewed:<ul><li>Bidders were added over time with no record of removing the ones that rarely win</li><li>Every bidder runs client-side, with no server-side placement considered even where the browser is carrying many calls</li><li>No win-rate or contribution data has been read per bidder to see which connections justify the request they add</li></ul>You may want to confirm the bidder list and placement reflect a deliberate, reviewed choice. One approach is to read win rate and revenue contribution per bidder, drop the connections that add latency without demand, and weigh moving numerous or low-contributing bidders to the server side to lighten the browser.",
+        "site_type_overlays": {
+          "publishing": "On a media site with many ad units per page, every client-side bidder multiplies across the slots, so a long bidder list can stack a heavy set of calls on each page load. You may want to read contribution per bidder and consider moving the lower-contributing connections server-side so the reader's browser carries fewer calls across a page dense with ad units.",
+          "ecommerce": "On a commerce-content site, the commercial pages already carry weight, so client-side bidders that rarely win add latency to a page where speed affects the path to purchase. You may want to weigh the bidder list against page load on those pages specifically and move low-contributing demand server-side rather than leaving every connection in the browser."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Introduction to Header Bidding",
+            "source_url": "https://docs.prebid.org/overview/intro-to-header-bidding.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Use Case: Prebid Server with Prebid.js",
+            "source_url": "https://docs.prebid.org/prebid-server/use-cases/pbs-pbjs.html"
+          }
+        ],
+        "learn_more_note": "Microsoft Monetize's detailed configuration documentation for enabling demand connections and setting their placement is in the Microsoft Advertising partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the enabled demand connections, whether each is placed client-side or server-side, and whether win-rate or contribution data was read to justify the list.",
+        "tools": {
+          "free": {
+            "prebid_inspection": {
+              "label": "Prebid auction inspection",
+              "steps": [
+                "Open the page in a browser and inspect the Prebid configuration to list the enabled bidders and note which run client-side and which route through a server.",
+                "Count the client-side calls the browser makes on a single auction to see how much the current list loads the device.",
+                "Use a header-bidding analysis tool or the Monetize reporting to record win rate and revenue contribution per bidder over a recent period.",
+                "Note any bidder that rarely wins yet still adds a client-side call, and ask the publisher how the list and the placement of each bidder were chosen."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the enabled bidders, their client-side or server-side placement, and the win rate or contribution for each. A list where bidders are reviewed on results, low-contributing connections are removed or moved server-side, and placement is a deliberate choice passes. A list that accumulated with no contribution review, or one where every bidder runs client-side regardless of how much it adds, is a fail recorded with the bidders and placement found.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the enabled bidders, their placement, and the contribution for each above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs a header-bidding demand list and bidder placement that were not reviewed against results. Each enabled bidder adds a request to the auction, and each client-side bidder adds a call from the reader's browser, so a list that grew by accumulation can carry demand that rarely wins yet still slows every auction. {{voice_recommend}} reading win rate and revenue contribution per bidder, dropping the connections that add latency without demand, and weighing moving numerous or low-contributing bidders to the server side so the browser makes one call instead of many. After the change, recheck fill rate, average price, and page load to confirm the remaining demand earns the load it adds."
+      }
+    }
+  ]
+}

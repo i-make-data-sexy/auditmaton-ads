@@ -1,0 +1,161 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Auction and refresh settings decide how much of the available demand reaches each impression and whether the impressions a publisher counts are worth counting. A first-price auction with too few demand partners, a timeout that cuts bids off early, or a refresh rule that recycles a slot before anyone saw it all trade yield away in ways that the headline revenue number hides. The check is a review of auction and refresh configuration a publisher already has in Microsoft Monetize and its header-bidding wrapper, so it costs reading time rather than rebuild time, and the finding points to a concrete setting the publisher can change and measure.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Yield optimization on Microsoft Monetize is about getting the most value from each impression the auction clears, not just filling the slot. In a first-price auction the winning bid pays what it bid, so the price depends heavily on how much demand competes and how long the auction waits for it. This subcategory looks at the auction and refresh settings that govern that competition, including how many demand partners are called, how traffic shaping and timeouts limit who participates, and how ad refresh affects both yield and viewability. These checks confirm that the auction is collecting the demand it can and that refresh raises revenue without manufacturing impressions no one sees.",
+  "audit_checks": [
+    {
+      "id": "xandr-monetize-yield-optimization-auction-demand-throttled",
+      "title": "First-price auction dynamics and traffic shaping are not reviewed against lost demand",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "In a first-price auction the clearing price tracks how much demand competes for the impression, so a setup that calls too few demand partners, times the auction out early, or shapes traffic to drop bidders can suppress the price without the publisher seeing the bids that never arrived. The lost demand does not appear as an error, only as a lower average price, which is why an unreviewed auction configuration can leave yield on the table without surfacing a problem the publisher would catch.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Microsoft Monetize (formerly Xandr Monetize, built on the AppNexus platform) runs a first-price auction, which means the winning buyer pays exactly what it bid rather than one cent above the runner-up. In that model the clearing price depends directly on how much demand competes for the impression. The more qualified bidders that see the request and respond in time, the more likely the top bid sits high. Fewer bidders, or bidders that never got the chance to respond, pull the clearing price down toward whatever the remaining demand will pay.<br><br>Several settings decide how much demand reaches each auction. The number of demand partners called through the header-bidding wrapper sets the size of the field. The auction timeout sets how long the page waits for bids before it gives up and calls the ad server, so a short timeout drops slower bidders even when they would have bid high. Traffic shaping and bid throttling reduce the number of requests sent to a given partner, which lowers infrastructure load and can improve a partner's bid rate, but pushed too far it filters out demand that would have won. Each of these is a reasonable control on its own, and each can suppress the clearing price when it is set without watching the result.<br><br>Prebid's own guidance from A/B testing frames the central trade. More bidders generate higher revenue, but only if the page waits long enough for those bids to return, and revenue falls again once the wait grows long enough that users abandon the page. The right number of partners and the right timeout are an empirical result for a given site, not a universal rule, which means the configuration is worth measuring rather than inheriting.<br><br>A few signs point to auction dynamics that suppress demand rather than collect it:<ul><li>The demand partner list has not been reviewed against bid-rate and win-rate reporting, so partners that rarely win still consume timeout while strong partners may be missing</li><li>The auction timeout was set once and never tested, so it may cut off bidders who would have cleared high</li><li>Traffic shaping or throttling drops requests to a partner without a before-and-after read on that partner's contribution to revenue</li></ul>You may want to confirm that the auction is collecting the demand it can rather than shaping it away. One approach is to read each demand partner's bid rate, win rate, and average winning price, then adjust the partner list and timeout against that evidence rather than against load alone.",
+        "site_type_overlays": {
+          "publishing": "On a media site, traffic spikes around breaking news or a viral story raise infrastructure load fast, which is when traffic shaping and throttling are most tempting. You may want to confirm that shaping applied during peaks is not dropping demand on the high-traffic, high-value moments, and that the timeout still gives strong partners time to bid when the page is under load.",
+          "ecommerce": "On a commerce-content site, product and category pages reach a higher-intent audience that buyers bid up, so the cost of throttling demand on those pages is higher than on editorial pages. You may want to confirm that the demand partner list and timeout are tuned for the commercial inventory specifically rather than shaped down to a setting that suits the lower-value editorial pages."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Optimize header bidding setup (how many bidders)",
+            "source_url": "https://docs.prebid.org/overview/how-many-bidders-for-header-bidding.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Timeouts for Header Bidding",
+            "source_url": "https://docs.prebid.org/features/timeouts.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Publisher Sustainability Best Practices for Header Bidding",
+            "source_url": "https://docs.prebid.org/support/sustainability-publishers.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the demand partners called in the auction, the auction timeout, and any traffic shaping or throttling, then read each partner's bid rate, win rate, and average winning price to see whether the configuration is collecting demand or filtering it.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Header-bidding wrapper configuration",
+              "steps": [
+                "Open the header-bidding wrapper configuration and list every demand partner called in the auction.",
+                "Record the auction timeout value and note whether it was set deliberately or carried over as a default.",
+                "Note any traffic shaping, bid throttling, or dynamic bidder-selection rule that reduces requests to a partner, and record which partners it affects.",
+                "Ask the publisher when the partner list and timeout were last reviewed, and record what the review changed and when."
+              ]
+            },
+            "monetize_reporting": {
+              "label": "Microsoft Monetize reporting",
+              "steps": [
+                "Build a report broken out by demand partner, with bid rate, win rate, average winning price, and revenue.",
+                "Compare partners that win often and clear high against partners that consume timeout but rarely win.",
+                "Note any partner that has been throttled or shaped down, and compare its contribution before and after the change if the data exists.",
+                "Record whether the reporting supports the current partner list and timeout or points to demand the auction is leaving out."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the demand partners called, the auction timeout, and any traffic shaping or throttling, alongside each partner's bid rate, win rate, and average winning price. A configuration where the partner list and timeout are backed by that reporting, with weak partners trimmed and strong partners given time to bid, passes. A configuration where partners are called or throttled without a read on their contribution, or where the timeout was never tested, is a fail recorded with the partners and settings affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the demand partners, the auction timeout, and each partner's bid and win rates above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the first-price auction on {{site_name}} runs with a demand partner list, auction timeout, and traffic-shaping rules that have not been reviewed against bid-rate and win-rate reporting. In a first-price auction the clearing price tracks how much demand competes, so a short timeout, a thin partner list, or aggressive throttling can suppress the price by dropping bids that would have won, and the lost demand shows up only as a lower average price rather than as an error. {{voice_recommend}} reading each demand partner's bid rate, win rate, and average winning price, then trimming partners that consume timeout without winning and giving strong partners enough time to bid before settling the auction. After the change, recheck average winning price and fill rate to confirm the auction is collecting the demand it can."
+      }
+    },
+    {
+      "id": "xandr-monetize-yield-optimization-refresh-erodes-viewability",
+      "title": "Ad refresh inflates impressions instead of protecting yield and viewability",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "Ad refresh can raise revenue when it serves a fresh, competed auction to an audience still on the page, but a refresh rule keyed to a timer rather than viewability manufactures impressions no one saw. Those low-value impressions dilute the publisher's viewability rate and average price, and buyers who measure viewable CPM eventually pay less for inventory that refreshes below the fold, so a careless refresh setting trades long-term price for short-term impression count.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Ad refresh replaces the creative in a slot with a new one while the user stays on the page, which gives the publisher another impression and another auction from the same pageview. Done well it raises revenue from engaged sessions. Done carelessly it manufactures impressions that no real person saw, which costs more in the long run than the extra impressions are worth.<br><br>The dividing line is what triggers the refresh. A refresh keyed to a fixed timer fires whether or not the slot is in view, so a unit that scrolled off-screen, or a tab the user left open in the background, keeps generating impressions against an empty audience. A refresh keyed to viewability, by contrast, only counts the clock while the slot is actually on screen and resets when the user scrolls away, so each refreshed impression had a chance to be seen. Prebid's documentation also warns about a mechanical trap. When a slot is refreshed by calling the ad server's refresh directly without first asking the wrapper for updated bids and clearing the previous header-bidding targeting, the same bid is re-sent and re-rendered, so the refreshed impression carries a stale auction rather than a fresh one.<br><br>The cost of timer-based refresh is not just wasted impressions. It dilutes the publisher's viewability rate because the unseen refreshes count in the denominator. It pulls down the average price because impressions no one saw clear low. And buyers who optimize to viewable CPM read that diluted rate and bid the inventory down, so inventory that refreshes below the fold earns less per impression over time even as the impression count rises. A refresh strategy that protects yield ties the refresh to viewability, sets a sensible minimum interval, requests a fresh auction on each refresh, and excludes slots that are out of view.<br><br>A few signs point to refresh that inflates impressions rather than protecting yield:<ul><li>Refresh fires on a fixed timer with no viewability condition, so out-of-view and backgrounded slots keep refreshing</li><li>The refresh calls the ad server directly without requesting fresh bids and clearing prior targeting, so the same bid re-renders</li><li>Reporting shows a viewability rate that falls or an average viewable CPM that lags as refreshed impressions climb</li></ul>You may want to confirm that refresh is tied to viewability and serves a fresh auction each time rather than firing on a timer. One approach is to read the viewability rate and average price on refreshed slots against non-refreshed slots, then move any timer-based refresh onto a viewability trigger with a minimum interval.",
+        "site_type_overlays": {
+          "publishing": "On a media site, long articles and infinite-scroll feeds are where refresh earns the most because the reader stays on the page and scrolls past several slots. You may want to confirm that refresh on those units fires on viewability rather than a timer, so a slot the reader has already scrolled past stops refreshing instead of generating impressions against an empty viewport.",
+          "ecommerce": "On a commerce-content site, product and category pages hold a higher-intent audience whose viewable impressions buyers bid up, so diluting viewability with timer-based refresh costs more here than on editorial pages. You may want to keep refresh on the commercial inventory tied tightly to viewability and a sensible interval, so the higher viewable CPM those pages can earn is not pulled down by unseen refreshes."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Individual Ad Unit Refresh / Infinite Scroll for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/examples/adunit-refresh.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Module - Bid Viewability for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/bidViewable.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review how ad refresh is triggered on each refreshing slot, whether it requests a fresh auction, and how the refreshed slots compare to non-refreshed slots on viewability and average price.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Header-bidding wrapper and refresh configuration",
+              "steps": [
+                "List every ad slot that refreshes and record what triggers each one, whether a fixed timer or a viewability condition.",
+                "For each refreshing slot, confirm whether the refresh requests fresh bids from the wrapper and clears prior header-bidding targeting, or calls the ad server directly.",
+                "Record the minimum refresh interval and any condition that pauses refresh when the slot is out of view or the tab is backgrounded.",
+                "Note any slot that refreshes on a timer with no viewability condition, which is where unseen impressions accumulate."
+              ]
+            },
+            "monetize_reporting": {
+              "label": "Microsoft Monetize reporting",
+              "steps": [
+                "Build a report that separates refreshed impressions from initial impressions, with viewability rate, average price, and revenue for each.",
+                "Compare the viewability rate and average price on refreshing slots against comparable non-refreshing slots.",
+                "Note any case where refreshed impressions climb while the viewability rate or average viewable CPM falls, which points to refresh that inflates count at the cost of value."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per refreshing slot, what triggers the refresh, whether it requests a fresh auction, and how its viewability rate and average price compare to non-refreshed slots. A refresh tied to viewability, with a sensible minimum interval and a fresh auction on each refresh, that holds its viewability rate and price passes. Timer-based refresh with no viewability condition, refresh that re-renders a stale bid, or refresh whose viewability rate and average price lag the non-refreshed slots is a fail recorded with the slots affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the refresh trigger, whether it requests a fresh auction, and the viewability rate and price by slot above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that ad refresh on {{site_name}} fires on a fixed timer without a viewability condition, so slots that scrolled out of view or sit in a backgrounded tab keep generating impressions no one saw. Timer-based refresh inflates the impression count, but the unseen impressions dilute the viewability rate and average price, and buyers who optimize to viewable CPM bid the inventory down over time, so the short-term count comes at the cost of long-term price. {{voice_recommend}} moving refresh onto a viewability trigger with a sensible minimum interval, requesting a fresh auction on each refresh, and pausing refresh when the slot is out of view, then comparing the viewability rate and average price on refreshed slots against non-refreshed slots. After the change, recheck whether the refreshed inventory holds its viewability and price rather than trading them for raw impression count."
+      }
+    }
+  ]
+}

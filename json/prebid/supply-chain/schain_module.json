@@ -1,0 +1,233 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://docs.prebid.org/dev-docs/modules/schain.html",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The SupplyChain object is how a buyer sees every party that touched a bid request before it reached them, and the publisher's own node is the first link in that chain. A node that is missing, incomplete, or carries a wrong seller ID can cause demand-side platforms to discount or filter the bid since an unverifiable chain reads as a transparency risk. The check is a review of the Prebid configuration the publisher already runs, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration value the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "The SupplyChain object, known as schain, travels with every bid request and lists each party that sold or resold the impression on its way to the buyer. Prebid.js can attach this object so that a publisher declares its own place in the chain, and a buyer can match that declaration against the sellers.json files of the parties involved. This subcategory is about whether Prebid.js is passing a correct, complete schain for the publisher's inventory, not about the downstream resellers' own nodes, which they declare themselves. These checks confirm that the schain module is configured, that the publisher's node carries accurate identifiers, and that the chain reaches the bidders that read it.",
+  "audit_checks": [
+    {
+      "id": "prebid-schain-module-not-configured",
+      "title": "The schain module is not configured or passes an incomplete chain",
+      "category": "supply-chain",
+      "subcategory": "schain_module",
+      "impact_score": 3,
+      "impact_rationale": "When Prebid.js sends bid requests without a SupplyChain object, or with one flagged incomplete, buyers cannot trace the inventory back to a verified seller. Demand-side platforms increasingly discount or filter bids on an unverifiable chain, so a missing or incomplete schain can suppress demand and clearing price across the publisher's open-auction inventory.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "The SupplyChain object, known as schain, is an OpenRTB structure that rides along with a bid request and names every party that sold or resold the impression before it reached the buyer. The Interactive Advertising Bureau (IAB) Tech Lab defined it alongside sellers.json so that a buyer can see the full path of a bid and check each party against the sellers.json file it publishes. A publisher that runs Prebid.js sits at the start of that path, so the publisher's wrapper is responsible for declaring the first node in the chain.<br><br>In Prebid.js, the schain module attaches this object. The publisher supplies a config with a version, a 'complete' flag, and an array of 'nodes', where each node carries the seller's advertising system identifier ('asi'), the seller's account identifier ('sid'), and a flag ('hp') for whether the node handled payment. The 'complete' flag set to 1 tells the buyer that every party in the chain is represented. When the module is not built into the Prebid package or no config is supplied, requests go out with no schain at all, and the buyer sees inventory it cannot trace to a verified source.<br><br>An incomplete chain carries its own cost. A 'complete' flag set to 0, or a chain that names some parties but not others, signals to the buyer that the path is not fully documented. Buyers treat an unverifiable or partial chain as a transparency risk, and demand-side platforms have moved toward discounting or filtering bids that lack a clean, complete SupplyChain object. The result is lower demand and a lower clearing price on inventory that would otherwise have competed normally.<br><br>As of Prebid.js version 10, the schain module no longer attaches the object on its own. Instead, the publisher provides the schain as first-party data in 'ortb2.source.ext.schain', and the module copies any older config into that location. A publisher on version 10 or later should confirm the object is present in the first-party data path rather than relying on the older module-only setup.<br><br>A few signs point to a missing or incomplete schain:<ul><li>The schain module is not in the Prebid.js build and no schain appears in the bid requests</li><li>A schain is present but its 'complete' flag is set to 0 without a documented reason</li><li>The publisher cannot say which Prebid version is running, so it is unclear whether the chain lives in the module config or in 'ortb2.source.ext.schain'</li></ul>You may want to confirm that Prebid.js sends a complete SupplyChain object on every open-auction request. One approach is to inspect the live configuration in the browser and read the outgoing bid requests to see whether the schain is present and marked complete.",
+        "site_type_overlays": {
+          "publishing": "On a media site that sells most of its inventory through the open auction, the schain reaches a wide set of demand-side platforms that each apply their own transparency filters. You may want to confirm the chain is complete across the high-volume placements first since those carry the most open-auction demand and feel the largest revenue effect from a chain a buyer cannot verify.",
+          "ecommerce": "On a commerce-content site, the higher-intent product and category inventory often draws premium buyers who are stricter about supply-chain transparency. You may want to confirm the schain is present and complete on the commercial placements specifically since a buyer filtering on an unverifiable chain there removes demand from the inventory that clears highest."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Supply Chain Object Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/schain.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json and the OpenRTB SupplyChain Object",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether the schain module is built into Prebid.js, read the live configuration to see the SupplyChain object, and check the outgoing bid requests for a present, complete chain.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console and Prebid debugging",
+              "steps": [
+                "Open a page that runs ads in the browser, open DevTools, and switch to the Console tab.",
+                "Run 'pbjs.getConfig()' and read the 'schain' settings, or on Prebid 10 and later read 'ortb2.source.ext.schain', to see whether a SupplyChain object is configured.",
+                "Inspect the configured 'nodes' array and confirm a node exists with the publisher's 'asi' and 'sid', and note the 'complete' flag value.",
+                "Run 'pbjs.getEvents()' or watch the Network tab for outgoing bid requests, and confirm the schain object appears on the requests and is marked complete."
+              ]
+            },
+            "prebid_debug": {
+              "label": "Prebid.js build inspection",
+              "steps": [
+                "Ask the publisher which modules are included in the Prebid.js build and whether 'schain' is among them, or read the build manifest if available.",
+                "Confirm the Prebid.js version since version 10 and later expect the chain in 'ortb2.source.ext.schain' rather than the module config alone.",
+                "Record whether the chain is supplied through the module config, through first-party data, or not at all."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a SupplyChain object is configured in Prebid.js, whether it appears on the outgoing bid requests, and whether its 'complete' flag is set to 1. A setup that sends a complete schain on every open-auction request passes. A setup with no schain configured, or one whose chain is marked incomplete or absent from the requests, is a fail recorded with the placements and Prebid version affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a complete SupplyChain object is configured and appears on the bid requests above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sends bid requests through Prebid.js without a complete SupplyChain object, so buyers cannot trace the inventory back to a verified seller. The Interactive Advertising Bureau (IAB) SupplyChain object lets a buyer see every party that sold or resold an impression, and demand-side platforms increasingly discount or filter bids when that chain is missing or marked incomplete, which suppresses demand and clearing price. {{voice_recommend}} enabling the schain module, or supplying the chain as first-party data in 'ortb2.source.ext.schain' on Prebid 10 and later, and setting the 'complete' flag to 1 so every open-auction request carries a full chain. After the change, read the outgoing bid requests to confirm the schain is present and complete."
+      }
+    },
+    {
+      "id": "prebid-schain-module-publisher-node-incorrect",
+      "title": "The publisher's own schain node carries an incorrect or incomplete seller identity",
+      "category": "supply-chain",
+      "subcategory": "schain_module",
+      "impact_score": 3,
+      "impact_rationale": "A buyer matches the publisher's node against the sellers.json file of the advertising system named in the node. When the 'asi' or 'sid' is wrong, or the node is missing required fields, the match fails and the buyer cannot confirm the seller, so the bid reads as an unverified chain and the inventory loses the demand a clean match would have drawn.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "A SupplyChain object is only useful to a buyer if the identifiers in it match the public records they point to. Each node names an advertising system through its 'asi', which is the domain of that system's sellers.json file, and a seller account through its 'sid', which is the identifier that system assigned to the publisher. When a buyer receives the bid, it looks up the 'asi' domain's sellers.json and checks that the 'sid' is listed there with a matching role. A node whose values do not line up with that record breaks the verification the chain exists to provide.<br><br>The publisher controls the node it declares in Prebid.js, so the accuracy of that node is the publisher's responsibility. The 'asi' has to be the exact domain of the relevant advertising system, the 'sid' has to be the seller account that system issued to this publisher, and the 'hp' flag has to reflect whether the node handled payment for the inventory. A typo in the 'sid', an 'asi' pointing at the wrong system, or a node that omits a required field all produce a chain a buyer cannot reconcile against sellers.json.<br><br>The fields are defined in the IAB OpenRTB SupplyChain Object specification, and Prebid.js validates the object before passing it to bidders. The module offers a 'strict' mode, where an invalid object is not passed to adapters at all, a 'relaxed' mode, where the object still passes but errors are raised, and an 'off' mode, where no validation runs. A publisher in 'relaxed' or 'off' mode can ship an invalid node without the wrapper catching it, so the values deserve a direct read rather than trust in the default.<br><br>A few signs point to a node that will not verify:<ul><li>The 'sid' in the node does not match the seller account listed for the publisher in the named system's sellers.json</li><li>The 'asi' is not the exact domain of the advertising system's sellers.json file, for example a marketing domain rather than the operational one</li><li>The schain validation mode is set to 'relaxed' or 'off', so an invalid node passes through without being flagged</li></ul>You may want to confirm that the publisher's node matches the sellers.json record it points to. One approach is to read the configured 'asi' and 'sid' in the live Prebid configuration, then open that system's sellers.json and confirm the seller account is listed with the role the node claims.",
+        "site_type_overlays": {
+          "publishing": "On a media site that works with several sell-side platforms, the publisher may hold a different seller account with each one, so the correct 'sid' depends on which system the node names. You may want to confirm each node's 'asi' and 'sid' against the matching sellers.json rather than assuming one account identifier carries across systems.",
+          "ecommerce": "On a commerce-content site, premium buyers on the high-intent inventory tend to enforce sellers.json matching strictly. You may want to verify the node identity with extra care on the product and category placements since a node that fails to match there removes the buyers who would otherwise pay the most for that inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Supply Chain Object Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/schain.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json and the OpenRTB SupplyChain Object",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the publisher's node in the live Prebid configuration, then check its 'asi' and 'sid' against the named system's sellers.json and confirm the validation mode.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console and Prebid debugging",
+              "steps": [
+                "Open a page that runs ads, open DevTools, and switch to the Console tab.",
+                "Run 'pbjs.getConfig()' and read the 'schain' nodes, or on Prebid 10 and later read 'ortb2.source.ext.schain', and record each node's 'asi', 'sid', and 'hp' values.",
+                "Note the validation mode set in the config since 'relaxed' or 'off' lets an invalid node pass through to adapters."
+              ]
+            },
+            "sellers_json": {
+              "label": "sellers.json cross-check",
+              "steps": [
+                "For each node, open the sellers.json file at the 'asi' domain, for example by visiting that domain's '/sellers.json' path.",
+                "Find the seller entry matching the node's 'sid' and confirm it exists and lists the publisher with the expected role, such as 'PUBLISHER' or 'INTERMEDIARY'.",
+                "Record any node whose 'sid' is not listed, whose 'asi' points at the wrong domain, or whose role does not match the 'hp' flag in the node."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each schain node's 'asi', 'sid', and 'hp' and the result of checking them against the named system's sellers.json. Nodes whose identifiers match a listed seller account with the expected role pass. A node whose 'sid' is absent from the sellers.json, whose 'asi' points at the wrong domain, or that omits a required field is a fail recorded with the system and identifier affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each node's 'asi' and 'sid' and the sellers.json match result above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the SupplyChain node {{site_name}} declares in Prebid.js does not reconcile against the sellers.json file it points to, so buyers cannot verify the seller behind the bid. A buyer matches the node's 'asi' and 'sid' against the named system's public sellers.json, and a wrong identifier or a missing field breaks that match, which leaves the inventory reading as an unverified chain and costs the demand a clean match would draw. {{voice_recommend}} correcting the node so the 'asi' is the exact sellers.json domain and the 'sid' is the seller account that system issued, then confirming the entry appears in that system's sellers.json with the expected role. After the correction, recheck the node against sellers.json to confirm it verifies."
+      }
+    },
+    {
+      "id": "prebid-schain-module-not-passed-to-all-bidders",
+      "title": "The schain is not passed to every bidder that supports it",
+      "category": "supply-chain",
+      "subcategory": "schain_module",
+      "impact_score": 2,
+      "impact_rationale": "Prebid.js can pass schain globally to all bidders or override it per bidder, and a partial setup can leave some adapters without the chain. A bidder that supports the SupplyChain object but does not receive it sends an untraceable request downstream, so the affected demand path loses the transparency the rest of the chain carries.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "Configuring a correct SupplyChain object is only half the work. The object also has to reach the bidders that read it. Prebid.js supports a global schain config, applied to every bidder through the standard configuration, and a bidder-specific config that overrides the global one for named adapters. The combination is useful when a managed-service provider needs a different node for some bidders, but it also creates a path to a partial setup, where a bidder-specific override exists for some adapters and the global config does not cover the rest.<br><br>The risk is a bidder that supports the SupplyChain object but never receives one. That adapter sends its request downstream without the chain, so the parties beyond it cannot trace the bid back to the publisher's verified node. The transparency the publisher built into the global config does not extend to that demand path, and a buyer reached through it sees the same unverifiable inventory that a missing schain would produce.<br><br>Whether a given bidder reads the schain depends on the adapter. Many Prebid.js bid adapters consume the SupplyChain object and forward it, while some do not yet support it. The audit question is whether every adapter that does support the object is actually receiving it, either from the global config or from a bidder-specific config set for it, rather than being skipped by an override that covers only part of the bidder list.<br><br>A few signs point to a chain that does not reach every bidder:<ul><li>Bidder-specific schain configs are set for some adapters while the global config is absent, so uncovered bidders get no chain</li><li>A bidder known to support the SupplyChain object sends outgoing requests with no schain present</li><li>The publisher cannot say which adapters receive the global config versus a bidder-specific override</li></ul>You may want to confirm that every schain-supporting bidder receives the object. One approach is to read both the global and the bidder-specific schain configuration, then inspect the outgoing requests per bidder to see which carry the chain and which do not.",
+        "site_type_overlays": {
+          "publishing": "On a media site running many bid adapters, the chance of a bidder being skipped grows with the length of the bidder list. You may want to read the schain coverage across the full set of adapters rather than a sample since a single uncovered high-volume bidder routes a meaningful share of requests downstream without the chain.",
+          "ecommerce": "On a commerce-content site, the bidders that pay most for the high-intent inventory are the ones whose coverage matters most. You may want to confirm those specific adapters receive the schain since a gap there sends the most valuable demand path downstream without the transparency the rest of the chain carries."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Supply Chain Object Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/schain.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "pbjs.setBidderConfig",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/setBidderConfig.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the global and bidder-specific schain configuration, then inspect the outgoing requests per bidder to confirm each schain-supporting adapter receives the object.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console and Prebid debugging",
+              "steps": [
+                "Open a page that runs ads, open DevTools, and switch to the Console tab.",
+                "Run 'pbjs.getConfig()' to read the global schain config, and check the bidder-specific configuration for any per-bidder schain override.",
+                "List the active bid adapters and note which are covered by the global config and which have a bidder-specific schain set.",
+                "Run 'pbjs.getEvents()' or watch the Network tab for the outgoing bid requests, and confirm the schain object is present on the requests for each schain-supporting bidder."
+              ]
+            },
+            "adapter_support": {
+              "label": "Adapter support reference",
+              "steps": [
+                "For each active bidder, check the Prebid.js bidder documentation to confirm whether the adapter supports the SupplyChain object.",
+                "Match the list of schain-supporting adapters against the requests that actually carry the chain.",
+                "Record any schain-supporting bidder whose outgoing requests lack the object."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per bidder, whether the adapter supports the SupplyChain object and whether the outgoing requests for it carry the chain. A setup where every schain-supporting adapter receives the object, through the global config or a bidder-specific config, passes. A setup where a schain-supporting bidder sends requests without the chain is a fail recorded with the adapters affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each bidder's schain support and whether its requests carry the chain above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not pass the SupplyChain object to every bidder that supports it, so part of the demand routed through Prebid.js travels downstream without a traceable chain. Prebid.js applies schain globally or per bidder, and a partial setup can leave a supporting adapter with no chain, which removes from that demand path the transparency the rest of the chain carries. {{voice_recommend}} confirming the global schain config reaches every adapter, adding a bidder-specific config where an override leaves a supporting bidder uncovered, and reading the outgoing requests per bidder to verify each carries the chain. After the change, recheck the per-bidder requests to confirm full coverage."
+      }
+    }
+  ]
+}

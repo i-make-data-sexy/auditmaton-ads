@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Buyer and bidder controls decide which demand sources can compete for a publisher's inventory, so they sit directly on the line between protecting the inventory and filling it. A blocklist that grew by reflex, or an allowlist that quietly narrowed the field, can cut off paying demand without anyone connecting the lost fill to the block that caused it. This check is a review of the seat and bidder rules a publisher already has in place, so it costs reading time rather than rebuild time, and the finding points to a specific block or allow decision the publisher can test against fill and revenue.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Seat and bidder controls decide which buyers and demand partners are allowed to compete for a publisher's impressions through OpenX. On a Prebid-compatible header-bidding setup, those controls live in two places at once. They live in the supply-side platform (SSP) account, where a publisher allows or blocks buyer seats, and they live in the header-bidding wrapper, where the publisher decides which bidders are called on each request. This subcategory is about whether those controls are maintained on purpose, so that the blocks remove demand the publisher meant to remove and the allowlists let in the demand the publisher meant to keep, rather than narrowing the field by accident and suppressing fill the publisher would have wanted.",
+  "audit_checks": [
+    {
+      "id": "openx-seat-controls-lists-not-maintained-intentionally",
+      "title": "Buyer and bidder lists are not maintained as a deliberate, reviewed set",
+      "category": "buyers",
+      "subcategory": "seat_controls",
+      "impact_score": 3,
+      "impact_rationale": "Buyer seat blocks and the set of bidders called on each request decide which demand can pay for an impression. When those lists accumulate over time without review, a publisher cannot say why each entry is there, so stale blocks and forgotten exclusions remove demand that no longer needs removing, and the lost fill is rarely traced back to the rule that caused it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "brand-safety"],
+      "educate": {
+        "base": "A publisher selling inventory through OpenX, a supply-side platform (SSP), controls which buyers can compete in two layers. The first layer is the SSP account itself, where a publisher allows or blocks specific buyer seats and demand-side platforms. The second layer is the header-bidding wrapper. OpenX runs Prebid-compatible header bidding, so the wrapper config decides which bidders are called on each ad request, and a bidder left out of the config never bids no matter what the SSP account allows.<br><br>Both layers tend to grow by addition. A buyer seat gets blocked after a single bad campaign and the block stays. A bidder gets dropped from the wrapper during a troubleshooting session and never gets added back. Over months, the combined set of blocks and exclusions becomes a record of past decisions that nobody has re-read against current conditions. The risk is not that any single block was wrong when it was made. The risk is that the list as a whole is no longer a deliberate set, so the publisher cannot say why each entry is there or whether the reason still holds.<br><br>The reason this matters for revenue is that every block and every excluded bidder removes a path that demand could have taken to the impression. A seat blocked for a reason that has since passed, or a bidder dropped and forgotten, quietly narrows the field of competition. Fewer bidders in the auction means lower pressure on the clearing price and, on some inventory, lower fill. Because the loss shows up as a slightly thinner auction rather than an error message, it rarely gets traced back to the rule that caused it.<br><br>A deliberate set is one a publisher has reviewed against a stated purpose. Brand-safety blocks exist because a buyer ran creative the publisher does not want on the site. Quality blocks exist because a demand source brought invalid or low-value traffic. Bidder selection in the wrapper reflects which partners actually deliver fill and revenue rather than which ones happened to be added first. The audit question is whether the current lists can be explained that way, entry by entry, or whether they are an accumulation that no one owns.<br><br>A few signs point to lists that are not maintained as a deliberate set:<ul><li>The publisher cannot say why a given buyer seat is blocked or when the block was last reviewed</li><li>The wrapper calls a set of bidders that does not match the demand partners the publisher believes are active, with bidders present that no longer deliver or absent that should be there</li><li>No record exists of who owns the lists or on what cadence they are reviewed</li></ul>You may want to confirm that the buyer seat blocks and the wrapper bidder set are a reviewed, explainable set rather than an accumulation. One approach is to read each block and each included or excluded bidder against a stated reason, and retire any entry whose reason no longer holds.",
+        "site_type_overlays": {
+          "publishing": "On a media site, brand-safety blocks often build up around sensitive editorial coverage, where a buyer's creative once clashed with the content. You may want to re-read those blocks against current demand because a seat blocked during one news cycle can keep paying demand off ordinary inventory long after the reason has passed.",
+          "ecommerce": "On a commerce-content site, blocks sometimes target competitor advertisers or off-brand creative near product and category pages. You may want to confirm those blocks still match a current policy since a competitor block set up for one campaign can outlive it and suppress demand on inventory where the conflict no longer applies."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "pbjs.setConfig user sync filterSettings (include or exclude bidders)",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/setConfig.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Activity Controls for bid adapter behavior",
+            "source_url": "https://docs.prebid.org/dev-docs/activity-controls.html"
+          }
+        ],
+        "learn_more_note": "OpenX's detailed configuration documentation for buyer seat allow and block controls in the SSP account is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the buyer seat blocks in the OpenX account and the bidder set in the header-bidding wrapper, and check whether each entry maps to a stated, current reason and a named owner.",
+        "tools": {
+          "free": {
+            "openx_account": {
+              "label": "OpenX account (SSP controls)",
+              "steps": [
+                "Open the buyer or seat management section of the OpenX account and list every buyer seat or demand source that is currently blocked or restricted.",
+                "For each block, record the stated reason, when it was set, and when it was last reviewed, asking the publisher where the record is not written down.",
+                "Note any block the publisher cannot explain or date, which marks an entry that is no longer a deliberate decision."
+              ]
+            },
+            "wrapper_config": {
+              "label": "Header-bidding wrapper config",
+              "steps": [
+                "Open the Prebid-compatible wrapper configuration and list the bidders called on each ad unit, along with any user-sync 'filterSettings' that include or exclude specific bidders.",
+                "Compare that bidder set against the demand partners the publisher believes are active, and flag any bidder present that no longer delivers or absent that should be there.",
+                "Record who owns the wrapper config and on what cadence the bidder set is reviewed, noting where no owner or cadence exists."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each blocked buyer seat and each included or excluded bidder alongside a stated reason, a review date, and a named owner. A setup where every entry maps to a current reason and someone owns the review on a defined cadence passes. A setup where entries cannot be explained or dated, or where no owner or review cadence exists, is a fail recorded with the specific blocks and bidders that lack a current justification.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each buyer seat block and each included or excluded bidder with its reason, review date, and owner above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the buyer seat blocks and the header-bidding bidder set for {{site_name}} are an accumulation rather than a reviewed, explainable set. Each block and each excluded bidder removes a path demand could take to the impression, so entries that were valid once but are no longer reviewed can keep paying demand out without the lost fill being traced back to the rule. {{voice_recommend}} reading each blocked seat and each included or excluded bidder against a stated reason, retiring any entry whose reason no longer holds, and assigning an owner who reviews the lists on a set cadence. After the review, recheck fill rate and revenue to confirm the remaining blocks reflect current policy rather than past habit."
+      }
+    },
+    {
+      "id": "openx-seat-controls-blocks-too-broad-suppress-demand",
+      "title": "Blocks are broad enough to suppress legitimate demand and fill",
+      "category": "buyers",
+      "subcategory": "seat_controls",
+      "impact_score": 3,
+      "impact_rationale": "A block written wider than the problem it targets removes legitimate buyers along with the one that caused it. Blocking an entire demand-side platform to stop a single advertiser, or excluding a whole bidder to suppress one creative, thins the auction and lowers fill on inventory that had no quality or safety issue, and the trade is rarely measured against the revenue it costs.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "brand-safety"],
+      "educate": {
+        "base": "A block on a buyer or a bidder is a blunt instrument, and the question is whether it is aimed at the actual problem or at a wide area around it. The narrowest control targets a single advertiser or a single creative. A wider control blocks an entire buyer seat. The widest control drops a whole bidder or demand-side platform (DSP) from the auction. Each step out removes more demand, and only the part of that demand the publisher actually meant to stop is a benefit. The rest is fill the publisher gave up for no return.<br><br>Broad blocks usually start with a real reason. A single advertiser runs creative the publisher does not want, so the publisher blocks the whole DSP that advertiser bought through because blocking the one advertiser took more effort to find. A bidder sends one stream of low-value traffic, so the publisher excludes the bidder entirely rather than isolating the placement or geography where the problem lives. The block solves the immediate problem, but it also removes every other buyer and every other clean impression that flowed through that same path.<br><br>The cost is a thinner auction. OpenX runs Prebid-compatible header bidding, where competition among bidders is what drives the clearing price up. Each demand source removed lowers the pressure on price and, on inventory that depended on that source for fill, lowers the fill rate. Because the inventory still serves ads from the remaining demand, the loss looks like ordinary performance rather than a self-inflicted cap, so it goes unmeasured against the revenue the block costs.<br><br>The audit question is not whether blocks should exist. Brand-safety and quality blocks are legitimate, and some demand genuinely belongs out of the auction. The question is whether each block is scoped to the problem. A block aimed at one advertiser, one creative category, or one bad traffic source is doing its job. A block that takes out an entire DSP or bidder to solve a narrower problem is suppressing legitimate demand as a side effect, and that side effect deserves to be weighed against a narrower control that would solve the same problem.<br><br>A few signs point to blocks scoped wider than the problem they target:<ul><li>An entire DSP or buyer seat is blocked where the stated reason names a single advertiser or campaign</li><li>A bidder is excluded from the wrapper entirely where the stated reason is one creative or one traffic pattern that a narrower rule could isolate</li><li>Fill rate or bid density dropped after a block was added, with no record that the revenue trade was measured</li></ul>You may want to confirm that each block is scoped to the problem it targets rather than to a wide area around it. One approach is to replace a broad seat or bidder block with the narrowest control that addresses the specific advertiser, creative, or traffic source, then read fill and revenue to confirm the legitimate demand returns.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a single advertiser's creative near sensitive editorial can prompt a publisher to block the whole DSP it came through. You may want to narrow that to an advertiser or creative-category control where OpenX and the wrapper support it, so the rest of the demand on that DSP keeps competing for ordinary inventory.",
+          "ecommerce": "On a commerce-content site, a competitor advertiser can prompt a broad block that also removes unrelated buyers from the same demand source. You may want to scope the block to the competitor specifically, so the auction on product and category pages keeps the depth that supports the higher prices that inventory can command."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "pbjs.setConfig user sync filterSettings (include or exclude bidders)",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/setConfig.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json and the SupplyChain Object for supply path transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "learn_more_note": "OpenX's detailed configuration documentation for scoping advertiser and creative blocks within the SSP account is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each broad block against the reason behind it to see whether a narrower control would solve the same problem, and check whether fill changed after broad blocks were added.",
+        "tools": {
+          "free": {
+            "openx_account": {
+              "label": "OpenX account (SSP controls)",
+              "steps": [
+                "List every block in the OpenX account that targets an entire buyer seat or demand-side platform, and record the stated reason for each.",
+                "For each broad block, note whether the reason names a single advertiser, creative, or traffic source that a narrower control could address instead.",
+                "Flag any block where the scope is wider than the stated reason, which marks legitimate demand being removed as a side effect."
+              ]
+            },
+            "gam_reporting": {
+              "label": "Reporting (fill and bid density)",
+              "steps": [
+                "Build a report on fill rate, bid density, and revenue for the inventory affected by each broad block, covering the period before and after the block was added.",
+                "Compare the before-and-after read to see whether the broad block coincided with a drop in fill or competition that the narrower problem did not require.",
+                "Note any block where the revenue lost to thinner competition was not weighed against the problem the block was meant to solve."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each broad block, the stated reason behind it, and whether a narrower control could address that reason, alongside any change in fill rate or bid density after the block was added. A setup where broad blocks are reserved for problems that genuinely span the whole seat or bidder passes. A block scoped wider than its stated reason, especially one that coincided with a fill or competition drop, is a fail recorded with the block, its reason, and the legitimate demand it suppresses.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each broad block with its stated reason and any fill or bid-density change after it was added above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more blocks on {{site_name}} are scoped wider than the problem they target, so legitimate buyers are removed alongside the advertiser, creative, or traffic source that prompted the block. Because OpenX runs Prebid-compatible header bidding, each demand source removed thins the auction and can lower fill on inventory that had no safety or quality issue, and the loss reads as ordinary performance rather than a self-inflicted cap. {{voice_recommend}} replacing each broad seat or bidder block with the narrowest control that addresses the specific advertiser, creative, or traffic source behind it, then reading fill rate and revenue to confirm the legitimate demand returns. Keep the broad block only where the problem genuinely spans the whole seat or bidder."
+      }
+    }
+  ]
+}

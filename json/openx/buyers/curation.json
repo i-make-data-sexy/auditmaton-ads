@@ -1,0 +1,156 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Curation is how a publisher packages its audience and inventory into deals that buyers can target, so it decides whether the publisher's first-party data earns a premium or sits unused. A curated package mapped to the wrong inventory, or one that has gone stale as the audience definitions drifted, underdelivers without throwing an error. The check is a review of the curation setup the publisher already runs in OpenX, so it costs reading time rather than rebuild time, and the finding points to a concrete packaging decision the publisher can adjust.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Curation is the practice of packaging a publisher's inventory and audience signals into deals that buyers can target and pay a premium for, and OpenX runs it through OpenXSelect (the successor to OpenAudience). For a publisher, the value of curation depends on two things being right: the curated packages map to the inventory and audience they claim to, and they stay current as audience definitions and inventory change. These checks confirm that the curation setup is deliberate and mapped correctly rather than assembled once and left to drift, so the audience signals the publisher exposes to buyers still describe the inventory they actually serve.",
+  "audit_checks": [
+    {
+      "id": "openx-curation-packages-not-mapped-to-inventory",
+      "title": "Curated packages are not mapped to the right inventory or audience",
+      "category": "buyers",
+      "subcategory": "curation",
+      "impact_score": 3,
+      "impact_rationale": "A curated package that targets the wrong ad units, or carries an audience segment that does not match the inventory it sits on, sends buyers a signal that the impressions do not deliver against. The buyer pays a curated premium for a cohort or placement they expected and receives something else, which underdelivers the deal and erodes the trust that lets the publisher charge a premium at all.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "transparency"],
+      "educate": {
+        "base": "Curation packages a publisher's inventory and audience signals into a deal that a buyer can target and pay a premium for. In OpenXSelect, which is OpenX's curation and supply-side targeting platform and the successor to OpenAudience, a publisher builds curated packages out of audience segments and inventory and exposes them to buyers as deals. The premium a buyer pays rests on a promise: the package delivers the audience and the inventory it claims to.<br><br>The mechanics underneath are standard header-bidding plumbing. OpenX runs a Prebid-compatible wrapper, so the audience signals a publisher attaches to its inventory travel through the same first-party data structures Prebid defines, where publisher segments live in 'user.data' and content data and ride along the bid request to buyers. A curated package is, in effect, a mapping between those audience segments, the inventory they sit on, and the deal a buyer transacts against. When the mapping is correct, the buyer targets a cohort and reaches it on the inventory the publisher meant. When the mapping drifts, the buyer pays a curated rate for a signal that points at the wrong impressions.<br><br>Mapping errors take a few forms. A package can target ad units the audience segment was never built for, so the cohort signal rides on inventory it does not describe. A segment can be attached to a deal whose definition no longer matches the audience it names, for example a 'in-market auto shoppers' package wired to general-interest inventory. A package can also cover inventory that has since been restructured or retired, so part of the deal points at ad units that no longer serve.<br><br>The audience taxonomy a publisher uses to label these segments matters here too. The IAB Tech Lab's Curated Audiences specification, formerly Seller Defined Audiences (SDA), gives publishers a standardized way to describe a cohort so a buyer downstream reads the same meaning the publisher intended. A package built on a clear, standardized audience definition is easier to map correctly and easier for a buyer to trust than one built on an ad hoc label.<br><br>A few signs point to packages that are not mapped to the right inventory or audience:<ul><li>A curated package targets ad units or placements that do not match the audience segment it carries</li><li>An audience segment in a deal no longer matches its current definition, so the label and the cohort have drifted apart</li><li>A package covers inventory that has been restructured or retired since the package was built</li></ul>You may want to confirm that each curated package maps to the inventory and audience it claims. One approach is to list the active packages, then trace each one from its audience segment to the inventory it targets and to the deal a buyer transacts against, and flag any link that no longer holds.",
+        "site_type_overlays": {
+          "publishing": "On a media site, audience segments often track editorial interest, for example a 'travel readers' cohort built from section visits. You may want to confirm that a package built on an editorial-interest segment maps to the sections that actually feed that cohort, rather than riding on site-wide inventory where the signal is diluted by readers who never touch the relevant content.",
+          "ecommerce": "On a commerce-content site, audience segments can carry purchase intent, for example a cohort built from product or category page visits. You may want to confirm that an intent-based package maps to the commercial inventory the cohort came from rather than the editorial inventory, so a buyer paying a curated premium for in-market shoppers reaches them on the pages where that intent is real."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "First Party Data in Prebid.js",
+            "source_url": "https://docs.prebid.org/features/firstPartyData.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Curated Audiences (formerly Seller Defined Audiences)",
+            "source_url": "https://iabtechlab.com/sda/"
+          }
+        ],
+        "learn_more_note": "OpenX's detailed configuration documentation for OpenXSelect curation is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each active curated package and trace it from its audience segment to the inventory it targets and the deal a buyer transacts against, to confirm the mapping still holds.",
+        "tools": {
+          "free": {
+            "openx_ui": {
+              "label": "OpenXSelect UI",
+              "steps": [
+                "Open the curation section in OpenXSelect and list the active curated packages with their audience segments and target inventory.",
+                "For each package, note the audience segment it carries, the ad units or placements it targets, and the deal ID a buyer transacts against.",
+                "Check whether the audience segment's current definition still matches the cohort the package name claims, and whether the targeted inventory still exists in its current structure.",
+                "Record any package where the segment, the inventory, and the deal do not line up, with the specific link that has drifted."
+              ]
+            },
+            "prebid_config": {
+              "label": "Prebid first-party data review",
+              "steps": [
+                "Inspect a sample bid request from the publisher's Prebid-compatible wrapper and find the first-party data segments in 'user.data' and the content data objects.",
+                "Confirm the audience segments present on the request match the curated package the inventory is meant to carry.",
+                "Note any inventory where the expected curated segment is absent or where a segment appears on inventory the package was not built for."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per curated package, the audience segment it carries, the inventory it targets, and whether the two still match the deal a buyer transacts against. A package whose segment, inventory, and deal line up passes. A package where the audience segment targets inventory it was not built for, carries a definition that has drifted from the cohort it names, or covers inventory that has been restructured or retired is a fail recorded with the specific package and the link that no longer holds.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the audience segment, target inventory, and deal for each curated package above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more curated packages on {{site_name}} do not map to the inventory or audience they claim, so a buyer paying a curated premium receives a signal that points at the wrong impressions. Curation rests on a promise that the package delivers the audience and inventory it names, and when the mapping drifts, the deal underdelivers and the trust that lets {{site_name}} charge a premium erodes. {{voice_recommend}} tracing each active package from its audience segment to the inventory it targets and the deal a buyer transacts against, then correcting any package whose segment, inventory, and definition no longer line up. After the correction, recheck a sample bid request to confirm the curated segments ride on the inventory they describe."
+      }
+    },
+    {
+      "id": "openx-curation-packages-stale-not-maintained",
+      "title": "Curated packages are stale and not maintained",
+      "category": "buyers",
+      "subcategory": "curation",
+      "impact_score": 2,
+      "impact_rationale": "A curated package decays as the audience that defines it changes and the inventory it covers shifts, so a package left unmaintained gradually describes a cohort that no longer exists at the scale it once did. Buyers see thin delivery or pacing that stalls, and the publisher loses the curated premium on a deal that still looks active but no longer performs.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "transparency"],
+      "educate": {
+        "base": "A curated package is not a set-and-forget asset. The audience segment it carries is built from user behavior that changes over time, the inventory it covers shifts as ad units are added, restructured, or retired, and the buyer demand it attracts moves with the market. A package that performed when it was built can decay without throwing an error because nothing in the deal breaks. It simply delivers less, against a smaller or less relevant cohort, while still appearing active in the curation interface.<br><br>Staleness has a few common causes. An audience segment can shrink as the behavior that defined it becomes rarer, so the cohort that once carried scale now barely fills. A segment definition can age past the point where it describes current behavior, for example a seasonal intent cohort kept running long after the season. The inventory underneath a package can change without the package being updated, so the deal points at a footprint that no longer matches what it was sold against. Refresh cadence matters too: audience data that is not refreshed on a regular schedule grows less accurate the longer it sits.<br><br>OpenX runs curation through OpenXSelect, and the audience signals behind a package travel through the publisher's Prebid-compatible wrapper as first-party data segments. Keeping a package current means keeping those segments current, which is the same first-party data hygiene Prebid documents for any publisher exposing audience data to buyers. A package whose segments are refreshed on a schedule and whose definitions are reviewed against current behavior holds its value. One that is left untouched for months drifts away from the cohort it names.<br><br>A few signs point to packages that are stale and not maintained:<ul><li>A curated package has not been reviewed or updated since it was created, with no record of when its audience segment was last refreshed</li><li>Delivery or fill on a curated deal has declined over time while the package definition stayed the same</li><li>A seasonal or campaign-specific package is still active well past the period it was built for</li></ul>You may want to confirm that curated packages are reviewed and refreshed on a regular cadence rather than left to age. One approach is to record the last-refreshed date and recent delivery for each active package, then retire or rebuild any package whose audience has drifted or whose delivery has fallen off.",
+        "site_type_overlays": {
+          "publishing": "On a media site, interest-based segments shift with the editorial calendar, so a cohort built around a topic that dominated coverage last quarter may have thinned as the newsroom moved on. You may want to review interest-based packages against current section traffic and refresh or retire the ones whose underlying readership has moved elsewhere.",
+          "ecommerce": "On a commerce-content site, intent-based segments are often tied to seasons or product cycles, so a 'holiday gift shoppers' cohort built in November describes almost no one by spring. You may want to set an expiry or review date on seasonal packages so they retire when the intent behind them fades rather than running on against a cohort that has emptied out."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "First Party Data in Prebid Server",
+            "source_url": "https://docs.prebid.org/prebid-server/features/pbs-fpd.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Curated Audiences (formerly Seller Defined Audiences)",
+            "source_url": "https://iabtechlab.com/sda/"
+          }
+        ],
+        "learn_more_note": "OpenX's detailed configuration documentation for OpenXSelect curation is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each active curated package for when it was last refreshed and how its delivery has trended, to see whether it is being maintained or has been left to age.",
+        "tools": {
+          "free": {
+            "openx_ui": {
+              "label": "OpenXSelect UI",
+              "steps": [
+                "Open the curation section in OpenXSelect and list the active curated packages with their creation and last-modified dates.",
+                "For each package, record when its audience segment was last refreshed and whether a review cadence exists.",
+                "Flag any package that has not been reviewed since creation, any seasonal or campaign-specific package still active past its period, and any package with no refresh schedule on record."
+              ]
+            },
+            "openx_reporting": {
+              "label": "OpenX reporting",
+              "steps": [
+                "Build a report on curated deal performance broken out by package, with impressions, fill, and revenue over time.",
+                "Compare recent delivery against earlier delivery for each package to see whether any deal has declined while its definition stayed the same.",
+                "Note any package whose delivery has fallen off, which points to an audience that has drifted or an inventory footprint that has changed."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per curated package, the last-refreshed date, whether a review cadence exists, and how recent delivery compares against earlier delivery. A package refreshed on a regular schedule with delivery holding steady passes. A package with no refresh on record, a seasonal definition running past its period, or delivery that has declined while the definition stayed the same is a fail recorded with the package and the evidence of staleness.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the last-refreshed date and recent delivery for each curated package above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more curated packages on {{site_name}} are stale, with no recent refresh of the audience segment and delivery that has drifted from where it started. A curated package decays as the audience that defines it changes and the inventory it covers shifts, so a package left unmaintained describes a cohort that no longer exists at the scale it once did, and buyers see thin delivery while {{site_name}} loses the curated premium. {{voice_recommend}} recording the last-refreshed date and recent delivery for each active package, setting a review cadence, and retiring or rebuilding any package whose audience has drifted or whose delivery has fallen off. After the cleanup, keep the surviving packages on a regular refresh schedule so their audience signals stay current."
+      }
+    }
+  ]
+}

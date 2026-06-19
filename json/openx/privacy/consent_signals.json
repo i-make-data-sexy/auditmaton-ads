@@ -1,0 +1,162 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Consent signals decide whether a bid request can carry personal data, so they sit at the line between lawful monetization and a privacy breach. When a publisher passes the Transparency and Consent Framework (TCF) or Global Privacy Platform (GPP) string to OpenX and OpenX forwards it to demand, the consent travels with the request and demand can bid on a lawful basis. When the string is missing or stops at the wrapper, demand partners either drop the request or, worse, bid on personal data with no recorded basis. This check reads the consent wiring a publisher already has in place, so it costs review time rather than rebuild time, and the finding points to a concrete configuration the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Consent signaling controls whether OpenX and the demand partners behind it may process personal data on a given bid request, and the signal only works if it reaches them. This subcategory is about the path the consent string travels: whether the TCF or GPP string a consent management platform writes is captured in the header-bidding wrapper, passed to OpenX, and forwarded onward to demand. These checks confirm that the signal is present and propagating, and that bid requests are suppressed or limited where consent is absent and a legal basis is required, so the publisher monetizes on a basis the data shows rather than one it assumes.",
+  "audit_checks": [
+    {
+      "id": "openx-consent-signals-string-not-passed-to-openx",
+      "title": "The consent string is not captured and forwarded to OpenX and demand",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 4,
+      "impact_rationale": "When the consent string is not captured in the wrapper and forwarded, OpenX and the demand partners behind it receive bid requests with no record of the user's choices. Demand either drops those requests, which loses fill, or processes personal data with no signaled legal basis, which is a regulatory exposure rather than a yield problem. The break sits on the path that carries the lawful basis for the whole request, so it can affect every impression in a regulated region.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "A consent management platform (CMP) on the publisher's page records what a user agreed to and writes it as an encoded string. Under the Transparency and Consent Framework (TCF) in the European Economic Area and the United Kingdom, that string is a TC String. Under the Global Privacy Platform (GPP), it is a GPP string that can carry the TCF section alongside United States state sections. The string is the machine-readable record of the user's choices, and it only has effect if it travels with the bid request to the parties that act on it.<br><br>OpenX runs Prebid-compatible header bidding, so the consent string reaches OpenX through the wrapper. The wrapper's consent management module reads the string from the CMP, attaches it to each bid request, and OpenX receives it as the basis on which it may process personal data. OpenX then forwards the signal to the demand partners it works with, so the consent propagates down the chain rather than stopping at the first hop. When that path is intact, a demand partner can see the user's choices and bid on a lawful basis or decline.<br><br>The path breaks in a few ways. The wrapper's consent module may not be configured, so the string is written by the CMP but never attached to the request. The CMP may resolve too slowly, so the wrapper times out and sends requests with no string. The string may reach OpenX but not be forwarded onward, so demand partners bid without it. Each break has the same result: bid requests arrive without a recorded basis for processing personal data.<br><br>A few signs point to a consent string that is not reaching OpenX and demand:<ul><li>The wrapper has no consent management module enabled, or its timeout is short enough that requests fire before the CMP resolves</li><li>OpenX bid requests in a network trace carry no TCF or GPP parameter while the CMP shows a written string on the page</li><li>Demand partners report low match rates or dropped requests from a region where consent is required</li></ul>You may want to confirm that the string the CMP writes is captured in the wrapper, sent to OpenX, and forwarded to demand. One approach is to load the site from a regulated region, inspect the OpenX bid request in the browser network panel, and check that the consent parameter is present and matches the string the CMP set.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a returning audience and high pageview volume mean the consent string is read on nearly every page load, so a wrapper timeout that is too short for the CMP to resolve drops the signal at scale rather than on a few sessions. You may want to confirm the wrapper waits for the CMP before requesting bids, so the string is attached rather than missed on the first impression of each visit.",
+          "ecommerce": "On a commerce-content site, a shopper moving through product and checkout pages may have their consent state read repeatedly across a session, and a string that reaches the wrapper but not OpenX leaves higher-value commercial impressions monetized without a recorded basis. You may want to trace a bid request from a product page specifically to confirm the consent parameter is present on the inventory that clears highest."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "GDPR ConsentManagement Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementTcf.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform",
+            "source_url": "https://iabtechlab.com/gpp/"
+          },
+          {
+            "source_type": "IAB Tech Lab GitHub",
+            "source_title": "GPP Core Consent String Specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/main/Core/Consent%20String%20Specification.md"
+          }
+        ],
+        "learn_more_note": "OpenX's detailed configuration documentation for consent signal forwarding is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the wrapper captures the consent string, whether OpenX bid requests carry it, and whether it is forwarded to demand, by inspecting the page configuration and a live bid request from a regulated region.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load the site from a European Economic Area, United Kingdom, or applicable United States state context so the consent management platform (CMP) presents and a string is written.",
+                "Open the network panel and filter for the OpenX bid request, then inspect it for a TCF or GPP consent parameter.",
+                "Confirm the consent parameter value matches the string the CMP wrote, rather than being empty or absent.",
+                "Record whether the string is present on the request to OpenX and note any case where the CMP shows a string but the request does not carry it."
+              ]
+            },
+            "wrapper_config": {
+              "label": "Header-bidding wrapper configuration",
+              "steps": [
+                "Review the wrapper's consent management module to confirm it is enabled for TCF and, where applicable, GPP.",
+                "Check the module's timeout against how long the CMP takes to resolve, so requests are not fired before the string is available.",
+                "Confirm the OpenX bid adapter is set to receive and forward the consent string to demand, rather than dropping it after the first hop."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the wrapper's consent module is enabled, whether a live OpenX bid request from a regulated region carries the TCF or GPP string, and whether the string matches what the CMP wrote. A setup where the string is captured, present on the request to OpenX, and forwarded to demand passes. A setup where the CMP writes a string but the OpenX request carries none, or the module is disabled or times out before the CMP resolves, is a fail recorded with the point on the path where the signal is lost.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the consent module is enabled and whether the OpenX bid request carries the consent string above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the consent string for {{site_name}} is not reaching OpenX on bid requests from regulated regions, so the Transparency and Consent Framework (TCF) or Global Privacy Platform (GPP) signal the consent management platform writes is not traveling with the request. Without the string, OpenX and the demand partners behind it either drop the request, which loses fill, or process personal data with no recorded basis, which is a regulatory exposure. {{voice_recommend}} enabling the wrapper's consent management module, setting its timeout long enough for the consent management platform to resolve, and confirming the OpenX adapter forwards the string to demand. After the change, load the site from a regulated region and inspect a live OpenX bid request to confirm the consent parameter is present and matches the string the consent management platform set."
+      }
+    },
+    {
+      "id": "openx-consent-signals-requests-not-suppressed-without-consent",
+      "title": "Bid requests are not suppressed where consent is absent and a basis is required",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 4,
+      "impact_rationale": "Where a user declines or no consent string is present and a legal basis is required, sending the bid request anyway puts personal data into the auction with no signaled basis to process it. That is a regulatory exposure rather than a fill or yield trade, and because it follows from the absence of a signal rather than a misconfigured value, it can apply to every request a region produces until the suppression logic is in place.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Passing the consent string is one half of the work. The other half is acting on what the string says, including the case where it says no, and the case where there is no string at all. A user can decline consent or object to legitimate interest, and a request can arrive from a regulated region before any consent management platform (CMP) has resolved. In both cases, a publisher that requires a legal basis to process personal data needs the request to behave differently from a request carrying full consent.<br><br>The Transparency and Consent Framework (TCF) and the Global Privacy Platform (GPP) describe the user's choices, and the header-bidding wrapper is where those choices turn into behavior. A Prebid-compatible wrapper can enforce consent at the wrapper level, which means it can withhold a bid request from OpenX and other partners, or strip the identifiers that would otherwise ride along, when the string shows no basis to process personal data. When that enforcement is off, the wrapper sends every request regardless of what the string says, so a decline or a missing string still produces a request carrying personal data.<br><br>The behavior a publisher wants depends on the basis it relies on and the region. Where consent is the basis and the user declined, the request should be suppressed or sent without personal identifiers. Where no string is present in a region that requires one, the safer default is to hold the request until the CMP resolves rather than send it unsignaled. The audit question is whether the wrapper is configured to enforce these outcomes or whether it sends requests to OpenX without regard to the consent state.<br><br>A few signs point to requests that are not suppressed when they should be:<ul><li>The wrapper's consent enforcement is disabled, so bid requests fire regardless of what the consent string shows</li><li>A trace from a session where consent was declined still shows a full OpenX bid request carrying personal identifiers</li><li>Requests fire from a regulated region before the CMP has written a string, with no rule holding them until it resolves</li></ul>You may want to confirm that the wrapper withholds or limits requests where the string shows no basis to process personal data. One approach is to decline consent in a test session from a regulated region, then check that the OpenX request is either suppressed or stripped of personal identifiers rather than sent in full.",
+        "site_type_overlays": {
+          "publishing": "On a media site with a large returning audience, the share of sessions that decline consent or arrive before the CMP resolves is not trivial, so a wrapper that sends every request regardless puts personal data into the auction across a meaningful slice of traffic. You may want to confirm the wrapper holds or limits requests in those sessions rather than treating a decline the same as full consent.",
+          "ecommerce": "On a commerce-content site, a shopper who declines consent on a product page still generates high-value impressions, and sending those requests in full puts personal data into the auction on exactly the inventory a publisher most wants to monetize cleanly. You may want to verify that a declined session on a commercial page produces a suppressed or identifier-stripped OpenX request rather than a full one."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "GDPR ConsentManagement Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementTcf.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform",
+            "source_url": "https://iabtechlab.com/gpp/"
+          }
+        ],
+        "learn_more_note": "OpenX's detailed configuration documentation for request handling under consent is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the wrapper enforces consent on the bid request, by testing a declined session and a pre-resolution session from a regulated region and checking how the OpenX request behaves.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load the site from a regulated region and decline consent or object to legitimate interest in the consent management platform (CMP).",
+                "Open the network panel, find the OpenX bid request, and check whether it was suppressed, stripped of personal identifiers, or sent in full.",
+                "Reload in a state where the CMP has not yet resolved and record whether a request fires before any string is written.",
+                "Record, for each test, what the request carried against what the consent state was, and note any case where a full request fired despite a declined or absent string."
+              ]
+            },
+            "wrapper_config": {
+              "label": "Header-bidding wrapper configuration",
+              "steps": [
+                "Review the wrapper's consent enforcement settings to confirm whether it withholds or limits requests when the string shows no basis to process personal data.",
+                "Check whether a rule holds requests in a regulated region until the CMP resolves, rather than firing them unsignaled.",
+                "Confirm the intended behavior matches the legal basis the publisher relies on, so a decline produces suppression or identifier stripping as designed."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records how the OpenX bid request behaves in a declined session and in a session where the CMP has not yet resolved, alongside the wrapper's enforcement settings. A setup where a declined or absent consent state produces a suppressed or identifier-stripped request, matching the basis the publisher relies on, passes. A setup where a full request carrying personal identifiers fires despite a decline or a missing string in a region that requires a basis is a fail recorded with the session state and what the request carried.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record how the OpenX request behaves under a declined and a pre-resolution consent state above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sends OpenX bid requests in full even where the consent string shows no basis to process personal data, such as a declined session or a request that fires before the consent management platform resolves. Sending the request anyway puts personal identifiers into the auction with no signaled basis, which is a regulatory exposure rather than a yield trade. {{voice_recommend}} enabling consent enforcement in the header-bidding wrapper so a declined or absent string produces a suppressed or identifier-stripped request, and holding requests in a regulated region until the consent management platform resolves. After the change, decline consent in a test session from a regulated region and confirm the OpenX request is withheld or stripped rather than sent in full."
+      }
+    }
+  ]
+}

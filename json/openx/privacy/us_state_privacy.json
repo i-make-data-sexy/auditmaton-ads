@@ -1,0 +1,225 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "US state privacy signals decide whether a reader's opt-out of sale or share reaches the demand buying their inventory. When the Global Privacy Platform (GPP) string is missing, incomplete, or carries the wrong section, a publisher can pass an impression to OpenX with no opt-out attached, so a buyer treats it as fully addressable when the reader asked it not to be. The check reads the consent setup the publisher already runs, so it costs review time rather than rebuild time, and the finding points to a concrete signal the publisher can confirm reaches OpenX and the demand behind it.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "US state privacy laws give readers in a growing list of states the right to opt out of the sale or sharing of their data for targeted advertising, and the digital advertising industry carries those opt-outs through the GPP string. For a publisher monetizing inventory through OpenX, the GPP string is the signal that tells demand whether a reader opted out. These checks confirm that the right GPP sections are built and passed for the reader's state, that any legacy US Privacy string is handled, and that an opt-out of sale or share is honored in the signal OpenX receives rather than dropped before it reaches the auction.",
+  "audit_checks": [
+    {
+      "id": "openx-us-state-privacy-gpp-sections-not-passed",
+      "title": "US national and state GPP sections are not built or passed to OpenX",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "When the GPP string carries no US national or applicable state section, an opt-out a reader made in a covered state never reaches the buyer behind OpenX. The impression is offered as fully addressable against the reader's stated choice, which exposes the publisher to a regulatory and legal breach across every covered state at once rather than a single misconfigured placement.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "US state privacy laws, beginning with the California Consumer Privacy Act (CCPA) and its amendment the California Privacy Rights Act (CPRA), give readers the right to opt out of the sale or sharing of their personal data for targeted advertising. Several more states have passed comparable laws, and the digital advertising industry carries the resulting opt-out signals through one transport layer, the IAB Tech Lab Global Privacy Platform (GPP). A GPP string can hold more than one section at a time, including a US national section for the Multi-State Privacy Agreement (MSPA) and per-state sections for the individual states that have their own technical specification.<br><br>For a publisher monetizing inventory through OpenX, the GPP string and the list of sections it contains, the GPP section ID list, are what tell the demand behind the auction whether a reader in a covered state opted out. The consent management platform (CMP) on the page builds the string, and the header-bidding wrapper passes it into the bid request. OpenX runs Prebid-compatible header bidding, so the wrapper-side mechanics follow Prebid's consent management module, which fetches the encoded GPP string from the CMP and makes it available to adapters as 'ortb2.regs.gpp' and 'gpp_sid'.<br><br>The failure this check looks for is a GPP string that does not carry the section that applies to the reader's state. If the CMP never builds the US national or the relevant state section, or the wrapper never forwards it, then OpenX and the buyers behind it receive an impression with no opt-out attached even when the reader opted out. The bid proceeds as if the reader were fully addressable, which is the outcome the law is meant to prevent.<br><br>A few signs point to GPP sections that are not built or passed:<ul><li>The bid request to OpenX carries an empty 'gpp' value or a section ID list that omits the US national and applicable state sections for the reader's location</li><li>The CMP is configured for one region, for example a TCF section for European readers, with no US national or state sections built for US traffic</li><li>The wrapper's consent management GPP module is not enabled, so even a string the CMP builds never reaches the bid request</li></ul>You may want to confirm that the GPP string carries the US national and applicable state sections for the states the audience reaches. One approach is to load a page as a reader in a covered state and read the GPP section ID list in the outgoing bid request to OpenX.",
+        "site_type_overlays": {
+          "publishing": "On a media site, traffic usually spans many states, so a reader from any covered state can land on any page. You may want to confirm the CMP builds the US national section and the per-state sections for the states the audience reaches, rather than assuming one state's law covers the rest. The sections and their opt-out fields differ by state.",
+          "ecommerce": "On a commerce-content site, a logged-in or returning shopper's state may be known from account or shipping data, which can sharpen which GPP section applies. You may want to confirm that the GPP string passed to OpenX reflects the reader's actual state rather than a single default section applied to all US traffic."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform (GPP)",
+            "source_url": "https://iabtechlab.com/gpp/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - GPP for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the GPP string in an outgoing bid request to OpenX from a reader in a covered state, and confirm it carries the US national and applicable state sections rather than an empty value or the wrong region.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the page in a browser with developer tools, set the location to a covered state if a VPN or location override is available, and open the 'Network' tab.",
+                "Find the bid request sent to OpenX and read the 'regs.gpp' value and the 'gpp_sid' section ID list it carries.",
+                "Confirm the section ID list includes the US national section and the applicable state section for the reader's location rather than an empty string or only a non-US section.",
+                "Repeat for a second covered state to confirm the CMP builds the correct section per state rather than one default for all US traffic."
+              ]
+            },
+            "cmp_console": {
+              "label": "Consent management platform settings",
+              "steps": [
+                "Open the CMP configuration and list which GPP sections it is set to build, including the US national section and any per-state sections.",
+                "Confirm the wrapper's consent management GPP module is enabled so the string the CMP builds is forwarded into the bid request.",
+                "Record any covered state whose section the CMP is not configured to build."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for readers in covered states, whether the bid request to OpenX carries a GPP string with the US national and applicable state sections in its section ID list. A setup that builds and passes the correct sections per state passes. A setup that sends an empty GPP value, omits the US national or applicable state section, or forwards only a non-US section for US traffic is a fail recorded with the states and the bid request fields affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the GPP section ID list in the bid request to OpenX for readers in covered states above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the bid request {{site_name}} sends to OpenX does not carry the US national or applicable state Global Privacy Platform (GPP) sections for readers in covered states, so an opt-out of sale or share never reaches the demand behind the auction. State privacy laws give readers the right to opt out of the sale or sharing of their data, and the GPP string is the transport for that signal, so a missing section lets a bid proceed as if the reader were fully addressable against their stated choice. {{voice_recommend}} configuring the consent management platform to build the US national section and the per-state sections for the states the audience reaches, enabling the wrapper's GPP consent module so the string is forwarded, and confirming the section ID list in an outgoing OpenX bid request reflects the reader's state. After the change, recheck the bid request from a second covered state to confirm the correct section is passed per state."
+      }
+    },
+    {
+      "id": "openx-us-state-privacy-opt-out-not-honored",
+      "title": "An opt-out of sale or share is not reflected in the signal sent to OpenX",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "A GPP string can be present yet still encode the reader as not having opted out, so the section is built but the opt-out field inside it does not match the choice the reader made. The reader sees the opt-out confirmed on the page while the signal to OpenX says otherwise, which is the same legal exposure as sending no signal at all and is harder to spot because the string looks complete.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Building the right Global Privacy Platform (GPP) section is the first half of honoring an opt-out. The second half is the value carried inside that section. The US national section and the per-state sections each contain fields that encode whether the reader opted out of the sale or sharing of their data and whether the reader is targeted for advertising. A section can be present in the string while those fields still read as no opt-out, in which case the buyer behind OpenX treats the impression as fully addressable even though the reader opted out on the page.<br><br>Two paths lead to this gap. The reader can make the choice through the consent management platform (CMP) interface, and the CMP can fail to write that choice into the GPP field. Or the reader can signal an opt-out through the browser using Global Privacy Control (GPC), a browser-level setting that several state laws treat as a valid opt-out, and the setup can fail to translate that header into the GPP string's opt-out field. Prebid carries the 'Sec-GPC' header through to adapters and reflects the GPC flag inside the US national GPP string, so a publisher's setup needs to map the reader's choice, however it was made, into the field the demand actually reads.<br><br>For a publisher on OpenX, the audit question is whether an opt-out the reader makes is reflected in the GPP string the bid request carries. A string that is present but encodes no opt-out for a reader who opted out is a failure that hides in plain sight. The section list looks correct, and only the field value inside it is wrong.<br><br>A few signs point to an opt-out that is not honored in the signal:<ul><li>A reader opts out through the CMP, yet the GPP field for sale or share in the outgoing bid request to OpenX still reads as no opt-out</li><li>The browser sends a Global Privacy Control signal, yet the GPP string passed to OpenX does not reflect it as an opt-out</li><li>The opt-out is recorded in the CMP's own records but is not present in the bid request, which means it was captured but never transported</li></ul>You may want to confirm that an opt-out a reader makes is carried into the GPP field the bid request sends to OpenX. One approach is to opt out as a test reader, both through the CMP and through Global Privacy Control, then read the GPP opt-out field in the resulting OpenX bid request to confirm it matches.",
+        "site_type_overlays": {
+          "publishing": "On a media site, readers arrive from many sources and a share of them run Global Privacy Control in the browser. You may want to test both an opt-out made through the consent banner and an opt-out signaled through GPC. A setup can honor one path and miss the other while the GPP section still appears in the string.",
+          "ecommerce": "On a commerce-content site, a returning shopper may have opted out on an earlier visit, so the opt-out has to persist across sessions and be re-applied to the GPP string on each visit. You may want to confirm that a stored opt-out is reflected in the bid request to OpenX on a later visit rather than reset to no opt-out."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "GPP Control Module - USNat string",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/gppControl_usnat.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform (GPP)",
+            "source_url": "https://iabtechlab.com/gpp/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether an opt-out a test reader makes, through both the consent banner and Global Privacy Control, is reflected in the GPP opt-out field of the bid request sent to OpenX.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the page, opt out of sale or share through the consent management platform interface, and open the 'Network' tab.",
+                "Find the bid request to OpenX and read the GPP string's sale and share opt-out fields for the applicable section to confirm they reflect the opt-out.",
+                "Enable Global Privacy Control in the browser, reload, and confirm the outgoing bid request reflects the GPC signal as an opt-out in the GPP string.",
+                "Record any case where the opt-out was made but the bid request still encodes no opt-out."
+              ]
+            },
+            "cmp_console": {
+              "label": "Consent management platform settings",
+              "steps": [
+                "Confirm the CMP is configured to write the reader's sale and share opt-out into the GPP field rather than only recording it internally.",
+                "Confirm the CMP is set to treat a Global Privacy Control signal as a valid opt-out for the states whose laws recognize it.",
+                "Record whether the opt-out captured by the CMP matches the value forwarded into the bid request."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether an opt-out a test reader makes, through the consent banner and through Global Privacy Control, is reflected in the GPP opt-out field of the bid request to OpenX. A setup where the opt-out is carried into the GPP field for both paths passes. A setup where the section is present but the opt-out field reads as no opt-out, or where a Global Privacy Control signal is not reflected, is a fail recorded with the path and the field affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a test opt-out, made through the consent banner and through Global Privacy Control, is reflected in the GPP field of the OpenX bid request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that an opt-out of sale or share is not reflected in the Global Privacy Platform (GPP) signal {{site_name}} sends to OpenX. The applicable section is present in the string, but the opt-out field inside it reads as no opt-out for a reader who opted out, so the buyer behind the auction treats the impression as fully addressable. {{voice_recommend}} configuring the consent management platform to write the reader's sale and share opt-out into the GPP field, treating a Global Privacy Control browser signal as a valid opt-out for the states that recognize it, and confirming the opt-out reaches the bid request. After the change, opt out as a test reader through both the consent banner and Global Privacy Control, then recheck the GPP opt-out field in the OpenX bid request to confirm it matches."
+      }
+    },
+    {
+      "id": "openx-us-state-privacy-legacy-usp-string-mishandled",
+      "title": "The legacy US Privacy string is passed in place of GPP rather than alongside it",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 3,
+      "impact_rationale": "The legacy US Privacy string lost its contractual framework on January 31, 2024, so a setup that still relies on it alone carries an opt-out signal that demand may no longer act on. The exposure is narrower than a missing GPP section because some buyers still read the legacy string, but it leaves the opt-out resting on a signal whose backing has lapsed.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Before the Global Privacy Platform (GPP), the digital advertising industry carried California Consumer Privacy Act (CCPA) opt-outs through a separate signal, the US Privacy string, often called the USP string. It is a four-character value that encodes the specification version, whether notice was given, whether the reader opted out of sale, and the publisher's signatory status. The header-bidding wrapper passed it as 'us_privacy' and made it available to adapters as 'uspConsent'.<br><br>The US Privacy string has been superseded. Prebid's own documentation notes that the legacy US Privacy signal is no longer recommended because the signal is no longer supported by a contractual framework as of January 31, 2024. GPP is the transport the industry moved to because it carries the US national and per-state sections in one place rather than a single string built only for California. A publisher who still passes the legacy US Privacy string alone, with no GPP string, is resting state opt-outs on a signal whose contractual backing has lapsed and which does not cover the states that have their own GPP section.<br><br>For a publisher on OpenX, the audit question is whether the setup has moved to GPP and, if the legacy US Privacy string is still present, whether it is passed alongside GPP for the buyers that still read it rather than in place of GPP. A legacy string carried next to a correct GPP string is a transition state. A legacy string carried instead of GPP is a gap.<br><br>A few signs point to the legacy string being mishandled:<ul><li>The bid request to OpenX carries a 'us_privacy' value but no 'gpp' string, so state opt-outs rest on the superseded signal alone</li><li>The wrapper is configured for the US Privacy consent module but not the GPP consent module, so it never builds a GPP string</li><li>The setup treats the legacy string as current coverage for states beyond California, which it was never built to encode</li></ul>You may want to confirm that the setup passes a GPP string and that any legacy US Privacy string travels alongside it rather than standing in for it. One approach is to read both the 'gpp' and 'us_privacy' fields in an outgoing OpenX bid request and confirm GPP is present and carries the applicable sections.",
+        "site_type_overlays": {
+          "publishing": "On a media site reaching readers across many states, the legacy US Privacy string was only ever built for California, so it cannot encode the opt-out fields the other states' GPP sections require. You may want to confirm the setup has moved to GPP for full multi-state coverage rather than leaning on the legacy string for states it does not cover.",
+          "ecommerce": "On a commerce-content site, demand partners integrated through OpenX may differ in whether they still read the legacy string or expect GPP. You may want to confirm GPP is present so opt-outs reach the partners that have moved on, while any legacy string still travels alongside for partners mid-transition."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "US Privacy Consent Management Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementUsp.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - GPP for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the bid request to OpenX carries a GPP string and, if a legacy US Privacy string is present, whether it travels alongside GPP rather than in place of it.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the page as a reader in a covered state, open the 'Network' tab, and find the bid request sent to OpenX.",
+                "Read both the 'regs.gpp' field and the 'us_privacy' field in the request.",
+                "Confirm a GPP string is present and carries the applicable US national or state section rather than only a legacy 'us_privacy' value on its own.",
+                "Record any case where 'us_privacy' is present but 'gpp' is empty, which means state opt-outs rest on the superseded signal alone."
+              ]
+            },
+            "cmp_console": {
+              "label": "Consent management platform settings",
+              "steps": [
+                "Confirm the wrapper's GPP consent management module is enabled, not only the legacy US Privacy module.",
+                "Confirm the CMP is set to build GPP sections rather than emitting the legacy US Privacy string alone.",
+                "Record whether the legacy string, if still emitted, is configured to travel alongside GPP for partners mid-transition."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the bid request to OpenX carries a GPP string with the applicable sections and, separately, whether a legacy US Privacy string is present. A setup that passes GPP, with any legacy string traveling alongside it, passes. A setup that carries the legacy US Privacy string with no GPP string, or that relies on the legacy string for states beyond California, is a fail recorded with the bid request fields affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the 'gpp' and 'us_privacy' values in the OpenX bid request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes the legacy US Privacy string to OpenX without a Global Privacy Platform (GPP) string alongside it, so state opt-outs rest on a signal whose contractual framework lapsed on January 31, 2024. The legacy string was built only for California and cannot encode the opt-out fields the other states' GPP sections require, so demand that has moved to GPP may not act on it. {{voice_recommend}} enabling the wrapper's GPP consent management module, configuring the consent management platform to build the applicable US national and state sections, and confirming a GPP string reaches the OpenX bid request with any legacy string traveling alongside it rather than in its place. After the change, read both fields in an outgoing bid request to confirm GPP is present and carries the correct sections."
+      }
+    }
+  ]
+}

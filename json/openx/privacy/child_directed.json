@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Inventory that reaches children carries legal obligations that ordinary inventory does not, and the wrong treatment can turn a routine impression into a COPPA violation. A publisher running OpenX through a Prebid-compatible wrapper controls whether a child-directed signal reaches the auction, and that signal decides whether personalized ads and certain data uses are suppressed before any bidder sees the request. The check reads configuration the publisher already has in the wrapper and the OpenX setup rather than rebuilding anything, so it costs reading time, and the finding points to a concrete signal the publisher can set or correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "The Children's Online Privacy Protection Act (COPPA) restricts how personal information is collected, used, and disclosed for inventory that reaches children under 13, and personalized advertising is one of the uses it limits. A publisher who monetizes any child-directed inventory through OpenX is responsible for flagging that inventory so the auction suppresses personalized ads and the data uses COPPA restricts. This subcategory is about whether that flag is set and whether it reaches the auction, not about the broader question of whether a site is child-directed in the first place, which is a legal determination the publisher makes with counsel. These checks confirm that child-directed inventory carries the signal the auction needs to treat it correctly, and that the restriction reaches OpenX and every other bidder rather than stopping at the wrapper.",
+  "audit_checks": [
+    {
+      "id": "openx-child-directed-coppa-flag-not-set",
+      "title": "Child-directed inventory does not carry a COPPA signal to the auction",
+      "category": "privacy",
+      "subcategory": "child_directed",
+      "impact_score": 5,
+      "impact_rationale": "When child-directed inventory reaches the auction without a COPPA signal, OpenX and every other bidder treat it as ordinary inventory, so personalized ads serve and identifiers, precise location, and demographic data flow to bidders for an audience the law protects. That is a direct regulatory breach with statutory penalties per violation, and it scales with every impression the inventory serves.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "The Children's Online Privacy Protection Act (COPPA) governs how a publisher may collect, use, and disclose personal information for inventory that reaches children under 13. Personalized advertising, the kind that relies on identifiers and a profile built from a user's activity, is one of the uses COPPA restricts, so child-directed inventory cannot be monetized the same way ordinary inventory is. The publisher who runs the inventory carries this obligation, and OpenX as a bidder in the auction acts on whatever signal it receives rather than deciding on its own whether an impression is child-directed.<br><br>That signal travels through the header-bidding wrapper. Because OpenX runs through a Prebid-compatible wrapper, the mechanism is the wrapper's COPPA flag, which the publisher sets with 'pbjs.setConfig({coppa: true})' so the value passes through to the bid adapters. When the flag is set, the wrapper signals 'regs.coppa' as '1' on the OpenRTB request, and bidders that support the flag suppress the data uses COPPA restricts before bidding. When the flag is absent, the request looks like any other, and OpenX and every other bidder treat the impression as fair game for personalized ads and full data collection.<br><br>The flag is binary at the configuration level, but the judgment behind it is not. The publisher decides which inventory is child-directed, a legal determination made with counsel, and then sets the signal so that determination reaches the auction. The audit question is mechanical rather than legal. For the inventory the publisher has identified as child-directed, does the COPPA signal actually reach the OpenRTB request that OpenX and the other bidders see, or does the inventory go to auction unflagged?<br><br>A few signs point to a missing or unreliable signal:<ul><li>The wrapper has no COPPA flag set for inventory the publisher treats as child-directed</li><li>The flag is set globally or not at all, with no logic that turns it on for the child-directed inventory and off elsewhere</li><li>A request inspection on a child-directed page shows 'regs.coppa' absent or set to '0' in the OpenRTB payload that goes to OpenX</li></ul>You may want to confirm that every page or unit the publisher has identified as child-directed sends 'regs.coppa' as '1' to the auction. One approach is to inspect the live bid request on a child-directed page and verify the flag is present before the request reaches OpenX.",
+        "site_type_overlays": {
+          "publishing": "On a media site, child-directed inventory is often a section rather than the whole property, for example a kids' games area or a children's video hub sitting alongside general-audience content. You may want to confirm the COPPA flag is set per page or per section so it turns on for the child-directed area and stays off for the general-audience inventory, rather than applying one global setting that misfits one side or the other.",
+          "ecommerce": "On a commerce-content site, child-directed inventory can appear on product pages or content aimed at children, such as a toy category or a kids' clothing guide. You may want to confirm the COPPA signal reaches the auction on those specific pages. A site that is mostly general-audience can still carry pockets of child-directed inventory that need the flag while the rest does not."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "pbjs.setConfig - COPPA",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/setConfig.html"
+          },
+          {
+            "source_type": "Prebid Server Documentation",
+            "source_title": "Privacy for Header Bidding (COPPA)",
+            "source_url": "https://docs.prebid.org/prebid-server/features/pbs-privacy.html"
+          }
+        ],
+        "learn_more_note": "OpenX's detailed configuration documentation for how it consumes the COPPA signal is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the wrapper sets a COPPA flag for the inventory the publisher has identified as child-directed, then confirm the signal reaches the OpenRTB request that OpenX sees.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Header-bidding wrapper configuration",
+              "steps": [
+                "Ask the publisher which pages or ad units they have identified as child-directed, and record that list as the scope for the rest of the check.",
+                "Open the wrapper configuration and look for a COPPA setting, set in Prebid through 'pbjs.setConfig({coppa: true})'.",
+                "Record whether the flag is absent, set globally across all inventory, or set conditionally so it turns on for the child-directed inventory and off elsewhere."
+              ]
+            },
+            "request_inspection": {
+              "label": "Live bid-request inspection",
+              "steps": [
+                "Load a page the publisher has identified as child-directed and open the browser developer tools network panel.",
+                "Find the bid request that goes to OpenX and inspect the OpenRTB payload for the 'regs.coppa' field.",
+                "Record whether 'regs.coppa' is '1' on the child-directed page, then load a general-audience page and confirm it is absent or '0' there, which shows the signal tracks the inventory rather than firing everywhere or nowhere."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each page or unit the publisher has identified as child-directed, whether the wrapper sets the COPPA flag and whether 'regs.coppa' reaches the OpenRTB request as '1'. A setup where every child-directed page sends the signal to OpenX and general-audience inventory does not is a pass. A setup where any child-directed inventory goes to auction without 'regs.coppa' set to '1' is a fail recorded with the pages or units affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the COPPA flag is set and whether 'regs.coppa' reaches the request for each child-directed page above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sends child-directed inventory to the auction without a Children's Online Privacy Protection Act (COPPA) signal, so OpenX and the other bidders treat it as ordinary inventory and personalized ads and restricted data uses apply to an audience the law protects. The signal travels through the header-bidding wrapper, where 'pbjs.setConfig({coppa: true})' sets 'regs.coppa' to '1' on the OpenRTB request, and without it the request looks like any other. {{voice_recommend}} setting the COPPA flag for every page or unit identified as child-directed, then inspecting a live bid request to confirm 'regs.coppa' reaches OpenX as '1' before relying on it. After the change, recheck a general-audience page to confirm the flag stays off where it does not belong."
+      }
+    },
+    {
+      "id": "openx-child-directed-restricted-data-not-applied",
+      "title": "Restricted data processing is not applied to inventory likely to reach minors",
+      "category": "privacy",
+      "subcategory": "child_directed",
+      "impact_score": 4,
+      "impact_rationale": "Setting the COPPA flag tells bidders to restrict data, but a publisher who relies on the flag alone leaves the actual suppression to each bidder's support for it. Inventory likely to reach minors then depends on downstream behavior the publisher has not verified, so identifiers and first-party data can still flow to adapters that do not honor the flag, which keeps the regulatory exposure open on the inventory most likely to need protection.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Flagging inventory under the Children's Online Privacy Protection Act (COPPA) is the signal. Restricted data processing is the result the signal is supposed to produce, and the two are not the same thing. When the COPPA flag is set, a wrapper such as Prebid runs a defined set of anonymization actions on the request before it reaches the adapters. It removes identifier fields, truncates the IP address, removes precise location, and removes user demographic fields, so the request that reaches a bidder carries far less personal information than an ordinary one. That suppression is what actually protects the inventory, and it depends on the wrapper and the bidders applying it.<br><br>The gap a publisher can miss is that the flag's effect on any one bidder depends on whether that bidder supports it. In Prebid, an adapter signals 'coppa_supported: true' to honor the flag, and the default is that it does not. A bidder that does not support the COPPA flag may still receive the request, so the protection the publisher intended does not reach that path. Relying on the flag alone, without confirming what each bidder does with it, leaves the suppression unverified on exactly the inventory that needs it most.<br><br>Prebid gives a publisher a second control for this. Activity Controls let the publisher deny privacy-sensitive activities directly, such as transmitting user first-party data or user IDs, through the 'allowActivities' configuration, so the suppression does not depend on each adapter choosing to honor a flag. The publisher can deny the transmission of identifiers and first-party data for the child-directed inventory as a configured rule rather than a signal a bidder may or may not act on. Read together with the COPPA flag, this is the difference between asking bidders to restrict data and configuring the wrapper to withhold it.<br><br>A few signs point to restricted processing that is not actually applied:<ul><li>The COPPA flag is set, but no one has confirmed which OpenX-adjacent bidders in the wrapper support it and which ignore it</li><li>A request inspection on child-directed inventory still shows identifiers, precise geo, or user demographic fields reaching adapters despite the flag</li><li>No Activity Control or equivalent rule suppresses identifier and first-party-data transmission for the inventory likely to reach minors, so the protection rests entirely on per-bidder flag support</li></ul>You may want to confirm that the restriction the COPPA flag is meant to produce actually reaches the inventory likely to reach minors. One approach is to inspect the outbound request on that inventory and verify identifiers and precise location are stripped, then add an Activity Control to deny their transmission where the flag alone does not reach.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a mixed-audience property can have inventory that is likely to reach minors without being formally classified as child-directed, for example a general entertainment section with a young readership. You may want to apply restricted data processing to that inventory as a precaution, using an Activity Control to withhold identifiers and first-party data rather than waiting for a formal child-directed determination.",
+          "ecommerce": "On a commerce-content site, inventory tied to products aimed at families or children can reach minors even on pages the publisher considers general-audience. You may want to confirm that the suppression behind the COPPA flag actually reaches those pages, and to add an Activity Control denying identifier and first-party-data transmission so the protection does not depend on each bidder honoring the flag."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Activity Controls for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/activity-controls.html"
+          },
+          {
+            "source_type": "Prebid Server Documentation",
+            "source_title": "Activity Controls for Header Bidding",
+            "source_url": "https://docs.prebid.org/prebid-server/features/pbs-activitycontrols.html"
+          }
+        ],
+        "learn_more_note": "OpenX's documentation for which of its adapters honor the COPPA flag and how its bidder applies restricted processing is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the suppression the COPPA flag is meant to produce actually reaches inventory likely to reach minors, both through bidder support for the flag and through any Activity Control that withholds identifiers and first-party data.",
+        "tools": {
+          "free": {
+            "request_inspection": {
+              "label": "Outbound request inspection",
+              "steps": [
+                "Load a page carrying inventory likely to reach minors and open the developer tools network panel.",
+                "Inspect the OpenRTB request that goes to OpenX and the other bidders, and record whether identifier fields, precise geo, and user demographic fields are present or stripped.",
+                "Note any bidder still receiving identifiers or precise location despite the COPPA flag, which points to an adapter that does not honor it."
+              ]
+            },
+            "wrapper_config": {
+              "label": "Header-bidding wrapper configuration",
+              "steps": [
+                "Review the wrapper's bidder configuration and record which adapters in use signal support for the COPPA flag and which do not.",
+                "Check whether an Activity Control or equivalent rule denies transmission of user IDs and first-party data, set in Prebid through the 'allowActivities' configuration, for the inventory likely to reach minors.",
+                "Record whether the suppression rests on per-bidder flag support alone or whether a configured rule withholds identifiers and first-party data regardless of bidder support."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for inventory likely to reach minors, whether the COPPA flag's suppression reaches the outbound request and whether an Activity Control denies identifier and first-party-data transmission independent of per-bidder support. A setup where identifiers, precise geo, and demographic fields are stripped before reaching bidders, backed by an Activity Control rather than per-bidder flag support alone, is a pass. A setup where any bidder still receives identifiers or precise location on that inventory, or where no rule withholds them, is a fail recorded with the bidders and fields affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether identifiers are stripped from the request and whether an Activity Control withholds them for inventory likely to reach minors above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} relies on the Children's Online Privacy Protection Act (COPPA) flag alone for inventory likely to reach minors, without confirming that the restricted data processing it signals actually reaches every bidder. The flag asks bidders to suppress identifiers, precise location, and demographic data, but a bidder honors it only if its adapter supports the flag, so the protection can stop short on the inventory that needs it most. {{voice_recommend}} inspecting the outbound request to confirm those fields are stripped before they reach OpenX and the other bidders, then adding a Prebid Activity Control that denies identifier and first-party-data transmission for the inventory likely to reach minors so the suppression does not depend on each bidder. After the change, recheck the request to confirm the fields are withheld across every bidder path."
+      }
+    }
+  ]
+}

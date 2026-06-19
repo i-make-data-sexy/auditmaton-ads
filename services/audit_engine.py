@@ -807,6 +807,16 @@ CATEGORY_METADATA = {
         "brand-safety": {"display_name": "Brand Safety", "icon_class": "fa-solid fa-shield-halved", "description": "Ad quality scanning, creative blocking, and content classification"},
         "measurement": {"display_name": "Measurement", "icon_class": "fa-solid fa-chart-line", "description": "Discrepancy reconciliation, report accuracy, and video metrics"},
     },
+    "prebid": {
+        "governance": {"display_name": "Governance", "icon_class": "fa-solid fa-scale-balanced", "description": "Version currency, modules, and config hygiene"},
+        "inventory": {"display_name": "Inventory", "icon_class": "fa-solid fa-boxes-stacked", "description": "Ad units, GPID, and video setup"},
+        "bidding": {"display_name": "Bidding", "icon_class": "fa-solid fa-hand-holding-dollar", "description": "Auction timeouts, bidders, and Prebid Server"},
+        "monetization": {"display_name": "Monetization", "icon_class": "fa-solid fa-sack-dollar", "description": "Price floors and currency conversion"},
+        "identity": {"display_name": "Identity", "icon_class": "fa-solid fa-fingerprint", "description": "User ID module, UID2, and publisher-provided IDs"},
+        "privacy": {"display_name": "Privacy", "icon_class": "fa-solid fa-user-shield", "description": "Consent management (TCF/GPP) and US state signals"},
+        "supply-chain": {"display_name": "Supply Chain", "icon_class": "fa-solid fa-file-shield", "description": "schain module and ads.txt"},
+        "measurement": {"display_name": "Measurement", "icon_class": "fa-solid fa-chart-line", "description": "Analytics adapters and discrepancy reconciliation"},
+    },
     "xandr-monetize": {
         "governance": {"display_name": "Governance", "icon_class": "fa-solid fa-scale-balanced", "description": "Seat structure, access roles, and naming conventions"},
         "inventory": {"display_name": "Inventory", "icon_class": "fa-solid fa-boxes-stacked", "description": "Ad slot mapping, CTV ad pods, and video setup"},
@@ -938,6 +948,8 @@ DISPLAY_ACRONYMS = {
     "mcm": "MCM", "sco": "SCO", "npa": "NPA",
     # Magnite (supply side)
     "spo": "SPO", "clearline": "ClearLine",
+    # Prebid.js (header bidding)
+    "gpid": "GPID", "s2s": "S2S",
 }
 
 

@@ -1,0 +1,150 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Supply tags are the layer where a publisher's video and Connected TV (CTV) inventory becomes sellable, so a tag that declares the wrong sizes, durations, or formats either filters out demand that would have bid or passes inventory under a label that does not match what it is. The check is a review of supply tag configuration the publisher already has in SpringServe, so it costs reading time rather than rebuild time, and the finding points to a concrete tag setting the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "A supply tag is how a publisher exposes a piece of video or CTV inventory to demand in SpringServe, and the tag carries the declarations that tell buyers what the inventory is, including its accepted ad sizes, durations, and formats. This subcategory is about whether those declarations match the inventory the tag actually represents, and whether every tag passing impressions is mapped to the placement it belongs to rather than a stale or mislabeled one. These checks confirm that the supply tags describe the inventory accurately so demand is matched correctly and reporting reflects where impressions came from.",
+  "audit_checks": [
+    {
+      "id": "springserve-supply-tag-setup-format-mismatch",
+      "title": "Supply tags declare ad sizes, durations, or formats that do not match the inventory",
+      "category": "inventory",
+      "subcategory": "supply_tag_setup",
+      "impact_score": 3,
+      "impact_rationale": "When a supply tag declares parameters that do not fit the player or stream behind it, demand is filtered against the wrong constraints. A tag that allows durations the player cannot render, or omits a format the inventory supports, either lets through ads that fail to play or filters out demand that would have bid, so the mismatch shows up as lost fill or as errored impressions that still report as served.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "data-quality"],
+      "educate": {
+        "base": "A supply tag in SpringServe carries the parameters that describe a piece of video or Connected TV (CTV) inventory to demand. Those parameters include the accepted creative dimensions, the allowed ad durations, and the formats the inventory supports, such as linear in-stream video versus an outstream unit. Demand sources read these declarations and decide whether to bid, so the tag is the constraint set that every buyer matches against before an impression is ever filled.<br><br>The declarations only help when they match the inventory behind the tag. A video player that renders a fifteen-second or thirty-second pre-roll, served through a tag that allows durations up to sixty seconds, can receive a creative the player cannot complete, which reports as a served impression that the viewer never saw finish. A tag that omits a format the player actually supports does the reverse, filtering out demand that would have bid and leaving fill on the table. The Video Ad Serving Template (VAST) response that carries the creative back to the player includes the duration and media file metadata, so a tag whose declared constraints disagree with what the player can handle creates a gap between what demand sends and what the player can render.<br><br>For CTV inventory the stakes are higher because the device and the app set hard limits on what plays. A CTV app built around fixed ad-break lengths cannot accept a creative longer than the break, and a tag that allows the longer duration invites a fill the break cannot use.<br><br>A few signs point to a tag whose declarations do not match its inventory:<ul><li>The accepted ad durations on the tag are wider than the player or stream can render to completion</li><li>The declared formats include a type the inventory does not support, or omit one it does</li><li>Creative dimensions on the tag do not match the player size, so demand is matched against the wrong frame</li><li>Reporting shows errored or incomplete impressions concentrated on a tag whose parameters look broad</li></ul>You may want to confirm that each supply tag's declared sizes, durations, and formats reflect the inventory it represents. One approach is to compare the tag parameters against the player or app specification, then narrow any declaration that is wider than the inventory can render and add any supported format the tag is missing.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, a pre-roll slot on a news clip and a mid-roll inside a long-form episode carry different break lengths, so a single tag set declaring one duration range across both can misfit one of them. You may want to confirm that each tag's declared durations match the break it serves rather than a blended range that fits neither cleanly.",
+          "ecommerce": "On a commerce-content property, short product or how-to videos usually run shorter pre-rolls than editorial or entertainment clips on the same site. You may want to confirm that the supply tags on the commerce video inventory declare durations that fit those shorter slots rather than inheriting a longer range set for the editorial content."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Multiple Ad Playlist (VMAP)",
+            "source_url": "https://iabtechlab.com/standards-old/video-multiple-ad-playlist-vmap/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for supply tag parameters is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each supply tag's declared sizes, durations, and formats against the player or app specification for the inventory it represents, and look for errored or incomplete impressions that point to a mismatch.",
+        "tools": {
+          "free": {
+            "springserve_console": {
+              "label": "SpringServe console",
+              "steps": [
+                "Open the supply tag list and, for each active tag, open its settings and record the accepted creative dimensions, the allowed ad durations, and the declared formats.",
+                "For each tag, note the player or Connected TV (CTV) app the tag represents and the durations and formats that player can render to completion.",
+                "Compare the tag's declarations against the player specification and record any case where the declared durations are wider than the player can render, the dimensions disagree, or a supported format is missing."
+              ]
+            },
+            "springserve_reporting": {
+              "label": "SpringServe reporting",
+              "steps": [
+                "Build a report broken out by supply tag with impressions, fill, and any error or incomplete metrics the platform exposes.",
+                "Look for tags where errored or incomplete impressions concentrate, which can point to creatives matched against constraints the player cannot meet.",
+                "Record which tags show that pattern so the declared parameters can be checked against the player specification."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per supply tag, the declared sizes, durations, and formats alongside what the player or Connected TV (CTV) app behind the tag can render. A tag whose declarations match the inventory it represents passes. A tag that declares durations wider than the player can render, dimensions that disagree, or formats the inventory does not support, or that omits a supported format, is a fail recorded with the tag and the specific declaration that diverges.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each supply tag's declared sizes, durations, and formats and what the player behind it can render above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has supply tags whose declared ad sizes, durations, or formats do not match the inventory behind them. When a tag's constraints disagree with what the player or Connected TV (CTV) app can render, demand is matched against the wrong limits, which lets through creatives that fail to complete or filters out demand that would have bid. {{voice_recommend}} comparing each supply tag's declared parameters against the player or app specification, then narrowing any duration or dimension wider than the inventory can render and adding any supported format the tag is missing. After the change, recheck fill and the errored-impression rate on the affected tags to confirm the declarations fit the inventory."
+      }
+    },
+    {
+      "id": "springserve-supply-tag-setup-orphaned-mislabeled",
+      "title": "Orphaned or mislabeled supply tags pass inventory under the wrong placement",
+      "category": "inventory",
+      "subcategory": "supply_tag_setup",
+      "impact_score": 3,
+      "impact_rationale": "A supply tag mapped to the wrong placement, or one left active after the inventory it described is gone, sends impressions into reporting under a label that does not match their source. Demand then targets the placement the tag claims rather than the one it serves, and the publisher's reporting attributes revenue to the wrong inventory, so optimization decisions rest on a mapping that does not reflect reality.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "data-quality"],
+      "educate": {
+        "base": "In SpringServe a supply tag is mapped to a placement so that the impressions it passes are attributed to the inventory it represents, which is how demand targets the right placement and how the publisher's reporting ties revenue back to its source. The mapping is the link between a live request and the labeled inventory it belongs to, so it has to stay accurate as the publisher's video and Connected TV (CTV) inventory changes.<br><br>Two failures break that link. An orphaned tag is one left active after the inventory it described was retired or renamed, so it keeps passing requests that no longer map cleanly to a current placement. A mislabeled tag is one mapped to a placement it does not actually serve, for example a tag created by copying another and never repointed, so its impressions report under the wrong inventory. In both cases the demand source reads a label that does not match the request, and the publisher's reporting credits the wrong placement.<br><br>The downstream cost is that decisions rest on a mapping that does not reflect reality. A publisher reading revenue by placement sees impressions credited to inventory that did not produce them, and a buyer targeting a named placement may receive requests from a different one. The supply-chain declarations a publisher publishes, such as the seller entries in a sellers.json file, also assume that the inventory passed under an identifier matches what that identifier represents, so a mislabeled tag undermines the transparency those declarations are meant to provide.<br><br>A few signs point to orphaned or mislabeled tags:<ul><li>Active supply tags reference placements, players, or inventory names that no longer exist or have been renamed</li><li>Two or more tags map to the same placement when they were meant to represent different inventory, which suggests a copied tag was never repointed</li><li>Reporting shows impressions on a placement that the publisher does not recognize as currently live</li><li>A tag's name or label describes inventory different from the placement it is mapped to</li></ul>You may want to confirm that every active supply tag maps to a current placement that matches what the tag represents. One approach is to reconcile the active tag list against the live inventory, then repoint any mislabeled tag and pause any tag whose inventory is gone.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, channels and shows are added, renamed, and retired as the lineup changes, so tags created for a previous lineup can linger after the inventory moves. You may want to reconcile the active supply tags against the current channel and show lineup so retired inventory is not still passing impressions under an old label.",
+          "ecommerce": "On a commerce-content property, video inventory is often tied to product lines or campaign pages that come and go on a seasonal schedule. You may want to confirm that supply tags built for past campaigns or discontinued product pages are paused rather than left active, so impressions are not credited to placements the site no longer runs."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "IAB Tech Lab Content Taxonomy",
+            "source_url": "https://iabtechlab.com/standards/content-taxonomy/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed documentation for supply tag and placement mapping is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the active supply tags against the publisher's current live inventory to find tags mapped to placements that no longer exist or that describe inventory different from the placement they serve.",
+        "tools": {
+          "free": {
+            "springserve_console": {
+              "label": "SpringServe console",
+              "steps": [
+                "Open the supply tag list, filter to active tags, and export or record each tag with the placement, player, or inventory it is mapped to.",
+                "Compare each tag's mapping against the publisher's current live inventory and flag any tag pointing to a placement, player, or name that no longer exists or has been renamed.",
+                "Check for tags whose name or label describes inventory different from the placement they map to, and for duplicate tags pointing at the same placement that were meant to represent different inventory."
+              ]
+            },
+            "springserve_reporting": {
+              "label": "SpringServe reporting",
+              "steps": [
+                "Build a report broken out by placement with impressions and revenue over a recent window.",
+                "Look for placements receiving impressions that the publisher does not recognize as currently live, which can point to an orphaned or mislabeled tag still passing requests.",
+                "Record the placements and the tags feeding them so the mapping can be reconciled against the live inventory."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner reconciles the list of active supply tags against the publisher's current live inventory, recording each tag's mapped placement and whether that placement exists and matches the tag. A setup where every active tag maps to a current placement that matches what the tag represents passes. Any active tag mapped to a retired or renamed placement, mapped to a placement it does not serve, or duplicated against inventory it was not meant to represent is a fail recorded with the tag and the mapping problem.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each active supply tag, its mapped placement, and whether that placement is currently live above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has active supply tags that are orphaned or mislabeled, passing inventory under a placement that does not match their source. A tag mapped to a retired placement, or one pointing at inventory it does not serve, sends impressions into reporting under the wrong label, so demand targets the wrong placement and revenue is credited to inventory that did not produce it. {{voice_recommend}} reconciling the active supply tag list against the current live inventory, repointing any tag mapped to a placement it does not serve, and pausing any tag whose inventory is gone. After the cleanup, recheck reporting by placement to confirm impressions are credited to the inventory that produced them."
+      }
+    }
+  ]
+}

@@ -1,0 +1,220 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The VAST and VMAP integration is the contract between SpringServe and the video player, so an error here breaks ad serving for every impression on the affected inventory. A declared VAST version the player cannot parse, a VMAP playlist whose ad-break timing the player ignores, or a tracking macro the player never substitutes all fail silently, returning empty ad slots or unmeasured impressions rather than an obvious error. The check reads the tags and player configuration a publisher already has, so it costs review time rather than rebuild time, and a finding points to a concrete tag or player setting the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Video Ad Serving Template (VAST) and Video Multiple Ad Playlist (VMAP) are the standards-based formats SpringServe uses to hand ads and ad-break instructions to the video player. VAST carries the ad itself, the media files, the tracking events, and the click-through. VMAP carries the playlist that tells the player where the ad breaks fall on the content timeline and what each break should request. This subcategory is about whether those tags and the player that consumes them are wired correctly, so the player can parse the VAST it receives, honor the VMAP ad-break declarations, pass the parameters SpringServe needs to route demand, and fire the tracking that measures the impression. These checks confirm the integration is built to the spec the player expects rather than a configuration that returns empty slots or unmeasured impressions.",
+  "audit_checks": [
+    {
+      "id": "springserve-vast-vmap-integration-version-mismatch",
+      "title": "The declared VAST version or VMAP ad breaks do not match what the player supports",
+      "category": "inventory",
+      "subcategory": "vast_vmap_integration",
+      "impact_score": 4,
+      "impact_rationale": "VAST and VMAP are the contract between the ad server and the player, so a version or structure the player cannot parse breaks ad serving for the affected inventory. A VAST response in a version the player does not support, or a VMAP playlist whose ad breaks the player ignores, returns an empty slot rather than an ad, which means the impression is lost and the failure shows up only as missing fill rather than an error.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "Video Ad Serving Template (VAST) is an XML format that carries an ad from the ad server to the video player. It tells the player which media files to play, which tracking events to fire, and where the click leads. Video Multiple Ad Playlist (VMAP) is a companion XML format that sits a level above VAST. It describes the ad breaks on the content timeline, the pre-roll, mid-rolls, and post-roll, including the timing of each break and how many ads it should hold, then leaves each break to be filled by a VAST response. SpringServe serves through both, so the player has to understand the VAST version it receives and the VMAP structure that schedules the breaks.<br><br>VAST has moved through several versions, from VAST 2.0 through VAST 4.3 and the 2024 Connected TV (CTV) addendum, and each version added structure that older players do not parse. VAST 4.x, e.g., separates the verification and media-file handling in ways a player built for VAST 2.0 will not read. A version mismatch is rarely a loud failure. The player receives a response it cannot fully parse, drops the ad, and returns an empty slot, so the symptom is missing fill on a placement rather than an error in a log.<br><br>VMAP carries its own failure mode. If the player does not honor the VMAP ad-break declarations, the mid-rolls and post-roll the publisher scheduled may never fire, or they may fire at the wrong point in the content. The break the publisher meant to run at the halfway mark either does not run or interrupts the content at a point that was not intended.<br><br>A few signs point to a version or structure mismatch between the tags and the player:<ul><li>SpringServe is configured to return a VAST version the player documentation does not list as supported</li><li>Placements show fill that drops to near zero with no demand-side explanation, which can point to responses the player cannot parse</li><li>VMAP ad breaks are declared but the mid-rolls or post-roll do not run, or run at the wrong point on the timeline</li></ul>You may want to confirm that the VAST version SpringServe returns and the VMAP structure it serves both match what the specific player supports. One approach is to validate a sample VAST and VMAP response against the player's documented version support before assuming the demand side is the cause of missing fill.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, the player is often a custom or licensed CTV player whose VAST and VMAP support is fixed by the player build rather than something the publisher changes freely. You may want to confirm the VAST version SpringServe returns matches the player build in the field because a player shipped to set-top boxes or smart TVs cannot be updated as quickly as a web player when a version mismatch surfaces.",
+          "ecommerce": "On a commerce-content property running product or how-to video, the player is frequently an embedded web player whose VAST and VMAP support depends on the player library version in the page. You may want to confirm the VAST version SpringServe returns matches the player library the site actually loads because a library that lags behind the served VAST version can drop ads on the commercial video without an obvious error."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Multiple Ad Playlist (VMAP)",
+            "source_url": "https://iabtechlab.com/standards-old/video-multiple-ad-playlist-vmap/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the VAST version SpringServe is configured to return and the VMAP ad-break structure it serves, then compare both against the version support the player documentation lists.",
+        "tools": {
+          "free": {
+            "springserve_console": {
+              "label": "SpringServe console",
+              "steps": [
+                "Open the supply tag or demand configuration in SpringServe and record the VAST version the tag is set to return.",
+                "Record whether the inventory serves a VMAP playlist and, if so, how many ad breaks it declares and at what timing.",
+                "Note any per-placement override that returns a different VAST version than the account default."
+              ]
+            },
+            "vast_validator": {
+              "label": "VAST tag validator",
+              "steps": [
+                "Capture a sample VAST response for the placement, e.g., through the browser network panel or the player's debug output.",
+                "Run the sample through the IAB Tech Lab VAST validator to confirm the version it reports and whether it parses without error.",
+                "For VMAP, capture a sample playlist response and confirm the ad breaks and their timing match what the publisher scheduled.",
+                "Compare the validated VAST version and VMAP structure against the version support listed in the player's own documentation."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the VAST version SpringServe returns, the VMAP ad-break structure it serves, and the version support the player documents. A configuration where the returned VAST version is within the player's documented support and the VMAP ad breaks fire at the scheduled points passes. A configuration where SpringServe returns a VAST version the player does not support, or where declared VMAP ad breaks do not run or run at the wrong point, is a fail recorded with the placements and player affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the VAST version returned, the VMAP ad-break structure, and the player's documented version support above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} serves a Video Ad Serving Template (VAST) version or a Video Multiple Ad Playlist (VMAP) ad-break structure that the player does not fully support. VAST and VMAP are the contract between SpringServe and the player, so a version the player cannot parse drops the ad and returns an empty slot, and a VMAP structure the player ignores means scheduled mid-rolls or post-roll never fire. The failure shows as missing fill rather than an error, so it can persist unnoticed. {{voice_recommend}} validating a sample VAST and VMAP response against the version support the player documents, then aligning the version SpringServe returns to what the player can parse. After the change, recheck fill rate and confirm the VMAP ad breaks fire at the scheduled points on the content timeline."
+      }
+    },
+    {
+      "id": "springserve-vast-vmap-integration-required-parameters-not-passed",
+      "title": "The player does not pass the parameters SpringServe needs to fill the request",
+      "category": "inventory",
+      "subcategory": "vast_vmap_integration",
+      "impact_score": 3,
+      "impact_rationale": "SpringServe routes demand and matches targeting on the parameters the player sends with the ad request, e.g., player size, content metadata, and the consent signal. When the player omits a parameter the demand expects, requests that should have matched a buyer go unfilled or fill at a lower price, so the inventory is underpriced or unsold for a reason that sits in the player rather than in the demand.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "When a video player requests an ad from SpringServe, the request carries parameters that describe the impression. The player size in pixels, the content metadata such as title, category, and rating, the placement type, and the privacy signal all travel on the request. SpringServe and the demand it routes to read those parameters to decide which ads can serve and at what price. A buyer targeting large-format pre-roll on family-rated content can only match the request if the player actually sends the size and the content rating.<br><br>The risk is a player that requests an ad without populating the parameters the demand expects. The request still reaches SpringServe, but it arrives thin. A buyer that would have matched on content category cannot match a request that carries no category. A deal that requires a minimum player size cannot match a request that omits the size. The impression is not lost outright, but it competes for less demand than it should, so it fills at a lower price or does not fill at all, and the cause sits in the player rather than in the ad server or the demand.<br><br>Macros are the mechanism for several of these parameters. The Video Ad Serving Template (VAST) defines macros the player substitutes at request time, e.g., a cache-busting value or the player dimensions, and SpringServe relies on the player replacing those macros with real values rather than sending them as literal placeholder text. A player that forwards an unsubstituted macro sends the demand a placeholder string instead of the value it describes.<br><br>A few parameters are worth confirming the player passes on every request:<ul><li>Player size: the width and height in pixels, so size-targeted and format-targeted demand can match</li><li>Content metadata: the title, category, and rating, so content-targeted demand and brand-safety controls can apply</li><li>Privacy signal: the consent string the demand needs to bid in a regulated region</li></ul>You may want to confirm the player populates the parameters SpringServe and the demand depend on, rather than sending an ad request with those fields empty or left as unsubstituted macros. One approach is to inspect a live ad request from the player and read the parameter values it actually carries.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, content metadata carries weight because buyers target by genre, rating, and program, and brand-safety controls apply on the same fields. You may want to confirm the CTV player passes the content title, category, and rating on every request because a streaming request that arrives without metadata competes only for untargeted demand and clears below what the content could command.",
+          "ecommerce": "On a commerce-content property, the player size and placement type often decide which formats a buyer will run on product or how-to video. You may want to confirm the embedded player passes its dimensions and placement type accurately because a request that understates the player size or omits it can keep large-format demand from matching the commercial video inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for the request parameters and macros it expects from the player is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review a live ad request from the player to read the parameters it carries, then compare them against the parameters SpringServe and the routed demand expect.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the page or app with the video player and capture the ad request to SpringServe in the network panel.",
+                "Read the request parameters and confirm the player size, content metadata, placement type, and privacy signal are present and populated with real values.",
+                "Note any parameter that arrives empty or as an unsubstituted VAST macro, e.g., a literal placeholder string rather than the value it describes."
+              ]
+            },
+            "springserve_console": {
+              "label": "SpringServe console",
+              "steps": [
+                "Open the supply tag configuration in SpringServe and record which request parameters and macros it is set to read for targeting and demand routing.",
+                "Compare the parameters the tag expects against the parameters the captured live request actually carried.",
+                "Record any parameter the demand depends on that the player is not passing, with the placement and player affected."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the parameters the player passes on a live request and the parameters SpringServe and the demand expect. A request that carries the player size, content metadata, placement type, and privacy signal with real substituted values passes. A request that omits a parameter the demand depends on, or that forwards an unsubstituted macro as a literal placeholder, is a fail recorded with the missing parameter and the placement affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the parameters the player passes and the parameters SpringServe expects above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the player on {{site_name}} sends ad requests to SpringServe without populating parameters the demand depends on, e.g., player size, content metadata, or the privacy signal. SpringServe routes demand and matches targeting on those parameters, so a request that arrives thin competes for less demand than it should and fills at a lower price or goes unfilled, with the cause sitting in the player rather than the ad server. {{voice_recommend}} inspecting a live ad request to read the values the player carries, then correcting the player so it passes the required parameters with real substituted values rather than empty fields or unsubstituted macros. After the change, recheck fill rate and average price on the affected placements to confirm the fuller request reaches more demand."
+      }
+    },
+    {
+      "id": "springserve-vast-vmap-integration-tracking-events-not-firing",
+      "title": "Impression and quartile tracking events do not fire from the player",
+      "category": "inventory",
+      "subcategory": "vast_vmap_integration",
+      "impact_score": 3,
+      "impact_rationale": "The Video Ad Serving Template carries the tracking URLs the player calls to report the impression and the playback quartiles, and SpringServe counts the ad on those calls. When the player does not fire the impression or quartile events, the ad plays but the impression goes uncounted or the completion data is missing, so reporting understates delivery and the discrepancy can put billing and demand-side reconciliation in dispute.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "A Video Ad Serving Template (VAST) response does more than hand the player a media file. It also carries a set of tracking URLs the player is expected to call as the ad plays. The impression event fires when the ad starts. The quartile events, first quartile, midpoint, third quartile, and complete, fire as playback passes each point, and the complete event marks a fully watched ad. SpringServe counts the impression and reads completion on the back of those calls, so the count depends on the player actually firing them.<br><br>The risk is a player that plays the ad but does not fire the tracking. The viewer sees the ad, so nothing looks wrong on screen, but the impression URL is never called, so SpringServe never counts the impression, or the quartile URLs are never called, so the completion rate reads as zero on inventory that is in fact completing. The result is a report that understates delivery against a reality where the ads ran, which is the kind of gap that surfaces when a publisher's count and a buyer's count are reconciled and disagree.<br><br>Several causes sit behind missing tracking. The player may not implement the full quartile event set. A macro inside the tracking URL may not be substituted, so the call goes to a malformed address. A cross-origin or HTTPS restriction may block the call from leaving the player. The Open Measurement Interface Definition (OMID), the standard behind the Open Measurement SDK, addresses a related need by giving third-party verification a consistent way to read impression and viewability signals from the player, which matters when a buyer requires measured impressions rather than counted ones.<br><br>A few signs point to tracking that is not firing as expected:<ul><li>SpringServe reports impressions well below the ad starts the player logs, which suggests the impression event is not being called</li><li>Completion rate reads at or near zero on inventory the player confirms is playing to the end, which suggests the quartile events are not firing</li><li>Tracking calls in the network panel show unsubstituted macros, malformed URLs, or calls blocked by a cross-origin or HTTPS restriction</li></ul>You may want to confirm the player fires the impression and quartile events the VAST response declares. One approach is to play a test ad, watch the network panel for the tracking calls at each quartile, and confirm each call leaves the player with its macros substituted.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, completion data carries weight because CTV buyers frequently transact on completed views rather than served impressions. You may want to confirm the CTV player fires the quartile and complete events because a player that serves the ad but never reports completion makes fully watched inventory read as unmeasured and can put CTV billing in dispute.",
+          "ecommerce": "On a commerce-content property, the impression event is the count a buyer pays against, so a player that plays the ad on product or how-to video without firing the impression undercounts delivery on commercial inventory. You may want to confirm the embedded player fires the impression event and that no cross-origin or HTTPS restriction on the page blocks the tracking call from leaving."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Open Measurement SDK (OM SDK)",
+            "source_url": "https://iabtechlab.com/standards/open-measurement-sdk/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Play a test ad through the player and watch the network panel for the impression and quartile tracking calls, then confirm each call leaves the player with its macros substituted.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the page or app with the video player and start a test ad while capturing network traffic.",
+                "Watch for the impression event call when the ad starts, then for the first-quartile, midpoint, third-quartile, and complete calls as playback passes each point.",
+                "Confirm each tracking call leaves the player with its macros substituted to real values and is not blocked by a cross-origin or HTTPS restriction.",
+                "Note any quartile event that the player never fires or any tracking URL that shows an unsubstituted macro or a malformed address."
+              ]
+            },
+            "springserve_console": {
+              "label": "SpringServe console",
+              "steps": [
+                "Build a SpringServe report comparing ad starts or requests against counted impressions for the placement to see whether the impression count tracks the playback.",
+                "Read the completion or quartile metrics for the same placement to see whether completion is being reported or reads at or near zero.",
+                "Record any gap between the ads the player plays and the impressions or completions SpringServe counts, with the placement and player affected."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the player fires the impression and quartile events the VAST response declares and whether SpringServe's counted impressions and completion data track the playback the player logs. A player that fires the impression and quartile events with substituted macros, and a SpringServe count that tracks the playback, passes. A player that omits the impression or quartile events, or a SpringServe count that sits well below the ads played, is a fail recorded with the missing events and the placement affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the player fires the impression and quartile events and whether SpringServe's counts track the playback above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the player on {{site_name}} plays ads without firing the impression or quartile tracking events the Video Ad Serving Template (VAST) response declares. SpringServe counts the impression and reads completion on those tracking calls, so a player that plays the ad but never calls them leaves the impression uncounted or the completion data missing, which makes reporting understate delivery and can put billing and reconciliation with the demand side in dispute. {{voice_recommend}} playing a test ad and watching the network panel for the impression and each quartile call, then correcting the player or the tracking URLs so every event fires with its macros substituted and no cross-origin or HTTPS restriction blocks the call. After the change, recheck whether the counted impressions and completion data track the playback the player logs."
+      }
+    }
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://iabtechlab.com/sellers-json/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Amazon is a declared seller of inventory it brokers through Transparent Ad Marketplace and Unified Ad Marketplace, so it publishes a sellers.json file and stamps a SupplyChain object on the bid requests it sends. When the entry that names a publisher's seller account is wrong, or when the SupplyChain object drops a node before the bid reaches the buyer, demand-side platforms can flag the path as unverified and bid down or skip it. The check is a review of public sellers.json data and the schain a publisher's own setup passes, so it costs reading time rather than rebuild time, and the finding points to a specific record or node a publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Amazon Publisher Services (APS) routes a publisher's inventory through Transparent Ad Marketplace and Unified Ad Marketplace, and because Amazon resells or brokers that inventory it counts as a seller under the Interactive Advertising Bureau Tech Lab (IAB Tech Lab) transparency standards. Two records have to line up for a buyer to trust the path. Amazon's sellers.json file has to carry an entry that correctly names the publisher's seller account and the relationship type, and the SupplyChain object passed with each bid request has to list every node from the publisher to the buyer without a gap. This subcategory checks both: that the sellers.json entry is accurate and disclosed as the publisher intends, and that the SupplyChain object is complete end to end.",
+  "audit_checks": [
+    {
+      "id": "amazon-publisher-services-sellers-json-entry-mismatch",
+      "title": "The Amazon Publisher Services sellers.json entry does not match the publisher's seller ID or relationship",
+      "category": "supply-chain",
+      "subcategory": "sellers_json",
+      "impact_score": 3,
+      "impact_rationale": "Buyers cross-reference the seller ID in the SupplyChain object against the seller's sellers.json entry to confirm who is selling the impression. When the entry names the wrong seller ID, marks a direct relationship as a reseller relationship, or leaves the publisher undisclosed against the publisher's intent, the path reads as unverified and a demand-side platform may bid down or skip it, so accurate inventory loses value for a record-keeping reason rather than a quality one.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "A sellers.json file is a public document an advertising system publishes to declare the entities it sells or brokers inventory for. The Interactive Advertising Bureau Tech Lab (IAB Tech Lab) sellers.json specification defines what each entry holds, including a seller ID that the system assigns, a seller type of either 'PUBLISHER', 'INTERMEDIARY', or 'BOTH', and a flag for whether the seller is disclosed by name or kept confidential. Amazon Publisher Services (APS) brokers inventory through Transparent Ad Marketplace and Unified Ad Marketplace, so Amazon's sellers.json file carries an entry for each publisher account it sells for.<br><br>Buyers use this file to verify the path. When a bid request arrives carrying a SupplyChain object, the buyer reads the seller ID at each node and looks that ID up in the matching system's sellers.json file. The lookup confirms who the seller is, what type of seller they are, and whether the publisher chose to disclose their identity. The two records have to agree. The seller ID stamped on the bid request has to resolve to a sellers.json entry that names the right account and describes the relationship correctly.<br><br>The audit question is whether the entry that represents the publisher is accurate. The seller ID has to match the account Amazon assigned. The seller type has to reflect the real relationship since a direct publisher relationship and a reseller relationship are read differently by buyers. The disclosure flag has to match the publisher's intent because an account marked confidential hides the publisher's identity from buyers who would otherwise recognize and value it, while a disclosed account that the publisher meant to keep confidential exposes information the publisher did not want shared.<br><br>A few signs point to a sellers.json entry that does not match the publisher's setup:<ul><li>The seller ID carried on Amazon-brokered bid requests does not resolve to an entry in Amazon's published sellers.json file</li><li>The entry exists but marks the relationship as a reseller arrangement when the publisher sells directly, or the reverse</li><li>The entry is set to confidential when the publisher intended to be disclosed by name, or disclosed when the publisher intended confidentiality</li></ul>You may want to confirm that the sellers.json entry representing the publisher matches the assigned seller ID, the real relationship type, and the publisher's disclosure choice. One approach is to read the seller ID off an Amazon-brokered bid request, look it up in Amazon's public sellers.json file, and compare each field against what the publisher expects.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the publisher's name often carries value with buyers who target known, brand-safe inventory, so a confidential entry that hides the publisher's identity can cost recognition the publisher would benefit from disclosing. You may want to confirm the disclosure flag in the sellers.json entry matches the publisher's intent. A media brand kept confidential by mistake loses the lift that comes from buyers recognizing the name.",
+          "ecommerce": "On a commerce-content site, inventory may run under a parent retail brand or a separate content property, and the seller account has to name the entity the publisher means buyers to see. You may want to confirm the seller ID resolves to the correct account and that the disclosed name matches the property the inventory actually belongs to, rather than a sibling account under the same organization."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "OpenRTB SupplyChain Object Specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/openrtb/blob/main/supplychainobject.md"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's detailed account and seller-ID configuration documentation is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the seller ID carried on Amazon-brokered bid requests, look it up in Amazon's public sellers.json file, and compare the seller ID, seller type, and disclosure flag against the publisher's expected setup.",
+        "tools": {
+          "free": {
+            "sellers_json_lookup": {
+              "label": "Amazon sellers.json file",
+              "steps": [
+                "Open Amazon's published sellers.json file at its well-known location on the Amazon advertising domain and confirm it loads as valid JSON.",
+                "Ask the publisher for the seller ID Amazon assigned to their Transparent Ad Marketplace or Unified Ad Marketplace account, then find the matching entry in the sellers.json file.",
+                "Record the entry's seller_type field, either 'PUBLISHER', 'INTERMEDIARY', or 'BOTH', and compare it against the real relationship the publisher has with Amazon.",
+                "Record whether the entry is disclosed by name or marked confidential, and compare that against the publisher's stated intent.",
+                "Note any field where the published entry and the publisher's expected setup disagree, with the seller ID and the field that diverges."
+              ]
+            },
+            "bid_request_inspection": {
+              "label": "Bid request inspection",
+              "steps": [
+                "Capture a sample Amazon-brokered bid request from a header-bidding debugging session or a server log the publisher can access.",
+                "Read the seller ID at the Amazon node of the SupplyChain object and confirm it is the same ID the publisher expects.",
+                "Confirm that seller ID resolves to an entry in Amazon's sellers.json file rather than returning no match."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the seller ID Amazon assigned, the matching sellers.json entry's seller type and disclosure flag, and the publisher's expected values for each. An entry whose seller ID resolves correctly, whose seller type reflects the real relationship, and whose disclosure flag matches the publisher's intent passes. A missing entry, a seller type that misstates the relationship, or a disclosure flag that contradicts the publisher's intent is a fail recorded with the seller ID and the field that diverges.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the assigned seller ID, the sellers.json entry's seller type and disclosure flag, and the publisher's expected values above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Amazon Publisher Services sellers.json entry representing {{site_name}} does not match the publisher's setup, either the seller ID, the seller type, or the disclosure flag. Buyers cross-reference the seller ID in the SupplyChain object against the seller's sellers.json entry to confirm who is selling the impression, so a mismatched or missing entry reads as an unverified path and a demand-side platform may bid the impression down or skip it. {{voice_recommend}} reading the seller ID off an Amazon-brokered bid request, looking it up in Amazon's public sellers.json file, and correcting the entry so the seller ID, the seller type, and the disclosure flag each reflect the real relationship and the publisher's intent. After the correction, recheck a sample bid request to confirm the seller ID resolves to the accurate entry."
+      }
+    },
+    {
+      "id": "amazon-publisher-services-sellers-json-supplychain-incomplete",
+      "title": "The SupplyChain object is incomplete on Amazon-brokered bid requests",
+      "category": "supply-chain",
+      "subcategory": "sellers_json",
+      "impact_score": 3,
+      "impact_rationale": "The SupplyChain object lists every node from the publisher to the buyer and carries a complete flag set to 1 only when no node is missing. When a node is dropped or the complete flag reads 0, buyers cannot trace the path back to the inventory owner, so a demand-side platform may treat the request as a transparency risk and bid down or skip it, costing legitimate inventory revenue for a wiring gap rather than a quality problem.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "The SupplyChain object travels with a bid request and names every party that sold or resold the impression on its way to the buyer. The Interactive Advertising Bureau Tech Lab (IAB Tech Lab) SupplyChain Object specification defines its shape. It holds an array of nodes in the order of the chain, where the first node is the inventory owner and the last node is the entity sending the bid request, and a 'complete' flag set to 1 when the chain includes every node back to the owner or 0 when at least one node is unknown. Each node carries an advertising system identifier and the seller ID that system assigned, which is the same ID a buyer looks up in that system's sellers.json file.<br><br>Amazon Publisher Services (APS) does its bidding server-side, so the SupplyChain object on an Amazon-brokered request has to represent the full path through Amazon to the buyer. The header-bidding setup that wires Amazon in is responsible for passing the publisher's own node and any upstream nodes correctly, so that Amazon receives and forwards a chain that starts at the publisher rather than at Amazon. When the publisher uses a Prebid wrapper alongside Amazon, the wrapper's Supply Chain module declares the publisher's node, and that node has to reach Amazon intact for the forwarded chain to stay complete.<br><br>An incomplete chain shows up in two ways. A node can be missing, which leaves a gap between the publisher and the buyer that the buyer cannot fill, and the 'complete' flag should then read 0 to declare the gap honestly. Or the chain can be present but the 'complete' flag still reads 0 because the setup never set it to 1, which tells buyers the path is partial even when it is whole. Either reading lowers the trust a buyer places in the request.<br><br>A few signs point to a SupplyChain object that is not complete end to end:<ul><li>The chain on an Amazon-brokered bid request starts at Amazon rather than at the publisher, so the publisher's own node is missing</li><li>The 'complete' flag reads 0 on requests where the publisher believes every node is present</li><li>A Prebid Supply Chain module is configured but its node is not reaching Amazon, so the forwarded chain drops the publisher</li></ul>You may want to confirm the SupplyChain object carries every node from the publisher through Amazon to the buyer and that the 'complete' flag reflects the real state of the chain. One approach is to capture a sample Amazon-brokered bid request, read the node array in order, and confirm the publisher's node is present and the flag is set correctly.",
+        "site_type_overlays": {
+          "publishing": "On a media site that runs Amazon Publisher Services alongside a Prebid wrapper, the wrapper's Supply Chain module declares the publisher's node, and that node has to reach Amazon for the forwarded chain to start at the publisher. You may want to confirm the Prebid Supply Chain configuration is passing the publisher's node intact rather than leaving Amazon to send a chain that begins at itself.",
+          "ecommerce": "On a commerce-content site, inventory may run under more than one account or property, and each path has to declare its own complete chain. You may want to confirm the SupplyChain object on each property's Amazon-brokered requests starts at the correct publisher node, rather than a single chain that fits one property and leaves the others incomplete."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "OpenRTB SupplyChain Object Specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/openrtb/blob/main/supplychainobject.md"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Supply Chain Object Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/schain.html"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's documentation for how its server-side bidding constructs and forwards the SupplyChain object is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Capture a sample Amazon-brokered bid request, read the SupplyChain object's node array in order, and confirm the publisher's node is present and the 'complete' flag matches the real state of the chain.",
+        "tools": {
+          "free": {
+            "bid_request_inspection": {
+              "label": "Bid request inspection",
+              "steps": [
+                "Capture a sample Amazon-brokered bid request from a header-bidding debugging session or a server log the publisher can access.",
+                "Read the SupplyChain object's node array in order and confirm the first node represents the publisher rather than Amazon.",
+                "Record the value of the 'complete' flag and compare it against whether every node from the publisher to the buyer is actually present.",
+                "Note any case where the publisher's node is missing or the 'complete' flag reads 0 while the chain appears whole."
+              ]
+            },
+            "prebid_schain_config": {
+              "label": "Prebid Supply Chain configuration",
+              "steps": [
+                "If the publisher runs a Prebid wrapper alongside Amazon Publisher Services, open the Supply Chain module configuration and confirm a node declaring the publisher is set.",
+                "Confirm the configured node carries the publisher's advertising system identifier and assigned seller ID rather than placeholder values.",
+                "Confirm the configuration is applied to the Amazon path so the publisher's node reaches Amazon and survives into the forwarded chain."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, from a sample Amazon-brokered bid request, whether the SupplyChain node array starts at the publisher, whether every expected node is present, and what the 'complete' flag reads. A chain that starts at the publisher's node, includes every node to the buyer, and carries a 'complete' flag of 1 passes. A chain missing the publisher's node, or one whose 'complete' flag reads 0 against a chain the publisher believes is whole, is a fail recorded with the missing node or the flag value.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the SupplyChain node array starts at the publisher, whether every node is present, and the value of the 'complete' flag above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the SupplyChain object on Amazon-brokered bid requests for {{site_name}} is incomplete, either because the publisher's node is missing or because the 'complete' flag reads 0. The SupplyChain object lists every node from the publisher to the buyer and declares a complete chain only when the flag is set to 1, so a gap or a flag reading 0 tells buyers the path cannot be traced back to the inventory owner, and a demand-side platform may treat the request as a transparency risk and bid it down or skip it. {{voice_recommend}} capturing a sample Amazon-brokered bid request, reading the node array in order to confirm the publisher's node is present, and correcting the header-bidding setup or the Prebid Supply Chain configuration so the chain reaches Amazon intact and the flag reflects the real state. After the change, recheck a sample request to confirm the chain starts at the publisher and the flag reads correctly."
+      }
+    }
+  ]
+}

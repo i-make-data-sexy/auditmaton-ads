@@ -1,0 +1,154 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "SPO and reseller hygiene decide how clean the path looks when a buyer evaluates whether to bid on a publisher's inventory through APS. Redundant paths to the same impression and unauthorized or made-for-advertising (MFA) reseller risk both make a publisher's supply look less trustworthy, and buyers route spend away from paths they cannot verify. The check is a review of the declarations and reseller relationships a publisher already controls, so it costs reading time rather than rebuild time, and the finding points to a concrete declaration or path the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Supply Path Optimization (SPO) is the process buyers use to choose the shortest, most verifiable route to a publisher's inventory, and reseller hygiene is the publisher-side work that keeps that route clean. When a publisher sells the same impression through Amazon Publisher Services (APS) and through several other intermediaries at once, buyers see redundant paths and tend to consolidate spend onto the one they trust most. This subcategory is about the declarations and reseller relationships a publisher controls, the ads.txt and sellers.json records that describe who may sell the inventory and how. These checks confirm that the paths to a publisher's inventory are deliberate and verifiable rather than a sprawl of duplicate and unauthorized routes that buyers discount.",
+  "audit_checks": [
+    {
+      "id": "amazon-publisher-services-spo-reseller-hygiene-redundant-paths",
+      "title": "The same inventory is sold through redundant paths buyers cannot consolidate",
+      "category": "supply-chain",
+      "subcategory": "spo_reseller_hygiene",
+      "impact_score": 3,
+      "impact_rationale": "When a publisher exposes the same impression through Amazon Publisher Services (APS) and several parallel intermediaries, buyers running Supply Path Optimization see duplicate paths and pick one, which means the others compete against the publisher's own inventory and depress the price. Redundant paths also dilute the win rate on each path, so a path that looks underperforming gets dropped even when the inventory behind it is sound.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["transparency", "fraud"],
+      "educate": {
+        "base": "Supply Path Optimization (SPO) is the discipline buyers use to reach a publisher's inventory by the shortest, most verifiable route. A demand-side platform that can buy the same impression through five intermediaries does not bid five times. It evaluates the paths, keeps the one that is cheapest and easiest to verify, and stops bidding through the rest. For a publisher selling through APS, that means parallel paths to the same impression are not extra demand. They are paths competing for the same dollar, and most of them lose.<br><br>The cost of redundant paths is not abstract. Each duplicate route splits the win rate, so a path that genuinely performs well can look weak because the wins are spread across several declarations of the same inventory. A buyer reading those split numbers may drop the path entirely. Duplicate paths also raise the buyer's auction costs and slow their decision, which is the opposite of what SPO rewards, so the publisher's whole supply looks less attractive than a competitor with one clean path.<br><br>The publisher controls the declarations that define these paths. The ads.txt file names which intermediaries may sell the inventory, and each intermediary's sellers.json record names the seller account and whether it is a direct or reseller relationship. When APS and several resellers all carry the same impression, the ads.txt file usually shows it, with many lines pointing to the same inventory through different intermediaries. The audit question is whether each declared path earns its place or whether the publisher is declaring routes that only add duplication.<br><br>A few signs point to redundant paths that buyers cannot consolidate:<ul><li>The ads.txt file lists many intermediaries selling the same inventory, including reseller lines the publisher cannot explain or tie to active revenue</li><li>Reporting shows several paths to the same impression with low and similar win rates rather than one path carrying the bulk of the wins</li><li>The publisher cannot say which paths are direct and which are resold, or why a given reseller path exists alongside the direct APS path</li></ul>You may want to confirm that each declared path is deliberate and tied to revenue. One approach is to read the ads.txt file against the paths that actually win, then remove reseller lines that add a duplicate route without adding demand.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a single premium impression can end up declared through a direct seller account, a managed-service partner, and one or more resellers at once, which gives buyers several routes to the same homepage or section-front slot. You may want to map each ads.txt line to a path that wins business, then drop the reseller declarations that only duplicate the direct path, so buyers see one clean route to the premium inventory rather than several.",
+          "ecommerce": "On a commerce-content site, product and category pages carry higher-value inventory that more intermediaries want to resell, so duplicate paths cluster on exactly the pages a publisher most wants buyers to trust. You may want to keep the verifiable direct path on the commercial inventory and prune reseller lines there first, so the highest-intent impressions present a single clean path to buyers running Supply Path Optimization."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json and SupplyChain Object: Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt (Authorized Digital Sellers) Specification and Implementation Guide",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the ads.txt file and the sellers.json records behind each declared path, then compare the declared paths against the paths that actually win, to see whether every route is deliberate and tied to revenue.",
+        "tools": {
+          "free": {
+            "ads_txt": {
+              "label": "Publisher ads.txt file",
+              "steps": [
+                "Open the publisher's ads.txt file at the site root, for example 'https://example.com/ads.txt', and list every line.",
+                "Group the lines by intermediary and note which point to the same inventory, marking each as DIRECT or RESELLER per the relationship field.",
+                "For the Amazon Publisher Services (APS) line and each reseller line, record the seller account ID so it can be matched against the intermediary's sellers.json record.",
+                "Flag any reseller line the publisher cannot explain or tie to an active, revenue-producing relationship."
+              ]
+            },
+            "sellers_json": {
+              "label": "Intermediary sellers.json lookup",
+              "steps": [
+                "For each intermediary in the ads.txt file, open its public sellers.json file and find the seller account ID from the ads.txt line.",
+                "Confirm the record names the publisher and shows the expected seller type, for example PUBLISHER for a direct relationship or INTERMEDIARY for a reseller.",
+                "Record any path where the sellers.json record is missing, names a different entity, or contradicts the ads.txt relationship, which buyers treat as unverifiable."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per declared path to a given impression, the intermediary, the DIRECT or RESELLER relationship, whether the sellers.json record verifies it, and whether the path is tied to active revenue. A setup where each path is deliberate, verifiable, and earns its place passes. A setup with several redundant paths to the same inventory, including reseller lines the publisher cannot tie to revenue or that fail sellers.json verification, is a fail recorded with the duplicate paths and the inventory they cover.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each declared path, its relationship type, whether sellers.json verifies it, and whether it is tied to revenue above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sells the same inventory through several redundant paths that buyers cannot consolidate, with reseller lines in the ads.txt file that do not tie to active revenue or fail sellers.json verification. Buyers running Supply Path Optimization keep one path to an impression and stop bidding through the rest, so duplicate routes split the win rate and make each path look weaker than the inventory behind it. {{voice_recommend}} mapping each ads.txt line to the path that actually wins business, verifying each against the intermediary's sellers.json record, and removing the reseller declarations that add a duplicate route without adding demand. After the cleanup, recheck win rate by path to confirm the demand consolidates onto the verifiable routes that remain."
+      }
+    },
+    {
+      "id": "amazon-publisher-services-spo-reseller-hygiene-mfa-unauthorized-reseller-risk",
+      "title": "Made-for-advertising and unauthorized reseller risk is not monitored",
+      "category": "supply-chain",
+      "subcategory": "spo_reseller_hygiene",
+      "impact_score": 3,
+      "impact_rationale": "Unauthorized resellers and made-for-advertising sites that misuse a publisher's declarations or impersonate its inventory pull buyer spend toward low-quality supply and put the publisher's verified inventory in company buyers actively avoid. Left unmonitored, the publisher cannot tell legitimate demand from spoofed or MFA-adjacent paths, so brand-safety-conscious buyers discount the whole supply rather than risk the bad paths.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["transparency", "fraud"],
+      "educate": {
+        "base": "Made-for-advertising (MFA) sites are built to win programmatic scale rather than to serve readers, packing pages with ads and reworked content so they harvest impressions cheaply. For a legitimate publisher selling through Amazon Publisher Services (APS), MFA matters in two ways. The first is association. When a publisher's authorized resellers also carry MFA inventory, or when the publisher's own declarations are loose enough that buyers cannot separate its inventory from MFA-adjacent supply, brand-safety-conscious buyers discount the publisher to avoid the bad neighbors. The second is impersonation, where an unauthorized seller spoofs the publisher's domain or misuses its seller account to sell traffic the publisher never produced.<br><br>Both risks live in the same declarations that govern Supply Path Optimization. The ads.txt file is the publisher's statement of who may sell its inventory, and any intermediary not listed there is, by the standard's own logic, unauthorized. The sellers.json records on the buy path reveal the chain of intermediaries behind an impression, which lets a publisher see whether its inventory is being resold through entities it never approved. The IAB Tech Lab's guidance on identifying MFA describes the signals buyers use, such as heavy ad clutter, fast refresh, and thin reworked content, which are the same signals a publisher should watch for among the resellers carrying its supply.<br><br>The monitoring is not a one-time setup. Reseller relationships change, intermediaries add sub-sellers, and spoofing attempts appear and disappear, so a publisher needs a recurring read of its declarations against the paths buyers actually see. Without that read, the publisher learns about an unauthorized path or an MFA association only when a buyer's block list or a third-party verification vendor flags it, by which point the spend has already moved away.<br><br>A few signs point to MFA and unauthorized reseller risk going unmonitored:<ul><li>No recurring review checks the ads.txt and sellers.json declarations against the resellers actually selling the publisher's inventory</li><li>Resellers appear in the supply chain that are not listed in the publisher's ads.txt file, which marks them as unauthorized</li><li>The publisher has no process to watch for domain spoofing or seller-account misuse, and relies on buyers or verification vendors to surface it</li></ul>You may want to confirm that someone reviews the reseller paths on a regular schedule. One approach is to check the ads.txt file against the intermediaries in the buy-side supply chain, remove or report any unauthorized seller, and watch the MFA signals among the resellers that remain.",
+        "site_type_overlays": {
+          "publishing": "On a media site, an established brand is a frequent target for domain spoofing because its name carries buyer trust, so unauthorized sellers claiming to offer its inventory can divert spend toward traffic the publisher never produced. You may want to monitor the buy-side supply chain for sellers claiming your domain that are absent from your ads.txt file, and report them to the intermediary and to verification vendors so buyers can block the spoofed path.",
+          "ecommerce": "On a commerce-content site, the higher prices on product and category inventory make it an attractive target for resellers to relabel and resell, which raises the chance of an MFA-adjacent path attaching to the commercial pages. You may want to confirm that every reseller carrying your commercial inventory is listed in your ads.txt file and clears the MFA signals. A single bad path on high-value pages does the most damage to buyer trust."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Using OpenRTB Signals to Identify Made for Advertising",
+            "source_url": "https://iabtechlab.com/using-openrtb-signals-to-identify-made-for-advertising/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt (Authorized Digital Sellers) Specification and Implementation Guide",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether a recurring process checks the publisher's declarations against the resellers actually carrying its inventory, and whether anyone watches for unauthorized sellers and made-for-advertising (MFA) signals.",
+        "tools": {
+          "free": {
+            "ads_txt": {
+              "label": "Publisher ads.txt file",
+              "steps": [
+                "Open the publisher's ads.txt file and list every authorized seller, noting the Amazon Publisher Services (APS) line and each declared reseller.",
+                "Ask the publisher who reviews this file and on what schedule, and record whether any recurring check compares it against the resellers actually selling the inventory.",
+                "Record any reseller relationship the publisher cannot explain or that has no clear revenue behind it, which makes those candidates for removal."
+              ]
+            },
+            "sellers_json": {
+              "label": "Buy-side supply chain and sellers.json",
+              "steps": [
+                "Using a buyer-facing supply chain view or a verification vendor's report, list the intermediaries and sub-sellers presenting the publisher's inventory.",
+                "Match each against the publisher's ads.txt file, and flag any seller presenting the inventory that the ads.txt file does not authorize.",
+                "For the resellers that remain, check the made-for-advertising signals the IAB Tech Lab guidance describes, for example heavy ad clutter, fast refresh, and thin reworked content, and record any reseller carrying MFA-adjacent supply alongside the publisher's inventory."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a recurring review exists, the authorized sellers in the ads.txt file, any sellers presenting the inventory that the ads.txt file does not authorize, and any reseller carrying MFA-adjacent supply alongside the publisher's inventory. A setup with a regular review, an ads.txt file that matches the resellers actually selling the inventory, and no unauthorized or MFA-adjacent paths passes. A setup with no recurring review, unauthorized sellers in the supply chain, or MFA risk among the resellers is a fail recorded with the paths affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a recurring review exists, the authorized sellers, any unauthorized sellers, and any MFA-adjacent reseller paths above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not monitor made-for-advertising and unauthorized reseller risk, so sellers absent from the ads.txt file present the inventory and no recurring review checks the resellers actually carrying it. Unauthorized resellers and MFA-adjacent paths pull buyer spend toward low-quality supply and put verified inventory in company brand-safety-conscious buyers avoid, which leads them to discount the whole supply rather than risk the bad paths. {{voice_recommend}} setting a recurring review that checks the ads.txt and sellers.json declarations against the buy-side supply chain, reporting or removing any unauthorized seller, and watching the MFA signals the IAB Tech Lab guidance describes among the resellers that remain. After the review is in place, recheck the supply chain on a schedule so unauthorized and MFA-adjacent paths are caught before buyers move spend away."
+      }
+    }
+  ]
+}

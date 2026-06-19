@@ -1,0 +1,157 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://iabtechlab.com/sellers-json/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Supply chain transparency is what lets a buyer trace a bid request back to the publisher that owns the inventory, and Index Exchange carries that trace through its sellers.json entry and the SupplyChain object it passes downstream. A seller record that misstates the relationship, or a SupplyChain object that drops a node, makes the publisher's inventory look like unauthorized or resold supply, which buyers and their verification partners can score down or filter out. The check reads records the publisher and IX already publish rather than rebuilding anything, so it costs verification time, and the finding points to a concrete transparency fix that protects demand.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Sellers.json and the OpenRTB SupplyChain object are the two records that let a buyer confirm who is selling a given impression and trace it back to the publisher that owns the inventory. Index Exchange (IX) publishes a sellers.json file that names its seller accounts, and it passes a SupplyChain object on the bid requests it sends downstream. This subcategory checks that the publisher's own seller account in IX's sellers.json states the right relationship, and that the SupplyChain object reaches the buyer complete. These records are how authorized supply is told apart from spoofed or undeclared supply, so a gap here reads to buyers as a transparency problem rather than a clerical one.",
+  "audit_checks": [
+    {
+      "id": "index-exchange-sellers-json-entry-relationship-mismatch",
+      "title": "The sellers.json entry does not match the publisher's seller ID and relationship",
+      "category": "supply-chain",
+      "subcategory": "sellers_json",
+      "impact_score": 3,
+      "impact_rationale": "A seller record that names the wrong relationship, or that hides the publisher's identity when it could be disclosed, makes the inventory harder for a buyer to verify against ads.txt and sellers.json together. Buyers and verification vendors can score down or filter supply they cannot trace cleanly, so a mismatch here can cost demand on inventory that is otherwise legitimate.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "Sellers.json is the public file an exchange or supply-side platform (SSP) publishes to name the seller accounts it transacts on behalf of. Index Exchange (IX) publishes one, and each seller account in it carries a few fields that a buyer reads to decide whether the supply is trustworthy. The seller ID is the account identifier that ties back to the publisher's ads.txt line. The seller_type states the relationship, where 'PUBLISHER' means the named entity owns the inventory and IX pays them directly, 'INTERMEDIARY' means the inventory is not owned by the named entity or IX does not pay them directly, and 'BOTH' covers a seller that does each on different inventory. An is_confidential flag, when set, hides the seller's name and domain from the public file while still letting the record be matched by ID.<br><br>The audit question is whether the publisher's own entry reflects how the inventory is actually sold. A publisher that owns its inventory and is paid directly by IX should appear as 'PUBLISHER', with a seller ID that matches the account named on the publisher's ads.txt line for IX. A record that names the publisher as an intermediary when they own the inventory, or that points to a seller ID the ads.txt line does not authorize, breaks the chain a buyer walks from ads.txt to sellers.json. When the records do not line up, the buyer cannot confirm that IX is an authorized seller of this publisher's inventory.<br><br>Confidentiality is a separate decision worth checking on its own terms. A confidential seller record keeps the publisher's name out of the public file, which some publishers choose for commercial reasons, but it also removes a signal buyers use to recognize the supply. Where a publisher does not need the record hidden, disclosing it gives buyers more to verify against. The point of the check is to confirm the confidentiality setting is a deliberate choice rather than a default the publisher never reviewed.<br><br>A few signs point to a sellers.json entry that does not match the publisher's setup:<ul><li>The seller_type names the publisher as 'INTERMEDIARY' on inventory the publisher owns and is paid directly for</li><li>The seller ID in IX's sellers.json does not match the account ID on the publisher's ads.txt line for IX</li><li>The record is marked confidential without a commercial reason the publisher can state, removing a verification signal for no gain</li></ul>You may want to confirm that the publisher's IX seller record states the right relationship and ID, and that the confidentiality setting is intentional. One approach is to read the IX sellers.json entry for the publisher's account against the publisher's ads.txt line and the actual payment relationship, and reconcile any field that does not match.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the publisher usually owns its editorial inventory outright and is paid directly by Index Exchange, so the seller record should read 'PUBLISHER' rather than 'INTERMEDIARY'. You may want to confirm the seller ID matches the IX line in the site's ads.txt. A media property that also resells partner inventory can end up with a 'BOTH' or intermediary record applied to inventory it actually owns.",
+          "ecommerce": "On a commerce-content site, the inventory is typically owned by the site and sold directly through Index Exchange, so a 'PUBLISHER' relationship fits. You may want to check that the seller record is not marked confidential by default. A recognized commerce brand often benefits from buyers being able to see and verify the seller name rather than matching on ID alone."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "learn_more_note": "Index Exchange's detailed configuration documentation for its sellers.json entries and seller IDs is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the publisher's seller account in Index Exchange's sellers.json file against the publisher's ads.txt line and the actual payment relationship, and confirm the seller_type, seller ID, and confidentiality flag all match.",
+        "tools": {
+          "free": {
+            "sellers_json_file": {
+              "label": "Index Exchange sellers.json file",
+              "steps": [
+                "Open Index Exchange's public sellers.json file and find the seller account that represents the publisher's inventory by its seller ID.",
+                "Record the seller_type ('PUBLISHER', 'INTERMEDIARY', or 'BOTH'), the seller ID, the name and domain if disclosed, and whether is_confidential is set.",
+                "Compare the seller ID against the account ID on the publisher's ads.txt line for Index Exchange to confirm they match.",
+                "Confirm with the publisher whether they own the inventory and are paid directly by Index Exchange, so the recorded seller_type can be checked against the real relationship."
+              ]
+            },
+            "ads_txt_file": {
+              "label": "Publisher ads.txt file",
+              "steps": [
+                "Open the publisher's ads.txt file and find the line that authorizes Index Exchange as a seller, noting the account ID and whether it is declared DIRECT or RESELLER.",
+                "Check that the account ID on the ads.txt line matches the seller ID in Index Exchange's sellers.json entry for the publisher.",
+                "The two records are meant to agree, so note any case where the ads.txt line says DIRECT but the sellers.json record names an intermediary relationship, or the reverse."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the publisher's Index Exchange seller account from sellers.json, including seller_type, seller ID, disclosure, and the confidentiality flag, alongside the publisher's ads.txt line and the actual payment relationship. A record where seller_type matches the relationship, the seller ID matches the ads.txt line, and confidentiality is a stated choice passes. A record that names the wrong relationship, points to a seller ID the ads.txt line does not authorize, or is confidential without a reason is a fail recorded with the field that does not match.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the seller_type, seller ID, and confidentiality flag from Index Exchange's sellers.json against the ads.txt line above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s seller record in Index Exchange's (IX) sellers.json does not match how the inventory is actually sold. The recorded relationship or seller ID does not line up with the publisher's ads.txt line and direct payment from IX. Sellers.json is how a buyer traces an impression back to the publisher that owns it, so a record that names the wrong relationship, or a seller ID the ads.txt line does not authorize, breaks the chain a buyer walks from ads.txt to sellers.json and can cost demand on legitimate inventory. {{voice_recommend}} reconciling the IX seller record so the seller_type states the right relationship, the seller ID matches the ads.txt line, and the confidentiality flag reflects a deliberate choice. After the fix, recheck that ads.txt and sellers.json agree for the IX account."
+      }
+    },
+    {
+      "id": "index-exchange-sellers-json-supplychain-object-incomplete",
+      "title": "The SupplyChain object is incomplete or not passed end to end",
+      "category": "supply-chain",
+      "subcategory": "sellers_json",
+      "impact_score": 4,
+      "impact_rationale": "The SupplyChain object is what extends sellers.json transparency across every hop a bid request takes, and a buyer reads its complete flag to judge whether the chain is trustworthy. A chain marked incomplete, missing a node, or carrying a seller ID that does not match the seller's sellers.json entry can be scored down or filtered by buyers and verification vendors, which suppresses demand across a large share of the publisher's resold inventory rather than on one placement.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "The SupplyChain object, often called schain, travels on the OpenRTB bid request and lists every entity that handled the impression on its way to the buyer. Where sellers.json names a single seller account, the SupplyChain object names the whole path, so a buyer can see each hop from the publisher's first selling system through every intermediary to the exchange that delivered the request. Index Exchange (IX) sits in that path, and the audit question is whether the SupplyChain object reaches the buyer complete and accurate when IX is involved.<br><br>The object carries a few fields a buyer reads closely. A complete flag states whether the chain holds every node back to the inventory owner, where 1 means the chain is complete and 0 means at least one upstream node is missing. Each node names the selling system by its canonical domain in an asi field, the seller account at that system in a sid field that should match that system's sellers.json entry, and an hp flag marking whether the node is in the payment flow. The first node represents the system the publisher first sold through, and the chain builds in order from there. When a buyer can match each node's asi and sid against the matching sellers.json file, the supply is traceable end to end.<br><br>Two failures are worth watching for. The first is an incomplete chain, where the complete flag reads 0 because a node upstream of IX was never declared, so the buyer cannot trace the impression all the way back to the owner. The second is a chain that drops or breaks on a hop, for example a header bidding wrapper that does not pass the upstream schain through to IX, or a node whose sid does not match the seller's sellers.json entry. For a publisher running header bidding, the wrapper has to be configured to build and forward the SupplyChain object so IX receives a complete chain rather than starting a new one. Index Exchange runs Prebid-compatible header bidding, so the Prebid schain module is the reference for how that object is assembled and passed in a Prebid wrapper.<br><br>A few signs point to a SupplyChain object that is incomplete or not passed end to end:<ul><li>The complete flag reads 0 on inventory that should trace fully back to the publisher as the owner</li><li>A header bidding wrapper does not forward the upstream SupplyChain object, so IX receives a chain that starts mid-path</li><li>A node's sid does not match the seller ID in that selling system's sellers.json entry, so the chain cannot be verified hop by hop</li></ul>You may want to confirm that the SupplyChain object reaches the buyer complete and that each node matches its sellers.json entry. One approach is to inspect the schain on outgoing bid requests, check the complete flag and the node order, and verify the wrapper is configured to forward the upstream chain rather than replace it.",
+        "site_type_overlays": {
+          "publishing": "On a media site running header bidding across several demand partners, the wrapper has to forward one consistent SupplyChain object to each partner, Index Exchange included, so the chain stays complete no matter which partner wins. You may want to confirm the wrapper's schain configuration declares the publisher as the first node and passes it through to IX, rather than each adapter building its own partial chain.",
+          "ecommerce": "On a commerce-content site that sells its own inventory directly through Index Exchange, the SupplyChain object should be short and complete, with the publisher as the first node and IX as the next. You may want to confirm the complete flag reads 1. A short chain that still reports incomplete usually points to a wrapper or tag that is not declaring the owner node."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB SupplyChain Object Specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/openrtb/blob/main/supplychainobject.md"
+          },
+          {
+            "source_type": "Prebid",
+            "source_title": "Supply Chain Object module for header bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/schain.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect the SupplyChain object on bid requests Index Exchange sends or receives, confirm the complete flag and node order, and check that each node's seller ID matches that selling system's sellers.json entry.",
+        "tools": {
+          "free": {
+            "schain_inspection": {
+              "label": "SupplyChain object inspection",
+              "steps": [
+                "Capture an outgoing bid request from the publisher's setup, for example through the header bidding wrapper's debug output, and locate the SupplyChain object.",
+                "Record the complete flag, the number of nodes, and the order of nodes, confirming the first node represents the publisher as the inventory owner.",
+                "For each node, note the asi (selling system domain), the sid (seller account), and the hp flag, and check that the sid matches that system's sellers.json entry.",
+                "Note any case where the complete flag reads 0, a node is missing, or a sid does not match the matching sellers.json record."
+              ]
+            },
+            "wrapper_config": {
+              "label": "Header bidding wrapper configuration",
+              "steps": [
+                "Open the header bidding wrapper configuration, for example the Prebid schain module settings, and review how the SupplyChain object is built and forwarded.",
+                "Confirm the wrapper declares the publisher as the owner node and passes the upstream chain through to Index Exchange rather than replacing it.",
+                "Record whether the schain is configured globally for all bidders or per bidder, and whether the Index Exchange adapter is set to receive the complete chain."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the SupplyChain object on the publisher's outgoing bid requests, including the complete flag, the node order, and each node's asi, sid, and hp, alongside how the header bidding wrapper builds and forwards the chain to Index Exchange. A SupplyChain object that reads complete, lists the publisher as the first node, and carries seller IDs that match each system's sellers.json entry passes. An object marked incomplete, missing a node, carrying a mismatched seller ID, or replaced by a wrapper that does not forward the upstream chain is a fail recorded with the node or setting at fault.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the SupplyChain object's complete flag, node order, and per-node seller IDs against each sellers.json entry above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes a SupplyChain object that is incomplete or does not reach Index Exchange (IX) end to end, so a buyer cannot trace the impression all the way back to the publisher as the inventory owner. The SupplyChain object extends sellers.json transparency across every hop, and buyers read its complete flag to judge the chain, so a chain that reads incomplete, drops a node, or carries a seller ID that does not match a sellers.json entry can be scored down or filtered across a large share of resold inventory. {{voice_recommend}} inspecting the schain on outgoing bid requests, confirming the complete flag reads 1 with the publisher as the first node, and configuring the header bidding wrapper to forward the upstream chain to IX rather than replace it. After the fix, recapture a bid request and confirm each node matches its sellers.json entry."
+      }
+    }
+  ]
+}

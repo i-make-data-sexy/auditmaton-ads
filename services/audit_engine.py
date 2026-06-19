@@ -913,6 +913,14 @@ CATEGORY_METADATA = {
         "privacy": {"display_name": "Privacy", "icon_class": "fa-solid fa-user-shield", "description": "Privacy settings, child-directed treatment, and limited ads"},
         "measurement": {"display_name": "Measurement", "icon_class": "fa-solid fa-chart-line", "description": "Slot render events, performance monitoring, and viewability"},
     },
+    "kevel": {
+        "governance": {"display_name": "Governance", "icon_class": "fa-solid fa-scale-balanced", "description": "API keys, account structure, and naming conventions"},
+        "inventory": {"display_name": "Inventory", "icon_class": "fa-solid fa-boxes-stacked", "description": "Sites, zones, ad types, and creative templates"},
+        "delivery": {"display_name": "Delivery", "icon_class": "fa-solid fa-truck-fast", "description": "Priorities, flights, frequency capping, and pacing"},
+        "targeting": {"display_name": "Targeting", "icon_class": "fa-solid fa-crosshairs", "description": "Custom, geo, keyword, and UserDB targeting"},
+        "privacy": {"display_name": "Privacy", "icon_class": "fa-solid fa-user-shield", "description": "GDPR consent, data retention, and child-directed treatment"},
+        "measurement": {"display_name": "Measurement", "icon_class": "fa-solid fa-chart-line", "description": "Reporting API, event tracking, and decision logging"},
+    },
 }
 
 
@@ -1006,6 +1014,8 @@ DISPLAY_ACRONYMS = {
     "vmap": "VMAP",
     # Google Publisher Tag (supply side)
     "gpt": "GPT", "csp": "CSP", "pps": "PPS",
+    # Kevel (supply side)
+    "userdb": "UserDB",
 }
 
 

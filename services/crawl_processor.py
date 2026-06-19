@@ -1,11 +1,4 @@
 # services/crawl_processor.py
-# =====================================================================
-# AUDITMATON: ADS SCAFFOLD NOTE
-# Carried over from the Tag Management edition. Auditmaton: Ads uses
-# MANUAL / checklist intake (no upload, no platform auth) and a
-# Demand-vs-Supply top-level fork. Review whether this logic applies
-# to ad audits or needs rewriting. See SCAFFOLD_REPORT.md.
-# =====================================================================
 # Pure business logic for crawl file processing. Separated from Huey task
 # definitions so processing logic can be tested independently without
 # the task queue. Currently a placeholder — real pandas analysis, column

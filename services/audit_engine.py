@@ -1,11 +1,4 @@
 # services/audit_engine.py
-# =====================================================================
-# AUDITMATON: ADS SCAFFOLD NOTE
-# Carried over from the Tag Management edition. Auditmaton: Ads uses
-# MANUAL / checklist intake (no upload, no platform auth) and a
-# Demand-vs-Supply top-level fork. Review whether this logic applies
-# to ad audits or needs rewriting. See SCAFFOLD_REPORT.md.
-# =====================================================================
 # Core service for loading audit subcategory data from JSON schema files.
 # Provides functions to scan category directories, parse subcheck metadata,
 # and prepare data for the category browser template.

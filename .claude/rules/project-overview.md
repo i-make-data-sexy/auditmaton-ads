@@ -40,8 +40,6 @@ Annual token allocation (not monthly) due to the feast/famine nature of audit wo
 
 This edition uses MANUAL / checklist intake only. Practitioners are guided through checks directly inside the ad platform's own UI (Educate + Investigate steps). The intake form captures: audit name/label, the advertiser role (demand-side or supply-side), the specific platform, site type, and narrative voice preferences. There is no file upload and no API connection to any ad platform in v1.
 
-The intake form inherited from Auditmaton: Tag Management should be reviewed and adapted for the Demand/Supply fork. `blueprints/audit/intake.py` and `services/crawl_processor.py` are flagged in SCAFFOLD_REPORT.md.
-
 ### Device Access Controls
 
 Two-device limit per account using browser fingerprinting and persistent tokens to prevent credential sharing among agency teams.

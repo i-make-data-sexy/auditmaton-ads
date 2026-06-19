@@ -807,6 +807,17 @@ CATEGORY_METADATA = {
         "brand-safety": {"display_name": "Brand Safety", "icon_class": "fa-solid fa-shield-halved", "description": "Ad quality scanning, creative blocking, and content classification"},
         "measurement": {"display_name": "Measurement", "icon_class": "fa-solid fa-chart-line", "description": "Discrepancy reconciliation, report accuracy, and video metrics"},
     },
+    "equativ": {
+        "governance": {"display_name": "Governance", "icon_class": "fa-solid fa-scale-balanced", "description": "Seat structure, access roles, and naming conventions"},
+        "inventory": {"display_name": "Inventory", "icon_class": "fa-solid fa-boxes-stacked", "description": "Ad slot mapping, CTV ad pods, and video setup"},
+        "monetization": {"display_name": "Monetization", "icon_class": "fa-solid fa-sack-dollar", "description": "Price floors, header bidding, and yield optimization"},
+        "buyers": {"display_name": "Buyers", "icon_class": "fa-solid fa-handshake", "description": "Programmatic deals, Equativ curation, and seat controls"},
+        "supply-chain": {"display_name": "Supply Chain", "icon_class": "fa-solid fa-link", "description": "ads.txt, sellers.json, and supply path optimization"},
+        "identity": {"display_name": "Identity", "icon_class": "fa-solid fa-fingerprint", "description": "UID2, RampID, and audience signals"},
+        "privacy": {"display_name": "Privacy", "icon_class": "fa-solid fa-user-shield", "description": "Consent signals, US state privacy, and child-directed treatment"},
+        "brand-safety": {"display_name": "Brand Safety", "icon_class": "fa-solid fa-shield-halved", "description": "Ad quality scanning, creative blocking, and content classification"},
+        "measurement": {"display_name": "Measurement", "icon_class": "fa-solid fa-chart-line", "description": "Discrepancy reconciliation, report accuracy, and video metrics"},
+    },
     "triplelift": {
         "governance": {"display_name": "Governance", "icon_class": "fa-solid fa-scale-balanced", "description": "Seat structure, access roles, and naming conventions"},
         "inventory": {"display_name": "Inventory", "icon_class": "fa-solid fa-boxes-stacked", "description": "Ad slot mapping, CTV ad pods, and video setup"},

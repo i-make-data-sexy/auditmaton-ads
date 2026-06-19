@@ -1,0 +1,162 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Completion and viewability are the two numbers a video buyer reads to decide what a FreeWheel impression is worth, so when the quartile events do not reconcile or viewability is not measured at all, the impression is harder to sell and easier to dispute. The check reads the player integration, the events FreeWheel records, and whether a viewability vendor is wired in, rather than rebuilding the stack, so it costs inspection time and the finding points to a specific event or integration the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "A video or Connected TV (CTV) impression is valued on two things beyond the fact that it played. Completion is how far the ad played, read from the quartile and complete events the player fires as playback crosses each point, and Video Through Rate (VTR) is the share that reaches the end. Viewability is whether the ad was actually on screen long enough to count, measured against the industry threshold by a verification integration. This subcategory is about whether those two signals are captured accurately in a FreeWheel setup. These checks confirm that the quartile and completion events reconcile across the player and the ad server, and that viewability is measured so a buyer can value the impression rather than guess at it.",
+  "audit_checks": [
+    {
+      "id": "freewheel-completion-viewability-quartile-events-do-not-reconcile",
+      "title": "Quartile and completion events do not reconcile between the player and FreeWheel",
+      "category": "measurement",
+      "subcategory": "completion_viewability",
+      "impact_score": 3,
+      "impact_rationale": "Completion and Video Through Rate (VTR) are read straight from the quartile and complete events. When the player does not fire one of those events, fires it out of order, or fires it without the values the ad server needs to match it to the impression, FreeWheel records a completion number that does not describe what played. Buyers value the inventory on that number, so the gap surfaces as a campaign that looks like it under-delivered against completion goals it actually met.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "A video player reports how far an ad played by firing a set of tracking events as playback crosses each point. The 'start' event fires when the ad begins, then 'firstQuartile' at 25 percent, 'midpoint' at 50 percent, 'thirdQuartile' at 75 percent, and 'complete' at the end. FreeWheel reads these events to build the completion figure and the VTR, the share of starts that reached the 'complete' event. Those events are defined in the Video Ad Serving Template (VAST) response FreeWheel returns, and the player is expected to fire each one at its point and substitute any macro the tracking URL carries before the call goes out.<br><br>Reconciliation breaks when the player and the ad server disagree about what happened. A player that does not fire 'complete' on a CTV device, or fires it only after a buffer event that the ad server treats as a new session, leaves FreeWheel counting starts without matching completions. A player that fires the quartiles out of order, or fires a 'complete' the ad server cannot tie back to the 'start' because a session identifier did not carry through, produces a completion count that does not line up with the impression count. The ad played in full on screen while the number that describes it came out wrong.<br><br>Server-side ad insertion (SSAI) raises the stakes because the stitching layer sits between the player and FreeWheel. With SSAI, the events may be fired by the stitcher rather than the client player, and a beacon the stitcher does not forward, or forwards without the session context, drops out of the count silently. The audit question is whether the quartile and complete events FreeWheel records match what the player and the stitching layer actually fired, or whether one side is counting events the other never sent.<br><br>A few signs point to quartile and completion events that do not reconcile:<ul><li>FreeWheel's completion count or VTR is far below the completion rate the player's own analytics report for the same inventory</li><li>The 'complete' event count is much lower than the 'start' count on inventory known to play through, such as non-skippable preroll</li><li>Quartile counts do not step down in order, for example 'thirdQuartile' exceeding 'midpoint'</li><li>CTV or SSAI inventory shows a completion gap that client-rendered web inventory on the same content does not</li></ul>You may want to confirm that the player fires every quartile and the complete event in order and that FreeWheel can tie each one back to the impression, before treating a low completion number as a real delivery problem. One approach is to capture a full ad play, watch each event fire at its point, and compare the player's event log against FreeWheel's recorded counts for the same play.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, completion and VTR feed the delivery reports that guaranteed and direct-sold video campaigns are billed on, and much of that inventory is non-skippable, so completion should sit close to starts. You may want to confirm the player fires the 'complete' event on every device and content type. A 'complete' that drops on one CTV device understates VTR for a campaign that played in full and can trigger make-goods for delivery that happened.",
+          "ecommerce": "On a commerce-content property, the video player is often a third-party or templated embed integrated for playback rather than for ad measurement, so its quartile and completion wiring can be partial. You may want to confirm the embed fires the full quartile set and the complete event and that FreeWheel can match them, rather than assuming a player chosen for content also reports ad completion to spec."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "IAB/MRC Measurement Guideline",
+            "source_title": "Digital Video Impression Measurement Guidelines",
+            "source_url": "https://www.iab.com/wp-content/uploads/2016/12/Digital-Video-Impression-Measurement-Guidelines_1.1.pdf"
+          }
+        ],
+        "learn_more_note": "FreeWheel's detailed documentation on how it records quartile and completion events across the player, the device SDK, and server-side ad insertion is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Capture a full ad play, confirm the start, each quartile, and the complete event fire in order, then compare the player's event log against FreeWheel's recorded counts for the same inventory to see whether the two sides reconcile.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the stream with the network panel visible and play an ad all the way through so every tracking event has a chance to fire.",
+                "Watch for the 'start', 'firstQuartile', 'midpoint', 'thirdQuartile', and 'complete' calls at their playback points, and record any event that does not fire or fires out of order.",
+                "Open each fired tracking URL and confirm any macro it carries, such as a session or cachebusting value, resolves to a real value rather than a literal placeholder.",
+                "Record every missing or out-of-order event with the point in playback where it should have fired."
+              ]
+            },
+            "freewheel_reporting": {
+              "label": "FreeWheel reporting",
+              "steps": [
+                "Build a report broken out by content or ad unit with impression starts, each quartile, complete, and Video Through Rate (VTR).",
+                "Compare the 'complete' count against the 'start' count and confirm the quartiles step down in order, flagging any inventory where completion sits far below starts on content known to play through.",
+                "Compare FreeWheel's completion figure against the player's own analytics for the same inventory, and record the size and direction of any gap.",
+                "Note whether the gap concentrates on a device, a content type, or server-side ad insertion (SSAI) inventory rather than appearing evenly."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the start, each quartile, and the complete event fire in order during a full play, and whether FreeWheel's recorded counts match the player's event log for the same inventory. A setup where every event fires in order and the two sides reconcile within the normal discrepancy band passes. A setup where an event does not fire, fires out of order, or FreeWheel's completion count diverges from the player's beyond that band is a fail recorded with the specific event and the inventory or device affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which quartile and completion events fired and how FreeWheel's counts compare to the player's event log above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the quartile and completion events on {{site_name}} do not reconcile between the player and FreeWheel, with one or more events not firing, firing out of order, or arriving without the context FreeWheel needs to match them to the impression. Completion and Video Through Rate (VTR) are read straight from these events, so when they do not line up FreeWheel records a completion number that does not describe what played, and buyers value the inventory on that wrong number. {{voice_recommend}} capturing a full ad play, confirming the start, each quartile, and the complete event fire in order with their macros resolved, and comparing FreeWheel's recorded counts against the player's event log to find where the two diverge. After correcting the player or stitching wiring, replay the content and confirm the counts reconcile before reading completion as a delivery signal."
+      }
+    },
+    {
+      "id": "freewheel-completion-viewability-no-viewability-measurement-integrated",
+      "title": "Viewability is not measured on video and CTV inventory",
+      "category": "measurement",
+      "subcategory": "completion_viewability",
+      "impact_score": 3,
+      "impact_rationale": "Viewability tells a buyer the ad was on screen long enough to count, which is a separate question from whether it played. Without a viewability integration such as the Open Measurement SDK, FreeWheel can report that an ad played but cannot report that it was seen, so buyers who require a measured viewability rate either discount the inventory or route their budget elsewhere. The loss is demand and price rather than a counting error.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "Playing and being seen are two different facts about an ad. An ad can fire its impression and run its quartiles while the player sits in a background tab, scrolls off screen, or plays muted in a corner the viewer never looks at. Viewability is the measurement of the second fact. The IAB and Media Rating Council (MRC) video standard counts an impression as viewable when at least 50 percent of the ad's pixels are on screen for at least two continuous seconds. A buyer who pays on a viewability guarantee reads that measured rate, not the raw impression count, to decide what the inventory is worth.<br><br>FreeWheel records that an ad played, but the viewable measurement comes from a verification layer wired into the player. The Open Measurement SDK (OM SDK) is the industry framework for this. It gives an independent measurement vendor a standard way to observe the ad's on-screen geometry and timing from inside the player or app, so the viewability figure comes from a measured signal rather than the ad server's own delivery log. When no such integration is present, the publisher can say the ad served but cannot produce a measured viewability rate for it.<br><br>The gap shows up at the point of sale. Demand that carries a viewability requirement, much of programmatic video and a growing share of direct deals, screens inventory on a measured rate from an accredited vendor. Inventory with no viewability measurement either fails that screen outright or gets valued at a discount that prices in the uncertainty. The publisher loses the demand and the price without a line in any report naming the cause. The audit question is whether video and CTV inventory carries a working viewability integration whose rate a buyer would accept, or whether the impression is sold on the fact of delivery alone.<br><br>A few signs point to viewability not being measured:<ul><li>No Open Measurement SDK (OM SDK) or equivalent verification integration is present in the player or app serving FreeWheel ads</li><li>FreeWheel and player reports show delivery and completion but no measured viewability rate</li><li>Buyers ask for a viewability rate from an accredited vendor that the publisher cannot supply for this inventory</li><li>Programmatic demand that requires measured viewability shows little delivery against the video inventory</li></ul>You may want to confirm that video and CTV inventory carries a viewability integration whose measured rate a buyer would accept, before treating weak programmatic video demand as a pricing or supply problem. One approach is to check the player and app for an Open Measurement SDK (OM SDK) integration and confirm a measured viewability rate appears in reporting for the inventory.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, full-screen CTV playback often carries a high viewability rate by nature, which is a selling point only if it is measured. You may want to confirm an Open Measurement SDK (OM SDK) or app-level integration produces a measured rate for the CTV inventory, so the strong viewability that the format delivers can be proven to buyers rather than assumed.",
+          "ecommerce": "On a commerce-content property, video often sits in a smaller in-page or outstream slot that can scroll out of view, so a measured viewability rate matters more and is harder to assume. You may want to confirm the embedded player carries a viewability integration because in-page video without measurement is the inventory most likely to be discounted by buyers who screen on a viewable rate."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Open Measurement SDK",
+            "source_url": "https://iabtechlab.com/standards/open-measurement-sdk/"
+          },
+          {
+            "source_type": "IAB/MRC Measurement Guideline",
+            "source_title": "Digital Video Impression Measurement Guidelines",
+            "source_url": "https://www.iab.com/wp-content/uploads/2016/12/Digital-Video-Impression-Measurement-Guidelines_1.1.pdf"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Check the player and app for a viewability measurement integration such as the Open Measurement SDK, and confirm a measured viewability rate appears in reporting for the video and CTV inventory.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the stream with the network panel visible and play an ad, then look for calls to a measurement vendor or the Open Measurement (OM) verification scripts loading alongside the ad.",
+                "Confirm whether the player loads an Open Measurement SDK (OM SDK) session or an equivalent verification integration, rather than firing the ad server's tracking alone.",
+                "Record whether a viewability measurement layer is present for the inventory or absent."
+              ]
+            },
+            "freewheel_reporting": {
+              "label": "FreeWheel reporting",
+              "steps": [
+                "Build a report for the video and CTV inventory and look for a measured viewability metric alongside impressions and completion.",
+                "Confirm whether a measured viewability rate is reported for the inventory or whether only delivery and completion appear.",
+                "Note any inventory that programmatic demand with a viewability requirement is not buying, which can point to the missing measured rate."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the player or app serving FreeWheel ads carries a viewability measurement integration, such as the Open Measurement SDK, and whether a measured viewability rate appears in reporting for the inventory. A setup where the integration is present and produces a measured rate a buyer would accept passes. A setup where no viewability measurement is integrated and only delivery and completion are reported is a fail recorded with the inventory that lacks a measured viewability rate.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a viewability integration is present and whether a measured viewability rate appears in reporting above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that viewability is not measured on the video and CTV inventory at {{site_name}}, so FreeWheel can report that an ad played but cannot report that it was seen. Viewability is a separate fact from delivery, and buyers who pay on a viewability guarantee read a measured rate from an accredited vendor, so inventory without it either fails their screen or is valued at a discount, and the loss is demand and price rather than a counting error. {{voice_recommend}} integrating the Open Measurement SDK (OM SDK) or an equivalent verification layer into the player and app, then confirming a measured viewability rate appears in reporting for the inventory. After the integration is in place, read the measured rate against the impressions buyers value and use it to sell the inventory on a viewability buyers will accept."
+      }
+    }
+  ]
+}

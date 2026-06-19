@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Ad slot mapping is the link between a slot on the page and the Equativ placement that fills it, so it decides whether an impression is priced, targeted, and reported as the publisher intended. A slot pointed at the wrong placement or a stale tag still on the page can pass inventory under the wrong format, size, or pricing without throwing an error, which makes the loss quiet rather than obvious. This check is a review of the tag and placement setup the publisher already has in Equativ, so it costs reading and reconciliation time rather than a rebuild, and the finding points to a concrete tag or placement the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Ad slot mapping is how each ad slot on a publisher's pages connects to a placement in Equativ, formerly Smart AdServer, through the tag that calls the ad. The slot, the tag, the format identifier, and the placement all have to agree because the placement is where size, format, targeting, and pricing live. This subcategory is about whether that mapping is correct and current, so impressions are passed under the placement that matches the slot rather than under a mismatched, stale, or orphaned tag that prices and reports them wrong.",
+  "audit_checks": [
+    {
+      "id": "equativ-ad-slot-mapping-placements-mismatched-sizes-formats",
+      "title": "Ad slots map to placements with mismatched sizes or formats",
+      "category": "inventory",
+      "subcategory": "ad_slot_mapping",
+      "impact_score": 3,
+      "impact_rationale": "When a slot calls a placement whose declared format or sizes do not match the space on the page, the impression is offered to demand under the wrong description. Demand bids on a size or format that the slot cannot render or render cleanly, which lowers fill, invites discrepancies between rendered and reported impressions, and undercuts the price the slot could have earned if it were described correctly.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "data-quality"],
+      "educate": {
+        "base": "In Equativ, formerly Smart AdServer, an ad slot on the page does not carry its own size and format. The tag in the slot names a placement and a format identifier, and the placement is where the declared sizes, the format, and the targeting are stored. The mapping is correct when the placement the tag points to describes the same thing the slot on the page can actually show. The mapping is wrong when the placement declares a size or format that the slot was not built for.<br><br>A mismatch does not usually announce itself. The tag still loads, the placement still returns an ad, and reporting still counts impressions, so nothing in the day-to-day view looks broken. The cost shows up underneath. Demand bids against the size and format the placement declares, so a placement that declares sizes the slot cannot render offers the impression under a false description. The returned ad may be clipped, may fail to render, or may render at a size the layout did not reserve, and the price reflects a slot the buyer thought they were getting rather than the one that exists.<br><br>Equativ's tagging guide describes the tag types and the placement properties, including the format identifiers, page and site identifiers, and targeting parameters that the tag passes. Reading the tag against the placement it names is how a publisher confirms the two agree. For inventory routed through Prebid, which Equativ supports, the same question applies to the Prebid ad unit, where the declared mediaTypes and sizes must match both the slot and the Equativ placement that the bid eventually fills.<br><br>A few signs point to a slot mapped to a placement with mismatched sizes or formats:<ul><li>The placement a tag names declares sizes or a format the slot on the page was not built to render</li><li>Reporting shows rendered impressions or viewable rates that lag served impressions for a slot, which can follow from ads that do not fit the space</li><li>A Prebid ad unit's mediaTypes or sizes differ from the sizes the Equativ placement declares for the same slot</li></ul>You may want to confirm that each slot's tag names a placement whose declared sizes and format match the space on the page. One approach is to list each slot, the placement and format its tag calls, and the sizes that placement declares, then reconcile that against the dimensions the slot actually reserves.",
+        "site_type_overlays": {
+          "publishing": "On a media site, templated layouts repeat the same slot across many articles, so a single mismatched mapping in the template can misdescribe a slot on every page that uses it. You may want to check the slots defined in shared templates first because correcting one template mapping fixes the size or format mismatch everywhere the template renders.",
+          "ecommerce": "On a commerce-content site, product and category pages often introduce slots that editorial templates do not have, such as a slot beside a product grid. You may want to confirm those commerce-specific slots map to placements whose declared sizes match the grid layout rather than reusing an editorial placement whose sizes were set for a different page."
+        },
+        "learn_more": [
+          {
+            "source_type": "Equativ Help",
+            "source_title": "Tagging guide: get started",
+            "source_url": "https://help.equativ.com/tagging-guide-get-started"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Show Multi-Format Ads with Prebid.js",
+            "source_url": "https://docs.prebid.org/dev-docs/show-multi-format-ads.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each ad slot, the placement and format its tag calls in Equativ, and the sizes that placement declares, then reconcile those against the dimensions the slot reserves on the page.",
+        "tools": {
+          "free": {
+            "page_source": {
+              "label": "Page source and ad tags",
+              "steps": [
+                "On a representative page, view the source or the rendered DOM and locate each ad slot's container along with the dimensions the layout reserves for it.",
+                "For each slot, read the tag that fills it and record the placement and format identifier it names.",
+                "If the slot is filled through Prebid, read the ad unit definition and record its declared mediaTypes and sizes.",
+                "Note any slot where the reserved dimensions do not match the sizes or format the tag's placement or the Prebid ad unit declares."
+              ]
+            },
+            "equativ_console": {
+              "label": "Equativ Monetization Platform",
+              "steps": [
+                "Open the placement each slot's tag names and record its declared format and the sizes it accepts.",
+                "Compare the placement's declared sizes and format against the dimensions the slot reserves on the page.",
+                "Record any placement whose declared sizes or format do not match the slot that calls it, along with the slot and page affected."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per slot, the placement and format its tag calls, the sizes that placement declares, and the dimensions the slot reserves on the page. A slot whose placement declares sizes and a format that match the space it fills passes. A slot whose placement or Prebid ad unit declares sizes or a format the slot was not built to render is a fail recorded with the slot, the placement, and the dimensions where they diverge.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each slot's placement, declared sizes, and reserved dimensions above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} maps one or more ad slots to Equativ placements whose declared sizes or format do not match the space the slot fills on the page. The tag still loads and reporting still counts the impression, so the mismatch stays quiet, but demand bids against the size and format the placement declares, which lowers fill, invites rendered-versus-served discrepancies, and undercuts the price the slot could earn when described correctly. {{voice_recommend}} listing each slot with the placement and format its tag calls, the sizes that placement declares, and the dimensions the slot reserves, then correcting any placement or Prebid ad unit whose declared sizes or format do not match the slot. After the change, recheck rendered and viewable rates on the corrected slots to confirm the ads now fit the space."
+      }
+    },
+    {
+      "id": "equativ-ad-slot-mapping-orphaned-stale-tags",
+      "title": "Orphaned or stale tags pass inventory under the wrong placement",
+      "category": "inventory",
+      "subcategory": "ad_slot_mapping",
+      "impact_score": 3,
+      "impact_rationale": "A tag left on the page after its slot, placement, or layout changed keeps calling an Equativ placement that no longer matches it. Inventory passes under a retired or repurposed placement, so impressions are priced, targeted, and reported against the wrong description, and the misattribution persists until someone reconciles the live tags against the placements that should be in use.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "data-quality"],
+      "educate": {
+        "base": "Ad tags outlive the decisions that created them. A slot is removed but its tag stays in the template. A placement is retired in Equativ, formerly Smart AdServer, but a tag on the page still calls it. A redesign moves a slot and a copied tag is left behind in the old position. In each case the tag is orphaned or stale, meaning it no longer matches the slot, the layout, or the placement it was meant to serve, yet it keeps firing because nothing on the page knows the mapping is out of date.<br><br>The effect is misattributed inventory. A stale tag passes its impressions under whatever placement it still names, so those impressions are priced, targeted, and reported against a description that the publisher no longer intends. A retired placement that a tag still calls may fall back to default behavior or fail to fill, and a duplicated tag can call the same placement twice from one page, which inflates the placement's counts and confuses any read of how the slot performs. None of this surfaces as an error, so it persists until the live tags are reconciled against the placements that should be in use.<br><br>Equativ's tagging guide documents the tag types and the placement, page, and site identifiers a tag passes, which is what a publisher reads to tell which placement each live tag calls. The supply-chain side of the same problem is addressed by the ads.txt specification, which is how a publisher declares the sellers and accounts authorized to represent its inventory. A tag calling an account or placement that no longer belongs in the publisher's setup is the on-page counterpart of an ads.txt entry that should have been removed.<br><br>A few signs point to orphaned or stale tags passing inventory under the wrong placement:<ul><li>Live tags on the page name placements that no longer exist or have been retired in Equativ</li><li>A slot that was removed in a redesign still has its tag firing in the template or a cached version of the page</li><li>The same placement is called more than once from a single page, which suggests a duplicated or leftover tag</li><li>Reporting shows impressions on a placement the publisher believes is no longer in use</li></ul>You may want to reconcile the tags firing on live pages against the placements that should be active. One approach is to crawl or inspect the live pages, list every placement each tag calls, and compare that list against the placements active in Equativ, then remove or repoint any tag that calls a retired or mismatched placement.",
+        "site_type_overlays": {
+          "publishing": "On a media site, archived articles and old section templates can keep firing tags long after the live design moved on, so a stale placement can collect impressions from pages the publisher rarely looks at. Orphaned tags often live in the parts of the site that get the least attention, so you may want to include archived and older templated pages in the reconciliation rather than just the current homepage and recent articles.",
+          "ecommerce": "On a commerce-content site, seasonal or promotional pages are built and retired on a faster cycle than editorial pages, so tags from a campaign page can outlive the campaign and keep calling a placement set up for it. You may want to confirm that retired promotional pages no longer fire their tags and that their placements are closed rather than left collecting stray impressions."
+        },
+        "learn_more": [
+          {
+            "source_type": "Equativ Help",
+            "source_title": "Tagging guide: get started",
+            "source_url": "https://help.equativ.com/tagging-guide-get-started"
+          },
+          {
+            "source_type": "Equativ Help",
+            "source_title": "Implement ads.txt specification",
+            "source_url": "https://help.equativ.com/implement-adstxt-specification"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the tags firing on live and archived pages, list the placement each one calls, and reconcile that list against the placements that should be active in Equativ.",
+        "tools": {
+          "free": {
+            "page_source": {
+              "label": "Page source and ad tags",
+              "steps": [
+                "Across a representative set of live pages, including archived and templated pages, inspect the source or rendered DOM and list every ad tag that fires.",
+                "For each tag, record the placement and account identifier it calls.",
+                "Note any page where the same placement is called more than once, which points to a duplicated or leftover tag.",
+                "Flag any tag firing on a slot or page that the publisher believes was removed or redesigned."
+              ]
+            },
+            "equativ_console": {
+              "label": "Equativ Monetization Platform",
+              "steps": [
+                "List the placements currently active in the account and note any that have been retired or repurposed.",
+                "Compare the placements the live tags call against the active list, and flag any tag that calls a retired, repurposed, or unrecognized placement.",
+                "Build a report by placement and confirm whether any placement the publisher believes is unused is still receiving impressions."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the placement each live tag calls and reconciles those against the placements that should be active in Equativ. A setup where every firing tag calls a current, intended placement and no retired placement is receiving impressions passes. A setup where a tag calls a retired or repurposed placement, a removed slot still fires its tag, or a placement is called more than once from one page is a fail recorded with the tag, the page, and the placement affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the placement each live tag calls and the list of placements that should be active above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has orphaned or stale tags passing inventory under placements that no longer match them in Equativ. A tag left behind after a slot, placement, or layout changed keeps firing against a retired or repurposed placement, so those impressions are priced, targeted, and reported under the wrong description, and because nothing throws an error the misattribution persists. {{voice_recommend}} reconciling the tags firing on live and archived pages against the placements that should be active, then removing or repointing any tag that calls a retired or mismatched placement and closing the placements that should no longer collect impressions. After the cleanup, confirm that no retired placement is still receiving impressions and that each slot fires a single, current tag."
+      }
+    }
+  ]
+}

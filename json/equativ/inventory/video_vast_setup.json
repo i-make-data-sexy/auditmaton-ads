@@ -1,0 +1,160 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Video impressions clear at higher prices than display, so the configuration that describes them to demand carries real money. When the Video Ad Serving Template (VAST) version, the player parameters, and the viewability and content signals passed to Equativ are wrong or missing, demand either misreads the impression or declines to bid on it, and the publisher loses revenue on inventory that should be the most valuable on the page. The check is a review of settings the publisher already controls in the player and the Equativ console, so it costs reading time rather than a rebuild, and each finding points to a concrete setting the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Video inventory is described to demand through the VAST response and the player parameters that ride alongside the bid request. This subcategory covers whether that description is accurate. It looks at the VAST version and the player parameters such as player size, placement, and skippability, and at the viewability and content signals that let a buyer value the impression. These checks confirm that what Equativ tells demand about a video impression matches what the player will actually render, so a buyer bids on the impression it expects rather than one that turns out to be smaller, less viewable, or different in format.",
+  "audit_checks": [
+    {
+      "id": "equativ-video-vast-setup-version-player-params-misdeclared",
+      "title": "VAST version and player parameters are declared incorrectly",
+      "category": "inventory",
+      "subcategory": "video_vast_setup",
+      "impact_score": 3,
+      "impact_rationale": "The Video Ad Serving Template (VAST) version and the player parameters tell a buyer what the player can render and how the ad will appear. When the declared version sits ahead of what the player supports, or the player size, placement, and skippability do not match the real slot, demand bids on an impression that does not exist as described. The result is ads that fail to render or clear below their worth, on inventory that usually carries the highest prices on the page.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "The VAST response is an XML document that carries an ad from the ad server to the video player, and the version of VAST a publisher declares tells the buyer which features the player can handle. Equativ is a full sell-side platform and ad server, and it is compatible with Prebid, so the video parameters a publisher sets in the player and passes through the bid request follow the same model documented for header bidding. Those parameters describe the slot to demand before a single ad is served.<br><br>The version matters because each VAST release adds capabilities and deprecates older ones. VAST 4.x separated the media file from interactive code and moved interactivity to the Secure Interactive Media Interface Definition (SIMID), while older creatives may still rely on the Video Player-Ad Interface Definition (VPAID) that VAST 4.2 set out to replace. If the player declares a version it cannot actually support, a buyer can return a creative the player then fails to render, and the impression is lost after the auction was already won.<br><br>The player parameters carry the rest of the description. Player size, set through the playerSize parameter, tells demand how large the video will display. Placement, set through the placement or plcmt parameter, tells demand whether the slot is instream, where the ad plays inside video content, or outstream, where the ad plays inside an article or feed with no surrounding video. Skippability tells demand whether the viewer can skip the ad and after how long. When any of these is declared differently from what the player will render, the buyer values the impression on the wrong information.<br><br>A few signs point to a misdeclared video configuration:<ul><li>The declared VAST version sits ahead of what the player library can render, so winning creatives that use newer features fail</li><li>The playerSize passed to demand does not match the size the player actually renders on the page</li><li>An outstream slot is declared as instream, or the reverse, so the placement signal misleads the buyer</li><li>Skippability is declared one way in the configuration and behaves another way in the player</li></ul>You may want to confirm that the VAST version and each player parameter match what the player renders in practice. One approach is to inspect a live VAST response and the player parameters in the bid request, then compare them against the slot as it appears to a real viewer.",
+        "site_type_overlays": {
+          "publishing": "On a media site, instream video inside an article player and outstream video inside the article body are both common, and they carry different placement signals. You may want to confirm that each video slot declares the placement it actually is. An outstream unit described as instream can draw bids meant for content the viewer chose to watch rather than an ad that auto-loads in the feed.",
+          "ecommerce": "On a commerce-content site, video often runs as an outstream unit inside product or category pages rather than inside a dedicated video player. You may want to confirm the placement parameter reflects that, and that the playerSize matches the slot the page renders, so demand prices the unit as the in-article video it is."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference: video mediaTypes parameters",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Show Outstream Video Ads",
+            "source_url": "https://docs.prebid.org/dev-docs/show-outstream-video-ads.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Capture a live Video Ad Serving Template (VAST) response and the video parameters passed in the bid request, then compare the declared version, player size, placement, and skippability against what the player renders to a real viewer.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the page with the video slot in a browser and open the developer tools 'Network' tab.",
+                "Reload the page and filter for the ad request and the VAST response, then read the declared VAST version at the top of the XML.",
+                "Inspect the bid request for the video parameters, and record the playerSize, the placement or plcmt value, and the skip setting.",
+                "Watch the slot render as a viewer would, and note the actual player size, whether it is instream or outstream, and whether a skip control appears, then compare each against the declared value."
+              ]
+            },
+            "equativ_console": {
+              "label": "Equativ console",
+              "steps": [
+                "Open the video ad unit or format configuration in the Equativ console.",
+                "Record the configured VAST version, player size, placement type, and skippability for the slot.",
+                "Confirm each configured value matches what the captured VAST response and bid request declared, and flag any setting that differs from what the player renders."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per video slot, the declared VAST version, player size, placement, and skippability, and the value each one renders as to a real viewer. A slot where every declared parameter matches the rendered result, and the VAST version is supported by the player, passes. A slot where the version sits ahead of player support, or any parameter is declared differently from what renders, is a fail recorded with the parameter and the slot affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the declared VAST version and player parameters alongside what the player renders above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} declares video parameters that do not match what the player renders. The Video Ad Serving Template (VAST) version and the player parameters, e.g., player size, placement, and skippability, tell a buyer what the slot is before the auction, so when the declared values differ from what renders, demand bids on an impression that does not exist as described and the ad fails or clears below its worth. {{voice_recommend}} capturing a live VAST response and the bid request, comparing the declared version and each parameter against the slot as a viewer sees it, and correcting any value in the player or the Equativ console that does not match. After the change, recapture the response to confirm the declared configuration and the rendered slot agree."
+      }
+    },
+    {
+      "id": "equativ-video-vast-setup-viewability-content-signals-missing",
+      "title": "Viewability and content signals are not passed with the video impression",
+      "category": "inventory",
+      "subcategory": "video_vast_setup",
+      "impact_score": 3,
+      "impact_rationale": "Buyers value a video impression on whether it will be seen and what content surrounds it. When the player does not pass viewability measurement support or content signals such as the page category and content rating, demand has to price the impression on less information, which usually means a lower bid or no bid. The signals are inexpensive to pass and they let a buyer pay closer to what the impression is worth.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "A buyer deciding what to pay for a video impression weighs two things beyond size and placement. The first is whether the ad will actually be seen, which is viewability. The second is what content the ad will sit next to, which is the content signal. When a publisher passes both to Equativ, demand can price the impression on what it is worth. When either is missing, the buyer prices on less information and the bid drops or disappears.<br><br>Viewability has an industry definition. The Media Rating Council (MRC), working with the Interactive Advertising Bureau (IAB), set the bar for a viewable in-browser video impression at a minimum of 50 percent of the player in view for a minimum of two seconds. For demand to bid on the expectation of a viewable impression, the player has to support measurement, which usually means exposing the Open Measurement framework or a comparable verification hook so a buyer's vendor can confirm the ad was in view. A player that blocks or omits measurement support leaves the buyer unable to verify viewability, so the impression reads as riskier and prices accordingly.<br><br>Content signals describe the surroundings. These include the page or content category, drawn from a content taxonomy, and a content rating that indicates whether the material is suitable for a given advertiser. Equativ is compatible with Prebid, so these signals follow the same content object model documented for header bidding, and they let a buyer apply brand-safety and suitability rules with confidence. Without them, a cautious buyer either bids low to cover the unknown or skips the impression to avoid running next to content it cannot assess.<br><br>A few signs point to viewability and content signals that are not being passed:<ul><li>The player does not support an open measurement or verification hook, so buyers cannot confirm the ad was in view</li><li>No content category or content rating accompanies the video bid request, so the surroundings are undescribed</li><li>Viewable video rates reported by demand-side measurement sit far below what the publisher observes, which can point to measurement that is not wired in</li><li>Buyers report they cannot assess suitability on the video inventory, which points to a missing content signal</li></ul>You may want to confirm that the player passes measurement support and that each video bid request carries a content category and rating. One approach is to inspect a live bid request for the content object and check the player's measurement support against a verification vendor's requirements.",
+        "site_type_overlays": {
+          "publishing": "On a media site, content categories vary widely from one section to the next, so a single site-level signal can misdescribe a video slot inside a sensitive article. You may want to confirm the content category and rating are passed at the page or section level rather than the site level, so a buyer applying suitability rules sees the actual surroundings of each video impression.",
+          "ecommerce": "On a commerce-content site, video on product and category pages sits next to commercial intent that brand advertisers value, but only if the content signal describes it. You may want to confirm the content category passed with these video slots identifies them as commercial rather than generic, so demand can price the proximity to purchase."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Measurement Guideline",
+            "source_title": "MRC Viewable Impression Guidelines",
+            "source_url": "https://www.iab.com/guidelines/mrc-viewable-impression-guidelines/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference: video mediaTypes parameters",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect a live video bid request for the content object and confirm the player exposes a measurement hook, then compare viewable video rates the publisher observes against what demand-side measurement reports.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the page with the video slot and open the developer tools 'Network' tab, then reload and locate the video bid request.",
+                "Inspect the request for a content object and record whether a content category and a content rating are present.",
+                "Check whether the player loads an open measurement or verification script, which indicates viewability measurement support.",
+                "Note any video slot where the content signal or the measurement hook is absent."
+              ]
+            },
+            "equativ_console": {
+              "label": "Equativ console",
+              "steps": [
+                "Open the video inventory or format configuration in the Equativ console.",
+                "Record whether viewability measurement support and content signals, such as the page category and content rating, are configured for the video slots.",
+                "Pull a video viewability and revenue report and compare the viewable rate against what the publisher observes, then note any slot where measurement or content signals are not configured."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per video slot, whether the player supports viewability measurement and whether the bid request carries a content category and content rating. A slot that passes both a measurement hook and content signals to demand passes. A slot missing measurement support, the content category, or the content rating is a fail recorded with the missing signal and the slot affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether each video slot passes viewability measurement support and content signals above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not pass viewability measurement support and content signals with its video impressions. Buyers price a video impression on whether it will be seen and what content surrounds it, so when the player omits a measurement hook or the bid request carries no content category and rating, demand prices on less information and bids lower or skips the impression. {{voice_recommend}} enabling viewability measurement in the player so a buyer can confirm the ad was in view against the Media Rating Council (MRC) standard, and passing a content category and content rating with each video bid request. After the change, recheck the viewable rate and the bid response to confirm demand is reading the added signals."
+      }
+    }
+  ]
+}

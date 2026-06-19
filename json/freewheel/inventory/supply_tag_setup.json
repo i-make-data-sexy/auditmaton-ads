@@ -1,0 +1,152 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Supply tags are the layer that tells FreeWheel what each piece of video inventory is, so the ad sizes, durations, and formats they declare decide which demand can bid and how an ad fills the break. A tag that declares the wrong durations or maps to the wrong placement passes inventory under a false label, which suppresses demand or misreports where the impression ran. This check reads the supply tag and placement setup a publisher already has, so it costs review time rather than rebuild time, and each finding points to a concrete tag or mapping the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "A supply tag is how a publisher's video and Connected TV (CTV) inventory enters FreeWheel as sellable supply, carrying the ad sizes, durations, and formats the player will accept and the placement the inventory belongs to. This subcategory is about whether those declarations match the inventory they represent, rather than how demand is sourced against them. These checks confirm that each supply tag describes its inventory accurately and maps to the correct placement, so the impression a buyer wins is the impression that actually serves.",
+  "audit_checks": [
+    {
+      "id": "freewheel-supply-tag-setup-format-duration-mismatch",
+      "title": "Supply tags declare ad sizes, durations, or formats that do not match the inventory",
+      "category": "inventory",
+      "subcategory": "supply_tag_setup",
+      "impact_score": 3,
+      "impact_rationale": "A supply tag that declares the wrong durations or formats narrows or misdirects the demand a piece of inventory can attract. If the tag allows durations the player cannot render, creatives fail to play and the break goes unfilled. If it omits durations the inventory could carry, demand that would have bid never sees the slot, so the publisher loses fill and revenue on inventory that was capable of serving.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "data-quality"],
+      "educate": {
+        "base": "A supply tag in FreeWheel declares what a piece of video or Connected TV (CTV) inventory will accept, and those declarations are what demand reads to decide whether and how to bid. The Video Ad Serving Template (VAST) response that fills the slot carries the creative's own duration, format, and media files, so the slot's declared parameters and the creative's actual parameters have to line up for the ad to play. When a supply tag allows a fifteen-second slot but the placement is built for a thirty-second pre-roll, or declares a format the player cannot render, the mismatch surfaces as a creative that fails to start or a break that returns empty.<br><br>The cost runs in both directions. A tag that declares durations or formats the inventory cannot actually serve invites demand that then fails on playback, so the impression is recorded as a miss and the slot is wasted. A tag that declares less than the inventory can carry does the opposite, hiding capable inventory from demand that would have bid on it, so fill and revenue fall on a slot that was never the problem. Either way the declared shape of the supply and the real shape of the inventory have drifted apart.<br><br>CTV inventory raises the stakes because ad breaks are often filled as pods, a sequence of ads in one break, and pod rules depend on accurate per-slot durations and counts. A pod built on durations that do not match the content's actual break length either overfills, pushing ads past the break, or underfills, leaving paid-for seconds empty.<br><br>A few signs point to supply tags whose declarations have drifted from the inventory:<ul><li>Reporting shows error or no-ad rates on a placement that track to creatives the player could not render at the declared duration or format</li><li>A placement built for a known break length carries a supply tag whose allowed durations do not match that length</li><li>Pod settings on a CTV break declare a slot count or total duration the content's break cannot hold</li></ul>You may want to confirm that each supply tag's declared sizes, durations, and formats match the inventory it represents. One approach is to read the declared parameters against the placement's known break structure, then reconcile any slot where the tag and the inventory disagree.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, video inventory often spans live channels, video-on-demand, and clip content, and each carries its own break lengths and pod structure. You may want to confirm that the supply tag for each content type declares durations and pod rules that match that content's real breaks, so a tag built for a thirty-second linear pod is not reused on short clips whose breaks cannot hold it.",
+          "ecommerce": "On a commerce-content property running product or how-to video, the breaks are usually shorter and the formats lighter than long-form entertainment, often a single short pre-roll rather than a multi-slot pod. You may want to confirm the supply tag declares the shorter durations and the simpler format the commerce video actually serves, rather than inheriting a long-form pod template that the content cannot fill."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Video Multiple Ad Playlist (VMAP)",
+            "source_url": "https://iabtechlab.com/standards-old/video-multiple-ad-playlist-vmap/"
+          }
+        ],
+        "learn_more_note": "FreeWheel's detailed configuration documentation for supply tags, placements, and pod rules is in the partner portal (login required). The standards entries above cover the VAST and VMAP mechanics those FreeWheel settings carry.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the declared ad sizes, durations, and formats on each active supply tag against the break structure of the inventory it represents, and look at error and no-ad rates for any placement where the declarations may not match.",
+        "tools": {
+          "free": {
+            "freewheel_ui": {
+              "label": "FreeWheel console",
+              "steps": [
+                "Open the inventory or supply section and list the active supply tags and the placements they belong to.",
+                "For each supply tag, record the declared ad sizes, the allowed durations, the accepted formats, and any pod or ad-break rules.",
+                "Compare those declarations against the known break structure of the inventory, such as the real break length and the number of slots a CTV pod is meant to hold.",
+                "Flag any supply tag whose declared durations or formats do not match the inventory, recording the tag, the placement, and the specific parameter that disagrees."
+              ]
+            },
+            "freewheel_reporting": {
+              "label": "FreeWheel reporting",
+              "steps": [
+                "Build a report broken out by placement or supply tag, with impressions, error rate, and no-ad or unfilled rate.",
+                "Look for placements with elevated error or no-ad rates that track to creatives failing on duration or format rather than to a lack of demand.",
+                "Note any placement where the reporting points to a declaration mismatch, so the finding ties the symptom to the specific supply tag."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per supply tag, the declared ad sizes, durations, and formats alongside the break structure of the inventory it represents. A tag whose declarations match the inventory, with durations and formats the placement can serve and pod rules that fit the real break, passes. A tag that declares durations or formats the inventory cannot serve, or that omits durations the inventory could carry, is a fail recorded with the tag, the placement, and the parameter that diverges.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the declared sizes, durations, and formats for each supply tag and the break structure of its inventory above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more supply tags on {{site_name}} declare ad sizes, durations, or formats that do not match the inventory they represent. A supply tag that allows durations or formats the player cannot render leaves the break unfilled when creatives fail on playback, while a tag that declares less than the inventory can carry hides capable slots from demand that would have bid. {{voice_recommend}} reconciling each supply tag's declared sizes, durations, and formats against the real break structure of its inventory, correcting the slots where the tag and the inventory disagree, and confirming that Connected TV (CTV) pod rules match the content's actual break length. After the change, recheck error and no-ad rates on the affected placements to confirm the declarations now fit the inventory."
+      }
+    },
+    {
+      "id": "freewheel-supply-tag-setup-orphaned-mislabeled-tags",
+      "title": "Orphaned or mislabeled supply tags pass inventory under the wrong placement",
+      "category": "inventory",
+      "subcategory": "supply_tag_setup",
+      "impact_score": 3,
+      "impact_rationale": "A supply tag mapped to the wrong placement passes its inventory under a false identity, so reporting attributes the impressions to the wrong content and any targeting or pricing tied to the placement applies to inventory it was never meant for. An orphaned tag left active after a placement is retired keeps serving against stale rules, which dilutes the data a publisher relies on to price and manage the rest of the inventory.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "data-quality"],
+      "educate": {
+        "base": "Every supply tag in FreeWheel should map to the placement that matches the inventory it carries because the placement is what reporting, targeting, and pricing attach to. When a tag is mapped to the wrong placement, its impressions are recorded against content they did not run on, and any rule the placement carries, such as a content category, a price, or a buyer restriction, applies to inventory it was never meant to govern. The inventory still serves, so the problem hides until someone reads the numbers closely and finds impressions attributed to the wrong content.<br><br>Orphaned tags are the other half of the problem. A supply tag that stays active after its placement is retired, renamed, or restructured keeps passing inventory under a mapping that no longer reflects reality. It may continue to serve against stale targeting or a price that no longer applies, and because it is detached from current management, changes made to the live placements skip it. The result is a slice of inventory running on rules nobody is maintaining.<br><br>Both failures corrupt the data a publisher uses to run the rest of the supply. Pricing decisions, fill analysis, and demand-partner reporting all read from placement-level numbers, so impressions filed under the wrong placement, or against a placement that should no longer exist, distort the picture for the inventory that is mapped correctly. The fix is a reconciliation, matching each active supply tag to a live placement and confirming the mapping describes the inventory the tag actually carries.<br><br>A few signs point to orphaned or mislabeled supply tags:<ul><li>Reporting shows impressions on a placement whose content or naming does not match the inventory the tag is known to carry</li><li>Active supply tags reference placements that have been retired, renamed, or merged, so the mapping no longer matches the live structure</li><li>Two tags carry near-identical names or map to overlapping placements, which makes it unclear which inventory each one represents</li></ul>You may want to confirm that every active supply tag maps to a live placement that accurately describes its inventory. One approach is to list the active tags against the current placement structure, then retire the orphans and remap any tag whose placement does not match the inventory it serves.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, channels and shows are added, renamed, and retired often, so supply tags built for an earlier lineup can outlive the placements they were mapped to. You may want to reconcile the active supply tags against the current channel and show structure, retiring tags tied to content that no longer exists and remapping any tag whose placement no longer matches the inventory it carries.",
+          "ecommerce": "On a commerce-content property, video placements are often tied to specific product lines or campaigns that rotate, so a supply tag built for a past campaign can keep serving under a placement that is no longer relevant. You may want to confirm each active supply tag maps to a current placement, retiring tags left over from retired campaigns so their impressions stop diluting the reporting for the live inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          }
+        ],
+        "learn_more_note": "FreeWheel's detailed configuration documentation for supply tags and placement mapping is in the partner portal (login required). The VAST standard above covers the ad-serving response these FreeWheel placements deliver.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the active supply tags against the current placement structure to confirm each one maps to a live placement that matches its inventory, and look for tags tied to retired placements or to content they do not actually carry.",
+        "tools": {
+          "free": {
+            "freewheel_ui": {
+              "label": "FreeWheel console",
+              "steps": [
+                "Open the inventory or supply section and list every active supply tag with the placement it maps to.",
+                "Cross-check each mapped placement against the current placement structure, noting any tag that references a placement that has been retired, renamed, or merged.",
+                "For each remaining tag, confirm the placement it maps to describes the inventory the tag actually carries, flagging any mismatch between the tag's known content and its mapped placement.",
+                "Record orphaned tags, mislabeled tags, and any near-duplicate tags whose inventory overlaps, with the tag and placement for each."
+              ]
+            },
+            "freewheel_reporting": {
+              "label": "FreeWheel reporting",
+              "steps": [
+                "Build a report broken out by placement with impressions and the content or inventory the placement represents.",
+                "Look for placements receiving impressions whose volume or content does not match what the inventory should produce, which can point to a tag mapped to the wrong placement.",
+                "Note any placement that should be retired but is still receiving impressions, which points to an orphaned tag still serving against it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each active supply tag, the placement it maps to, and whether that placement is live and matches the inventory the tag carries. A setup where every active tag maps to a current placement that accurately describes its inventory passes. A tag mapped to a retired placement, mapped to a placement whose content does not match the tag's inventory, or duplicated against overlapping placements is a fail recorded with the tag and the placement affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each active supply tag, its mapped placement, and whether that placement is live and matches the inventory above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has supply tags that are orphaned or mapped to the wrong placement, so inventory is passing under a placement that does not match it. A tag mapped to the wrong placement files its impressions against content they did not run on and applies that placement's targeting and pricing to inventory it was never meant for, while an orphaned tag keeps serving against stale rules after its placement is retired. {{voice_recommend}} reconciling every active supply tag against the current placement structure, retiring the tags tied to placements that no longer exist, and remapping any tag whose placement does not describe the inventory it carries. After the change, confirm that placement-level reporting attributes impressions to the content that actually served them."
+      }
+    }
+  ]
+}

@@ -1,0 +1,221 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "VAST and VMAP are the contract between the FreeWheel ad server and the video player, so when the declarations are wrong or a required parameter is missing, the ad either fails to render or renders without its tracking attached. The result is unsold ad breaks, undercounted impressions, and quartile data that does not match what actually played. This check reads the player integration and the response FreeWheel returns rather than rebuilding anything, so it costs inspection time and the finding points to a specific declaration or macro the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "A FreeWheel video or Connected TV (CTV) ad serving setup hangs on two standards. Video Ad Serving Template (VAST) is the response that tells the player what creative to play and which tracking events to fire, and Video Multiple Ad Playlist (VMAP) is the playlist that tells the player where the ad breaks fall in the content timeline and how each pod is filled. This subcategory is about whether those declarations are correct and whether the player and FreeWheel pass each other the parameters and macros the standards require. These checks confirm that the integration is built to spec rather than working by accident, so that ad breaks fill, creatives render, and the impression and quartile counts reflect what played.",
+  "audit_checks": [
+    {
+      "id": "freewheel-vast-vmap-integration-version-and-break-declarations",
+      "title": "VAST version and VMAP ad-break declarations do not match what the player and demand support",
+      "category": "inventory",
+      "subcategory": "vast_vmap_integration",
+      "impact_score": 3,
+      "impact_rationale": "When the VAST version FreeWheel returns is newer than the player can parse, or the VMAP ad breaks are declared at the wrong offsets or with a pod structure the player does not honor, the player either drops the response or fills the wrong break. Ad breaks then go unsold and the content plays without the ads the publisher booked, so the loss is real revenue rather than a reporting artifact.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "FreeWheel answers a video ad request with a Video Ad Serving Template (VAST) response, an XML document that names the creative to play and the tracking events the player should fire. The version of that response matters because a player parses only the elements it was built to understand. A player that supports VAST 4.1 reads a VAST 2.0 response without trouble, but a feature introduced in a later version, such as the separate media-file and interactive declarations in VAST 4.x or the CTV handling in the VAST 4.3 addendum, is invisible to an older player. When the version FreeWheel returns and the version the player supports drift apart, the player ignores the parts it cannot read, and an ad that looked correct in the response never reaches the screen.<br><br>Video Multiple Ad Playlist (VMAP) sits one level up. It is the playlist that declares where the ad breaks fall in the content timeline, a preroll at the start, midrolls at named time offsets, a postroll at the end, and how many ads each break holds. VMAP itself does not carry the creative. It carries the structure and points each break at a VAST response that fills it. If the break offsets are wrong, the timing the publisher booked does not match where ads actually play. If the pod structure in the break disagrees with what the player honors, the break fills with fewer ads than it was sold to hold, or it does not fill at all.<br><br>The two declarations have to agree with each other and with the player. The VMAP break points at a VAST response, the VAST response has to be a version the player can parse, and the pod the break declares has to be one the player will assemble. The audit question is whether the version FreeWheel returns, the breaks VMAP declares, and what the player actually supports line up, or whether one of them is set to a value the others do not honor.<br><br>A few signs point to a version or break mismatch:<ul><li>The VAST version FreeWheel returns is newer than the player or the device SDK documents as supported</li><li>VMAP declares midroll breaks at time offsets that do not match the points where ads play in the content</li><li>A break is sold as a pod of several ads but fills with one, or fills empty, which suggests the player is not honoring the declared pod</li><li>CTV inventory runs on a player that does not implement the VAST 4.3 CTV handling the inventory was set up to use</li></ul>You may want to confirm that the VAST version, the VMAP break declarations, and the player's documented support agree before treating an unfilled break as a demand problem. One approach is to capture a live VAST and VMAP response, read the declared version and break offsets, and compare them against the player and device SDK specification.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, long-form content carries several midroll breaks, so the VMAP offsets have to match the cue points the editorial or playout team set. You may want to confirm that the break offsets FreeWheel returns line up with the actual cue points. A midroll declared at the wrong second plays an ad over content the viewer is watching or skips a break that was meant to fill.",
+          "ecommerce": "On a commerce-content property where video sits alongside product or how-to pages, the player is often a lightweight web embed rather than a full CTV stack, so it may support an older VAST version than the broadcaster-grade players FreeWheel also serves. You may want to confirm that the version FreeWheel returns to the commerce-page player matches that player's support rather than assuming the CTV version applies everywhere."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Multiple Ad Playlist (VMAP)",
+            "source_url": "https://iabtechlab.com/standards-old/video-multiple-ad-playlist-vmap/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Capture a live VAST and VMAP response from the FreeWheel integration, read the declared VAST version and the VMAP break offsets and pod structure, and compare them against the player and device SDK's documented support.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the page or app stream in a session where the network panel is visible, and play the content so an ad request fires.",
+                "Find the FreeWheel ad request in the network log and open its response, then read the VMAP document for the declared break offsets, the number of breaks, and the pod size each break declares.",
+                "Open the VAST response that fills a break and read the version attribute on the 'VAST' element, then note whether it is a version the player documents as supported.",
+                "Record any break whose offset does not match where ads actually play, any pod that fills with fewer ads than declared, and any version newer than the player supports."
+              ]
+            },
+            "vast_validator": {
+              "label": "VAST tag validator",
+              "steps": [
+                "Paste the captured VAST response into a VAST validator to confirm the XML is well formed and the declared version's required elements are present.",
+                "Confirm the validator reads the same version attribute seen in the network capture and reports no missing required elements for that version.",
+                "Record any validation error. A malformed or incomplete VAST response can fail in the player even when the version itself is supported."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the VAST version FreeWheel returns, the VMAP break offsets and declared pod sizes, and the player and device SDK's documented VAST support. A setup where the returned version is one the player supports, the break offsets match the content cue points, and the pods fill as declared passes. A setup where the version is newer than the player supports, the break offsets do not match the cue points, or pods fill short or empty is a fail recorded with the specific version, offset, or pod affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the VAST version, the VMAP break offsets, the declared pod sizes, and the player's documented support above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the VAST version and VMAP ad-break declarations in the FreeWheel integration on {{site_name}} do not match what the player and demand support. A VAST version newer than the player can parse, a break offset that does not match the content cue point, or a pod declared larger than the player will assemble leaves ad breaks unfilled and content playing without the ads that were booked, so the loss is revenue rather than a reporting gap. {{voice_recommend}} capturing a live VAST and VMAP response, reading the declared version, break offsets, and pod sizes, and comparing them against the player and device SDK's documented Video Ad Serving Template (VAST) support, then correcting whichever declaration is set to a value the others do not honor. After the change, replay the content and confirm each break fills with the ads it was declared to hold."
+      }
+    },
+    {
+      "id": "freewheel-vast-vmap-integration-required-parameters-not-passed",
+      "title": "The player does not pass FreeWheel the required request parameters",
+      "category": "inventory",
+      "subcategory": "vast_vmap_integration",
+      "impact_score": 3,
+      "impact_rationale": "FreeWheel decides which ads are eligible from the parameters the player sends, such as player size, content metadata, and the consent and identifier signals. When the player omits or hardcodes those values, FreeWheel matches against the wrong information, so targeted and direct-sold demand that depended on accurate content or size data does not compete, and the break fills with lower-value ads or goes unfilled.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "FreeWheel cannot decide what to serve from the ad request alone. It decides from the parameters the player attaches to that request, and the quality of the decision is bounded by the quality of those parameters. Player size tells FreeWheel which creative dimensions and which formats the slot can hold. Content metadata, the title, the genre or category, the rating, the channel or network identifier, tells FreeWheel which content-level deals and which targeted line items are eligible. Privacy signals, the consent string and any identifier the player is allowed to pass, tell FreeWheel which demand can bid under the rules that apply to the viewer. When these arrive accurate and complete, FreeWheel matches the request against the demand that was meant to fill it.<br><br>The failure is quiet because the break still fills. When the player omits content metadata, hardcodes a single player size for every slot, or sends a placeholder value where a real one belongs, FreeWheel does not error. It matches against what it was given, which means the content-targeted and direct-sold demand that depended on the missing field never enters the auction, and the break fills with whatever generic demand remained eligible. The publisher sees a filled break and a lower price and has no signal pointing at the cause.<br><br>The required parameters are documented per integration. A web player using the FreeWheel JavaScript layer, a mobile app using the device SDK, and a server-side ad insertion stitching breaks into a stream each have their own way of attaching content metadata and player context, and each has fields the integration is expected to populate rather than leave at a default. The audit question is whether the player is sending real, per-request values for the parameters FreeWheel uses to match demand, or whether some of those fields are missing, hardcoded, or carrying a placeholder.<br><br>A few signs point to required parameters not being passed:<ul><li>The captured ad request shows content metadata fields, such as title or genre, missing or set to a static placeholder across different content</li><li>Player size in the request is the same value for slots that are visibly different sizes</li><li>Consent or identifier parameters are absent on a request that should carry them, given where the viewer is</li><li>Content-targeted or direct-sold line items that should be eligible report little or no delivery against this inventory</li></ul>You may want to confirm that the player passes accurate per-request values for player size, content metadata, and the privacy signals before treating weak fill or low prices as a demand shortage. One approach is to capture the ad request across several pieces of content and several slot sizes and check that the parameters change with the content and the slot rather than staying fixed.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, content metadata is the field that opens the most demand. Content-level deals and show-targeted line items match on title, genre, and network. You may want to confirm the player passes real per-episode metadata rather than a feed-level default. A missing genre or title drops the content-targeted demand that prices this inventory highest, with no error to flag it.",
+          "ecommerce": "On a commerce-content property, the video player is often embedded in a page template that reuses one configuration across many products, so player size and content context can end up hardcoded to whatever the template was first built around. You may want to confirm the request carries the size of the slot as actually rendered and context that reflects the page, rather than a single value inherited from the template."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          }
+        ],
+        "learn_more_note": "FreeWheel's detailed request-parameter and player-integration documentation for the JavaScript layer, the device SDK, and server-side ad insertion is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Capture the ad request the player sends to FreeWheel across several pieces of content and several slot sizes, and check that player size, content metadata, and the privacy parameters carry accurate per-request values rather than missing, hardcoded, or placeholder data.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the stream in a session with the network panel visible and play content so the player fires its ad request to FreeWheel.",
+                "Open the outgoing ad request and read the parameters that carry player size, content metadata (e.g., title, genre, rating, network), and any consent or identifier values.",
+                "Repeat across two or three different pieces of content and at least two different slot sizes, and record whether the parameters change with the content and the slot.",
+                "Record any field that is missing, set to a static placeholder, or hardcoded to one value across content or slots that should differ."
+              ]
+            },
+            "charles_proxy": {
+              "label": "Network proxy (for app and CTV players)",
+              "steps": [
+                "Route the app or CTV device through a network proxy configured to inspect the player's traffic, then play content so the ad request fires.",
+                "Find the FreeWheel ad request and read the same parameter set: player size, content metadata, and consent or identifier values.",
+                "Compare the values across content and devices, and record any required parameter the SDK integration leaves missing or fixed."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per captured request, whether player size, content metadata, and the privacy parameters carry accurate values that change with the content and the slot. A setup where the required parameters are present and vary correctly with the content and slot passes. A setup where one or more required parameters are missing, hardcoded, or set to a placeholder is a fail recorded with the specific parameter and the content or slot where it failed to populate.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which request parameters the player passes, and whether they vary correctly with content and slot, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the player on {{site_name}} does not pass FreeWheel the required request parameters, with player size, content metadata, or the privacy signals missing, hardcoded, or carrying a placeholder. FreeWheel decides which ads are eligible from these parameters, so when they are wrong the content-targeted and direct-sold demand that depended on accurate data never competes, and the break fills with lower-value ads or goes unfilled while the publisher sees only a lower price. {{voice_recommend}} capturing the ad request across several pieces of content and several slot sizes, confirming each required parameter carries an accurate per-request value, and correcting any field the integration leaves missing or fixed. After the change, recapture the request and confirm the parameters now vary with the content and the slot."
+      }
+    },
+    {
+      "id": "freewheel-vast-vmap-integration-tracking-macros-not-wired",
+      "title": "Impression and quartile tracking macros are not wired so events fire correctly",
+      "category": "inventory",
+      "subcategory": "vast_vmap_integration",
+      "impact_score": 4,
+      "impact_rationale": "Impression and quartile events are how delivery is counted and billed. When the player does not fire the VAST tracking events, or fires them without substituting the required macros such as the cachebusting and timestamp values, FreeWheel and any verification partner undercount or misattribute the impressions, so reconciliation breaks, billing disputes follow, and modeled or guaranteed delivery is reported against numbers that do not reflect what played.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "A Video Ad Serving Template (VAST) response does more than name a creative. It carries a set of tracking URLs the player is expected to call as the ad plays. The 'Impression' element fires when the ad renders. The quartile events, 'start', 'firstQuartile', 'midpoint', 'thirdQuartile', and 'complete', fire as playback crosses each point. These calls are how FreeWheel, the buyer, and any verification partner know the ad played and how far it played, and they are the events delivery is counted and billed against. If the player does not fire them, the ad can play perfectly while the systems that count it record nothing.<br><br>Firing the event is only half of it. Many tracking URLs contain macros, placeholders the player is required to replace with a real value before the call goes out. A cachebusting macro has to be replaced with a random value so each call is treated as distinct rather than served from a cache. A timestamp macro records when the event happened. Other macros carry the playback or error context a verification partner reads. When the player fires the URL without substituting the macro, the call still goes out, but it goes out carrying the literal placeholder text, and the receiving system either discards it or counts it wrong. The event looks fired from the player's side and arrives useless on the other.<br><br>The consequence lands at reconciliation. FreeWheel counts what its impression and quartile calls received, the buyer counts what theirs received, and a verification partner counts what the Open Measurement integration reported. When the macros are unsubstituted or the events do not fire, those counts diverge, and the gap surfaces as a billing dispute or a guaranteed campaign that under-delivers on paper while playing in full. The audit question is whether the player fires the impression and quartile events and substitutes every required macro, so the counts on every side describe the same playback.<br><br>A few signs point to tracking that is not wired correctly:<ul><li>A captured play shows the impression or one of the quartile calls never firing as the ad reaches that point</li><li>A fired tracking URL still contains an unreplaced macro, such as a literal cachebuster or timestamp placeholder, in the outgoing request</li><li>FreeWheel's impression count and a buyer's or verification partner's count for the same inventory diverge by more than the normal discrepancy band</li><li>Quartile completion rates look implausibly low or report as missing for inventory that is known to play through</li></ul>You may want to confirm that the player fires every impression and quartile event and substitutes each required macro before treating a counting discrepancy as a measurement-partner problem. One approach is to capture a full ad play, watch each tracking call fire at its point, and inspect the outgoing URLs for any macro left unreplaced.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property carrying guaranteed and direct-sold campaigns, the quartile and completion events feed the delivery reports those campaigns are billed on. You may want to confirm the player fires and macro-substitutes the full quartile set. A missing 'complete' event understates completion on guaranteed inventory and triggers make-goods for delivery that actually happened.",
+          "ecommerce": "On a commerce-content property, the video player is often a third-party or templated embed that was integrated for playback rather than for ad measurement, so its VAST tracking wiring can be incomplete. You may want to confirm the embed fires the impression and quartile events and substitutes the macros, rather than assuming a player chosen for content playback also handles ad tracking to spec."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Open Measurement SDK",
+            "source_url": "https://iabtechlab.com/standards/open-measurement-sdk/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Capture a full ad play and confirm the impression and each quartile event fire at the right point, then inspect the outgoing tracking URLs for any macro the player left unreplaced.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the stream with the network panel visible and play an ad all the way through so every event has a chance to fire.",
+                "Watch for the impression call at render and the 'start', 'firstQuartile', 'midpoint', 'thirdQuartile', and 'complete' calls at their playback points, and record any event that does not fire.",
+                "Open each fired tracking URL and read its query string for any macro left as literal placeholder text, such as an unreplaced cachebuster or timestamp.",
+                "Record every missing event and every unsubstituted macro with the event it belongs to."
+              ]
+            },
+            "vast_validator": {
+              "label": "VAST tag validator",
+              "steps": [
+                "Paste the captured VAST response into a VAST validator and confirm the impression and quartile tracking elements are present in the response FreeWheel returned.",
+                "Confirm the tracking URLs in the response contain the macros the player is expected to substitute, so a missing macro in the outgoing call can be traced to the player rather than the response.",
+                "Record any tracking element absent from the response itself, which would point at the ad server response rather than the player wiring."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the impression and each quartile event fired during a full play, and whether every required macro was substituted in the outgoing tracking calls. A setup where all events fire at their points and every macro resolves to a real value passes. A setup where an event does not fire or a macro reaches the receiving system unsubstituted is a fail recorded with the specific event and macro affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which impression and quartile events fired, and whether each required macro was substituted, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the impression and quartile tracking on {{site_name}} is not wired so events fire correctly, with one or more events not firing or a required macro reaching the receiving system unsubstituted. These events are how delivery is counted and billed, so when they fail FreeWheel and the buyer or verification partner record different numbers for the same playback, which surfaces as billing disputes and guaranteed campaigns that under-deliver on paper while playing in full. {{voice_recommend}} capturing a full ad play, confirming the impression and every quartile event fire at their points, and confirming each required macro, such as the cachebusting and timestamp values, resolves to a real value in the outgoing call, then correcting the player wiring for any event or macro that fails. After the change, replay the ad and confirm every event fires and every macro substitutes before reconciling the counts."
+      }
+    }
+  ]
+}

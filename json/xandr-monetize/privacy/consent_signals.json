@@ -1,0 +1,170 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Consent signals decide whether a bid request to demand partners carries the legal basis it needs, so a gap here is a compliance exposure rather than a tuning question. A request that reaches demand without the consent string the regulation requires can leave the publisher and its partners processing personal data with no recorded basis, and a request that demand sees as fully consented when the user refused carries the same risk in the other direction. The check is a review of how the consent management platform, Microsoft Monetize, and the header-bidding wrapper pass the signal, so it costs reading time rather than rebuild time, and the finding points to a concrete wiring fix.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Microsoft Monetize sits between a publisher's pages and the demand that bids on its inventory, so it carries the user's privacy choice from the consent management platform (CMP) onward to demand partners. The Transparency and Consent Framework (TCF) string and the Global Privacy Platform (GPP) string each encode that choice in a standard format demand partners can read. This subcategory is about whether those signals are captured on the page, passed into Microsoft Monetize and the header-bidding wrapper, forwarded to demand, and whether bid requests are held back where a legal basis is required and the user has not provided one. These checks confirm the consent signal travels the full path rather than dropping somewhere between the CMP and the demand partner.",
+  "audit_checks": [
+    {
+      "id": "xandr-monetize-consent-signals-string-not-passed-to-demand",
+      "title": "The TCF or GPP consent string is not captured and forwarded to demand",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 4,
+      "impact_rationale": "A bid request that reaches demand partners without the consent string leaves each partner with no recorded legal basis for processing the personal data in that request, which is a regulatory exposure for the publisher and the partner alike. Where the string is dropped between the consent management platform and the demand partner, the user's choice never reaches the parties that act on it, so the audit treats a missing or unforwarded string as a high-impact gap rather than a tuning detail.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "A consent string is the standard way a user's privacy choice travels through the advertising supply chain. The Transparency and Consent Framework (TCF) string, maintained by IAB Europe, encodes the choice for the General Data Protection Regulation (GDPR) and the ePrivacy Directive. The Global Privacy Platform (GPP) string, maintained by IAB Tech Lab, carries that same choice along with United States state signals in one transport format. A consent management platform (CMP) on the page collects the user's choice and writes one or both strings, and every party downstream reads the string rather than guessing what the user agreed to.<br><br>For a publisher running Microsoft Monetize, the string has to travel a full path before it does any good. The CMP writes it on the page. The header-bidding wrapper, which is Prebid-compatible on Microsoft Monetize, reads it and attaches it to each bid request. Microsoft Monetize and the demand partners receive the request with the string included, so each partner can apply the user's choice to its own processing. Break the path at any point and the string never reaches the party that needs it, even when the CMP collected a valid choice on the page.<br><br>The common failures are quiet because the auction still runs. The CMP may load after the wrapper has already sent its requests, so the requests go out with no string attached. The wrapper may not have the TCF or GPP consent module enabled, so it never reads the string the CMP wrote. A server-side path may strip the string before it reaches demand. In each case the impressions still serve and revenue still arrives, so the gap surfaces in an audit rather than in a daily report.<br><br>A few signs point to a consent string that is not reaching demand:<ul><li>Bid requests captured in a network trace carry no 'gdpr' or 'gpp' parameter while a CMP is present on the page</li><li>The header-bidding wrapper has no TCF or GPP consent management module enabled in its configuration</li><li>The CMP loads after the first bid requests fire, so the earliest requests go out before the string exists</li></ul>You may want to confirm that the string the CMP writes is the same string demand receives. One approach is to capture a bid request in the browser network panel and read the consent parameter against the string the CMP exposes through its API.",
+        "site_type_overlays": {
+          "publishing": "On a media site with European Union readership, the TCF string is the signal demand partners expect, so you may want to confirm the CMP writes a valid TCF string and the wrapper attaches it to every bid request before the auction starts. Where the site also serves United States readers, the GPP string carries the state-level signals, so confirming both formats reach demand keeps a single audience covered across regions.",
+          "ecommerce": "On a commerce-content site, a returning shopper may carry a consent choice from an earlier visit, so you may want to confirm the CMP restores the stored string on a repeat session and that Microsoft Monetize and the wrapper read the restored value rather than treating the shopper as having no choice on record."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - TCF for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementTcf.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - GPP for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          },
+          {
+            "source_type": "IAB Europe",
+            "source_title": "The Transparency & Consent Framework (TCF) v2.2",
+            "source_url": "https://iabeurope.eu/tcf/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform (GPP)",
+            "source_url": "https://iabtechlab.com/gpp/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm the consent management platform writes a TCF or GPP string on the page, then trace whether that string reaches the bid requests Microsoft Monetize and the wrapper send to demand.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the site in a browser with developer tools, load a page that serves ads, and confirm the consent management platform (CMP) prompt appears and records a choice.",
+                "In the console, call the CMP API (the '__tcfapi' function for TCF or the '__gpp' function for GPP) and read the consent string it returns.",
+                "Open the Network panel, filter for the bid requests the header-bidding wrapper sends, and check each request for a 'gdpr', 'gdpr_consent', or 'gpp' parameter.",
+                "Compare the string in the bid request against the string the CMP returned, and note any request that carries no consent parameter or a string that does not match."
+              ]
+            },
+            "wrapper_config": {
+              "label": "Header-bidding wrapper configuration",
+              "steps": [
+                "Review the wrapper configuration for an enabled TCF consent management module and, where United States traffic is served, a GPP consent management module.",
+                "Confirm the CMP script loads before the wrapper requests bids, so the string exists when the first requests fire.",
+                "Record whether the consent module is present and enabled, and whether the load order places the CMP ahead of the auction."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the consent management platform writes a TCF or GPP string, whether the header-bidding wrapper has the matching consent module enabled, and whether captured bid requests carry the same string the CMP exposed. A setup where the string is written, the module is enabled, and the bid requests carry the matching string passes. A setup where bid requests reach demand with no consent parameter, with a string that does not match the CMP, or with no consent module enabled in the wrapper is a fail recorded with the path where the string is dropped.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the consent string is written, whether the wrapper consent module is enabled, and whether bid requests carry the matching string above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sends bid requests to demand partners without the consent string the user's choice should carry, so the Transparency and Consent Framework (TCF) or Global Privacy Platform (GPP) signal is dropped somewhere between the consent management platform and demand. A request that reaches demand with no consent string leaves each partner processing personal data with no recorded legal basis, which is a regulatory exposure for {{site_name}} and its partners alike. {{voice_recommend}} confirming the consent management platform writes a valid string before the auction starts, enabling the matching TCF or GPP consent module in the header-bidding wrapper, and capturing a bid request to verify the string demand receives matches the one the platform wrote. After the fix, recheck a sample of bid requests so the consent parameter is present and matches on each."
+      }
+    },
+    {
+      "id": "xandr-monetize-consent-signals-requests-not-suppressed-without-basis",
+      "title": "Bid requests are not suppressed where consent is absent and a legal basis is required",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 4,
+      "impact_rationale": "Where a user declines consent or none is recorded and a legal basis is required, sending the bid request to demand anyway means personal data is processed without that basis, which is the exposure the consent signal exists to prevent. Treating a refusal or a missing choice as if it permitted the auction turns a privacy control into a formality, so the audit treats unsuppressed requests in that case as a high-impact gap.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Passing the consent string to demand is only half of the privacy path. The other half is acting on what the string says. When a user declines consent, or when the consent management platform (CMP) has not yet recorded a choice and a legal basis is required for the region, the bid request should be held back or limited rather than sent to demand as if the user had agreed. A string that travels with the request but is ignored by the parties that read it gives the user no protection at all.<br><br>The Transparency and Consent Framework (TCF) encodes consent per purpose, so a request can be permitted for one purpose and withheld for another rather than treated as all-or-nothing. The Prebid-compatible wrapper that fronts Microsoft Monetize can enforce this through its TCF control module, which reads the consent values and decides, per purpose and per vendor, whether a bidder participates, whether a user sync runs, and whether device storage is allowed. Microsoft Monetize and its server-side path apply their own enforcement on the consent the request carries. The audit question is whether that enforcement is wired up or whether requests flow to demand regardless of what the user chose.<br><br>The default scope matters as much as the enforcement. Where a publisher serves traffic that may fall under the GDPR, the safer default treats consent as required until the CMP confirms otherwise, so a request that fires before the choice is recorded is held rather than released. A configuration that defaults to no-consent-required, or that releases requests as soon as the auction starts without waiting for the CMP, can let the earliest requests through with no basis behind them.<br><br>A few signs point to requests that are not suppressed when they should be:<ul><li>Bid requests still reach demand after a user declines consent in the CMP prompt</li><li>The wrapper has no TCF control module or purpose-level enforcement configured, so the consent values are passed along but never acted on</li><li>The default GDPR scope releases requests before the CMP has recorded a choice for traffic that may fall under the regulation</li></ul>You may want to confirm that a declined or absent consent choice actually changes what reaches demand. One approach is to decline consent in the prompt, then watch the network panel to see whether bid requests still fire for the purposes that were refused.",
+        "site_type_overlays": {
+          "publishing": "On a media site with European Union readership, a reader who declines consent should not generate bid requests for the purposes they refused, so you may want to confirm the wrapper's purpose-level enforcement holds those requests back rather than passing a refusal string that demand is left to honor on its own.",
+          "ecommerce": "On a commerce-content site, a shopper who declines tracking may still browse and buy, so you may want to confirm that declining consent suppresses the personalized demand path while leaving the non-personalized inventory able to serve, rather than blocking ads entirely or ignoring the refusal."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "TCF Control Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/tcfControl.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Server Privacy for Header Bidding",
+            "source_url": "https://docs.prebid.org/prebid-server/features/pbs-privacy.html"
+          },
+          {
+            "source_type": "IAB Europe",
+            "source_title": "The Transparency & Consent Framework (TCF) v2.2",
+            "source_url": "https://iabeurope.eu/tcf/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Decline or withhold consent in the consent management platform, then confirm whether bid requests for the refused purposes are held back or still reach demand.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load a page that serves ads, and in the consent management platform (CMP) prompt decline consent or leave the choice unrecorded.",
+                "Open the Network panel and watch whether the header-bidding wrapper still fires bid requests, and for which bidders and purposes.",
+                "Reload with consent granted and compare the requests that fire, so the difference between the consented and refused states is visible.",
+                "Record whether declining consent suppressed the requests for the refused purposes or whether the requests fired regardless."
+              ]
+            },
+            "wrapper_config": {
+              "label": "Header-bidding wrapper configuration",
+              "steps": [
+                "Review the wrapper for a TCF control module or purpose-level enforcement that acts on the consent values rather than only passing them along.",
+                "Check the default GDPR scope setting, and confirm it holds requests until the CMP records a choice for traffic that may fall under the regulation.",
+                "Record whether enforcement is configured and what it does when consent is declined or has not yet been recorded."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records what reaches demand when consent is declined or absent and whether the wrapper enforces consent per purpose rather than only forwarding the string. A setup where a declined or absent choice holds back the requests for the refused purposes, and the default scope waits for the CMP where a legal basis is required, passes. A setup where bid requests reach demand after a refusal, or where the default scope releases requests before a choice is recorded, is a fail recorded with the purposes and the path where enforcement is missing.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record what reaches demand when consent is declined or absent, and whether the wrapper enforces consent per purpose, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} still sends bid requests to demand when a user declines consent or none has been recorded and a legal basis is required, so the consent signal is passed along but not acted on. Processing personal data after a refusal is the exposure the consent string exists to prevent, and a signal that travels with the request while being ignored gives the user no protection. {{voice_recommend}} configuring purpose-level enforcement in the Prebid-compatible wrapper so a declined or absent choice holds back the requests for the refused purposes, and setting the default scope to wait for the consent management platform where the General Data Protection Regulation (GDPR) may apply. After the change, decline consent in a test session and confirm the requests for the refused purposes no longer reach demand."
+      }
+    }
+  ]
+}

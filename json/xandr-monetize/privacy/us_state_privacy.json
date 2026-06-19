@@ -1,0 +1,243 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "US state privacy signals decide whether a reader's opt-out of the sale or sharing of their data actually reaches the demand bidding on a publisher's inventory. A signal that is never passed, or passed but ignored, leaves the publisher exposing data it was told to hold back, and the reader has no way to see that their choice was dropped. The check is a review of the GPP signal a publisher already sends through Microsoft Monetize and its consent management platform, so it costs reading time rather than rebuild time, and the finding points to a concrete compliance gap the publisher can close.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "US state privacy laws give readers in a growing list of states the right to opt out of the sale or sharing of their personal data, and the Global Privacy Platform (GPP) is the IAB Tech Lab transport that carries that choice from a consent management platform through Microsoft Monetize to the demand bidding on the inventory. This subcategory is about whether that signal is built, passed, and honored, rather than about the consent management platform's banner design or the legal interpretation behind it. These checks confirm that the GPP string carries the US national and applicable US state sections, that any legacy US Privacy string is accounted for, and that an opt-out of sale or sharing is reflected in the signal Microsoft Monetize sends downstream.",
+  "audit_checks": [
+    {
+      "id": "xandr-monetize-us-state-privacy-gpp-sections-not-passed",
+      "title": "GPP US national and applicable state sections are not passed to demand",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "When the Global Privacy Platform string is missing or carries no US national or state section, demand receives no record of the reader's opt-out, so personal data can be sold or shared after the reader asked it not to be. That is a direct compliance exposure under state privacy law rather than a tuning issue, and it persists unnoticed because nothing in the auction surfaces the absent signal.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "The Global Privacy Platform (GPP) is the IAB Tech Lab transport that carries a reader's privacy choices through the supply chain. It is a single encoded string that can hold several regional sections at once, and two fields travel with it. The string itself records the choices, and an applicable-section list names which sections are in force for the request. On the supply side, a publisher's consent management platform builds that string, Microsoft Monetize reads it, and it is passed to demand through the GPP and applicable-section fields in the bid request so each buyer can apply the reader's choice.<br><br>US state privacy laws are carried inside the GPP through dedicated sections. The US National Privacy Technical Specification sits in the container as one section, and individual states such as California, Virginia, Colorado, Utah, and Connecticut each have their own section. A publisher that operates under the IAB's Multi-State Privacy Agreement (MSPA) typically passes the US national section, while a publisher choosing the state-by-state approach passes the specific state sections that apply to its readers. Either way, the section has to be present in the string and named in the applicable-section list for demand to act on it.<br><br>The failure this check looks for is a GPP string that is missing, empty, or present but carrying no US national or US state section. When that happens, demand receives no record that a reader in a covered state opted out, so the impression can be sold or shared as if no choice was made. Because the auction still clears normally, nothing in day-to-day reporting flags the gap, and it can run for months before a compliance review surfaces it.<br><br>A few signs point to GPP sections not reaching demand:<ul><li>The GPP string is absent from bid requests for traffic in covered states, or it is present but its applicable-section list names no US national or US state section</li><li>The consent management platform builds a Transparency and Consent Framework (TCF) string for European traffic but produces no US section for US readers</li><li>A legacy US Privacy string is still the only US signal in place, with no GPP US section alongside or replacing it</li></ul>You may want to confirm that the GPP string reaches Microsoft Monetize with the US national or applicable state sections populated for traffic in covered states. One approach is to capture the bid request for a test session from a covered state and read the GPP and applicable-section fields directly.",
+        "site_type_overlays": {
+          "publishing": "On a media site, readership often spans many states at once, so a single page view can fall under California, Virginia, Colorado, or another covered state depending on the reader. You may want to confirm the consent management platform geo-detects the reader's state and builds the matching GPP section, rather than passing one fixed section or none, so each reader's applicable law is the one carried to demand.",
+          "ecommerce": "On a commerce-content site, the same readers may also be logged-in customers whose data is used for purposes a state opt-out covers. You may want to confirm the GPP section reflects the opt-out for those readers so the sale-or-share signal reaching demand stays consistent with the choice they made on the commerce side."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "GPP Consent Management Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid US Compliance Support for Header Bidding",
+            "source_url": "https://docs.prebid.org/features/mspa-usnat.html"
+          }
+        ],
+        "learn_more_note": "Microsoft Monetize's detailed configuration documentation for reading and forwarding the GPP signal is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Capture a bid request for a test session originating from a covered state and confirm the GPP string is present and that its applicable-section list names the US national or applicable US state section.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the site in a browser with developer tools, then open the 'Network' tab and filter for the bid or auction request.",
+                "Load a page as a test reader located in a covered state, using a profile or location override so the consent management platform builds the US section.",
+                "Inspect the outgoing bid request and locate the GPP string field and the applicable-section list, often named 'gpp' and 'gpp_sid' in the request.",
+                "Record whether the GPP string is present and whether the applicable-section list names a US national section or a US state section, or whether it is empty or absent."
+              ]
+            },
+            "cmp_console": {
+              "label": "Consent management platform console",
+              "steps": [
+                "Open the consent management platform's configuration for the property and list which GPP sections it is set to build.",
+                "Confirm whether the US national section, the applicable US state sections, or both are enabled alongside any European TCF section.",
+                "Record any covered state for which no GPP section is configured, which would explain a missing US signal in the bid request."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a test session from a covered state, whether the GPP string is present in the bid request and whether its applicable-section list names a US national or US state section. A setup where the string is present and carries the section that matches the reader's state passes. A setup where the GPP string is missing or carries no US national or US state section for covered-state traffic is a fail recorded with the state tested and the field values observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the GPP string and its applicable-section list reached the bid request for a covered-state test session above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sends bid requests for covered-state traffic without a Global Privacy Platform (GPP) string that carries the US national or applicable US state section, so demand receives no record of the reader's opt-out of sale or sharing. With no section present, an impression can be sold or shared as if no choice was made, which is a direct exposure under state privacy law that day-to-day reporting does not surface. {{voice_recommend}} confirming the consent management platform builds the GPP section that matches each reader's state and that Microsoft Monetize forwards the GPP and applicable-section fields to demand. After the change, recapture a bid request from a covered state to confirm the section now reaches the buyers."
+      }
+    },
+    {
+      "id": "xandr-monetize-us-state-privacy-opt-out-not-honored",
+      "title": "Opt-out of sale or sharing is not reflected in the signal sent downstream",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "A GPP string can be present and still encode the wrong choice, so a reader who opted out of sale or sharing still has data passed to demand. The signal looks healthy in a section-presence check yet fails the reader, which makes this a compliance exposure that a surface-level review can miss.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Passing a Global Privacy Platform (GPP) string is only half of honoring a reader's choice. The other half is encoding the right value inside it. A US national or US state section carries flags for the choices a reader can make, including whether they opted out of the sale of their data and whether they opted out of sharing it for cross-context behavioral advertising. A reader who clicks an opt-out control, or who arrives with a Global Privacy Control (GPC) browser signal, should produce a string whose opt-out flags are set, and Microsoft Monetize should forward that string so demand restricts what it does with the data.<br><br>The gap this check looks for sits between the reader's action and the encoded string. A consent management platform can render an opt-out control, record the click in its own interface, and still build a GPP string whose sale-or-share flags read as no opt-out because the control was never wired to the section's flags. The string is present, the section is named, and a presence check passes, yet the reader's actual choice never reaches demand. The Global Privacy Control signal is a second path to the same failure. A browser sending GPC is asserting an opt-out, and the section is meant to reflect it, so a string that ignores GPC drops a choice the reader's browser made on their behalf.<br><br>Honoring the opt-out also has to flow past Microsoft Monetize into what demand is allowed to do. Under the US frameworks, an opt-out restricts privacy-sensitive activities such as syncing user identifiers, transmitting encrypted identifiers, and sharing first-party data with buyers. A signal that is built correctly but stripped or overridden before the bid request leaves the platform fails the reader just as surely as one that was never encoded.<br><br>A few signs point to an opt-out that is not reflected downstream:<ul><li>An opt-out clicked in the consent management platform does not change the sale or share flags in the GPP string captured from the bid request</li><li>A session carrying a Global Privacy Control browser signal produces a GPP string whose opt-out flags read as no opt-out</li><li>Identifier syncing or first-party data sharing continues for a reader whose section flags indicate an opt-out</li></ul>You may want to confirm that an opt-out action and a Global Privacy Control signal both change the encoded flags in the string Microsoft Monetize sends to demand. One approach is to opt out in a test session, capture the resulting GPP string, and decode its sale-and-share flags to confirm they match the choice made.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the opt-out control often lives in a privacy link or a consent banner that a reader reaches well after the first page view. You may want to test that opting out mid-session changes the GPP flags on the next bid request, so a reader who opts out partway through a visit is honored from that point rather than only on a fresh session.",
+          "ecommerce": "On a commerce-content site, a logged-in customer's opt-out may be recorded in an account preference as well as in the consent management platform. You may want to confirm the two agree, so the GPP flags sent to demand reflect the same opt-out the customer set in their account rather than a stale default."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid US Compliance Support for Header Bidding",
+            "source_url": "https://docs.prebid.org/features/mspa-usnat.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "GPP Consent Management Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform"
+          }
+        ],
+        "learn_more_note": "Microsoft Monetize's documentation for how its auction applies opt-out flags from the GPP string is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Opt out in a test session, capture the resulting GPP string from the bid request, and confirm its sale-and-share flags match the choice made, then repeat with a Global Privacy Control browser signal.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load the site as a test reader in a covered state, open developer tools, and capture the bid request before any opt-out to record the baseline GPP flags.",
+                "Use the consent management platform's opt-out control to opt out of sale and sharing, then reload and capture the bid request again.",
+                "Decode the GPP string from each request and compare the sale and share flags before and after the opt-out to confirm the choice changed them.",
+                "Enable a Global Privacy Control signal in the browser, reload, and confirm the captured GPP string reflects the opt-out without a manual click."
+              ]
+            },
+            "cmp_console": {
+              "label": "Consent management platform console",
+              "steps": [
+                "Open the consent management platform's configuration and confirm the opt-out control is mapped to the sale and share flags of the US national or US state section.",
+                "Confirm whether the platform is set to treat a Global Privacy Control browser signal as an opt-out for the applicable sections.",
+                "Record any control that is shown to readers but not wired to a section flag, which would let an opt-out register in the interface yet never reach the string."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the GPP sale-and-share flags before and after an opt-out in a test session, and whether a Global Privacy Control signal sets the same flags. A setup where the opt-out and the Global Privacy Control signal both change the flags to reflect the opt-out, and the change reaches the bid request, passes. A setup where the flags stay unchanged after an opt-out, or where Global Privacy Control is ignored, is a fail recorded with the section tested and the flag values observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the GPP sale-and-share flags before and after an opt-out, and the Global Privacy Control result, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that an opt-out of sale or sharing at {{site_name}} does not change the Global Privacy Platform (GPP) flags in the bid request, so a reader's choice never reaches demand even though the GPP string is present. A string that encodes no opt-out, or that ignores a Global Privacy Control browser signal, fails the reader as surely as a missing string and leaves the same exposure under state privacy law. {{voice_recommend}} mapping the opt-out control and the Global Privacy Control signal to the sale and share flags of the applicable section, and confirming Microsoft Monetize forwards the opted-out string so demand restricts identifier syncing and data sharing. After the change, opt out in a test session and decode the captured string to confirm the flags now match the choice."
+      }
+    },
+    {
+      "id": "xandr-monetize-us-state-privacy-legacy-usp-string-stale",
+      "title": "A legacy US Privacy string is the only US signal and is not migrated to GPP",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 3,
+      "impact_rationale": "The legacy US Privacy string covered only California and lost its contractual framework in early 2024, so a publisher relying on it alone carries no signal for the newer state laws and an aging California signal. The exposure is real but narrower than a fully absent signal because some California opt-outs may still pass, which places this below the catastrophic tier.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Before the Global Privacy Platform (GPP) existed, the US privacy signal in the supply chain was the US Privacy string, sometimes called the USP string, built for the California Consumer Privacy Act (CCPA) and its update under the California Privacy Rights Act (CPRA). It encoded a single set of California opt-out flags and traveled through the bid request the same way the GPP string does now. A publisher that set up US privacy signaling some years ago may still be passing this string and nothing else.<br><br>Two changes have moved the ground under that setup. The legacy US Privacy string was no longer supported by a contractual framework as of January 31, 2024, so demand can no longer rely on it the way it once did. At the same time, state privacy laws expanded well past California, and the legacy string has no way to carry a Virginia, Colorado, Utah, or Connecticut opt-out because it was only ever built for one state. A publisher whose only US signal is the legacy string therefore carries an aging California signal and no signal at all for readers in the newer covered states.<br><br>The migration path is to move US signaling into the GPP, where the US national section or the individual state sections carry the same kind of opt-out the legacy string carried for California, plus the states it never covered. During a transition a publisher may pass both the legacy string and the GPP section for a period, but the end state is the GPP section as the signal demand reads. The audit question is whether the publisher has made that move or whether the legacy string is still standing in for a job it can no longer do.<br><br>A few signs point to a legacy US Privacy string left in place:<ul><li>The bid request carries a US Privacy string but no GPP US national or US state section</li><li>The consent management platform is configured for the California US Privacy signal only, with no GPP US sections enabled</li><li>Readers from non-California covered states receive the same California-only signal, or no US signal, with nothing newer added</li></ul>You may want to confirm whether US signaling has moved to the GPP or whether the legacy string is the only US signal still in place. One approach is to capture the bid request and check for a GPP US section alongside or in place of the legacy US Privacy string.",
+        "site_type_overlays": {
+          "publishing": "On a media site drawing readers from many states, a California-only legacy signal leaves every non-California covered reader without an opt-out path. You may want to enable the GPP US national or per-state sections so the signal follows where the readership actually is rather than the single state the legacy string was built for.",
+          "ecommerce": "On a commerce-content site, customer data is usually richer, so a stale or single-state US signal carries more weight when an opt-out is missed. You may want to migrate to the GPP sections so the opt-out covers the states the customer base spans rather than California alone."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "US Privacy Consent Management Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementUsp.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid US Compliance Support for Header Bidding",
+            "source_url": "https://docs.prebid.org/features/mspa-usnat.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform"
+          }
+        ],
+        "learn_more_note": "Microsoft Monetize's instructions for migrating US privacy signaling from the legacy US Privacy string to the GPP are in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Capture a bid request and check whether US signaling is carried by a GPP US section or only by a legacy US Privacy string, and confirm the consent management platform builds GPP US sections.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load the site as a test reader in a covered state, open developer tools, and capture the outgoing bid request.",
+                "Look for a legacy US Privacy string field, often named 'us_privacy' or 'usp', and for a GPP string with a US national or US state section in its applicable-section list.",
+                "Record whether the request carries a GPP US section, only the legacy US Privacy string, or both during a transition.",
+                "Repeat for a reader in a non-California covered state to confirm whether any signal is sent for states the legacy string never covered."
+              ]
+            },
+            "cmp_console": {
+              "label": "Consent management platform console",
+              "steps": [
+                "Open the consent management platform's configuration and list which US signals it builds, the legacy US Privacy signal, the GPP US sections, or both.",
+                "Confirm whether GPP US national or per-state sections are enabled for the covered states the readership spans.",
+                "Record whether the legacy US Privacy signal is the only US signal configured, which points to a migration that has not happened."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether US signaling is carried by a GPP US national or state section or only by a legacy US Privacy string, for both a California reader and a non-California covered-state reader. A setup where US signaling is carried by GPP US sections, with the legacy string present only as a transitional fallback, passes. A setup where the legacy US Privacy string is the only US signal, leaving non-California covered states with no opt-out path, is a fail recorded with the states tested and the signals observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether US signaling is carried by GPP US sections or only by the legacy US Privacy string, for a California and a non-California covered-state reader, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} carries US privacy signaling through a legacy US Privacy string alone, with no Global Privacy Platform (GPP) US national or state section. The legacy string covered only California and lost its contractual framework in early 2024, so readers in newer covered states receive no opt-out path and the California signal itself is aging. {{voice_recommend}} migrating US signaling to the GPP US national or per-state sections in the consent management platform, keeping the legacy string only as a transitional fallback while demand reads the GPP section. After the migration, capture bid requests for a California reader and a non-California covered-state reader to confirm a GPP US section now carries the signal for both."
+      }
+    }
+  ]
+}

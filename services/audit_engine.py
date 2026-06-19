@@ -905,6 +905,14 @@ CATEGORY_METADATA = {
         "brand-safety": {"display_name": "Brand Safety", "icon_class": "fa-solid fa-shield-halved", "description": "Ad quality scanning, creative blocking, and content classification"},
         "measurement": {"display_name": "Measurement", "icon_class": "fa-solid fa-chart-line", "description": "Discrepancy reconciliation, report accuracy, and video metrics"},
     },
+    "google-publisher-tag": {
+        "governance": {"display_name": "Governance", "icon_class": "fa-solid fa-scale-balanced", "description": "Library loading, service configuration, and CSP integration"},
+        "inventory": {"display_name": "Inventory", "icon_class": "fa-solid fa-boxes-stacked", "description": "Slot definition, ad sizes, and out-of-page formats"},
+        "delivery": {"display_name": "Delivery", "icon_class": "fa-solid fa-truck-fast", "description": "Single request architecture, lazy loading, and ad refresh"},
+        "targeting": {"display_name": "Targeting", "icon_class": "fa-solid fa-crosshairs", "description": "Key-value targeting, publisher provided signals, and audience signals"},
+        "privacy": {"display_name": "Privacy", "icon_class": "fa-solid fa-user-shield", "description": "Privacy settings, child-directed treatment, and limited ads"},
+        "measurement": {"display_name": "Measurement", "icon_class": "fa-solid fa-chart-line", "description": "Slot render events, performance monitoring, and viewability"},
+    },
 }
 
 
@@ -996,6 +1004,8 @@ DISPLAY_ACRONYMS = {
     "gpid": "GPID", "s2s": "S2S",
     # Video ad servers
     "vmap": "VMAP",
+    # Google Publisher Tag (supply side)
+    "gpt": "GPT", "csp": "CSP", "pps": "PPS",
 }
 
 

@@ -1,0 +1,168 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://docs.prebid.org/overview/analytics.html",
+  "worth_it": "Yes",
+  "worth_it_explanation": "A Prebid.js analytics adapter is the publisher's window into the header-bidding auction, so it decides whether the auction, bid, and render data exists to read at all. A site that runs Prebid without an analytics adapter reporting into a system the publisher reviews is optimizing bidder timeouts, floors, and the bidder set on guesswork. The check is a review of the configuration the publisher already ships, readable from the page itself, so it costs reading time rather than rebuild time, and the finding points to a concrete data gap the publisher can close.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "An analytics adapter is the Prebid.js component that captures auction events, such as which bidders responded, what they bid, which bid won, and which creative rendered, and sends them to a reporting system. Without one feeding a dashboard the publisher actually reads, the header-bidding setup runs blind, so decisions about bidder timeouts, floor prices, and which bidders to keep rest on assumption rather than measurement. This subcategory checks whether an analytics adapter is enabled and reporting into a reviewed system, and whether its sampling rate and event coverage are set so the data is complete enough to act on.",
+  "audit_checks": [
+    {
+      "id": "prebid-analytics-adapters-none-enabled",
+      "title": "No analytics adapter is enabled or reporting into a reviewed system",
+      "category": "measurement",
+      "subcategory": "analytics_adapters",
+      "impact_score": 4,
+      "impact_rationale": "Without an analytics adapter, the publisher has no record of how the header-bidding auction performed. Bidder timeouts, floor prices, and the bidder set are then tuned on assumption rather than data, and a bidder that times out on most requests or never wins can sit in the configuration indefinitely while costing latency on every auction. The data gap touches every Prebid optimization decision, so the missing measurement compounds across the whole setup.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "Prebid.js runs a client-side auction on the page, calling each configured bidder, collecting their bids, and passing the winner to the ad server. An analytics adapter is the separate Prebid module that listens to the events that auction emits, such as auction start, bid requested, bid response, bid timeout, bid won, and ad render, and sends them to a reporting destination. Prebid.js supports more than 50 analytics adapters covering vendor-specific destinations, plus a generic adapter for publishers that prefer to send events to their own backend. An adapter is turned on with the 'pbjs.enableAnalytics()' call, naming the provider and any options.<br><br>The data an adapter captures is the only record a publisher has of how the auction actually performed. It shows which bidders respond and how often, what they bid, how frequently each one wins, how often each one times out, and how the winning Prebid bid compares to what the ad server ultimately served. None of that is visible in the ad server's own reports. The ad server sees only the bid Prebid handed it, not the auction behind it.<br><br>When no analytics adapter is enabled, or one is enabled but its data flows to a destination nobody reviews, the header-bidding setup runs blind. A bidder that times out on most requests, a floor that suppresses bids it should clear, or a bidder that has not won an impression in months all stay invisible. The only place that behavior shows up is the analytics the publisher is not collecting. Decisions about timeouts, floors, and the bidder set then rest on assumption rather than measurement.<br><br>Whether an analytics adapter is doing its job comes down to two questions:<ul><li>Is an adapter enabled in the Prebid configuration through a 'pbjs.enableAnalytics()' call</li><li>Do its events reach a dashboard or report that someone on the team reviews on a regular basis</li></ul>An adapter that is configured but reports into a destination no one opens fails the second test as surely as having no adapter at all. You may want to confirm both that an adapter is enabled and that its output lands somewhere the team uses to make Prebid decisions.",
+        "site_type_overlays": {
+          "publishing": "On a media site, header bidding usually spans many ad units across articles, section fronts, and the homepage, and bidder behavior can differ sharply between them. An analytics adapter that captures auction data per ad unit lets the publisher see, for example, that a bidder wins reliably on article pages but times out on the homepage, which a single blended number would hide. You may want to confirm the adapter's data is reviewed at the ad-unit level rather than only as a site-wide total.",
+          "ecommerce": "On a commerce-content site, the higher-intent product and category pages often carry different bidder demand than the editorial pages, so the auction behaves differently across the two. An analytics adapter that reports by page type lets the publisher see whether the bidders winning on commercial inventory are the same ones worth keeping on editorial inventory. You may want to confirm the captured data separates the commercial pages from the editorial pages rather than blending them."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Analytics for Prebid.js",
+            "source_url": "https://docs.prebid.org/overview/analytics.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "pbjs.enableAnalytics(config)",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/enableAnalytics.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "How to Add a Prebid.js Analytics Adapter",
+            "source_url": "https://docs.prebid.org/dev-docs/integrate-with-the-prebid-analytics-api.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect the page's Prebid configuration to confirm an analytics adapter is enabled, then confirm with the publisher that its data reaches a reporting system the team reviews.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console and Prebid debugging",
+              "steps": [
+                "Open the page in a browser, open DevTools, and switch to the Console tab. The global Prebid object is usually 'pbjs' (confirm the variable name with the publisher if the page renames it).",
+                "Run 'pbjs.getConfig()' and look at the configuration for an analytics block, or check the page source and tag-manager containers for a 'pbjs.enableAnalytics()' call that names a provider.",
+                "Run 'pbjs.getEvents()' to read the auction events Prebid has recorded for the current page, which confirms the events an adapter would have to forward exist and shows their shape.",
+                "Append '?pbjs_debug=true' to the page URL and reload to surface Prebid's debug logging, then watch the console for analytics-related output as the auction runs.",
+                "Record the provider named in the 'enableAnalytics()' call, or note that no analytics adapter is enabled."
+              ]
+            },
+            "publisher_review": {
+              "label": "Reporting destination review",
+              "steps": [
+                "Ask the publisher which system receives the Prebid analytics data, for example a vendor analytics dashboard or an in-house reporting tool fed by the generic adapter.",
+                "Confirm that system shows recent header-bidding data, such as bidder win rates, timeouts, and bid values, rather than sitting empty or stale.",
+                "Ask who on the team reviews that data and how often, and record whether Prebid decisions about timeouts, floors, or the bidder set actually draw on it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a 'pbjs.enableAnalytics()' call is present in the Prebid configuration and whether its data reaches a reporting system the team reviews. A setup with an adapter enabled and its events landing in a dashboard the publisher uses for Prebid decisions passes. A setup with no analytics adapter, or one whose data flows to a destination nobody reviews, is a fail recorded with which of the two conditions is missing.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether an analytics adapter is enabled and whether its data reaches a reviewed reporting system above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs Prebid.js without an analytics adapter reporting into a system the team reviews, so there is no record of how the header-bidding auction performs. The auction, bid, and render events that show which bidders respond, what they bid, how often each wins, and how often each times out are not being captured, which leaves bidder timeouts, floor prices, and the bidder set tuned on assumption rather than measurement. {{voice_recommend}} enabling a Prebid analytics adapter through a 'pbjs.enableAnalytics()' call, either a vendor adapter or the generic adapter pointed at an in-house backend, and routing its data to a dashboard the team reviews on a regular cadence. With the auction data in hand, {{site_name}} can tune timeouts, floors, and which bidders to keep against what the bidders actually do."
+      }
+    },
+    {
+      "id": "prebid-analytics-adapters-sampling-or-events-too-narrow",
+      "title": "Sampling rate or event coverage is set too narrow to act on the data",
+      "category": "measurement",
+      "subcategory": "analytics_adapters",
+      "impact_score": 3,
+      "impact_rationale": "An analytics adapter that samples too low a share of auctions, or that excludes the events a decision needs, produces data too thin or too partial to support a Prebid change. The publisher then has the appearance of measurement without the substance, so a low-volume bidder or an intermittent timeout can stay invisible inside the unsampled traffic. The gap is narrower than having no adapter at all, but it still leaves specific optimization decisions unsupported.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "Prebid analytics adapters accept a sampling rate, a number between 0 and 1 that tells the adapter what share of auctions or browser sessions to collect data on. A sampling rate of 1 collects every auction, 0.25 collects roughly a quarter, and so on. Sampling exists for a reason. On a high-traffic site, sending every auction event to an analytics backend carries its own cost in payload weight and ingest volume, so a publisher may sample down to keep that cost in check. The setting is part of the options passed to 'pbjs.enableAnalytics()'.<br><br>Sampling that is set too low works against the data's usefulness. The aggregate win rates and timeout rates for high-volume bidders may still hold up under a small sample, but the behavior of a low-volume bidder, a rarely used ad unit, or an intermittent timeout can disappear into the unsampled traffic. A bidder that wins a few times a day may not register at all in a 5 percent sample, which leaves the publisher unable to tell whether it earns its place in the auction. The data looks present, but it cannot answer the questions a publisher tunes Prebid to answer.<br><br>Event coverage is the second lever. A standard adapter can include or exclude specific Prebid events, so a publisher can narrow what the adapter forwards. Narrowing too far removes the events a given decision depends on. If the adapter forwards bid-won events but not bid-timeout events, the publisher can see who wins but not who times out, and timeout behavior is exactly what drives the choice of timeout setting and whether to drop a slow bidder. The captured events have to match the decisions the publisher intends to make from them.<br><br>Whether sampling and event coverage are set well comes down to a few signs:<ul><li>The sampling rate is low enough that low-volume bidders or ad units do not produce enough data to read, with no separate full-collection path for them</li><li>The adapter's included events omit a category the team needs, for example timeouts, render outcomes, or bid responses, so a known decision has no data behind it</li><li>The publisher cannot say what sampling rate is in effect or which events the adapter forwards, which points to settings accepted rather than chosen</li></ul>You may want to confirm that the sampling rate leaves enough volume to read the inventory and bidders that matter, and that the included events cover the decisions the team makes from the data.",
+        "site_type_overlays": {
+          "publishing": "On a media site, traffic concentrates on a handful of high-volume templates while many individual articles see light traffic, so a low sampling rate can read the busy templates well while starving the long tail of pages of any usable data. You may want to confirm the sampling rate is high enough that the ad units on lower-traffic pages still accumulate enough auctions to evaluate, not only the homepage and section fronts.",
+          "ecommerce": "On a commerce-content site, the high-intent product and category pages may be a smaller share of total pageviews than the editorial content, so a low sample can leave the commercial inventory, where the auction economics matter most, thinly measured. You may want to confirm sampling captures enough of the commercial pages specifically to support floor and bidder decisions on that inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "pbjs.enableAnalytics(config)",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/enableAnalytics.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Generic Analytics Adapter",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/genericAnalyticsAdapter.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the sampling rate and the included or excluded events from the Prebid analytics configuration, then weigh them against the decisions the publisher makes from the data.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console and Prebid debugging",
+              "steps": [
+                "Open the page in a browser, open DevTools, and switch to the Console tab. The global Prebid object is usually 'pbjs' (confirm the name with the publisher if the page renames it).",
+                "Run 'pbjs.getConfig()' and locate the analytics configuration, or inspect the page source and tag-manager containers for the 'pbjs.enableAnalytics()' call and its options.",
+                "Read the 'sampling' value in the adapter options (a number between 0 and 1) and note any 'includeEvents' or 'excludeEvents' arrays that limit which events the adapter forwards.",
+                "Run 'pbjs.getEvents()' to confirm the full set of auction events Prebid records, then compare it against the events the adapter is configured to forward.",
+                "Record the sampling rate in effect and the events the adapter includes or excludes."
+              ]
+            },
+            "publisher_review": {
+              "label": "Decision-coverage review",
+              "steps": [
+                "Ask the publisher which Prebid decisions they make from the analytics data, such as setting timeouts, adjusting floors, or dropping a bidder.",
+                "For each decision, confirm the captured events cover it, for example that timeout events are forwarded if timeout settings are being tuned.",
+                "Check whether the sampling rate leaves enough volume on the lower-traffic inventory and lower-volume bidders to read them, and record any decision the current sampling or event coverage cannot support."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the sampling rate in effect, the events the adapter includes or excludes, and the decisions the publisher makes from the data. A configuration where sampling leaves enough volume to read the relevant bidders and inventory and the included events cover the decisions on record passes. A configuration where sampling is too low to read low-volume bidders or ad units, or where a needed event category is excluded, is a fail recorded with the specific decision the data cannot support.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the sampling rate, the included or excluded events, and the decisions the publisher makes from the data above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Prebid.js analytics adapter on {{site_name}} is set with a sampling rate or event coverage too narrow to support the decisions the team makes from the data. Sampling that collects too small a share of auctions lets low-volume bidders and lower-traffic ad units fall out of the data, and excluding an event category such as bid timeouts removes the evidence a decision like the timeout setting depends on, so the measurement looks present without being complete enough to act on. {{voice_recommend}} raising the sampling rate until the bidders and inventory that matter produce enough auctions to read, and including the event categories that map to the decisions on record, such as timeout and render events alongside bid wins. With sampling and event coverage matched to the decisions, {{site_name}} can tune the auction against data that covers what it needs to see."
+      }
+    }
+  ]
+}

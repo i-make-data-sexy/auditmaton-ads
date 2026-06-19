@@ -1,0 +1,246 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://www.iab.com/guidelines/ad-impression-measurement-guidelines-us-global/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "A header-bidding setup reports two sets of numbers for the same impressions, one from Prebid.js on the page and one from the ad server that ultimately serves the creative, and the two rarely match to the unit. The audit confirms that a publisher reconciles the Prebid-side counts against the ad server delivery, holds the gap to a stated tolerance, and investigates the gap when it runs wide. The check is a review of reports and instrumentation a publisher can already pull, so it costs reading time rather than rebuild time, and the finding points to a concrete counting decision the publisher can act on.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Prebid.js runs an auction on the page and reports its own view of what happened, including which bids won. The ad server then makes its own delivery decision and reports impressions on its own terms. The two counts measure the same event from different points in the chain, so a gap between them is expected, but a gap that runs wide or drifts over time points to a counting problem worth tracing. This subcategory is about reconciliation: comparing the Prebid-side counts against the ad server delivery, holding the difference to a tolerance the publisher has chosen, and investigating the known sources of the gap when it falls out of range. The reference point for what a counted impression should mean is the Media Rating Council (MRC) and Interactive Advertising Bureau (IAB) ad impression measurement guidelines.",
+  "audit_checks": [
+    {
+      "id": "prebid-discrepancy-reconciliation-counts-not-reconciled",
+      "title": "Prebid win counts are not reconciled against ad server delivery",
+      "category": "measurement",
+      "subcategory": "discrepancy_reconciliation",
+      "impact_score": 3,
+      "impact_rationale": "Prebid.js and the ad server count the same impressions from different points in the chain, so some gap is expected. A publisher who never compares the two has no way to tell an ordinary gap from a counting failure that is quietly shedding revenue, which leaves billing against bidders and delivery reporting resting on numbers no one has checked against each other.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "transparency"
+      ],
+      "educate": {
+        "base": "Header bidding produces two records of the same impression. Prebid.js runs the auction in the browser and records which bid won through events such as 'bidWon', readable on the page through 'pbjs.getEvents()' and 'pbjs.getAllWinningBids()'. The ad server, usually Google Ad Manager or a similar server, then decides what to serve and counts an impression on its own terms. A bidder reads its own numbers from yet a third place. Three records, one event, and they will not line up to the unit.<br><br>Some of the gap is structural and expected. Prebid records a win when its auction picks a bidder, but the ad server only serves and counts that creative if the Prebid line item actually wins the ad server's own decision against direct-sold demand and other line items. A bid that wins the Prebid auction but loses in the ad server never becomes a served impression, so a Prebid win count will sit above the ad server delivery count by design. Render failures, blocked creatives, and the point in the render where each system counts all widen the gap further.<br><br>The Media Rating Council (MRC) and Interactive Advertising Bureau (IAB) ad impression measurement guidelines set a 'count-on-begin-to-render' standard for what a valid impression should mean, which is why the ad server's served-impression count and Prebid's auction-win count are measuring different moments. Reconciliation is the practice of comparing the two anyway, accepting that they differ, and watching the size of the difference rather than expecting it to be zero.<br><br>The audit question is whether reconciliation happens at all. A publisher who pulls Prebid win counts on one side, ad server delivery on the other, and reads the gap can set a tolerance, such as a percentage band the difference normally stays within, and treat a breach as a signal to investigate. A publisher who never compares the two cannot tell a normal gap from a counting failure, so a creative that stops rendering or a line item that stops winning can shed impressions without anyone seeing it in the numbers.<br><br>A few signs point to counts that are not reconciled:<ul><li>No report or process compares Prebid-side win counts against the ad server's delivery for the same period and inventory</li><li>The publisher cannot state the typical size of the gap or a tolerance band the difference should stay within</li><li>Prebid wins and ad server impressions are read in separate tools that no one lines up against each other</li></ul>You may want to confirm that a reconciliation is run on a regular cadence with a stated tolerance. One approach is to pull Prebid win counts and ad server delivery for the same window, read the percentage gap, and record the band the gap normally falls within so a future breach stands out.",
+        "site_type_overlays": {
+          "publishing": "On a media site, traffic swings with editorial cycles and a homepage takeover or a seasonal spike can change the gap between Prebid wins and ad server delivery in a single day. You may want to reconcile on a regular cadence rather than once, and read the gap per placement, so a render problem on one high-traffic unit does not hide inside a site-wide average that looks stable.",
+          "ecommerce": "On a commerce-content site, product and category pages often run different ad layouts and refresh behavior than editorial pages, which can give each a different normal gap between Prebid wins and ad server delivery. You may want to reconcile the commercial inventory separately from the editorial inventory so a tolerance set on a blended average does not mask a counting problem on the higher-value pages."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "pbjs.getEvents()",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/getEvents.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Analytics for Prebid.js",
+            "source_url": "https://docs.prebid.org/overview/analytics.html"
+          },
+          {
+            "source_type": "MRC / IAB Tech Lab",
+            "source_title": "MRC, Joined by IAB Tech Lab and MMA, Announces Revised Ad Measurement Guidelines",
+            "source_url": "https://iabtechlab.com/press-releases/mrc-joined-by-iab-tech-lab-and-mma-announces-releases-of-revised-ad-measurement-guidelines-for-mobile-in-app-mobile-web-and-desktop-display/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether the publisher compares Prebid-side win counts against ad server delivery for the same period and inventory, and whether a tolerance band exists for the gap.",
+        "tools": {
+          "free": {
+            "prebid_page_inspection": {
+              "label": "Prebid on-page inspection",
+              "steps": [
+                "On a page running Prebid.js, open the browser console and run 'pbjs.getAllWinningBids()' to see the bids Prebid recorded as winners for the page.",
+                "Run 'pbjs.getEvents()' and read the 'bidWon' entries to see how Prebid counts a win per ad unit code.",
+                "Add 'pbjs_debug=true' to the page URL and reload, then read the console messages to confirm the auction is running and recording wins as expected before comparing against the ad server.",
+                "Note that the page view shows Prebid's side of the count only, which then has to be lined up against the ad server's delivery report for the same inventory."
+              ]
+            },
+            "ad_server_reporting": {
+              "label": "Ad server reporting",
+              "steps": [
+                "In the ad server, build a delivery report for the Prebid line items broken out by ad unit for a defined period.",
+                "Pull the matching Prebid win counts for the same ad units and period from the analytics adapter or event logging.",
+                "Compare the two counts and record the percentage gap per ad unit, then ask the publisher whether a tolerance band exists and what the gap normally is.",
+                "Record whether any regular reconciliation process exists or whether the two numbers are read in isolation."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether Prebid win counts are compared against ad server delivery for the same inventory and period, and whether a stated tolerance band exists for the gap. A setup that reconciles the two counts on a regular cadence, with a tolerance the publisher can name, passes. A setup where the two counts are never lined up, or where no tolerance exists so any gap looks normal, is a fail recorded with the inventory and period checked.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether Prebid win counts are reconciled against ad server delivery and whether a tolerance band exists above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not reconcile Prebid-side win counts against the ad server's delivery, so no one is watching the gap between the two records of the same impressions. Prebid.js and the ad server count from different points in the chain, so a gap is expected, but without a comparison and a tolerance band a render failure or a line item that stops winning can shed impressions unnoticed. {{voice_recommend}} pulling Prebid win counts and ad server delivery for the same window and inventory, reading the percentage gap, and recording the band it normally falls within so a future breach stands out. After that, run the reconciliation on a regular cadence and treat a breach of the band as a signal to investigate."
+      }
+    },
+    {
+      "id": "prebid-discrepancy-reconciliation-gap-not-investigated",
+      "title": "A wide reconciliation gap is not traced to its source",
+      "category": "measurement",
+      "subcategory": "discrepancy_reconciliation",
+      "impact_score": 3,
+      "impact_rationale": "A reconciliation gap that runs past the tolerance band points to a specific cause, such as bids arriving after the timeout, creatives failing to render, or the two systems counting at different points. Leaving a wide gap unexplained means the publisher cannot tell a harmless counting difference from a fault that is dropping paid impressions, so a real revenue leak can sit inside a number that was flagged but never traced.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "transparency"
+      ],
+      "educate": {
+        "base": "Once a publisher reconciles Prebid win counts against ad server delivery, the next question is what to do when the gap runs wide. A gap inside the tolerance band is the ordinary result of two systems counting the same event from different points. A gap past the band points to a cause, and the value of reconciliation comes from tracing that cause rather than noting the breach and moving on.<br><br>Several known sources widen the gap, and they leave different fingerprints. Bids that arrive after the Prebid auction timeout are discarded and never sent to the ad server, so a timeout set too tight shows up as Prebid wins that never become ad server impressions. The Prebid 'bidTimeout' event and the timeout configuration are where this surfaces. Render failures are a second source, where Prebid records a win and passes targeting to the ad server but the creative never renders, so the impression is lost between the win and the count. The counting point itself is a third source since the Media Rating Council (MRC) and Interactive Advertising Bureau (IAB) guidelines set a 'count-on-begin-to-render' standard for the ad server while Prebid records a win at the auction, two different moments that produce two different counts by design.<br><br>A fourth source sits in how prices and macros are reported rather than how impressions are counted. Prebid's own guidance notes that resolving OpenRTB macros such as the auction price client-side can cause discrepancies in reporting, which is why a bidder's numbers, the publisher's Prebid numbers, and the ad server's numbers can each tell a slightly different story about the same auction. Bid adjustment factors set per bidder or media type are the lever publishers use to align reported values, and a missing or stale adjustment can widen a value gap even when the impression counts agree.<br><br>The audit question is whether a breach of the tolerance band triggers an investigation that names a source. Reading the 'bidWon' and 'bidTimeout' events through 'pbjs.getEvents()', comparing them against the ad server's delivery and discard reporting, and checking the timeout and bid-adjustment configuration are the steps that turn a flagged gap into a named cause.<br><br>A few signs point to a gap that is flagged but not traced:<ul><li>A breach of the tolerance band is noted in reporting but no investigation records a cause such as timeout, render failure, or counting point</li><li>Timeout settings and 'bidTimeout' rates have not been checked against the size of the gap</li><li>The publisher cannot say whether the gap comes from lost impressions, a value-reporting difference, or the expected counting-point offset</li></ul>You may want to confirm that a breach of the band leads to a recorded cause rather than an unexplained note. One approach is to read the timeout rate, render rate, and bid-adjustment configuration whenever the gap runs wide, and record which of them moved.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a traffic spike can push more auctions against the same timeout, so a gap that widens during a spike often traces to bids arriving late rather than to a render fault. You may want to read the 'bidTimeout' rate during the spike specifically, so the investigation separates a timeout that is too tight under load from a render problem that would show at any traffic level.",
+          "ecommerce": "On a commerce-content site, heavier page layouts on product and category pages can slow rendering, so a wide gap on those pages may trace to creatives that win but fail to render in time rather than to the auction timeout. You may want to check render rate on the commercial pages separately since the cause of the gap there can differ from the cause on lighter editorial pages."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js Troubleshooting Guide",
+            "source_url": "https://docs.prebid.org/troubleshooting/troubleshooting-guide.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Ad Slot, Timeouts",
+            "source_url": "https://docs.prebid.org/features/timeouts.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js FAQ, OpenRTB macros and reporting discrepancies",
+            "source_url": "https://docs.prebid.org/dev-docs/faq.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "When the reconciliation gap runs past the tolerance band, trace it to a source by reading the timeout rate, the render rate, and the bid-adjustment and macro configuration.",
+        "tools": {
+          "free": {
+            "prebid_page_inspection": {
+              "label": "Prebid on-page inspection",
+              "steps": [
+                "On a page running Prebid.js, run 'pbjs.getEvents()' in the console and read the 'bidTimeout' entries to gauge how often bids arrive after the auction timeout and are discarded.",
+                "Run 'pbjs.getAllWinningBids()' and compare the wins recorded against what the ad server reports as delivered for the same inventory, to see where wins are not becoming served impressions.",
+                "Add 'pbjs_debug=true' to the page URL, reload, and read the console messages for render or targeting errors that would explain wins that never serve.",
+                "Check the auction timeout and any 's2sConfig.timeout' against the bid-arrival timing to see whether the timeout is shedding bids that would otherwise win."
+              ]
+            },
+            "ad_server_reporting": {
+              "label": "Ad server reporting",
+              "steps": [
+                "In the ad server, pull delivery alongside any discard or error reporting for the Prebid line items over the period where the gap ran wide.",
+                "Compare the timeout rate, render outcomes, and counting point against the size of the gap to identify which source accounts for most of it.",
+                "Review the bid adjustment factors set per bidder or media type and confirm they are current since a stale adjustment can widen a value gap even when impression counts agree.",
+                "Record the source the evidence points to, such as timeout, render failure, counting point, or macro and value reporting, so the breach is closed with a named cause."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a breach of the tolerance band triggers an investigation that names a source for the gap, such as timeout, render failure, counting point, or value and macro reporting. A setup where a wide gap leads to a recorded cause and a corresponding action passes. A setup where a wide gap is flagged but left unexplained, with no check of timeout rate, render rate, or bid-adjustment configuration, is a fail recorded with the period and inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a wide reconciliation gap is traced to a named source above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} flags a wide gap between Prebid win counts and ad server delivery but does not trace it to a source. A gap past the tolerance band points to a cause such as bids arriving after the auction timeout, creatives that win but fail to render, the difference in where each system counts, or a stale value adjustment, and each leaves a different fingerprint. {{voice_recommend}} reading the 'bidTimeout' rate through 'pbjs.getEvents()', comparing recorded wins against ad server delivery, and checking the timeout and bid-adjustment configuration whenever the gap runs wide. After tracing the cause, record it against the breach and take the matching action, such as loosening a tight timeout or fixing a render fault, then recheck the gap."
+      }
+    },
+    {
+      "id": "prebid-discrepancy-reconciliation-no-analytics-instrumentation",
+      "title": "No analytics adapter captures the data needed to reconcile counts",
+      "category": "measurement",
+      "subcategory": "discrepancy_reconciliation",
+      "impact_score": 2,
+      "impact_rationale": "Reconciliation depends on having the Prebid-side counts in a form that can be compared against the ad server over time. Without an analytics adapter recording wins, timeouts, and bid responses, the publisher is left reading transient on-page state and cannot reconcile a past period, so the comparison either never happens or rests on data that does not persist.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "transparency"
+      ],
+      "educate": {
+        "base": "Reconciliation needs the Prebid-side numbers in a form that lasts. The on-page methods, 'pbjs.getEvents()' and 'pbjs.getAllWinningBids()', report the auction for the current page load only, and that state is gone when the page unloads. To compare Prebid wins against ad server delivery for a past day or a past placement, the publisher needs the events recorded somewhere they persist, which is what a Prebid analytics adapter does.<br><br>Prebid.js supports analytics adapters through 'pbjs.enableAnalytics()', and the analytics documentation lists adapters from a range of vendors. An adapter records the auction events, including wins, bid responses, and timeouts, and sends them to an analytics endpoint where they can be queried later. Prebid's own guidance notes that the transaction identifiers analytics adapters capture are useful for discrepancy reconciliation because they let the same impression be matched across the publisher, the ad server, and the advertiser.<br><br>Without an analytics adapter, the publisher has the ad server's delivery numbers, which persist, on one side and only transient on-page state on the other. That makes a like-for-like comparison over a defined period difficult since there is no stored record of how many wins Prebid counted for a given placement on a given day. The reconciliation either does not happen or relies on spot checks of live pages, which cannot speak to a past period or a placement the auditor is not currently loading.<br><br>The audit question is whether the data needed for reconciliation is being captured, not whether a particular vendor is used. Any adapter that records wins, bid responses, and timeouts against an identifier that can be matched to the ad server gives the publisher the persisted Prebid-side record reconciliation depends on.<br><br>A few signs point to missing instrumentation for reconciliation:<ul><li>No Prebid analytics adapter is enabled through 'pbjs.enableAnalytics()', so auction events are not recorded beyond the page load</li><li>The publisher relies on console commands on live pages to read Prebid wins and cannot pull win counts for a past period</li><li>No identifier ties a Prebid auction to the matching ad server impression, so the two records cannot be lined up at the impression level</li></ul>You may want to confirm that an analytics adapter captures wins, bid responses, and timeouts in a queryable form. One approach is to check whether 'pbjs.enableAnalytics()' is configured and whether the captured data carries an identifier that can be matched to the ad server's delivery.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the inventory and traffic shift week to week, so reconciliation has to be able to look back at a specific period rather than only at today's pages. You may want an analytics adapter recording auction events so a gap that showed up last week can still be investigated, rather than depending on whatever pages happen to be live now.",
+          "ecommerce": "On a commerce-content site, product pages tied to a promotion may be live only briefly, so the window to read their auctions on-page is short. You may want analytics instrumentation capturing wins and timeouts for those pages while they run, so the reconciliation can cover promotional inventory that is no longer loadable after the promotion ends."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Analytics for Prebid.js",
+            "source_url": "https://docs.prebid.org/overview/analytics.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "pbjs.getAllWinningBids()",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/getAllWinningBids.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether a Prebid analytics adapter is recording auction events in a queryable form and whether the captured data can be matched to the ad server's delivery.",
+        "tools": {
+          "free": {
+            "prebid_page_inspection": {
+              "label": "Prebid on-page inspection",
+              "steps": [
+                "On a page running Prebid.js, run 'pbjs.getConfig()' in the console and look for an analytics configuration, which indicates whether 'pbjs.enableAnalytics()' has been called.",
+                "Run 'pbjs.getEvents()' to confirm the auction is emitting the wins, bid responses, and timeouts an adapter would capture.",
+                "Note that these console reads cover the current page load only, which is the limitation an analytics adapter is meant to remove by persisting the events.",
+                "Ask the publisher which analytics adapter, if any, is enabled and whether its data carries an identifier that ties an auction to the ad server impression."
+              ]
+            },
+            "analytics_review": {
+              "label": "Analytics data review",
+              "steps": [
+                "If an analytics adapter is enabled, open its reporting and confirm it records wins, bid responses, and timeouts for a past period rather than live pages only.",
+                "Check whether the recorded data can be broken out by ad unit and matched against the ad server's delivery for the same period and inventory.",
+                "Record whether the captured data is sufficient to run a reconciliation over a defined window or whether the publisher is left with on-page spot checks."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a Prebid analytics adapter captures wins, bid responses, and timeouts in a queryable form, and whether the captured data can be matched to ad server delivery by inventory and period. A setup with an adapter recording the events reconciliation needs, tied to an identifier that maps to the ad server, passes. A setup with no adapter, where Prebid-side counts exist only as transient on-page state, is a fail recorded with the gap it leaves in the reconciliation.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a Prebid analytics adapter captures the data needed to reconcile counts above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has no Prebid analytics adapter recording auction events, so the Prebid-side counts needed for reconciliation exist only as transient on-page state. The on-page methods report the current page load only, which leaves the publisher unable to compare Prebid wins against ad server delivery for a past period or a placement that is no longer live. {{voice_recommend}} enabling an analytics adapter through 'pbjs.enableAnalytics()' that records wins, bid responses, and timeouts against an identifier that can be matched to the ad server. After that, confirm the captured data can be broken out by inventory and period so a reconciliation can run over a defined window rather than on live pages alone."
+      }
+    }
+  ]
+}

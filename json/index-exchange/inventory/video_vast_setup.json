@@ -1,0 +1,225 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Video parameters are how a publisher describes the impression to the demand that bids on it, so a mistake here does not throw an error. It changes what bidders are willing to pay. A player size declared smaller than the real player, a placement signal that does not match the actual context, or missing content metadata each make the impression read as cheaper or riskier than it is. The check is a review of the video configuration a publisher already has in their Prebid setup and player, so it costs reading time rather than rebuild time, and the finding points to a concrete declaration the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Video impressions are valued on the signals the publisher passes about them. The Video Ad Serving Template (VAST) and the OpenRTB video object carry that description from the publisher's player and Prebid configuration out to Index Exchange and the demand bidding through it. Player size, placement, skippability, supported protocols, and content metadata all shape how a bidder reads the impression and what it will pay. This subcategory covers whether those video parameters are declared accurately. The configuration does not warn a publisher when a declared value drifts from the real one. It settles the auction on the wrong description.",
+  "audit_checks": [
+    {
+      "id": "index-exchange-video-vast-setup-parameters-inaccurate",
+      "title": "Video player parameters are declared inaccurately to bidders",
+      "category": "inventory",
+      "subcategory": "video_vast_setup",
+      "impact_score": 3,
+      "impact_rationale": "Bidders price a video impression on the parameters the publisher declares, so a player size, set of supported protocols, or skippability flag that does not match the real player changes what demand is willing to pay. A player declared smaller than it renders, or a VAST version a bidder cannot serve into, suppresses bids or drops creatives, and the loss shows up as weaker fill and lower price rather than an error.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "A video impression carries a description of itself out to the demand that bids on it, and that description is built from the video parameters a publisher sets. In a Prebid header-bidding setup feeding Index Exchange, those parameters live on the video ad unit and travel through the OpenRTB video object to the bidders. Player size, the Video Ad Serving Template (VAST) versions and protocols the player accepts, the supported MIME types, and whether the slot is skippable all tell a bidder what kind of impression it is buying and how it can serve into the slot.<br><br>The parameters work as a contract. A bidder reads the declared player size, the protocols, and the skippability, then decides whether its creative fits and what the impression is worth. When a declared value matches the real player, the auction settles on an accurate picture. When it drifts, the bidder is pricing something other than what the user will see, and the result is a quieter loss than an error. A player declared at 640 by 480 that actually renders larger reads as cheaper inventory than it is. A protocol list that omits the VAST versions the player can handle turns away creatives the slot could have served. A skippability flag set wrong invites creatives the player cannot present the way the bidder expects.<br><br>The parameters that most often drift from the real player are worth checking one by one:<ul><li>Player size: the declared width and height should match the rendered player, not a default left over from a template</li><li>Protocols and API frameworks: the VAST versions and frameworks the player actually supports should be the ones declared, so bidders send creatives the player can serve</li><li>Supported MIME types: the video formats the player can play should be the ones passed, so a bidder does not win with a file the player drops</li><li>Skippability and duration limits: the skip behavior and the minimum and maximum ad duration should reflect what the player enforces</li></ul>You may want to confirm that each declared video parameter matches the behavior of the live player rather than a configuration default. One approach is to read the OpenRTB video object on a real bid request, then compare each value against what the player renders and enforces.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a content video player often sits inside an article and renders at a size set by the page layout rather than a fixed default. You may want to confirm the declared player size matches the size the player takes at each placement. A homepage feature player and an in-article player can differ, and one declared size applied to both misprices the larger slot.",
+          "ecommerce": "On a commerce-content site, video may run on product or category pages where the player is embedded near merchandising rather than in a dedicated video section. You may want to confirm the declared parameters reflect that embedded player specifically. A size or skippability value carried over from an editorial video template may not match how the commercial-page player behaves."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference, video media type parameters",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the video parameters declared on the ad unit against the behavior of the live player to see whether the player size, protocols, MIME types, and skippability match what the user actually sees.",
+        "tools": {
+          "free": {
+            "config_review": {
+              "label": "Prebid video configuration",
+              "steps": [
+                "Open the Prebid video ad unit configuration and record the declared 'mediaTypes.video' values, including playerSize, protocols, api, mimes, skip, and the minduration and maxduration limits.",
+                "Load a page with the live video player and read the rendered player width and height, then compare them against the declared playerSize.",
+                "Confirm the declared protocols and api frameworks match the VAST versions and frameworks the player can actually serve, and that the declared MIME types are formats the player can play.",
+                "Record any parameter where the declared value differs from what the player renders or enforces."
+              ]
+            },
+            "bid_request_inspection": {
+              "label": "Bid request inspection",
+              "steps": [
+                "Open the browser developer tools network panel and trigger a video bid request on a real page.",
+                "Inspect the OpenRTB request and read the video object passed to Index Exchange, noting the player size, protocols, MIME types, and skip values as they leave the page.",
+                "Compare the values in the request against the live player behavior to confirm the impression is described to bidders the way it actually renders."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each declared video parameter alongside the live player behavior. A configuration where player size, protocols, MIME types, skippability, and duration limits match what the player renders and enforces passes. A configuration where one or more declared values differ from the live player is a fail recorded with the specific parameters that drift and the placements affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each declared video parameter and the matching live player behavior above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the video parameters {{site_name}} declares to bidders do not match the live player. Player size, supported protocols, MIME types, and skippability travel through the OpenRTB video object to Index Exchange, and bidders price the impression on those values, so a declared value that drifts from the real player misprices the slot or turns away creatives it could have served. {{voice_recommend}} reading the OpenRTB video object on a real bid request, comparing each declared parameter against what the player renders and enforces, and correcting the values that differ. After the change, recheck a live bid request to confirm the impression is described the way it actually appears."
+      }
+    },
+    {
+      "id": "index-exchange-video-vast-setup-placement-signal-mismatch",
+      "title": "The placement signal does not match the real video context",
+      "category": "inventory",
+      "subcategory": "video_vast_setup",
+      "impact_score": 3,
+      "impact_rationale": "The placement signal tells a bidder whether the video is instream, accompanying content, interstitial, or standalone, and demand prices and filters on it. A slot declared as instream that is actually an outstream unit, or the reverse, can attract creatives the player cannot present and can route the impression past buyers who would have valued the real context, so the mismatch both misprices and misroutes the inventory.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "Video demand cares a great deal about where the video runs. An ad that plays before a user's chosen content, an ad that plays inside an article the user is reading, and an ad that stands alone with no surrounding content are different products to a buyer, with different value and different brand-safety considerations. The OpenRTB video object carries this distinction in two related fields. The 'context' set on the Prebid video ad unit marks the slot as instream or outstream, and the placement field, 'plcmt', describes the context more precisely.<br><br>The placement values name the context a bidder is buying. A value of 1 marks in-stream video that runs before, during, or after streaming content the user requested. A value of 2 marks accompanying content, video that plays alongside an article rather than inside requested streaming content. A value of 3 marks an interstitial. A value of 4 marks a standalone slot with no surrounding content. A bidder reads this value, decides whether its creative and its brand-safety rules fit that context, and prices accordingly.<br><br>The mismatch happens when the declared placement no longer describes the real slot. An outstream player embedded in an article that still declares an instream context reads to buyers as premium pre-roll inventory it is not, which invites creatives built for a true instream slot and can route the impression toward demand that filters for it. A genuine instream slot declared as standalone reads as lower-value inventory and can be priced below what the context is worth. Because Index Exchange and the demand bidding through it act on the declared value, the description settles the auction whether or not it is accurate.<br><br>A few signs point to a placement signal that does not match the real context:<ul><li>An outstream player embedded in page content declares an instream context or an in-stream placement value</li><li>The 'context' and 'plcmt' values disagree with each other, for example an outstream context paired with an in-stream placement</li><li>The declared placement was set once from a template and was never revisited when the player or its position on the page changed</li></ul>You may want to confirm that the declared context and placement match how and where the video actually plays. One approach is to view each video player on the live page, classify its real context, and compare that against the context and plcmt values in the bid request.",
+        "site_type_overlays": {
+          "publishing": "On a media site, outstream players embedded inside articles are common, and an outstream unit that declares an instream context misrepresents accompanying-content inventory as pre-roll. You may want to confirm each in-article player declares an outstream context with a placement value that matches accompanying content, so buyers price it as what it is.",
+          "ecommerce": "On a commerce-content site, video on product or category pages is usually accompanying content rather than requested streaming, so it should declare the context that matches. You may want to confirm the placement value on these merchandising-adjacent players reflects accompanying content rather than an instream value carried over from a different template."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference, video context and plcmt",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js for Video Overview",
+            "source_url": "https://docs.prebid.org/prebid-video/video-overview.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the declared context and placement values against the real video context for each player to see whether they describe the slot accurately.",
+        "tools": {
+          "free": {
+            "config_review": {
+              "label": "Prebid video configuration",
+              "steps": [
+                "Open the Prebid video ad unit configuration and record the 'mediaTypes.video.context' and the 'plcmt' value for each video ad unit.",
+                "View each video player on the live page and classify its real context as in-stream, accompanying content, interstitial, or standalone.",
+                "Compare the declared context and plcmt against the real context, and confirm the context and plcmt values agree with each other.",
+                "Record any player where the declared context or placement does not match the real slot."
+              ]
+            },
+            "bid_request_inspection": {
+              "label": "Bid request inspection",
+              "steps": [
+                "Open the browser developer tools network panel and trigger a video bid request on a page with a known player context.",
+                "Read the video object in the OpenRTB request and note the context and plcmt values sent to Index Exchange.",
+                "Confirm those values match the context you classified by viewing the live player, and record any request where they disagree."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the declared context and placement for each video player alongside the real context observed on the live page. A configuration where every player's declared context and plcmt match the real slot, and agree with each other, passes. A configuration where a declared context or placement misrepresents the real context, or where context and plcmt disagree, is a fail recorded with the players affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the declared context and placement and the observed real context for each player above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the placement signal {{site_name}} sends does not match the real video context on one or more players. The context and plcmt values in the OpenRTB video object tell Index Exchange and its demand whether the slot is in-stream, accompanying content, interstitial, or standalone, and buyers price and filter on that signal, so a mismatch invites creatives the player cannot present and routes the impression past buyers who value the real context. {{voice_recommend}} classifying each player's real context on the live page, then setting the context and plcmt to match it and to agree with each other. After the change, recheck a bid request from each player to confirm the declared context matches the slot."
+      }
+    },
+    {
+      "id": "index-exchange-video-vast-setup-content-signals-missing",
+      "title": "Viewability and content signals are not passed with the video impression",
+      "category": "inventory",
+      "subcategory": "video_vast_setup",
+      "impact_score": 2,
+      "impact_rationale": "Content metadata and viewability signals let demand judge the environment the video runs in and the quality of the impression. When they are absent, a bidder cannot tell a brand-safe, viewable placement from an unknown one, so it prices conservatively or filters the impression out, and the publisher's better inventory is valued as if it were generic.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "A bidder valuing a video impression is also judging the environment it will run in. Two kinds of signal carry that environment out to demand. Content metadata, passed in the OpenRTB content object, describes what the video is about, the title, the content category, the genre, the rating, and whether the page is brand-safe. Viewability and player-state signals describe how the ad will be seen, whether the player is in view, the sound state, and the playback method. Index Exchange relays these signals to the demand bidding through it, and buyers use them to decide whether the impression fits their rules and what it is worth.<br><br>When the signals are present and accurate, a buyer can recognize a brand-safe, viewable, sound-on placement and pay for it. When they are absent, the buyer is left guessing. A demand partner that filters for brand-safe content cannot confirm the page is safe, so it may pass. A buyer that values viewable, sound-on inventory cannot tell this impression apart from a muted, below-the-fold one, so it prices to the lower case. The publisher's stronger inventory then clears as if it were generic, and nothing in the request told the buyer otherwise.<br><br>The signals worth confirming travel with the impression rather than living only on the page:<ul><li>Content metadata: the content object should carry the title, category, genre, and rating where they apply, so brand-safety and contextual buyers can evaluate the environment</li><li>Playback and sound state: the request should describe how the video plays and whether it starts with sound. Sound-on and user-initiated playback carry different value</li><li>Viewability context: the player position and in-view state should be conveyed where the integration supports it, so viewability-focused demand can recognize the impression</li></ul>You may want to confirm that the content and viewability signals reach the bid request rather than stopping at the player. One approach is to inspect a live video bid request and check that the content object and the playback and viewability fields are populated rather than empty.",
+        "site_type_overlays": {
+          "publishing": "On a media site, content metadata is a strong signal because editorial pages carry clear topics and categories that contextual and brand-safety demand value. You may want to confirm the content object passes the article's title, category, and rating, so a buyer can recognize a brand-safe news or feature environment rather than treating it as unknown inventory.",
+          "ecommerce": "On a commerce-content site, the page topic and product context can raise the value of a video impression to demand that targets purchase-intent audiences. You may want to confirm the content signals describe the merchandising context where the integration allows, so buyers seeking commercial environments can recognize and price the impression accordingly."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Show Video Ads with a Google Ad Manager Video Tag",
+            "source_url": "https://docs.prebid.org/dev-docs/show-video-with-a-dfp-video-tag.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the content metadata and viewability signals reach the video bid request, rather than checking only that the player is configured.",
+        "tools": {
+          "free": {
+            "bid_request_inspection": {
+              "label": "Bid request inspection",
+              "steps": [
+                "Open the browser developer tools network panel and trigger a video bid request on a page whose topic and player state you know.",
+                "Read the OpenRTB request and check whether the content object is populated with the title, category, genre, and rating where they apply.",
+                "Check whether the playback method, sound state, and any viewability or player-position fields are populated rather than empty.",
+                "Record which signals are present and which are missing, and note the placements where the request carries little or no content metadata."
+              ]
+            },
+            "config_review": {
+              "label": "Prebid video configuration",
+              "steps": [
+                "Open the Prebid video configuration and the player integration and confirm whether content metadata is being set and passed into the video request.",
+                "Confirm whether the playback and sound-state settings on the player are conveyed to demand rather than enforced only on the page.",
+                "Record any signal that the configuration collects but does not pass through to the bid request."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records which content and viewability signals reach the video bid request. A request that carries the applicable content metadata along with the playback, sound-state, and viewability context passes. A request where the content object is empty or the playback and viewability signals are missing is a fail recorded with the absent signals and the placements affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which content and viewability signals reach the bid request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the video impressions on {{site_name}} reach bidders without the content and viewability signals that let demand value the environment. The OpenRTB content object and the playback, sound-state, and viewability fields tell Index Exchange and its demand what the video is about and how it will be seen, so when they are absent a buyer cannot tell a brand-safe, viewable placement from an unknown one and prices it conservatively or filters it out. {{voice_recommend}} inspecting a live video bid request, confirming the content object and the playback and viewability fields are populated rather than empty, and passing the signals the integration supports. After the change, recheck a bid request to confirm the environment is described to demand rather than left blank."
+      }
+    }
+  ]
+}

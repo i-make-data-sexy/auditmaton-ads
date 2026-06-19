@@ -1,0 +1,156 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Ad slot mapping is the link between a placement on the page and the Index Exchange tag that monetizes it, so when the mapping drifts the wrong demand competes for the wrong space and reporting stops describing reality. The check reads configuration the publisher already has in their header-bidding setup and Index Exchange account, so it costs reading time rather than rebuild time, and each finding points to a specific tag or placement the publisher can correct. A mapping that has gone stale can route impressions under a placement that no longer exists, which feeds advertisers inventory they did not buy and gives the publisher numbers they cannot trust.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Ad slot mapping is how a publisher's on-page ad units connect to Index Exchange placements, with declared sizes and formats carried through the header-bidding wrapper so the right demand bids on the right space. Index Exchange runs a Prebid-compatible wrapper, so the mapping lives in the Prebid ad unit configuration and in the Index Exchange account's placement setup, and the two have to agree. This subcategory covers whether the page's ad units map to the correct Index Exchange tags with accurate sizes and formats, and whether any tag in the chain is orphaned, stale, or passing inventory under the wrong placement.",
+  "audit_checks": [
+    {
+      "id": "index-exchange-ad-slot-mapping-units-mismatched-tags",
+      "title": "Ad units map to the wrong Index Exchange tag, size, or format",
+      "category": "inventory",
+      "subcategory": "ad_slot_mapping",
+      "impact_score": 3,
+      "impact_rationale": "When a page ad unit maps to the wrong Index Exchange placement or declares sizes and formats that do not match the slot, the wrong demand competes for the space and creatives can land in a slot they do not fit. The result is mispriced bids, rejected or distorted renders, and reporting that attributes revenue to the wrong placement, so the publisher cannot see what each unit actually earns.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "data-quality"],
+      "educate": {
+        "base": "In a Prebid-compatible header-bidding setup, every ad slot on the page is described twice. The ad server defines the slot, for example through Google Publisher Tag (GPT), with a path and a set of sizes. The Prebid ad unit then mirrors that slot with its own code, media types, and sizes, and lists Index Exchange as one of the bidders with a placement identifier. Index Exchange reads that placement identifier, matches it to a tag configured in the publisher's account, and returns a bid for the space. The mapping works only when all three descriptions agree, which means the ad unit code matches the ad server slot, the sizes and formats declared to Prebid match the slot, and the Index Exchange placement identifier points at the tag that represents that physical space.<br><br>The mapping drifts in small ways that are easy to miss. A copied ad unit can keep the placement identifier of the slot it was copied from, so a footer unit bids as though it were the high-value slot it was duplicated from. A slot that gained a new size in the ad server may never have that size added to the Prebid media types, so demand for the new size never reaches the auction. A unit declared as a banner can carry an Index Exchange tag set up for a different format, so the creative that wins does not fit the space the publisher meant to fill.<br><br>Index Exchange documents its placement setup inside the partner portal, which requires a login, so the account side of the mapping is checked by reading the publisher's own Index Exchange configuration. The page and wrapper side is visible in the Prebid ad unit configuration, where the ad unit code, media types, sizes, and the Index Exchange bidder parameters can be read directly. Prebid also supports a Global Placement ID (GPID) that gives each physical slot a stable, unique identifier, which makes a mismatch easier to spot when several slots share a name.<br><br>A few signs point to ad units mapped to the wrong tag, size, or format:<ul><li>Two ad units that fill different spaces on the page carry the same Index Exchange placement identifier</li><li>The sizes declared in a Prebid ad unit do not match the sizes the ad server defines for the same slot</li><li>An ad unit's media type, for example banner or video, does not match the format the Index Exchange tag was configured to serve</li><li>Reporting shows a placement earning at a rate that does not fit its position on the page, which can indicate it is mapped to the wrong tag</li></ul>You may want to confirm that each ad unit's code, sizes, formats, and Index Exchange placement identifier all describe the same physical slot. One approach is to read the Prebid ad unit configuration alongside the ad server slot definition and the Index Exchange account's placement list, then reconcile the three for each unit.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a template can spread the same ad unit across many article pages, so a single mapping error repeats everywhere the template renders. You may want to check the templated units first since a wrong placement identifier or a missing size in the shared configuration affects every page that uses it rather than one.",
+          "ecommerce": "On a commerce-content site, product and category pages often carry placements that differ from the editorial pages, and a slot duplicated from an editorial template can keep an editorial placement identifier. You may want to confirm that the commercial-page units map to their own Index Exchange tags rather than inheriting the identifiers of the editorial slots they were copied from."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Ad Slot and GPID",
+            "source_url": "https://docs.prebid.org/features/pbAdSlot.html"
+          }
+        ],
+        "learn_more_note": "Index Exchange's detailed configuration documentation for placement and tag setup is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each ad unit's Prebid configuration against the ad server slot definition and the Index Exchange placement it points at, checking that the code, sizes, formats, and placement identifier all describe the same physical space.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Prebid ad unit configuration",
+              "steps": [
+                "Open the page's Prebid configuration, in the source or through the browser console, and list each ad unit with its code, media types, and sizes.",
+                "For each ad unit, read the Index Exchange bidder entry and record the placement identifier it passes.",
+                "Compare the ad unit code and sizes against the ad server slot definition for the same space, for example the Google Publisher Tag (GPT) defineSlot call, and note any size or format that appears in one but not the other.",
+                "Flag any two ad units that fill different spaces yet carry the same Index Exchange placement identifier."
+              ]
+            },
+            "ix_account": {
+              "label": "Index Exchange account",
+              "steps": [
+                "In the publisher's Index Exchange account, list the configured tags or placements with their declared sizes and formats.",
+                "Match each placement identifier used on the page to a tag in the account, and record any identifier on the page that has no matching tag.",
+                "Confirm the size and format declared for each tag in the account matches the size and format the page declares for the same slot."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad unit, the Prebid code and sizes, the Index Exchange placement identifier, and the matching tag's declared sizes and format. A unit whose code, sizes, format, and placement identifier all describe the same physical slot passes. A unit whose placement identifier is shared with a different space, whose sizes diverge from the ad server slot, or whose format does not match its Index Exchange tag is a fail recorded with the unit and the dimension that diverges.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each ad unit's code, sizes, format, and Index Exchange placement identifier alongside the matching tag above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more ad units on {{site_name}} map to the wrong Index Exchange tag, size, or format, so the placement identifier, sizes, or media type declared on the page does not match the physical slot. When a unit points at the wrong tag or declares sizes a slot does not carry, the wrong demand competes for the space and reporting attributes revenue to the wrong placement, which leaves the publisher unable to read what each unit earns. {{voice_recommend}} reconciling each ad unit's Prebid code, sizes, and format against the ad server slot definition and the Index Exchange account's placement list, then correcting any placement identifier, size, or format that does not describe the same space. After the fix, recheck reporting by placement to confirm each unit earns at a rate that fits its position on the page."
+      }
+    },
+    {
+      "id": "index-exchange-ad-slot-mapping-orphaned-stale-tags",
+      "title": "Orphaned or stale Index Exchange tags remain in the setup",
+      "category": "inventory",
+      "subcategory": "ad_slot_mapping",
+      "impact_score": 3,
+      "impact_rationale": "A tag left behind after a placement is removed or redesigned can keep passing inventory under a name that no longer matches a real space, which routes impressions to demand that bought a different placement and credits revenue to inventory that is gone. The reporting that results describes placements the page no longer serves, so the publisher reconciles against numbers that no longer reflect the live setup.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "data-quality"],
+      "educate": {
+        "base": "Ad layouts change. A publisher retires a placement, redesigns a page, or moves a unit to a new position, and the page configuration moves with it. The tags and placements configured in Index Exchange do not always move at the same time. A tag set up for a slot that no longer exists becomes orphaned, with no ad unit on any page pointing at it. A tag that still receives traffic but represents a space that has since changed becomes stale, passing inventory under a placement description that no longer matches what renders. Both leave the Index Exchange account describing inventory the page does not serve in the way the account says it does.<br><br>An orphaned tag is mostly clutter, but it hides real problems by making the account harder to reconcile against the live page. A stale tag is the sharper risk. If an old ad unit still references a placement identifier after the slot it described was changed, impressions keep flowing under the old description, so demand that bid on the original placement wins a space that is now different, and reporting credits revenue to a placement that no longer represents what the advertiser bought. When a publisher later compares Index Exchange reporting against the ad server, the placement totals do not line up, and the gap is hard to trace because the configuration looks complete on both sides.<br><br>Index Exchange keeps the live list of configured tags and their status inside the partner portal, which requires a login, so the account side is read from the publisher's own Index Exchange configuration. The page side is read from the Prebid ad unit configuration across the site's templates, which shows which placement identifiers the live pages actually request. Comparing the two surfaces the tags that exist in the account but are never requested, and the identifiers requested on the page that point at tags describing a space that has changed.<br><br>A few signs point to orphaned or stale tags in the setup:<ul><li>The Index Exchange account lists tags or placements that no live ad unit references</li><li>An ad unit references a placement identifier whose tag describes a size or position the slot no longer has</li><li>Index Exchange reporting shows revenue for placements the current page layout no longer serves</li><li>Reconciliation between Index Exchange and the ad server leaves placement totals that do not match and cannot be traced to a live slot</li></ul>You may want to confirm that every configured Index Exchange tag maps to a live ad unit and that every placement identifier on the page describes the slot it currently fills. One approach is to list the account's tags, list the placement identifiers the live templates request, and reconcile the two so that orphaned tags are retired and stale references are corrected.",
+        "site_type_overlays": {
+          "publishing": "On a media site, frequent template and section redesigns retire and reshape placements often, so tags from earlier layouts accumulate in the account. You may want to reconcile the configured tags against the current templates after each redesign since a stale identifier in a shared template repeats across every page the template renders.",
+          "ecommerce": "On a commerce-content site, seasonal pages and retired product categories can leave behind placements that no longer render, while their Index Exchange tags stay configured. You may want to retire the tags tied to pages that are no longer live so the account's placement list matches the inventory the site currently serves."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "GPT Pre-Auction Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/gpt-pre-auction.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Ad Slot and GPID",
+            "source_url": "https://docs.prebid.org/features/pbAdSlot.html"
+          }
+        ],
+        "learn_more_note": "Index Exchange's tag and placement management documentation, including how to retire a tag, is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the configured Index Exchange tags against the placement identifiers the live pages request, looking for tags no ad unit references and references that point at tags describing a space that has changed.",
+        "tools": {
+          "free": {
+            "ix_account": {
+              "label": "Index Exchange account",
+              "steps": [
+                "In the publisher's Index Exchange account, export or list every configured tag or placement with its declared size, format, and status.",
+                "Record the date or context each tag was created where the account shows it, to help identify tags left from earlier layouts.",
+                "Mark any tag whose described slot the practitioner cannot find on a live page as a candidate for retirement."
+              ]
+            },
+            "prebid_config": {
+              "label": "Prebid ad unit configuration",
+              "steps": [
+                "Across the site's templates, list every Index Exchange placement identifier the live ad units request.",
+                "Match each requested identifier to a tag in the Index Exchange account, and flag any account tag that no live identifier requests as orphaned.",
+                "For each requested identifier, confirm the tag it points at still describes the slot's current size and position, and flag any reference whose tag describes a space that has changed as stale."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the configured Index Exchange tags, the placement identifiers the live pages request, and the match between them. A setup where every configured tag maps to a live ad unit and every requested identifier describes its current slot passes. A tag the live pages never request, or an identifier whose tag describes a space that has changed, is a fail recorded with the tag or reference and whether it is orphaned or stale.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the configured Index Exchange tags and the placement identifiers the live pages request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} carries orphaned or stale Index Exchange tags, meaning tags configured in the account that no live ad unit references or placement identifiers whose tags describe a space that has changed. A stale tag keeps passing inventory under a description that no longer matches what renders, so demand wins a space different from the one it bid on and reporting credits revenue to a placement the page no longer serves. {{voice_recommend}} listing the account's configured tags, listing the placement identifiers the live templates request, and reconciling the two so that orphaned tags are retired and stale references are corrected to describe their current slot. After the cleanup, reconcile Index Exchange reporting against the ad server to confirm the placement totals line up with the live inventory."
+      }
+    }
+  ]
+}

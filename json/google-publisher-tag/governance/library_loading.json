@@ -1,0 +1,168 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://developers.google.com/publisher-tag/guides/general-best-practices",
+  "worth_it": "Yes",
+  "worth_it_explanation": "How the GPT library is loaded decides whether ads render reliably and whether the page stays fast, so it sits underneath every other GPT check. A copy loaded from the wrong source can go stale or be tampered with, and a library loaded in a way that blocks render or races ahead of itself produces empty slots and slow pages that are hard to diagnose later. The check is a read of the script tags and call order a publisher already has on the page, so it costs inspection time rather than a rebuild, and the finding points to a concrete change in how the library is referenced and queued.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "The Google Publisher Tag (GPT) library is the JavaScript a publisher runs on its own pages to request ads from Google Ad Manager (GAM) and render them into slots. This subcategory is about how that library gets onto the page, the source it is loaded from and the way calls are sequenced around it, rather than the ad units and targeting the library carries. These checks confirm that GPT is referenced from the official Google source so it cannot go stale or be altered, and that it is loaded asynchronously with every call routed through the command queue so render is not blocked and no call runs before the library is ready.",
+  "audit_checks": [
+    {
+      "id": "google-publisher-tag-library-loading-not-official-source",
+      "title": "GPT is not loaded from the official Google source",
+      "category": "governance",
+      "subcategory": "library_loading",
+      "impact_score": 3,
+      "impact_rationale": "A self-hosted or third-party copy of gpt.js is a fixed snapshot, so it misses the fixes and feature updates Google ships to the live file and drifts further out of date over time. It also widens the attack surface since a copy served from somewhere other than Google's domain can be altered or replaced without the publisher knowing, which puts ad rendering and the page itself at risk.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "performance"
+      ],
+      "educate": {
+        "base": "The Google Publisher Tag (GPT) library is hosted and maintained by Google, and Google updates the live file continuously with fixes, performance work, and new features. Google's guidance is to reference it from an official Google domain rather than copying it elsewhere. For a standard implementation the source is 'https://securepubads.g.doubleclick.net/tag/js/gpt.js', and for a Limited Ads implementation the source is 'https://pagead2.googlesyndication.com/tag/js/gpt.js'.<br><br>A self-hosted or third-party copy breaks this in two ways. First, the copy is a snapshot frozen at the moment it was saved, so it stops receiving the updates Google ships to the live file and drifts out of date, which can surface as rendering failures or missing demand that are hard to trace back to a stale library. Second, a file served from a domain other than Google's can be altered or swapped before it reaches the browser, and because GPT runs with full access to the page, a tampered copy can affect ad rendering and the page around it. Caching the file locally or through a service worker carries the same staleness problem.<br><br>You may want to confirm that GPT is referenced directly from the official Google source and that no self-hosted or proxied copy is in the path. A few signs point to a non-official source:<ul><li>The script tag points at the publisher's own domain, a content delivery network (CDN) bucket, or a third-party host rather than a Google domain</li><li>A build step or tag manager bundles or inlines gpt.js into the publisher's own JavaScript</li><li>A service worker caches gpt.js so the browser serves a saved copy instead of fetching the live file</li></ul>The fix is to load the library from the official URL for the implementation type. One approach is to read the actual network request the browser makes for gpt.js and confirm the host is a Google domain, not a copy.",
+        "site_type_overlays": {
+          "publishing": "On a media or content site running GPT, the library is often added through a tag manager or a build pipeline, which is where a self-hosted or bundled copy can slip in without anyone meaning to host it. You may want to trace how gpt.js reaches the page on a representative article and confirm the request resolves to the official Google source rather than a bundled or proxied copy.",
+          "ecommerce": "On a commerce-content site running GPT, ad code lives alongside a heavier first-party stack on product and category pages, and a performance build step may try to bundle or self-host third-party scripts including gpt.js. You may want to confirm on a product page and a category page that the library is still requested from the official Google domain rather than pulled from the site's own bundle."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag Reference",
+            "source_title": "Common implementation mistakes",
+            "source_url": "https://developers.google.com/publisher-tag/common_implementation_mistakes"
+          },
+          {
+            "source_type": "Google Publisher Tag Guides",
+            "source_title": "General best practices",
+            "source_url": "https://developers.google.com/publisher-tag/guides/general-best-practices"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the actual network request the browser makes for gpt.js and inspect the script tag in the page source to confirm the library is loaded from an official Google domain rather than a self-hosted, bundled, or cached copy.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the page and open DevTools, then go to the 'Network' tab and reload the page.",
+                "Filter the requests for 'gpt.js' and read the request URL, noting the host it is served from.",
+                "Confirm the host is 'securepubads.g.doubleclick.net' for a standard implementation, or 'pagead2.googlesyndication.com' for a Limited Ads implementation, rather than the publisher's own domain, a content delivery network (CDN), or a third-party host.",
+                "Open the 'Elements' or page-source view and find the script tag that references gpt.js to confirm it points at the official URL and is not inlined or bundled into the site's own JavaScript.",
+                "Check the 'Application' tab under 'Service Workers' for any worker that caches gpt.js so the browser would serve a saved copy instead of the live file."
+              ]
+            },
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the Google Publisher Console on the page by appending '?googfc' to the URL or by using the Publisher Console bookmarklet.",
+                "Open the 'Page request' or version details and note the GPT version reported, which reflects the file actually loaded.",
+                "Compare the reported version against the current version Google serves to spot a stale, frozen copy that points to a non-official or cached source."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the host that serves gpt.js as seen in the network request, and whether any build step, tag manager bundle, or service worker places a copy in the path. A setup that loads gpt.js directly from 'securepubads.g.doubleclick.net' (or 'pagead2.googlesyndication.com' for Limited Ads) with no self-hosted or cached copy passes. A setup that serves gpt.js from the publisher's own domain, a content delivery network (CDN), a third-party host, a bundle, or a service-worker cache is a fail recorded with the source observed and the pages where it appears.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the host that serves gpt.js and whether a bundle or service worker caches it above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} loads the Google Publisher Tag (GPT) library from a source other than the official Google domain. A self-hosted or third-party copy is a frozen snapshot that misses the fixes Google ships to the live file, and because a copy served outside Google's domain can be altered before it reaches the browser, it puts ad rendering and the page at risk. {{voice_recommend}} referencing gpt.js directly from 'https://securepubads.g.doubleclick.net/tag/js/gpt.js' (or 'https://pagead2.googlesyndication.com/tag/js/gpt.js' for a Limited Ads implementation) and removing any bundle, proxy, or service-worker cache that holds a copy. After the change, confirm in the network request that gpt.js resolves to the official Google host."
+      }
+    },
+    {
+      "id": "google-publisher-tag-library-loading-not-async-or-command-queue",
+      "title": "GPT is not loaded asynchronously or calls bypass the command queue",
+      "category": "governance",
+      "subcategory": "library_loading",
+      "impact_score": 3,
+      "impact_rationale": "A synchronously loaded GPT library blocks the browser from parsing the rest of the page until the script finishes, which delays content and the ads themselves. Calls that run before the library is ready, rather than being queued through googletag.cmd, hit a partial object and can throw or define slots incorrectly, which surfaces as empty slots and intermittent rendering that is hard to reproduce.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "performance",
+        "governance"
+      ],
+      "educate": {
+        "base": "The Google Publisher Tag (GPT) library loads in two stages. The script tag fetches gpt.js, and the library then loads an implementation file before the full application programming interface (API) is ready. Two practices keep this from blocking the page or racing ahead of itself: load the library asynchronously, and route every call to it through the command queue.<br><br>Asynchronous loading means the script tag carries the 'async' attribute so the browser can keep parsing and rendering the page while gpt.js downloads in the background. A synchronous tag does the opposite. It holds page parsing until the script finishes, so content and the ads themselves arrive later. Google's guidance is to load GPT with 'async' and to place the tag early in the document head so the request starts as soon as possible.<br><br>The command queue is the 'googletag.cmd' array. Because the library may not be fully ready at the moment the page wants to define a slot or request ads, GPT exposes 'cmd' as a queue: code pushes a function with 'googletag.cmd.push(function() { ... })', and GPT runs each queued function in order once the library has loaded. Calling GPT methods directly, before the library is ready, reaches a partial object and can throw an error or define a slot incorrectly. Checking that an object exists is not enough either since loading gpt.js does not mean the whole API is ready, which is why the queue exists and why 'googletag.apiReady' is the reliable readiness signal.<br><br>You may want to confirm that GPT is loaded with 'async' and that the page's GPT calls run inside the command queue rather than directly. A few signs point to a problem here:<ul><li>The gpt.js script tag has no 'async' attribute, so it loads synchronously and blocks parsing</li><li>Calls such as 'defineSlot', 'pubads', or 'display' run directly in page code instead of inside a 'googletag.cmd.push' callback</li><li>Console errors appear that reference googletag methods on page load, which points to calls running before the library is ready</li></ul>The fix is to add 'async' to the script tag and to wrap every GPT call in a 'googletag.cmd.push' callback. One approach is to read the script tag and the inline GPT calls in the page source, then watch the console on load for readiness errors.",
+        "site_type_overlays": {
+          "publishing": "On a media or content site running GPT, articles often render long-form content and several ad slots, so a synchronous library tag delays the whole page and the queue matters because slots are frequently defined as the content loads. You may want to confirm on a representative article that the tag carries 'async' and that each slot definition runs inside a 'googletag.cmd.push' callback rather than directly.",
+          "ecommerce": "On a commerce-content site running GPT, product and category pages already carry a heavy first-party script load, so a synchronous gpt.js tag compounds the delay before the page is usable. You may want to confirm on a product page that gpt.js loads with 'async' and that GPT calls are queued through 'googletag.cmd' so they do not run before the library is ready amid the rest of the page's scripts."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag Guides",
+            "source_title": "Get started with Google Publisher Tags",
+            "source_url": "https://developers.google.com/publisher-tag/guides/get-started"
+          },
+          {
+            "source_type": "Google Publisher Tag Guides",
+            "source_title": "General best practices",
+            "source_url": "https://developers.google.com/publisher-tag/guides/general-best-practices"
+          },
+          {
+            "source_type": "Google Publisher Tag Reference",
+            "source_title": "Common implementation mistakes",
+            "source_url": "https://developers.google.com/publisher-tag/common_implementation_mistakes"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect the gpt.js script tag for the async attribute and read the page's GPT calls to confirm they run inside the command queue, then watch the console on load for readiness errors.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the page and open DevTools, then in the 'Elements' or page-source view find the script tag that references gpt.js.",
+                "Confirm the tag includes the 'async' attribute and sits early in the document head rather than loading synchronously.",
+                "Search the page source for GPT calls such as 'defineSlot', 'pubads', 'enableServices', and 'display', and confirm each runs inside a 'googletag.cmd.push(function() { ... })' callback rather than directly.",
+                "Open the 'Console' tab and reload the page, watching for errors that reference googletag methods, which point to calls running before the library is ready.",
+                "In the console, evaluate 'googletag.apiReady' after load to confirm the library reports itself as ready."
+              ]
+            },
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the Google Publisher Console on the page by appending '?googfc' to the URL or by using the Publisher Console bookmarklet.",
+                "Review the 'Page request' and slot details for warnings about slots that were defined or displayed before the library was ready.",
+                "Note any slot that failed to render or reported an error tied to call order, which points to GPT calls running outside the command queue."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the gpt.js script tag carries the 'async' attribute and whether the page's GPT calls run inside 'googletag.cmd.push' callbacks, along with any readiness errors seen in the console on load. A setup that loads GPT asynchronously and routes every call through the command queue, with no readiness errors, passes. A setup with a synchronous tag, direct GPT calls outside the queue, or console errors that reference googletag methods on load is a fail recorded with the tag and the calls affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the gpt.js tag is async and whether GPT calls run inside the command queue above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} loads the Google Publisher Tag (GPT) library synchronously or runs GPT calls outside the command queue. A synchronous tag blocks the browser from parsing the rest of the page until the script finishes, and calls that run before the library is ready hit a partial object and can throw or define slots incorrectly, which surfaces as empty slots and slow pages. {{voice_recommend}} adding the 'async' attribute to the gpt.js script tag, placing it early in the document head, and wrapping every GPT call in a 'googletag.cmd.push' callback so each runs once the library is ready. After the change, confirm 'googletag.apiReady' reports ready and that the console shows no readiness errors on load."
+      }
+    }
+  ]
+}

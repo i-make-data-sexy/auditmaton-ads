@@ -1,0 +1,168 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://developers.google.com/publisher-tag/guides/content-security-policy",
+  "worth_it": "Yes",
+  "worth_it_explanation": "A Content Security Policy (CSP) that does not account for Google Publisher Tag (GPT) can block ad requests or creative rendering without any console warning a publisher would notice during normal browsing, so revenue drops while the page itself still looks fine. The check is a review of how GPT and the page CSP coexist, which costs reading the CSP header and a few network requests rather than rebuilding anything, and the finding points to a concrete policy change the publisher can stage in report-only mode before enforcing it.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "GPT is the JavaScript library a publisher runs on their own pages to request ads from Google Ad Manager (GAM) and render them. A CSP is a browser security control that restricts which scripts run and which resources load, so the two have to be set up to coexist. This subcategory is about that coexistence, not about ad pricing or inventory. These checks confirm that the CSP lets GPT load, request ads, and render creatives, and that where a strict nonce-based CSP is in place, the nonce reaches GPT so the library and its creatives are not blocked.",
+  "audit_checks": [
+    {
+      "id": "google-publisher-tag-csp-integration-policy-blocks-gpt",
+      "title": "The Content Security Policy does not account for GPT, so ad requests or rendering can be blocked",
+      "category": "governance",
+      "subcategory": "csp_integration",
+      "impact_score": 3,
+      "impact_rationale": "A Content Security Policy written without GPT in mind can block the ad library from loading, block the ad request, or block the creative from rendering, and the failure shows up as empty ad slots rather than a visible page error. Because the domains GPT uses change over time, a host-allowlist policy that worked when it was written can start blocking ads after Google routes through a new domain, so revenue falls without an obvious cause.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "compliance"
+      ],
+      "educate": {
+        "base": "A Content Security Policy (CSP) is a response header that tells the browser which scripts may run and which resources may load, and it exists to limit cross-site scripting. Google Publisher Tag (GPT) is the JavaScript library a publisher loads on the page to request ads from Google Ad Manager (GAM) and render them. When a publisher tightens a CSP without accounting for GPT, the policy can block the library from loading, block the ad request to Google's ad servers, or block the creative from rendering inside its frame. The slot ends up empty, the page itself still works, and nothing in the visible layout signals that ads were suppressed.<br><br>The instinct is to allowlist the specific Google domains GPT talks to. Google's own CSP guidance for GPT advises against that approach because the domains GPT uses change over time, so a policy that listed the right hosts when it was written can start blocking ad traffic the moment Google routes through a domain the allowlist does not name. A host-allowlist CSP for GPT is therefore a policy that decays. Google instead recommends a strict, nonce-based CSP, where scripts are trusted by a per-request nonce rather than by their domain.<br><br>A CSP can also block GPT at the rendering stage rather than the request stage. Creatives that render in a same-domain iframe inherit the parent page's CSP, and a strict policy can break a creative that was not built to satisfy it. Google's guidance is to force SafeFrame rendering by calling googletag.setConfig with a safeFrame forceSafeFrame setting before slots load, so creatives render in a cross-domain frame that does not inherit the page CSP. The audit question is whether the CSP and the GPT setup were designed together or whether the CSP was tightened on its own and left ad delivery to chance.<br><br>A few signs point to a CSP that does not account for GPT:<ul><li>The CSP uses a host allowlist that names specific Google domains, which decays as GPT's domains change</li><li>Ad slots that should fill are empty on pages where the CSP is enforced, while the same slots fill on pages without it</li><li>The browser console reports CSP violations naming gpt.js, securepubads, or a creative frame</li><li>No SafeFrame forcing is configured, so creatives render in same-domain frames that inherit the page CSP</li></ul>You may want to confirm that the CSP was designed to let GPT load, request, and render rather than tightened in isolation. One approach is to stage the policy in report-only mode first, so the browser reports what the policy would block without actually blocking ad delivery.",
+        "site_type_overlays": {
+          "publishing": "On a media site running GPT, a security team may roll out a CSP across the whole property to reduce cross-site scripting risk, and ad slots on article and section pages can go empty if the policy was not designed with GPT in mind. You may want to coordinate the CSP rollout with whoever owns ad delivery and stage it in report-only mode, so a tightened policy does not suppress ads across the content the site monetizes before anyone notices.",
+          "ecommerce": "On a commerce-content site running GPT, product and category pages often carry stricter security review than editorial pages because they sit closer to checkout, so a CSP can be tighter exactly where ad inventory is most valuable. You may want to verify that GPT loads, requests, and renders under the CSP on the commercial pages specifically, rather than checking only the editorial pages where the policy may be looser."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag Developer Guide",
+            "source_title": "GPT and Content Security Policy",
+            "source_url": "https://developers.google.com/publisher-tag/guides/content-security-policy"
+          },
+          {
+            "source_type": "web.dev",
+            "source_title": "Mitigate cross-site scripting (XSS) with a strict Content Security Policy (CSP)",
+            "source_url": "https://web.dev/articles/strict-csp"
+          },
+          {
+            "source_type": "Google Publisher Tag Reference",
+            "source_title": "googletag.setConfig and SafeFrame configuration",
+            "source_url": "https://developers.google.com/publisher-tag/reference"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the Content Security Policy the page sends, then watch the GPT requests and creative frames in the browser to see whether the policy lets the library load, request ads, and render.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the page in a browser, open DevTools, and read the 'Content-Security-Policy' response header on the document request in the 'Network' tab.",
+                "Note whether the script-src uses a host allowlist that names specific Google domains or a nonce-based 'strict-dynamic' policy.",
+                "Switch to the 'Console' tab and reload, then look for any CSP violation that names gpt.js, securepubads, or a creative frame.",
+                "In the 'Network' tab, filter for 'securepubads' and confirm the GPT library and the ad request load without being blocked.",
+                "Check whether ad slots that should fill are rendering creatives or sitting empty under the enforced policy."
+              ]
+            },
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the Google Publisher Console on the page by appending '?googfc' to the URL or using the googfc bookmarklet.",
+                "Review the slot list and confirm each defined slot received a response rather than reporting an error or an empty fill.",
+                "Note any slot the console shows as not rendering, then cross-check the browser console for a matching CSP violation."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the script-src approach the CSP uses, whether the browser console reports any CSP violation tied to GPT, whether the GPT library and ad request load, and whether slots render under the enforced policy. A setup where GPT loads, requests, and renders with no CSP violation, and where the policy does not rely on a decaying host allowlist of Google domains, passes. A setup where slots are blocked, a CSP violation names GPT, or the policy depends on an allowlist of named Google domains is a fail recorded with the directive and the blocked resource.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the CSP script-src approach, any GPT-related console violation, and whether slots render above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Content Security Policy (CSP) on {{site_name}} does not account for Google Publisher Tag (GPT), so the policy can block the ad library from loading, block the ad request, or block creatives from rendering, and the failure shows up as empty ad slots rather than a visible page error. Because the domains GPT uses change over time, a host-allowlist policy decays and can start blocking ads after Google routes through a domain the allowlist does not name. {{voice_recommend}} moving to a strict nonce-based CSP rather than a host allowlist, forcing SafeFrame rendering so creatives do not inherit the page policy, and staging the policy in report-only mode first so the browser reports what would break before anything is enforced. After the rollout, recheck that GPT loads, requests, and renders with no CSP violation."
+      }
+    },
+    {
+      "id": "google-publisher-tag-csp-integration-nonce-not-propagated",
+      "title": "The strict CSP nonce is not propagated to GPT, so the library or its creatives are blocked",
+      "category": "governance",
+      "subcategory": "csp_integration",
+      "impact_score": 3,
+      "impact_rationale": "Under a strict nonce-based Content Security Policy, the browser runs only scripts that carry the per-request nonce, so a GPT tag that loads without the nonce is refused and no ads are requested. A nonce that is generated for the page but not applied to the GPT script tag, or one that is reused across requests instead of regenerated, leaves the ad library blocked while the rest of the page continues to work.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "compliance"
+      ],
+      "educate": {
+        "base": "A strict Content Security Policy (CSP) trusts scripts by a nonce rather than by their domain. A nonce is a random value the server generates fresh for each page response, places in the CSP header, and repeats as an attribute on every script tag the page intends to run. The browser executes a script only when its nonce attribute matches the value in the header, which is what lets a strict policy allow the page's own scripts while refusing anything an attacker injects. Google's CSP guidance for Google Publisher Tag (GPT) recommends this strict, nonce-based approach over a host allowlist because the domains GPT uses change over time.<br><br>The strict approach only works for GPT when the nonce actually reaches the GPT script tag. Google's guidance is to apply the nonce to every script tag on the page, gpt.js included. When the page generates a nonce for its first-party scripts but the GPT tag is added separately, by a tag manager, an ad wrapper, or a hand-placed snippet, the GPT tag can end up with no nonce or a stale one. The browser then refuses to run it, the ad request never fires, and the slots stay empty even though the CSP is doing exactly what it was told to do.<br><br>Two failure shapes are worth separating. In the first, the nonce is never put on the GPT tag at all, so GPT is blocked outright. In the second, the nonce is present but stale because it was hard-coded or cached rather than regenerated per request, so it matches on the response it was minted for and fails on every other one, which makes the blocking look intermittent. GPT also propagates the nonce it loaded with to the scripts it injects and to its SafeFrame creatives, so getting the nonce onto gpt.js is what keeps the rest of the chain running under the policy.<br><br>A few signs point to a nonce that is not reaching GPT:<ul><li>The page sends a nonce-based CSP, but the gpt.js script tag has no nonce attribute or carries a value that does not match the header</li><li>The browser console reports a CSP violation refusing to execute gpt.js or a GPT-injected script</li><li>The same nonce value appears across multiple page loads, which means it is not being regenerated per request</li><li>GPT is injected by a tag manager or wrapper that does not receive the page nonce</li></ul>You may want to confirm that the nonce is generated per request and applied to the GPT tag along with every other script. One approach is to compare the nonce in the CSP header against the nonce attribute on gpt.js across a few reloads to confirm they match and that the value changes each time.",
+        "site_type_overlays": {
+          "publishing": "On a media site running GPT, the GPT tag is often placed through a tag manager or an ad wrapper rather than directly in the page template, so a nonce the template generates for its own scripts may never reach the GPT tag. You may want to confirm that whatever injects GPT receives the page nonce, so the ad library runs under the strict policy the rest of the site enforces.",
+          "ecommerce": "On a commerce-content site running GPT, pages are often rendered or cached by a platform layer, and a nonce that is cached with the page rather than regenerated per request will match on the cached response and fail on others. You may want to confirm the nonce is minted per request rather than baked into a cached page, so GPT is not blocked intermittently on the commercial pages."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag Developer Guide",
+            "source_title": "GPT and Content Security Policy",
+            "source_url": "https://developers.google.com/publisher-tag/guides/content-security-policy"
+          },
+          {
+            "source_type": "web.dev",
+            "source_title": "Mitigate cross-site scripting (XSS) with a strict Content Security Policy (CSP)",
+            "source_url": "https://web.dev/articles/strict-csp"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Compare the nonce in the CSP header against the nonce attribute on the gpt.js script tag across a few reloads, and watch the console for any CSP violation that refuses to run GPT.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the page in a browser, open DevTools, and read the nonce value in the script-src of the 'Content-Security-Policy' response header on the document request.",
+                "In the 'Elements' tab, find the script tag that loads gpt.js and read its nonce attribute, then confirm it matches the value in the header.",
+                "Reload the page two or three times and compare the nonce each time to confirm it is regenerated per request rather than reused.",
+                "Switch to the 'Console' tab and look for any CSP violation that refuses to execute gpt.js or a GPT-injected script.",
+                "Note whether GPT is placed directly in the template or injected by a tag manager or wrapper that may not receive the page nonce."
+              ]
+            },
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the Google Publisher Console on the page by appending '?googfc' to the URL or using the googfc bookmarklet.",
+                "Confirm the console loads and reports the defined slots. A console that does not open can itself be a sign GPT was blocked before it ran.",
+                "Cross-check any slot the console reports as not rendering against the browser console for a matching nonce-related CSP violation."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the gpt.js script tag carries a nonce that matches the CSP header, whether that nonce changes across reloads, and whether the browser console reports any CSP violation refusing to run GPT. A setup where the GPT tag carries a per-request nonce that matches the header and changes each load, with no GPT-related violation, passes. A setup where the GPT tag has no nonce, a mismatched nonce, or a nonce repeated across requests is a fail recorded with the tag and the violation it produced.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the gpt.js nonce matches the header, whether it changes per reload, and any console violation above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs a strict nonce-based Content Security Policy (CSP) but does not propagate the nonce to Google Publisher Tag (GPT), so the browser refuses to run the GPT library and no ads are requested while the rest of the page works. A nonce that is missing from the gpt.js tag, mismatched, or reused across requests instead of regenerated leaves the ad library blocked, and when the nonce is stale the blocking looks intermittent. {{voice_recommend}} generating the nonce per request and applying it to every script tag on the page including gpt.js, and confirming that whatever injects GPT, whether a tag manager or an ad wrapper, receives that nonce. After the change, recheck that the gpt.js nonce matches the header, changes on each reload, and produces no CSP violation."
+      }
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Header bidding config decides how much demand competes for each impression and how much that competition costs in page latency, so it sits at the center of a publisher's open-market yield. The two levers in this check, the wrapper timeout and the set of enabled bidders, both trade fill against speed, and either one can drift away from a deliberate setting as adapters get added over time. The check is a review of settings the publisher already has in place, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration value the publisher can test against reporting.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "OpenX runs a Prebid-compatible header bidding wrapper, which means a publisher integrating OpenX Bidder configures the same auction mechanics Prebid defines, including the auction timeout and the list of demand adapters that compete for each impression. This subcategory is about those configuration choices rather than the OpenX account itself. These checks confirm that the wrapper timeout is tuned to the publisher's own audience and page behavior rather than left at a copied default, and that the enabled bidders and their client-side or server-side placement are deliberate choices backed by reporting rather than adapters that accumulated without review.",
+  "audit_checks": [
+    {
+      "id": "openx-header-bidding-config-timeout-not-tuned",
+      "title": "Wrapper timeout is left at a default rather than tuned to the audience",
+      "category": "monetization",
+      "subcategory": "header_bidding_config",
+      "impact_score": 3,
+      "impact_rationale": "The auction timeout sets how long the wrapper waits for bids before calling the ad server, so it directly trades fill against page latency. A timeout copied from a default or another site can sit too short, cutting off demand that would have bid, or too long, delaying the ad server call until users leave the page. Either way it caps yield, but the effect is bounded by the auction rather than catastrophic, which places it in the middle of the scale.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "The auction timeout is the amount of time the header bidding wrapper waits for demand partners to respond before it stops the auction and calls the ad server. OpenX runs a Prebid-compatible wrapper, so this is the same setting Prebid documents as the auction timeout, and the tradeoff is the one Prebid describes. Set it too short and the wrapper cuts off bidders who would have responded, which loses the competition that pushes the clearing price up. Set it too long and the wrapper delays the ad server call to the point where some users have already left the page, which loses the impression and can drag on revenue rather than help it.<br><br>The value that balances those two failure modes is specific to a publisher's own audience, so a number copied from a default, from a tag template, or from another site is unlikely to be right. Prebid's guidance frames the choice as a balance of factors a publisher has to weigh for themselves, including average time on page, the value of direct-sold inventory the header bidding call sits in front of, and the typical network delay of the audience. A publisher whose audience is on fast connections and stays on the page can afford a longer auction than one whose audience arrives on slow mobile networks and bounces quickly.<br><br>There is usually a second timeout to confirm as well. Many wrapper setups carry both an internal auction timeout and an overall failsafe timeout that releases the ad server call even if the auction has not returned. Prebid suggests starting points of 1,000 milliseconds or less for the internal auction timeout and 3,000 milliseconds or less for the failsafe, but those are starting points to test from rather than settled answers. Where the wrapper passes some demand to a server-side path, the server timeout is usually set a couple hundred milliseconds below the client timeout so the server response arrives in time to be used.<br><br>A few signs point to a timeout that was set by default rather than tuned:<ul><li>The auction timeout matches a tag template or another property exactly, with no record of testing it against this audience</li><li>Reporting shows a meaningful share of bidders timing out before they respond, which suggests the window is too short for the demand that is enabled</li><li>The failsafe timeout is missing or set so high that a stalled auction can hold the ad server call well past the point where users leave</li></ul>You may want to confirm that the timeout was chosen on evidence from this audience rather than carried over from elsewhere. One approach is to read the bidder response and timeout rates in reporting, then test a small change up or down and compare revenue, fill rate, and ad load time before settling on a value.",
+        "site_type_overlays": {
+          "publishing": "On a media site, readers often stay on an article long enough to absorb a slightly longer auction, but a header bidding call that sits in front of a direct-sold premium slot should not delay that slot past the point where the reader scrolls away. You may want to test the timeout against time-on-page data for the article templates specifically since a section front and a long-read article can support different windows.",
+          "ecommerce": "On a commerce-content site, a shopper moving toward a purchase is sensitive to page speed, and a long auction that delays the page can cost a session rather than just an impression. You may want to lean toward a shorter, tested timeout on the high-intent product and category pages, and read ad load time alongside revenue so the auction window is not pulling against conversion."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js Timeouts",
+            "source_url": "https://docs.prebid.org/features/timeouts.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Analyze Header Bidding Setup",
+            "source_url": "https://docs.prebid.org/overview/optimal-header-bidding-setup.html"
+          }
+        ],
+        "learn_more_note": "OpenX's detailed configuration documentation for the OpenX Bidder wrapper timeout is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the auction timeout and any failsafe timeout in the wrapper configuration, then read the bidder response and timeout rates in reporting to see whether the window fits the demand that is enabled.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Header bidding wrapper configuration",
+              "steps": [
+                "Open the wrapper or tag configuration where the OpenX Bidder integration is set, and locate the auction timeout value the wrapper applies.",
+                "Record whether a separate failsafe timeout is set to release the ad server call if the auction stalls, and note its value.",
+                "Where any demand runs through a server-side path, note the server timeout and confirm it is set below the client-side auction timeout so the server response can return in time.",
+                "Ask the publisher whether the current timeout was tested against this site's audience or copied from a template or another property, and record the answer."
+              ]
+            },
+            "wrapper_reporting": {
+              "label": "Wrapper and analytics reporting",
+              "steps": [
+                "Build a report or read the wrapper analytics for bidder response rate and timeout rate across the enabled demand partners.",
+                "Note any bidder that times out on a meaningful share of auctions, which points to a window too short for the demand it is meant to capture.",
+                "Read ad load time and revenue alongside the timeout to gauge whether the current window is trading too much speed for fill or too much fill for speed."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the auction timeout and the failsafe timeout, whether a server-side timeout is set below the client timeout where applicable, and the bidder timeout rate from reporting. A timeout chosen on evidence from this audience, with a failsafe in place and most bidders responding within the window, passes. A timeout copied from a default with no testing on record, a missing or excessive failsafe, or a high share of bidders timing out is a fail recorded with the values and the timeout rate that show the mismatch.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the auction timeout, the failsafe timeout, and the bidder timeout rate above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the header bidding wrapper on {{site_name}} runs an auction timeout that was carried over from a default rather than tuned to this audience. The timeout sets how long the wrapper waits for bids before calling the ad server, so a window that is too short cuts off demand that would have bid and a window that is too long delays the page until users leave. The value that balances those depends on this site's own time on page, demand, and network speed. {{voice_recommend}} reading the bidder response and timeout rates in reporting, confirming a failsafe timeout is in place, then testing a small change against revenue, fill rate, and ad load time before settling on a value. After the test, keep whichever window the data on this audience supports."
+      }
+    },
+    {
+      "id": "openx-header-bidding-config-bidders-not-justified",
+      "title": "Enabled bidders and their client-side or server-side placement are not justified",
+      "category": "monetization",
+      "subcategory": "header_bidding_config",
+      "impact_score": 3,
+      "impact_rationale": "Each enabled bidder adds competition but also adds a bid request, and at short timeouts more requests extend page load while delivering diminishing revenue. A roster that grew without review can carry adapters that add latency without adding fill, and placing a bidder client-side rather than server-side loads that cost onto the user's device. The effect is a steady drag on yield and speed rather than a single catastrophic failure, which places it in the middle of the scale.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Every demand partner enabled in the header bidding wrapper adds one more bid request to each auction. More bidders raise the competition for an impression, which is why publishers add them, but the relationship is not linear. Prebid's analysis of publisher test data shows revenue rising as bidders are added and then plateauing, while the cost in page latency keeps climbing because sending out more bid requests takes longer. A bidder that no longer wins, or wins so rarely that its contribution is below the latency it adds, is paying a speed cost without returning a revenue gain.<br><br>OpenX runs a Prebid-compatible wrapper, so the roster of adapters and where each one runs are the publisher's configuration choices. The audit question is whether each enabled bidder earns its place. A bidder roster that grew by accretion, with adapters added during tests or partnerships and never removed, tends to carry demand that adds requests without adding fill. Reading win rate and revenue per bidder against the latency the roster costs shows which adapters are pulling their weight and which are candidates to drop.<br><br>Where a bidder runs is the second choice. Client-side bidders run in the user's browser, which loads the work of each bid request onto the device. Server-side bidders run through a server that batches their auctions, which lightens the browser. Prebid's guidance describes a hybrid setup as the common pattern, with the highest-value bidders kept client-side for the direct connection and lower-priority or under-test bidders moved server-side to add competition without burdening the page. A roster that runs every bidder client-side, including low-value ones, carries more device cost than the demand justifies.<br><br>A few signs point to a bidder roster that was not reviewed:<ul><li>Adapters are enabled that show little or no win rate in reporting, with no record of why they remain</li><li>Every bidder runs client-side regardless of its value, with no server-side path for lower-priority demand</li><li>The roster has grown over time with additions logged but no removals, and no read of revenue per bidder against the latency cost</li></ul>You may want to confirm that each enabled bidder is justified by its contribution and placed deliberately. One approach is to read win rate and revenue per bidder, drop or test-disable the adapters that add latency without fill, and move lower-value demand to a server-side path so the browser carries only the bidders that earn the client-side connection.",
+        "site_type_overlays": {
+          "publishing": "On a media site with high page views, the latency cost of a bloated bidder roster compounds across every article load, so trimming adapters that do not win and moving lower-value demand server-side can recover page speed at scale. You may want to keep only the bidders with a real win rate client-side and route the rest through a server-side path.",
+          "ecommerce": "On a commerce-content site, page speed feeds directly into conversion, so a bidder roster that loads many client-side requests onto product and category pages can cost sessions. You may want to be stricter about which adapters run client-side on the high-intent pages and prefer a server-side path for demand that is being tested or rarely wins."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "How Many Bidders Should I Have?",
+            "source_url": "https://docs.prebid.org/overview/how-many-bidders-for-header-bidding.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js with Prebid Server",
+            "source_url": "https://docs.prebid.org/prebid-server/use-cases/pbs-pbjs.html"
+          }
+        ],
+        "learn_more_note": "OpenX's detailed configuration documentation for enabling adapters and setting server-side placement in the OpenX Bidder wrapper is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the list of enabled bidders in the wrapper, where each one runs, and the win rate and revenue per bidder in reporting to see whether each adapter earns its place and its placement.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Header bidding wrapper configuration",
+              "steps": [
+                "Open the wrapper configuration and list every enabled demand adapter alongside the OpenX Bidder integration.",
+                "For each adapter, record whether it runs client-side in the browser or server-side through a server-to-server path.",
+                "Ask the publisher whether the roster has been reviewed for removals, and record when any adapter was last evaluated or test-disabled."
+              ]
+            },
+            "wrapper_reporting": {
+              "label": "Wrapper and analytics reporting",
+              "steps": [
+                "Build a report broken out by bidder with bid rate, win rate, and revenue contribution.",
+                "Identify any adapter with little or no win rate or revenue, which is a candidate to drop or move server-side.",
+                "Read the page or ad load time alongside the bidder count to gauge how much latency the current roster costs, then note which bidders run client-side without a win rate to justify the device cost."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the enabled bidders, each one's placement as client-side or server-side, and the win rate and revenue per bidder from reporting. A roster where each enabled adapter shows a real contribution, with the highest-value bidders client-side and lower-value or under-test demand server-side, passes. Enabled adapters with no win rate and no stated reason, or a roster that runs every bidder client-side regardless of value, is a fail recorded with the adapters and placements that are not justified by their contribution.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the enabled bidders, their client-side or server-side placement, and the win rate per bidder above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the header bidding wrapper on {{site_name}} carries enabled bidders whose contribution and placement have not been justified against reporting. Each bidder adds competition but also adds a bid request, and an adapter that rarely wins pays a latency cost without returning fill, while running every bidder client-side loads that cost onto the user's device. {{voice_recommend}} reading win rate and revenue per bidder, dropping or test-disabling the adapters that add latency without fill, and moving lower-value demand to a server-side path so the browser carries only the bidders that earn the client-side connection. After the change, recheck revenue and ad load time to confirm the roster fits the demand it captures."
+      }
+    }
+  ]
+}

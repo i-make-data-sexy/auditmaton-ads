@@ -1,0 +1,160 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Auction and refresh settings decide how much demand reaches each impression and what each impression is worth once it clears. A first-price setup that throttles bids in the wrong place, or an ad refresh that fires before an impression is viewed, can drain revenue or fill the page with low-value impressions that depress eCPM. The check is a review of the auction and refresh configuration a publisher already runs through OpenX and its Prebid-based wrapper, so it costs reading time rather than rebuild time, and the finding points to a concrete pricing or refresh decision the publisher can test against reporting.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Yield on OpenX rests on two levers a publisher controls directly. The first is the auction itself, how a first-price auction is run through OpenX and the Prebid-compatible wrapper in front of it, and whether any bid adjustment or traffic shaping is trimming demand before it reaches the auction. The second is ad refresh, how often a slot re-requests demand and whether each refresh is tied to viewability so it earns rather than inflates the impression count. These checks confirm that the auction is collecting the demand it should and that refresh is protecting yield rather than padding it.",
+  "audit_checks": [
+    {
+      "id": "openx-yield-optimization-first-price-bid-adjustments-untested",
+      "title": "First-price auction bid adjustments are applied without checking what they cost in demand",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "Under a first-price auction the winning bidder pays its bid, so any bid adjustment or floor applied before the auction changes which bids clear and at what price. An adjustment set too aggressively, or carried over from a second-price era, can shade demand down or push bids below the floor, which trims fill and eCPM on the inventory it touches without the result showing up unless someone reads it against a baseline.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "OpenX inventory clears through a first-price auction, where the winning bidder pays the price it bid rather than one cent above the runner-up. That changes how every setting in front of the auction behaves. In a first-price auction a bid adjustment, a price floor, or any traffic-shaping rule does not just break ties, it moves the price the impression actually clears at, so a setting that was harmless under second-price mechanics can shade revenue once first-price is in effect.<br><br>The most common adjustment is the bid CPM adjustment in the Prebid-compatible wrapper that sits in front of OpenX. Publishers apply it to convert a bidder's gross price to a net price, or to offset a known fee or discrepancy, using a per-bidder factor. The adjustment is correct in principle, but the factor has to match the fee it is offsetting. A factor set too low shades the bidder's price down, so its bids lose auctions they should have won and the publisher collects less. Prebid's own floors feature reads these adjustments when it sets a per-bidder floor, which means a mis-set adjustment can also push a bidder under the floor and drop it from the auction entirely.<br><br>Traffic shaping is the second lever. OpenX is known for tight supply-quality controls, and a publisher's own wrapper may throttle bid requests to certain bidders to hold down timeouts or trim low-value paths. That can help latency, but throttling demand on inventory that was clearing well removes bids the auction needed, so the saving in latency can cost more in yield than it returns.<br><br>A few signs point to bid adjustments or shaping that have not been tested against a baseline:<ul><li>A bid CPM adjustment factor is applied per bidder with no record of the fee or discrepancy it is meant to offset</li><li>Traffic-shaping or throttling rules trim demand to some bidders with no before-and-after read of fill rate and eCPM on the affected inventory</li><li>The setup carries adjustments inherited from a second-price configuration that were never re-checked after the move to first-price</li></ul>You may want to confirm that each adjustment matches the fee it offsets and that any throttling pays for itself. One approach is to read fill rate, eCPM, and bid response rate per bidder before and after an adjustment change rather than trusting the factor on its face.",
+        "site_type_overlays": {
+          "publishing": "On a media site, premium placements such as a homepage or section-front unit depend on a deep pool of bidders to reach their price. You may want to check that no throttling rule trims demand on those units since a bid adjustment or shaping setting tuned for filler inventory can shade the bids the premium inventory needed to clear at its real value.",
+          "ecommerce": "On a commerce-content site, product and category pages reach an audience closer to a purchase and draw stronger bids, so a bid adjustment that shades those bids down costs more there than on editorial pages. You may want to read the adjustment's effect on the commercial inventory specifically rather than on a blended average the editorial pages pull down."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "bidderSettings: bid CPM adjustment for first-price auctions",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/bidderSettings.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Price Floors Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/floors.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Optimize header bidding setup",
+            "source_url": "https://docs.prebid.org/overview/how-many-bidders-for-header-bidding.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the per-bidder bid CPM adjustments and any traffic-shaping rules in the wrapper in front of OpenX, and look for a before-and-after read that shows what each one did to fill rate and eCPM.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Prebid wrapper configuration",
+              "steps": [
+                "Open the Prebid configuration for the pages running OpenX demand and list the 'bidderSettings' entries, noting any 'bidCpmAdjustment' factor set per bidder.",
+                "For each adjustment, record the fee or discrepancy it is meant to offset, and whether that reason is documented or assumed.",
+                "List any traffic-shaping, throttling, or bidder-timeout rules that trim which bidders are called or how often, and note the inventory they apply to.",
+                "Confirm whether the price floors module reads these adjustments, so a mis-set factor could be pushing a bidder under the floor."
+              ]
+            },
+            "openx_reporting": {
+              "label": "OpenX reporting",
+              "steps": [
+                "Build a report broken out by bidder or demand partner with bid response rate, win rate, fill rate, and average eCPM.",
+                "Compare the bidders carrying an adjustment or a throttling rule against bidders that do not, to see whether the adjusted bidders win less or clear lower.",
+                "Note any before-and-after period around an adjustment or shaping change, and record whether revenue rose, held, or fell on the affected inventory."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each bid CPM adjustment and traffic-shaping rule alongside the fee it offsets and a before-and-after read of fill rate and eCPM on the inventory it touches. A setup where each adjustment matches a documented fee and any throttling shows a net gain passes. A setup where adjustments or shaping rules are applied with no documented reason and no comparison, or where the data shows adjusted bidders winning less without an offsetting gain, is a fail recorded with the bidders and inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each bid adjustment and shaping rule with the fee it offsets and a before-and-after read of fill rate and eCPM above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} applies first-price bid adjustments or traffic-shaping rules in the wrapper in front of OpenX without a baseline showing what they cost in demand. Under a first-price auction the winning bidder pays its bid, so a bid CPM adjustment set below the fee it offsets, or a throttling rule that trims demand on inventory that was clearing well, shades bids down and lowers fill and eCPM on the inventory it touches. {{voice_recommend}} reconciling each adjustment against the fee it is meant to offset and reading bid response rate, fill rate, and eCPM per bidder before and after any shaping change. After the review, keep whichever setting the data supports for each slice of inventory."
+      }
+    },
+    {
+      "id": "openx-yield-optimization-ad-refresh-not-viewability-gated",
+      "title": "Ad refresh fires on a timer rather than on viewability, inflating low-value impressions",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "Refreshing a slot on a fixed timer counts impressions whether or not the ad was seen, which raises the impression count while lowering the share that is viewable. Buyers price against viewability, so a flood of unviewed refresh impressions pulls eCPM down across the slot and can mark the inventory as low quality, costing more in price than the extra impressions return.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Ad refresh re-requests demand for a slot that is already on the page, so one placement can earn from more than one impression during a single visit. Used well, it lifts revenue on long sessions and infinite-scroll pages. Used on a fixed timer with no other condition, it counts an impression every few seconds whether the slot was on screen or not, which raises the impression count while lowering the share that was actually viewable.<br><br>The reason that matters is how buyers price. Demand on OpenX is bought against viewability, so a slot that serves many impressions but few viewable ones reads as low quality, and buyers either bid less or bid elsewhere. The publisher trades a higher impression count for a lower price on every impression in the slot, and the lower price usually outweighs the extra count. A refresh tied to viewability avoids that. The slot only re-requests demand after the current ad has been seen, so each counted impression had a real chance to be viewed and each refresh earns rather than dilutes.<br><br>The Prebid-compatible wrapper in front of OpenX supports this directly. A bid-viewability module fires a viewable event when a rendered ad meets the viewability threshold, and the refresh logic can wait for that event plus a minimum dwell time before requesting the next set of bids. The wrapper's own guidance also warns that calling the ad server refresh without clearing the previous header-bidding targeting re-renders the same bids, which spends refresh requests without bringing new demand.<br><br>A few signs point to refresh that is not gated on viewability:<ul><li>Slots refresh on a fixed interval with no viewability condition and no minimum dwell time before the next request</li><li>Reporting shows a high refresh impression count alongside a viewability rate that falls as refresh frequency rises</li><li>The ad server refresh is called without clearing the prior header-bidding targeting, so the same bids re-render instead of a fresh auction running</li></ul>You may want to confirm that each refresh is earning rather than padding the count. One approach is to gate refresh on a viewable event plus a dwell time, then compare viewable impressions and eCPM before and after the change rather than judging refresh on impression volume alone.",
+        "site_type_overlays": {
+          "publishing": "On a media site, long-form articles and infinite-scroll feeds are where refresh earns most, but they are also where a timer-based refresh racks up unviewed impressions as the reader scrolls past. You may want to gate refresh on a viewable event so a unit only re-requests demand after the reader has actually reached and seen it.",
+          "ecommerce": "On a commerce-content site, product and category pages hold higher-intent inventory, so diluting those slots with unviewed refresh impressions costs more there than on editorial pages. You may want to tie refresh on the commercial pages to viewability and a dwell time so the higher-value inventory keeps its viewable rate and its price."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Bid Viewability module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/bidViewableIO.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Individual ad unit refresh / infinite scroll",
+            "source_url": "https://docs.prebid.org/dev-docs/examples/adunit-refresh.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review how each refreshing slot decides when to re-request demand, and read the viewability rate against refresh frequency to see whether refresh is earning or diluting.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Prebid wrapper and refresh logic",
+              "steps": [
+                "List the slots that refresh, and for each one record what triggers the refresh, a fixed timer, a viewable event, a scroll position, or a combination.",
+                "Confirm whether a bid-viewability module is in place and whether the refresh waits for its viewable event plus a minimum dwell time before re-requesting bids.",
+                "Check whether the refresh clears the prior header-bidding targeting before calling the ad server, so a fresh auction runs rather than the same bids re-rendering.",
+                "Record the refresh interval and any cap on the number of refreshes per slot per session."
+              ]
+            },
+            "openx_reporting": {
+              "label": "OpenX reporting",
+              "steps": [
+                "Build a report broken out by ad unit with total impressions, refresh impressions, measured viewable impressions, viewability rate, and average eCPM.",
+                "Compare slots that refresh on a timer against slots that refresh on viewability, or against the same slot before and after a change, to see how the viewability rate and eCPM move.",
+                "Note any slot where refresh impressions are high but the viewability rate is low, which points to refresh that is inflating the count rather than earning."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per refreshing slot, what triggers the refresh and reads viewability rate and eCPM against refresh frequency. A slot that gates refresh on a viewable event plus a dwell time and holds its viewability rate as it refreshes passes. A slot that refreshes on a fixed timer with no viewability condition, or one where the viewability rate falls and eCPM drops as refresh frequency rises, is a fail recorded with the slots affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the refresh trigger for each slot and the viewability rate and eCPM against refresh frequency above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} refreshes ad slots on a fixed timer rather than on viewability, so impressions are counted whether or not the ad was seen. Buyers on OpenX price against viewability, so a slot that serves many impressions but few viewable ones reads as low quality and clears at a lower eCPM, which usually costs more than the extra impressions return. {{voice_recommend}} gating refresh on a viewable event plus a minimum dwell time, clearing the prior header-bidding targeting before each ad server refresh so a fresh auction runs, and comparing viewable impressions and eCPM before and after the change. After the change, recheck the viewability rate as refresh frequency rises to confirm each refresh is earning rather than diluting."
+      }
+    }
+  ]
+}

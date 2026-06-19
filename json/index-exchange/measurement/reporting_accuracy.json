@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Reporting accuracy decides whether the revenue and fill numbers a publisher reads in one system match what the next system shows and what the partner pays. When the wrapper, the ad server, and the IX statement disagree, a publisher cannot tell which figure to plan against, and a real revenue gap can hide inside the noise of expected discrepancy. The check is a reconciliation of numbers the publisher already has, so it costs comparison time rather than rebuild time, and the finding points to a concrete dimension, currency, or timing setting that can be aligned.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Index Exchange (IX) reports impressions, fill, and revenue for a publisher's inventory, but those figures sit alongside the wrapper's own analytics, the ad server's reporting, and the remittance the publisher is actually paid. This subcategory is about whether those numbers reconcile and whether the reports are configured so the comparison is fair. These checks confirm that reported revenue and fill line up with the payments received, and that report dimensions, currency, and timezone are set so the figures are comparable across systems rather than diverging for reasons that have nothing to do with real performance.",
+  "audit_checks": [
+    {
+      "id": "index-exchange-reporting-accuracy-revenue-not-reconciled-to-payments",
+      "title": "Reported revenue and fill are not reconciled against actual payments",
+      "category": "measurement",
+      "subcategory": "reporting_accuracy",
+      "impact_score": 3,
+      "impact_rationale": "Reported revenue is an estimate until it is checked against the remittance the publisher is actually paid. Some gap between the wrapper's analytics, the SSP report, and the payment is expected, but a publisher who never reconciles cannot tell an expected gap from a real one, so revenue that is leaking, miscounted, or shaved can sit unnoticed inside the difference.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "transparency"],
+      "educate": {
+        "base": "A publisher monetizing through Index Exchange (IX) sees revenue in several places, and those places rarely agree to the cent. The header-bidding wrapper records the bid it received, the ad server records the impression it served and the price it credited, the IX report shows what IX counted, and the remittance shows what the publisher is paid. Each number is measured at a different point in the chain, so some difference between them is normal. The audit question is whether the publisher reconciles those numbers against the actual payment, or whether reported revenue is taken on faith.<br><br>Several mechanical reasons make the wrapper figure and the paid figure diverge even when nothing is wrong. Prebid resolves the AUCTION_PRICE macro for historic reasons, and when a bid adapter does not resolve its own macros, the price can be quantized by the price granularity and converted to the ad server currency before it lands, which Prebid's own documentation notes can cause reporting discrepancies. Bids are also rounded down to the nearest price bucket, so a 2.95 bid recorded at a 0.50 granularity reports as 2.50. None of these are errors, but each one moves the wrapper number away from the price that actually cleared.<br><br>A reconciliation does not have to chase every cent. It compares revenue and fill for the same period, the same inventory, and the same currency across the wrapper, the ad server, and the IX statement, then asks whether the gap is within the range those mechanical causes can explain. A gap inside that range is expected. A gap outside it, or one that grows month over month, points to something worth tracing, for example impressions counted in one system and not another, a currency mismatch, or revenue credited at a price the publisher is not being paid.<br><br>A few signs point to revenue and fill not being reconciled:<ul><li>No regular comparison exists between the wrapper or ad server revenue and the IX remittance for the same period and inventory</li><li>The publisher cannot state the typical size of the gap between reported and paid revenue, so an unusual gap would not stand out</li><li>Fill rate is read from one system alone with no check that impression counts agree across the wrapper, the ad server, and IX</li></ul>You may want to confirm that reported revenue and fill are checked against the payment the publisher actually receives. One approach is to reconcile a single recent period across the wrapper, the ad server, and the IX statement, record the gap, and treat that figure as the baseline future periods are measured against.",
+        "site_type_overlays": {
+          "publishing": "On a media site with traffic that swings around editorial cycles, monthly revenue can move for real reasons, which makes an unreconciled report easy to misread. You may want to reconcile reported revenue against the IX payment each period so a genuine shortfall is not written off as a slow news month, and so a slow month is not mistaken for a measurement fault.",
+          "ecommerce": "On a commerce-content site, display revenue through IX usually sits next to affiliate or sponsorship income, and a blended revenue view can bury an ad-revenue gap inside the larger number. You may want to reconcile the IX display revenue on its own against the IX remittance, rather than judging it inside a combined revenue figure where a shortfall would not show."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js FAQ: AUCTION_PRICE macro and reporting discrepancies",
+            "source_url": "https://docs.prebid.org/dev-docs/faq.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Analytics for Prebid.js",
+            "source_url": "https://docs.prebid.org/overview/analytics.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Gather the wrapper or ad server revenue, the IX report, and the IX remittance for the same recent period and inventory, then compare revenue and fill across them to see whether they reconcile and how large the gap is.",
+        "tools": {
+          "free": {
+            "ad_server_reporting": {
+              "label": "Ad server reporting",
+              "steps": [
+                "Pull revenue, impressions, and fill rate from the ad server for IX inventory over a single recent period, for example the most recent full month.",
+                "Record the currency and timezone the report uses so the figures can be matched to the other systems.",
+                "Note whether the ad server credits Index Exchange (IX) revenue at the price that cleared or at a rounded price-bucket value, which sets expectations for the gap."
+              ]
+            },
+            "ix_reporting": {
+              "label": "Index Exchange reporting and remittance",
+              "steps": [
+                "Pull the IX report for the same period and inventory, with revenue, impressions, and fill, and record its currency and timezone.",
+                "Obtain the IX remittance or payment statement for that period, which is the figure the publisher is actually paid.",
+                "Compare reported revenue and fill across the wrapper or ad server, the IX report, and the remittance, and record the size of each gap.",
+                "Decide whether each gap is within the range that price-bucket rounding, currency conversion, and counting differences can explain, or whether it is large enough to trace."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records revenue and fill for the same period and inventory across the wrapper or ad server, the IX report, and the IX remittance, along with the gap between each. A setup where the figures are reconciled and the gap is within the range the mechanical causes explain passes. A setup where no reconciliation against the payment exists, or where the gap is large or growing with no explanation, is a fail recorded with the period, the systems compared, and the size of the gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the revenue and fill figures from the wrapper or ad server, the IX report, and the remittance, along with the gap between them, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not reconcile its reported Index Exchange (IX) revenue and fill against the payment actually received. Reported revenue is an estimate until it is checked against the remittance, and mechanical causes such as price-bucket rounding and currency conversion move the wrapper figure away from the price that cleared, so without a reconciliation a real revenue gap can hide inside an expected one. {{voice_recommend}} reconciling a single recent period across the wrapper or ad server, the IX report, and the IX statement, recording the size of the gap, and treating that figure as the baseline future periods are measured against. After the baseline is set, a gap that falls outside it becomes a signal worth tracing rather than noise."
+      }
+    },
+    {
+      "id": "index-exchange-reporting-accuracy-dimensions-timezone-not-aligned",
+      "title": "Report dimensions, currency, and timezone are not aligned across systems",
+      "category": "measurement",
+      "subcategory": "reporting_accuracy",
+      "impact_score": 2,
+      "impact_rationale": "When the wrapper, the ad server, and the IX report use different timezones, currencies, or inventory groupings, the same day's revenue lands in different buckets and the numbers stop being comparable. The mismatch creates a discrepancy that looks like a performance problem but is only a configuration difference, which wastes investigation time and can mask a real gap underneath it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "transparency"],
+      "educate": {
+        "base": "Comparing revenue across the header-bidding wrapper, the ad server, and Index Exchange (IX) only works when the reports describe the same thing. If one report runs on Eastern time and another on Pacific or UTC, the boundary of a day falls in a different place, so a slice of revenue that one system counts on Monday the next counts on Tuesday. Over a single day the totals will not match, and the difference is a timezone artifact rather than a real gap.<br><br>Currency does the same. The Prebid currency module converts each bidder's currency into the single currency the ad server uses, and price granularity buckets are scaled by a granularity multiplier so the buckets stay meaningful in that currency. If the IX report, the ad server, and the wrapper do not all express revenue in the same currency, or if the conversion is applied at different points, the figures diverge for a reason that has nothing to do with how the inventory performed. Inventory grouping matters too because a dimension that bundles ad units one way in IX and another way in the ad server cannot be compared row for row.<br><br>The fix is to make the reports describe the same period, the same currency, and the same inventory before reading the gap between them. Aligning timezone, currency, and the dimensions used to group inventory removes the differences that are pure configuration, so whatever gap remains is a real one worth looking at. Without that alignment, every reconciliation starts from numbers that were never meant to match.<br><br>A few signs point to dimensions, currency, or timezone not being aligned:<ul><li>The wrapper, ad server, and IX reports run on different timezones, so daily totals never line up</li><li>Revenue is expressed in different currencies across the systems, or the conversion point differs, so the figures are not on the same scale</li><li>Inventory is grouped by different dimensions in each system, so the rows cannot be matched one to one</li></ul>You may want to confirm that the reports being compared share the same timezone, currency, and inventory grouping. One approach is to set a single timezone and currency for every report used in reconciliation and to map the inventory dimensions to a common grouping before reading any gap.",
+        "site_type_overlays": {
+          "publishing": "On a media site that serves a national or international audience, traffic spans timezones, so a daily revenue comparison is especially sensitive to which timezone each report uses. You may want to fix every report used for reconciliation to one timezone, for example UTC, so the day boundary is the same everywhere and daily totals can be compared without a built-in offset.",
+          "ecommerce": "On a commerce-content site that may sell or report in more than one currency, a currency mismatch between the IX report and the ad server can make revenue look off when it is only expressed on a different scale. You may want to set a single reporting currency across the wrapper, the ad server, and IX so the figures compare directly rather than through an implied conversion."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Price Granularity",
+            "source_url": "https://docs.prebid.org/adops/price-granularity.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Currency Module for Prebid.js",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/currency.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Check the timezone, currency, and inventory grouping each report uses, then confirm they match before any revenue comparison across the wrapper, the ad server, and Index Exchange.",
+        "tools": {
+          "free": {
+            "report_settings": {
+              "label": "Report configuration across systems",
+              "steps": [
+                "Open the report settings in the ad server and in Index Exchange (IX), and record the timezone each one uses.",
+                "Record the currency each report expresses revenue in, and note where in the chain any currency conversion is applied.",
+                "List the dimensions each system uses to group the inventory being compared, for example ad unit, domain, or placement.",
+                "Flag any report where the timezone, currency, or inventory grouping differs from the others, which means that report cannot be compared row for row until it is aligned."
+              ]
+            },
+            "ad_server_reporting": {
+              "label": "Ad server reporting",
+              "steps": [
+                "Build matched reports in the ad server and IX for the same period using the same timezone and currency once those are set.",
+                "Map the inventory dimensions to a common grouping so the rows in each report describe the same units.",
+                "Compare the totals again after alignment to confirm the remaining gap is a real one rather than a configuration difference."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the timezone, currency, and inventory grouping used by each report in the reconciliation. A setup where every report shares the same timezone and currency and maps to a common inventory grouping passes. A setup where any of those differs across the systems being compared is a fail recorded with the specific dimension, currency, or timezone that diverges and the report it appears in.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the timezone, currency, and inventory grouping for each report above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the reports {{site_name}} compares across the wrapper, the ad server, and Index Exchange (IX) do not share the same timezone, currency, and inventory grouping. When those differ, the same day's revenue lands in different buckets and the figures stop being comparable, so a discrepancy that looks like a performance gap is only a configuration difference and a real gap can hide beneath it. {{voice_recommend}} setting a single timezone and currency for every report used in reconciliation and mapping the inventory dimensions to a common grouping before reading any gap. After the reports are aligned, whatever difference remains is a real one worth tracing rather than an artifact of mismatched settings."
+      }
+    }
+  ]
+}

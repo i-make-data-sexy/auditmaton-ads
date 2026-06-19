@@ -1,0 +1,153 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Video completion and viewability are the two metrics buyers use to value a video impression, so when they are measured loosely or reconcile poorly across the player and Index Exchange (IX), the publisher loses the evidence it needs to defend its rates. The check is a review of how completion events and viewability measurement are wired into the existing video setup, so it costs reading time and a few report pulls rather than a rebuild, and the finding points to a concrete tracking gap the publisher can close.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Video impressions clear higher when the buyer can see that the ad ran to completion and was on screen, so the integrity of completion and viewability measurement sits directly under the rate a publisher can hold. This subcategory covers whether Video Through Rate (VTR) and the quartile events that build it are tracked and reconcile between the video player and IX, and whether viewability measurement is integrated so both sides read the same numbers. These checks confirm that the metrics buyers price against are measured the same way the player reports them, rather than drifting apart in a way that erodes trust and rate.",
+  "audit_checks": [
+    {
+      "id": "index-exchange-video-completion-viewability-quartile-events-not-reconciled",
+      "title": "Quartile and completion events do not reconcile between the player and Index Exchange",
+      "category": "measurement",
+      "subcategory": "video_completion_viewability",
+      "impact_score": 3,
+      "impact_rationale": "Video Through Rate is built from the quartile and completion events the player fires, and buyers price video against it. When those events do not reconcile between the player and Index Exchange, the publisher reports one completion rate while the buyer values a different one, which undercuts the rate the publisher can defend and invites disputes over delivery.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "performance"],
+      "educate": {
+        "base": "A video ad reports its progress through tracking events the player fires at fixed points in playback. The Video Ad Serving Template (VAST) defines those points as start, first quartile, midpoint, third quartile, and complete, and each one fires a tracking URL so the parties measuring the impression can count it. Video Through Rate (VTR) is the share of impressions that reach the complete event, and it is the headline metric buyers use to judge whether a video placement delivers.<br><br>The problem this check looks for is reconciliation. The video player counts quartile and completion events one way, and Index Exchange (IX) counts the events that reach it through the bid and the VAST response another way. When the two do not line up, the publisher reports a completion rate from the player while the buyer values the impression against the number that reached the demand side. A gap between them is not a rounding difference. It means the metric the publisher quotes and the metric the buyer prices against are two different numbers, and the publisher cannot tell which one is right.<br><br>The gap usually traces to how the events are wired. The Prebid video integration that IX-compatible header bidding runs on generates analytics events from the player as the ad plays, and the 'vasttrack' configuration joins those events back to the original auction so the counts can be matched. When that wiring is missing or partial, the player fires its quartiles locally but the demand side never receives a matching signal, so the two ledgers drift.<br><br>A few signs point to quartile and completion events that do not reconcile:<ul><li>The player's reported completion rate and the completion rate read from Index Exchange or Prebid analytics differ by a margin the publisher cannot explain</li><li>The 'vasttrack' option that joins player events to the original auction request is not enabled, so events are not tied back to the impression</li><li>No periodic reconciliation between player-side and demand-side completion counts is on record</li></ul>You may want to confirm that completion events the player fires reconcile with what Index Exchange and the demand side count. One approach is to enable event joining in the Prebid video setup, then compare completion counts from the player against the demand-side report across the same window and inventory.",
+        "site_type_overlays": {
+          "publishing": "On a media site, instream video in editorial content and a persistent outstream or sticky player can each report completions differently, so a blended VTR can hide a reconciliation gap on one of them. You may want to reconcile player-side and demand-side completion counts per player placement rather than across the site, so a gap shows up where it lives instead of averaging out.",
+          "ecommerce": "On a commerce-content site, video on product and category pages often clears at a higher price than video in editorial content, which makes its completion measurement worth checking on its own. You may want to reconcile completion counts for the commercial-page video specifically. A measurement gap there costs more per impression than the same gap on lower-value inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Video Module",
+            "source_url": "https://docs.prebid.org/prebid-video/video-module.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review how completion events are wired in the video setup and compare the completion counts the player reports against the counts read from Index Exchange or Prebid analytics across the same inventory and window.",
+        "tools": {
+          "free": {
+            "player_config": {
+              "label": "Video player and Prebid configuration",
+              "steps": [
+                "Open the video player configuration and the Prebid video setup, and confirm which tracking events the player fires (start, first quartile, midpoint, third quartile, complete).",
+                "Check whether the 'vasttrack' option is enabled so player events are joined back to the original auction request.",
+                "Record which player placements are in scope and whether each is wired to report quartile and completion events to the demand side."
+              ]
+            },
+            "reconciliation_report": {
+              "label": "Player-side and demand-side reporting",
+              "steps": [
+                "Pull completion and quartile counts from the player's own reporting for a fixed window and a defined slice of inventory.",
+                "Pull the matching counts from Index Exchange or Prebid analytics for the same window and inventory.",
+                "Compare the two completion rates and record the size of any gap, the inventory it appears on, and whether the publisher can explain it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the player-reported completion rate and the demand-side completion rate from Index Exchange or Prebid analytics for the same window and inventory, along with whether event joining is enabled. A setup where the two reconcile within an explainable margin and event joining is in place passes. A setup where the two differ by an unexplained margin, or where events are not joined back to the auction so reconciliation is not possible, is a fail recorded with the placements and the size of the gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the player-side and demand-side completion rates and whether event joining is enabled above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that completion and quartile events on {{site_name}} do not reconcile between the video player and Index Exchange (IX), so the Video Through Rate (VTR) the publisher reports and the completion rate the demand side prices against are two different numbers. Buyers value video against completion, so a gap that no one can explain weakens the rate {{site_name}} can defend and invites delivery disputes. {{voice_recommend}} enabling event joining in the Prebid video setup so player events tie back to the original auction, then reconciling player-side and demand-side completion counts across the same window and inventory until the two agree within an explainable margin. After the change, keep a periodic reconciliation on record so the metric stays defensible."
+      }
+    },
+    {
+      "id": "index-exchange-video-completion-viewability-measurement-not-integrated",
+      "title": "Viewability measurement is not integrated for video impressions",
+      "category": "measurement",
+      "subcategory": "video_completion_viewability",
+      "impact_score": 3,
+      "impact_rationale": "Buyers value a video impression on whether it was viewable, and without a standardized measurement signal on the impression they discount it or move spend elsewhere. A publisher that cannot show viewability on its video inventory loses the evidence it needs to hold its rates, so the gap shows up as lower demand and weaker pricing rather than a visible error.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "performance"],
+      "educate": {
+        "base": "Viewability measures whether an ad had the chance to be seen, counted by how much of the ad was on screen and for how long. Buyers use it to decide what a video impression is worth. An impression that rendered off screen or scrolled past before it played carries little value to them. A publisher that can show viewability on its video inventory gives the buyer a reason to value the impression at the rate the publisher is asking. A publisher that cannot leaves the buyer to assume the worst and price accordingly.<br><br>The way viewability gets measured consistently across players and verification partners is a shared standard rather than a number each player invents. The Open Measurement SDK (OM SDK) from the IAB Tech Lab provides a common interface, the Open Measurement Interface Definition (OMID), so the player and the measurement vendor read the same on-screen and duration signals. When that integration is in place, the viewability number the publisher reports is the same number an independent verification vendor reads, which is what makes it credible to a buyer.<br><br>This check looks at whether viewability measurement is actually wired into the video setup that Index Exchange (IX) sells, not just assumed. A video player can render an ad without ever reporting whether it was viewable, and an SSP can pass the impression to demand without a viewability signal attached. When that happens, the publisher is selling video inventory blind to the one metric that lets a buyer value it, and the discount the buyer applies for that uncertainty comes straight out of the publisher's rate.<br><br>A few signs point to viewability measurement that is not integrated:<ul><li>The video player has no Open Measurement integration, so no standardized viewability signal is produced for the impression</li><li>Reporting shows completion data but no viewability rate for video inventory, so the publisher cannot say what share of impressions were on screen</li><li>Buyers or their verification vendors report a viewability rate that the publisher cannot match from its own measurement</li></ul>You may want to confirm that viewability is measured on the video inventory Index Exchange sells, using a standardized signal a buyer's vendor can trust. One approach is to verify the player's Open Measurement integration, then read viewability alongside completion in reporting so both metrics travel with the impression.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a sticky or floating outstream player can keep an ad on screen while the reader scrolls, which raises viewability, while an instream unit deep in an article may render below the fold. You may want to confirm viewability is measured per player type so the strong placements can prove their value rather than being judged on a site-wide average.",
+          "ecommerce": "On a commerce-content site, video on high-intent product and category pages clears higher, so a buyer's viewability discount on that inventory costs more per impression. You may want to confirm viewability measurement is integrated on the commercial-page video specifically, so the publisher can defend the higher rate with a standardized signal rather than an assumption."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Open Measurement SDK (OM SDK)",
+            "source_url": "https://iabtechlab.com/standards/open-measurement-sdk/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Video Module",
+            "source_url": "https://docs.prebid.org/prebid-video/video-module.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the video player produces a standardized viewability signal and whether viewability is reported alongside completion for the video inventory Index Exchange sells.",
+        "tools": {
+          "free": {
+            "player_config": {
+              "label": "Video player configuration",
+              "steps": [
+                "Open the video player setup and confirm whether an Open Measurement (OMID) integration is in place so a standardized viewability signal is produced for the impression.",
+                "Note which player placements have the integration and which, if any, render ads without producing a viewability signal.",
+                "Record whether the viewability signal travels with the impression to the demand side or stops at the player."
+              ]
+            },
+            "viewability_report": {
+              "label": "Viewability and completion reporting",
+              "steps": [
+                "Pull reporting for the video inventory and check whether a viewability rate is available alongside completion, or whether only completion is reported.",
+                "Where buyers or their verification vendors report a viewability rate, compare it against the publisher's own number for the same inventory and window.",
+                "Record any inventory where no viewability is measured at all, the inventory where a buyer's discount lands hardest."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per video placement, whether a standardized viewability signal is produced and whether viewability is reported alongside completion. A setup where viewability is measured with a standardized integration and reads consistently against a buyer's vendor passes. A setup where video inventory is sold with no viewability signal, or where the publisher's viewability cannot be matched against an independent read, is a fail recorded with the placements that lack measurement.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a standardized viewability signal is produced and whether viewability is reported alongside completion above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that viewability is not measured with a standardized signal on the video inventory {{site_name}} sells through Index Exchange (IX), so buyers value those impressions without the one metric that tells them whether the ad was on screen. A buyer who cannot read viewability discounts the impression, and that discount comes out of the rate {{site_name}} can hold. {{voice_recommend}} verifying the player's Open Measurement integration so a standardized viewability signal is produced, then reading viewability alongside completion in reporting so both metrics travel with the impression. After the change, compare the publisher's viewability against a buyer's verification vendor on the same inventory to confirm the numbers agree."
+      }
+    }
+  ]
+}

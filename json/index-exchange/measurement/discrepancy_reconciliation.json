@@ -1,0 +1,166 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Index Exchange and the publisher's primary ad server count impressions at different moments and through different pipes, so the two systems rarely report the same number. A gap is expected, but a gap that drifts past a normal tolerance points at lost impressions, dropped revenue, or a counting problem that has gone unmeasured. This check reads numbers the publisher already has in the IX reporting and the ad server, so it costs reconciliation time rather than rebuild time, and the finding points to a concrete tolerance band the publisher can monitor going forward.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Index Exchange (IX) reports the impressions it served, and the publisher's primary ad server reports the impressions it recorded for the same inventory. The two counts rarely match exactly because each system counts at a different point in the ad lifecycle and applies its own filtering. This subcategory is about whether that gap is measured against an agreed tolerance and investigated when it drifts out of range, rather than the underlying header bidding mechanics that produce the impressions. These checks confirm that the publisher reconciles the IX count against the ad server count on a regular basis and knows which sources are driving any gap that exceeds tolerance.",
+  "audit_checks": [
+    {
+      "id": "index-exchange-discrepancy-reconciliation-not-measured",
+      "title": "The SSP-versus-ad-server impression discrepancy is not measured against a tolerance",
+      "category": "measurement",
+      "subcategory": "discrepancy_reconciliation",
+      "impact_score": 3,
+      "impact_rationale": "When the gap between the Index Exchange count and the ad server count is never measured, a publisher cannot tell a normal counting difference from lost impressions or a billing mismatch. A discrepancy that sits unmeasured can hide revenue that was earned but not recorded, and the publisher has no trigger to investigate because nothing flags when the gap moves out of range.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "Index Exchange (IX) and the publisher's primary ad server each count impressions, and the two counts come from different places in the ad lifecycle. The ad server, often Google Ad Manager, counts at one point under its own rules. IX counts the impressions it served through the header bidding auction under its rules. Because the counting points differ, and because each system filters out some impressions for its own reasons, the two numbers will not match. That part is expected.<br><br>The number that matters is the size of the gap. Discrepancy is usually read as the difference between the two counts divided by the higher count, expressed as a percentage. Industry measurement bodies have moved the counting standard toward a 'count-on-begin-to-render' model, where an impression counts once the creative starts to render rather than at the moment it is served, and systems that count at different points along that path will report different totals. A gap within a normal tolerance reflects that difference. A gap that runs wider points at something worth investigating, such as lost impressions, timeouts, or a counting method that no longer lines up.<br><br>The audit question is not whether a gap exists. It is whether the publisher measures the gap against an agreed tolerance on a regular schedule. Without a measured baseline, the publisher has no way to tell a routine 5 percent counting difference from a 25 percent gap that signals revenue recorded by IX but never landed in the ad server. The IAB has long treated a discrepancy below roughly 10 percent as the working norm for display, with header bidding setups often running wider, so the tolerance a publisher sets should fit their own inventory and partner mix rather than a single fixed figure.<br><br>A few signs point to a discrepancy that is not being measured against a tolerance:<ul><li>No regular reconciliation compares the IX impression count against the ad server count for the same inventory and date range</li><li>The publisher cannot state the tolerance band they expect the gap to stay within</li><li>No alert or review is triggered when the gap moves outside the expected range</li></ul>You may want to confirm that the IX-versus-ad-server gap is measured on a set cadence against a tolerance the publisher has agreed. One approach is to pull both counts for the same inventory and window, calculate the discrepancy percentage, and record whether it sits inside the band.",
+        "site_type_overlays": {
+          "publishing": "On a media site, traffic spikes around a news event or a viral post push impression volume up quickly, and a counting gap that looks small as a percentage can represent a large number of impressions during a spike. You may want to reconcile the IX count against the ad server count at the volumes the site sees on its busiest days, not only on an average day, so the tolerance holds when the inventory is most valuable.",
+          "ecommerce": "On a commerce-content site, product and category pages can carry heavier creatives and slower page loads than editorial pages, and a slow render gives more room for the counting points of IX and the ad server to diverge. You may want to reconcile the discrepancy separately for the commercial pages so a wider gap on heavier pages does not hide inside a blended average that the lighter editorial inventory pulls down."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB",
+            "source_title": "IAB, MRC and MMA Propose Updates to Ad Measurement Guidelines, Moving to a Count-on-Begin-to-Render Model",
+            "source_url": "https://www.iab.com/news/iab-mrc-mma-propose-updates-to-ad-measurement-guidelines/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js Troubleshooting Guide for Header Bidding",
+            "source_url": "https://docs.prebid.org/troubleshooting/troubleshooting-guide.html"
+          }
+        ],
+        "learn_more_note": "Index Exchange's detailed reconciliation and reporting documentation for matching its impression counts against a publisher's ad server is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Pull the Index Exchange impression count and the ad server impression count for the same inventory and date range, calculate the gap, and check whether the publisher measures it against an agreed tolerance on a schedule.",
+        "tools": {
+          "free": {
+            "ix_reporting": {
+              "label": "Index Exchange reporting",
+              "steps": [
+                "Open the Index Exchange reporting and pull served impressions for the inventory under review across a defined date range.",
+                "Record the impression total and confirm the date range and inventory scope so the same window can be matched in the ad server.",
+                "Note the metric used for impressions since the count IX reports as served may differ from a rendered or measured count."
+              ]
+            },
+            "ad_server_reporting": {
+              "label": "Ad server reporting",
+              "steps": [
+                "In the publisher's primary ad server, build a report of impressions for the same inventory and the same date range used in Index Exchange.",
+                "Calculate the discrepancy as the difference between the two counts divided by the higher count, expressed as a percentage.",
+                "Ask the publisher what tolerance they expect the gap to stay within and whether this reconciliation runs on a set schedule, and record the answer and the current gap against it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the Index Exchange impression count and the ad server impression count for matched inventory and a matched date range, the resulting discrepancy percentage, and whether a tolerance band and a reconciliation cadence are in place. A setup where the gap is measured on a schedule against an agreed tolerance and currently sits inside the band passes. A setup where no reconciliation runs, or where no tolerance exists to judge the gap against, is a fail recorded with the counts and the date range used.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the Index Exchange and ad server impression counts, the date range, and the tolerance band above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not measure the impression discrepancy between Index Exchange (IX) and the primary ad server against an agreed tolerance. The two systems count impressions at different points in the ad lifecycle, so a gap is expected, but without a measured baseline a routine counting difference cannot be told apart from lost impressions or revenue recorded by IX that never reached the ad server. {{voice_recommend}} pulling both impression counts for the same inventory and date range, calculating the discrepancy as a percentage, and setting a tolerance band that the reconciliation is checked against on a regular schedule. After the band is set, treat any reconciliation that runs outside it as a trigger to investigate the source of the gap."
+      }
+    },
+    {
+      "id": "index-exchange-discrepancy-reconciliation-sources-not-investigated",
+      "title": "Out-of-range discrepancies are not traced to a source",
+      "category": "measurement",
+      "subcategory": "discrepancy_reconciliation",
+      "impact_score": 3,
+      "impact_rationale": "A discrepancy that runs past tolerance has a cause, such as timeouts, latency, a counting-method difference, or blocked creatives, and each cause calls for a different fix. When the gap is noticed but never traced to a source, the publisher cannot tell a harmless counting difference from impressions that were served but lost, so the gap stays unresolved and any revenue tied to it stays unrecovered.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "When the gap between the Index Exchange (IX) count and the ad server count runs past the tolerance a publisher has set, the next question is why. A discrepancy is a symptom, and several different causes produce it, so a publisher who stops at noticing the gap cannot act on it. The fix depends entirely on which cause is driving the number.<br><br>The common sources fall into a few groups. Timeouts and latency drop bids and impressions when the auction does not finish in time, and Prebid's own documentation notes that a timeout set too short cuts off bids that would otherwise have completed, while bids that arrive after the timeout may not be counted the same way on both sides. Counting-method differences arise because IX and the ad server count at different points, one closer to render and one closer to serve, so the same impression registers in one system and not yet in the other. Blocked or failed creatives count as served on one side but never render, so they fall out of the rendered count. A high ad-refresh rate or an aggressive refresh interval can inflate one count relative to the other. Each of these leaves a different fingerprint in the data.<br><br>Tracing the gap to a source means reading the auction and rendering data rather than the headline totals. Prebid analytics records bid latency and timeout events by bidder, and the Prebid troubleshooting tools let a publisher confirm which bids were received, which won, and which actually rendered. Lining those signals up against the discrepancy shows whether the gap traces to timeouts on the IX bidder, to creatives that won but never rendered, or to a counting difference that is working as designed and needs no fix.<br><br>A few signs point to discrepancies that are noticed but not traced:<ul><li>The out-of-range gap is logged but no investigation records which source, such as timeouts or blocked creatives, is driving it</li><li>No read of bid latency, timeout events, or won-versus-rendered bids has been lined up against the discrepancy</li><li>The same out-of-range gap recurs period after period with no cause assigned and no fix applied</li></ul>You may want to confirm that an out-of-range gap is traced to a specific source before it is treated as resolved. One approach is to read the Prebid auction and rendering data for the affected inventory, separating timeout and latency losses from counting-method differences and blocked creatives, so the fix matches the cause.",
+        "site_type_overlays": {
+          "publishing": "On a media site, audience from distant or low-connectivity regions adds network latency that can push bids past the auction timeout, so a discrepancy on that traffic may trace to timeouts rather than to a counting difference. You may want to read bid latency and timeout events by geography for the affected inventory before assigning a cause since the source can differ by region.",
+          "ecommerce": "On a commerce-content site, heavier product-page creatives and slower loads give more room for a creative to win the auction but fail to render, which shows up as a served-but-not-rendered gap. You may want to check won-versus-rendered bids on the commercial pages specifically since a blocked or failed creative there traces to a different fix than a timeout would."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Ad Slot Timeouts for Header Bidding",
+            "source_url": "https://docs.prebid.org/features/timeouts.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Analytics for Prebid.js for Header Bidding",
+            "source_url": "https://docs.prebid.org/overview/analytics.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js Troubleshooting Guide for Header Bidding",
+            "source_url": "https://docs.prebid.org/troubleshooting/troubleshooting-guide.html"
+          }
+        ],
+        "learn_more_note": "Index Exchange's bidder-level diagnostics and reconciliation reporting that pin a gap to a specific IX cause are in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "For an out-of-range discrepancy, read the auction and rendering data to separate timeout and latency losses, counting-method differences, and blocked creatives, then record which source is driving the gap.",
+        "tools": {
+          "free": {
+            "prebid_analytics": {
+              "label": "Prebid analytics and troubleshooting",
+              "steps": [
+                "For the affected inventory, read bid latency and timeout events to see whether the Index Exchange bidder is losing impressions to a timeout that is set too short for the auction to finish.",
+                "Use the Prebid troubleshooting tools to confirm which bids were received, which won the auction, and which actually rendered, so won-but-not-rendered creatives can be separated from timeouts.",
+                "Record whether the gap traces to timeouts and latency, to creatives that won but did not render, or to a counting-method difference that is working as designed."
+              ]
+            },
+            "ad_server_reporting": {
+              "label": "Ad server and IX reporting",
+              "steps": [
+                "Compare the Index Exchange served count against the ad server rendered count for the same inventory to see whether the gap is concentrated in served-but-not-rendered impressions.",
+                "Check the ad-refresh interval on the affected inventory since a short refresh interval can inflate one count relative to the other.",
+                "Note the source the data points to and record it against the out-of-range gap so the fix can be matched to the cause."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each out-of-range discrepancy, whether the gap was traced to a specific source such as timeouts, latency, a counting-method difference, blocked creatives, or refresh, with the supporting auction and rendering data noted. A setup where out-of-range gaps are traced to a source and the source is recorded passes. A setup where out-of-range gaps are noticed but left without an assigned cause is a fail recorded with the inventory and date range where the gap recurs.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the out-of-range gap, the inventory affected, and the source the auction and rendering data point to above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that out-of-range impression discrepancies between Index Exchange (IX) and the ad server on {{site_name}} are noticed but not traced to a source. A gap that runs past tolerance can come from timeouts, latency, a counting-method difference, blocked creatives, or an aggressive refresh interval, and each cause calls for a different fix, so a gap left without an assigned cause stays unresolved. {{voice_recommend}} reading the Prebid auction and rendering data for the affected inventory, separating timeout and latency losses from served-but-not-rendered creatives and counting differences, and recording the source against each out-of-range gap. After the source is assigned, match the fix to the cause and recheck the gap to confirm it has moved back inside tolerance."
+      }
+    }
+  ]
+}

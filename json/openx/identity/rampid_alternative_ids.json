@@ -1,0 +1,168 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Alternative identifiers such as RampID and Unified ID 2.0 are how a publisher stays addressable to buyers as third-party cookies fade, so a misconfigured or absent ID can thin out the demand that bids on a publisher's inventory. The check is a review of the identity setup the publisher already runs in OpenX and the header-bidding wrapper, so it costs reading and console time rather than a rebuild. The finding points to a concrete configuration fix, whether that is a placement ID that was never set, an envelope that is not refreshing, or two ID solutions firing without the consent each one needs.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Alternative identifiers carry a person-based or token-based signal into the bid request so buyers can target and measure without a third-party cookie. On OpenX, a publisher commonly passes RampID (LiveRamp), Unified ID 2.0 (UID2) and the European Unified ID (EUID), and other addressability IDs, often through OpenAudience (OpenX's identity and audience graph) alongside a Prebid-compatible header-bidding wrapper. This subcategory is about whether those IDs are configured correctly and actually reaching the auction, and whether running several of them at once creates conflicts or consent gaps. These checks confirm that each ID the publisher relies on is set up, passing into the bid stream, and carrying the consent signal it requires.",
+  "audit_checks": [
+    {
+      "id": "openx-rampid-alternative-ids-not-configured-or-passing",
+      "title": "RampID and other alternative IDs are not configured or not passing into the bid stream",
+      "category": "identity",
+      "subcategory": "rampid_alternative_ids",
+      "impact_score": 3,
+      "impact_rationale": "An alternative ID that is missing, misconfigured, or not reaching the auction removes the addressability signal buyers use to bid, so cookieless inventory competes with fewer interested bidders and clears lower. The loss is silent because the auction still runs and impressions still fill, just at a thinner price than the inventory could command with the ID present.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "privacy"],
+      "educate": {
+        "base": "An alternative identifier is a stable signal a publisher attaches to a user so buyers can recognize and value that user without relying on a third-party cookie. RampID (LiveRamp) is a person-based identifier, while Unified ID 2.0 (UID2) and the European Unified ID (EUID) are token-based identifiers derived from an authenticated email or phone number. On OpenX, a publisher often manages these through OpenAudience (OpenX's identity and audience graph) and passes them into the auction through a Prebid-compatible header-bidding wrapper. When the ID is present in the bid request, buyers can target and measure against it. When it is absent, the impression looks anonymous and draws thinner demand.<br><br>Each ID has its own setup that has to be right before it can pass. RampID in a Prebid wrapper runs through the 'identityLink' user ID submodule, which needs a Placement ID issued by LiveRamp Console and a storage configuration that holds the RampID envelope and refreshes it on a schedule. LiveRamp's documentation recommends refreshing the envelope every 30 minutes so demand partners receive an ID encrypted with the current key and the up-to-date privacy signals. UID2 and EUID need a token generated from an authenticated identifier and refreshed before it expires. A placement ID left at a sample value, an envelope that never refreshes, or a token that has gone stale all produce the same outcome, which is an ID that does not reach the buyer.<br><br>The audit question is whether each ID the publisher relies on is configured correctly and actually present in the outgoing bid request, not just enabled in a settings panel. Enabling a module is not the same as the ID arriving in the auction since a registration gap, a storage misconfiguration, or a consent block can stop the value before it leaves the page.<br><br>A few signs point to an alternative ID that is configured but not passing:<ul><li>The header-bidding wrapper lists an ID module as active, but a bid request inspection shows no corresponding identifier in the user EIDs</li><li>The RampID Placement ID is blank, set to a sample value, or the envelope storage shows no refresh activity</li><li>A UID2 or EUID token is present but expired, so it is ignored downstream</li><li>The publisher cannot say which IDs are live and reaching buyers versus enabled in name only</li></ul>You may want to confirm that each alternative ID is both configured correctly and present in a live bid request. One approach is to inspect the outgoing bid request for the expected identifiers and check each ID's registration, storage, and refresh settings against its documentation.",
+        "site_type_overlays": {
+          "publishing": "A media site with a registration wall or newsletter sign-in has an authenticated email it can use to generate UID2 or EUID tokens, which makes those token-based IDs more available than on an anonymous site. You may want to confirm the authenticated audience is actually feeding token generation rather than being collected and left unused, so the addressability the logins make possible reaches the auction.",
+          "ecommerce": "A commerce-content site collects email at checkout and account creation, which gives it a strong base for token-based IDs like UID2 on its higher-intent shopping pages. You may want to confirm those authenticated identifiers flow into ID generation on the commercial inventory specifically, where the addressability signal is worth the most to buyers."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "LiveRamp RampID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/ramp.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "User ID Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userId.html"
+          },
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Publishers Overview",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-publishers"
+          }
+        ],
+        "learn_more_note": "OpenX's detailed configuration documentation for OpenAudience and identity setup is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which alternative IDs the publisher intends to run, then confirm each one is configured correctly and actually present in a live outgoing bid request.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Header-bidding wrapper configuration",
+              "steps": [
+                "List the alternative IDs the publisher relies on, e.g., RampID, UID2, and EUID, and note which the business expects to be live.",
+                "Open the wrapper's user ID configuration and confirm each expected ID has an active module with its required parameters filled in, e.g., a real RampID Placement ID rather than a sample value.",
+                "For RampID, check the storage name, expiry, and refresh interval against LiveRamp's documentation, and confirm the envelope shows recent refresh activity.",
+                "For UID2 and EUID, confirm a token is being generated from an authenticated identifier and refreshed before it expires."
+              ]
+            },
+            "bid_request_inspection": {
+              "label": "Bid request inspection (browser devtools)",
+              "steps": [
+                "Load a page that serves OpenX inventory and open the browser's network panel.",
+                "Find the outgoing bid request and inspect the user EIDs section for the identifiers the publisher expects to be present.",
+                "Record which expected IDs appear in the live request and which are missing despite being enabled in the wrapper.",
+                "Note any ID that is present but malformed or expired because those are ignored downstream the same as a missing ID."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each alternative ID the publisher relies on, whether it is configured correctly and whether it appears in a live outgoing bid request. A setup where every intended ID is configured and present in the request passes. A setup where an ID is enabled in the wrapper but absent from the bid request, or where a required parameter such as the RampID Placement ID is blank or set to a sample value, is a fail recorded with the specific ID and the gap found.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each alternative ID's configuration and whether it appears in a live bid request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} relies on alternative identifiers, e.g., RampID and Unified ID 2.0 (UID2), that are not fully configured or not reaching the auction, so the addressability signal buyers use is missing from part of the bid stream. An ID that is enabled in the wrapper but absent from the outgoing bid request, or one whose Placement ID or token was never set correctly, leaves the impression looking anonymous and drawing thinner demand. {{voice_recommend}} inspecting a live bid request for each expected identifier, then correcting the registration, storage, and refresh settings for any ID that is configured but not passing. After the fix, re-inspect the bid request to confirm each intended ID now reaches buyers."
+      }
+    },
+    {
+      "id": "openx-rampid-alternative-ids-conflicting-or-missing-consent",
+      "title": "Multiple ID solutions conflict, duplicate, or run without the consent each requires",
+      "category": "identity",
+      "subcategory": "rampid_alternative_ids",
+      "impact_score": 3,
+      "impact_rationale": "Running several alternative IDs at once without coordination can fire an ID under a consent state it does not have the basis for, which is a privacy exposure, or can pass duplicate and conflicting identifiers that add page weight and muddy the signal without adding reach. Either way the publisher carries cost or risk that careful per-ID consent gating and de-duplication would remove.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "A publisher rarely runs a single alternative ID. The common pattern is several at once, e.g., RampID (LiveRamp) alongside Unified ID 2.0 (UID2) and the European Unified ID (EUID), so the inventory stays addressable across the different buyers that prefer different identifiers. Running several IDs is reasonable, but it has to be coordinated since each ID is a separate data flow with its own legal basis and its own trigger conditions.<br><br>Consent is where the coordination matters most. In a header-bidding wrapper, the User ID module is built to respect the consent signal, and Prebid's documentation states that if no consent string is available, or the user has not consented to Purpose 1 for local storage, calls to an external user ID vendor are not made. That gate only works if each ID is wired to read the right signal. RampID, UID2, and EUID can rest on different legal bases in different regions, and EUID in particular is built for the European consent context. An ID that fires before the consent management platform has resolved the user's choice, or one that ignores a region's privacy string, becomes a privacy exposure rather than an addressability gain. The Global Privacy Platform (GPP) is the IAB Tech Lab framework that carries these region-specific consent strings, so the consent signal each ID reads should trace back to a current GPP or Transparency and Consent Framework (TCF) string.<br><br>Duplication is the second problem. Two modules configured to produce the same identifier, or an ID passed twice through different paths, add page weight and send conflicting or redundant values into the auction without widening reach. That dilutes the signal buyers receive and slows the page for no gain.<br><br>A few signs point to ID solutions that conflict or run without proper consent:<ul><li>An alternative ID fires before the consent management platform has returned a decision, or in a region whose privacy string it does not read</li><li>The same identifier reaches the auction through more than one module or path, producing duplicate user EIDs</li><li>Two ID modules are configured against the same source in a way that produces conflicting values</li><li>No record shows which legal basis or consent purpose each ID relies on per region</li></ul>You may want to confirm that each alternative ID fires only when the consent it relies on is present and that no two IDs duplicate or conflict in the bid request. One approach is to test the page under consented and non-consented states and inspect which IDs fire in each, then check the bid request for duplicate identifiers.",
+        "site_type_overlays": {
+          "publishing": "A media site with readers across several regions has to handle different consent regimes on the same inventory, e.g., a European reader under the Transparency and Consent Framework and a United States reader under a state privacy string. You may want to confirm each alternative ID reads the right regional signal so a European visitor's IDs gate on that European framework's consent while a United States visitor's gate on the applicable Global Privacy Platform string for that state.",
+          "ecommerce": "A commerce-content site that collects email at checkout has a strong basis for token-based IDs, but that authenticated data still needs the right consent before it generates a UID2 or EUID token. You may want to confirm the consent captured at sign-in or checkout actually covers ID generation for advertising, so the token rests on a consent the user gave rather than an assumption."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "User ID Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userId.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform Specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform"
+          },
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Publishers Overview",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-publishers"
+          }
+        ],
+        "learn_more_note": "OpenX's detailed configuration documentation for coordinating identity solutions in OpenAudience is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review how the active alternative IDs interact, testing whether each fires only under the consent it relies on and whether any identifier reaches the auction more than once.",
+        "tools": {
+          "free": {
+            "consent_state_testing": {
+              "label": "Consent-state testing (browser devtools)",
+              "steps": [
+                "Identify every alternative ID the publisher runs, e.g., RampID, UID2, and EUID, and note which regions each is meant to serve.",
+                "Load the page in a non-consented state and record which IDs still fire because any ID that fires before or against a refused consent is a gap.",
+                "Load the page in a consented state and confirm each ID fires only when its required purpose or legal basis is present.",
+                "Check that the consent signal each ID reads traces back to a current Global Privacy Platform (GPP) or Transparency and Consent Framework (TCF) string for the user's region."
+              ]
+            },
+            "bid_request_inspection": {
+              "label": "Bid request inspection (browser devtools)",
+              "steps": [
+                "Inspect the outgoing bid request and list every identifier in the user EIDs section.",
+                "Record any identifier that appears more than once or arrives through more than one module or path, which signals duplication.",
+                "Note any two modules configured against the same source that produce conflicting values."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each alternative ID, whether it fires only under the consent it relies on and whether the bid request shows any duplicate or conflicting identifier. A setup where every ID is gated on the correct regional consent signal and no identifier duplicates passes. A setup where an ID fires without its required consent, or where the same identifier reaches the auction through more than one path, is a fail recorded with the ID and the consent or duplication gap found.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each ID's consent gating and any duplicate identifiers in the bid request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs several alternative identifiers, e.g., RampID and Unified ID 2.0 (UID2), without coordinating their consent gating and de-duplication, so an ID can fire without the consent it relies on or the same identifier can reach the auction more than once. An ID that fires before the consent management platform resolves a user's choice is a privacy exposure, and a duplicated identifier adds page weight and conflicting signal without widening reach. {{voice_recommend}} testing the page under consented and non-consented states to confirm each ID gates on the correct regional signal, then inspecting the bid request to remove any duplicate or conflicting identifier. After the change, re-test both states to confirm each ID fires only when its consent is present and arrives once."
+      }
+    }
+  ]
+}

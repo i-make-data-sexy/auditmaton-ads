@@ -1,0 +1,157 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Creative scanning is the layer that keeps malware, auto-redirects, and policy-violating ads off a publisher's pages, so it protects both revenue and the audience's trust in the property. Index Exchange runs its own exchange-level scanning, but a publisher monetizing through a Prebid header-bidding wrapper can add a real-time defense layer in the wrapper itself, and a creative that slips through unscanned can hijack a session or trip a Better Ads violation that suppresses ads site-wide. The check is a review of the scanning and enforcement a publisher already has in place across the exchange and the wrapper, so it costs reading and configuration time rather than rebuild time, and the finding points to a concrete gap the publisher can close.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Ad quality scanning is the set of controls that inspect the creatives entering a publisher's pages for malware, forced redirects, and policy violations before and after those creatives render. For a publisher selling through Index Exchange (IX) and a Prebid header-bidding wrapper, scanning happens in more than one place. The exchange screens creatives at its own layer, and the wrapper can add a real-time ad-quality module that catches malicious behavior in the page itself. This subcategory looks at whether that scanning is actually enabled across the paths inventory flows through, and whether a creative that gets flagged is acted on rather than left running. These checks confirm the defense is in place and that flags lead to enforcement rather than sitting unread.",
+  "audit_checks": [
+    {
+      "id": "index-exchange-ad-quality-scanning-not-enabled-across-paths",
+      "title": "Creative scanning is not enabled across the exchange and the header-bidding wrapper",
+      "category": "brand-safety",
+      "subcategory": "ad_quality_scanning",
+      "impact_score": 4,
+      "impact_rationale": "A creative carrying malware or a forced redirect that renders on a publisher's page can hijack the user's session, push a scam landing page, or trip a Better Ads violation that suppresses ads across the whole property. Index Exchange scans at the exchange layer, but a header-bidding wrapper carries demand from other paths too, so a publisher relying on a single layer can leave the inventory flowing through the wrapper unscanned in the page itself.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "ad-experience"],
+      "educate": {
+        "base": "Ad quality scanning inspects the creatives that demand sends back for malicious code, forced redirects, and content that breaks policy. A creative can carry a script that pulls the user to a scam page without a click, a heavy payload that slows the page to a crawl, or content that violates the Coalition for Better Ads (CBA) standards. Scanning is the layer that catches those before they reach the audience, and for a publisher selling through Index Exchange (IX) the scanning does not live in only one place.<br><br>Index Exchange runs scanning at the exchange layer. Per its publisher guidelines, IX inspects a creative's embedded code for malicious domains before the ad goes live, alerts its Exchange Quality team to reject anything flagged, and continues to scan active ads after approval so a creative that turns malicious later can be pulled. That covers the demand IX itself brings to the auction.<br><br>A header-bidding wrapper is a different path. When a publisher runs Prebid alongside Index Exchange, the wrapper carries demand from other bidders whose creatives render in the same page. Prebid supports real-time ad-quality modules that screen those creatives in the page itself, blocking malware, forced redirects, and deceptive ads as they try to run. Modules such as the Confiant, GeoEdge, HUMAN Security, and The Media Trust real-time defenses plug into the wrapper for exactly this. A publisher who leans on the exchange layer alone can leave the wrapper path without an in-page defense.<br><br>The audit question covers both paths. A few things confirm scanning is enabled where inventory actually flows:<ul><li>Index Exchange's exchange-level scanning is active on the publisher's account, which is the IX default rather than something the publisher turns on</li><li>A real-time ad-quality module is configured in the Prebid wrapper, screening the creatives other bidders return in the page</li><li>The scanning covers the formats the publisher runs, including display, video, and any in-app inventory, rather than display alone</li></ul>You may want to confirm that scanning is enabled on every path a creative can take to the page, not just the exchange layer. One approach is to list the demand paths feeding the property, then check that each one is covered either by the exchange's own scanning or by a real-time module in the wrapper.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a forced redirect or a deceptive creative does direct damage to the relationship with a returning audience, and a Better Ads violation can suppress ads across the whole property. You may want to confirm a real-time ad-quality module covers the header-bidding wrapper as well as the exchange layer, so a malicious creative from any bidder is blocked in the page before a reader is pulled off-site.",
+          "ecommerce": "On a commerce-content site, a creative that redirects a shopper away from a product page or fakes a system alert can cost a sale and erode trust at the moment of purchase intent. You may want to confirm scanning covers the wrapper path and not only the exchange, so creatives competing for the high-intent placements are screened before they render."
+        },
+        "learn_more": [
+          {
+            "source_type": "Index Exchange Knowledge Base",
+            "source_title": "Inventory quality guidelines",
+            "source_url": "https://kb.indexexchange.com/publishers/guidelines/supply_quality_guidelines.htm"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js Modules (Real-Time Data ad-quality providers)",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "HUMAN Security Malvertising Defense Real-Time Data Submodule",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/humansecurityMalvDefenseRtdProvider.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether creative scanning is active at the exchange layer and whether the Prebid wrapper carries a real-time ad-quality module, and confirm the coverage spans the formats and demand paths the property runs.",
+        "tools": {
+          "free": {
+            "ix_console": {
+              "label": "Index Exchange console",
+              "steps": [
+                "Confirm with Index Exchange, or in the account's quality settings, that exchange-level creative scanning is active for the property and the formats it sells.",
+                "Record which demand paths run through Index Exchange and which run through other bidders in the header-bidding wrapper.",
+                "Note whether the property runs display only or also video and in-app inventory, given that scanning coverage can differ by format."
+              ]
+            },
+            "prebid_config": {
+              "label": "Prebid wrapper configuration",
+              "steps": [
+                "Open the Prebid build or the 'pbjs.setConfig()' call and list the Real-Time Data (RTD) modules enabled.",
+                "Check whether an ad-quality module (e.g., Confiant, GeoEdge, HUMAN Security, or The Media Trust) is present and which formats and bidders it screens.",
+                "Record any demand path in the wrapper that no module covers, which would render creatives in the page without an in-page scan."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether exchange-level scanning is active and whether the Prebid wrapper carries a real-time ad-quality module, mapped against the demand paths and formats the property runs. A setup where every path a creative can take to the page is covered, by the exchange's own scanning or by a module in the wrapper, passes. A setup where the wrapper carries demand with no in-page scanning, or where a format the publisher sells is left uncovered, is a fail recorded with the paths and formats that lack a scan.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether exchange-level scanning is active and whether the wrapper carries an ad-quality module, mapped to each demand path and format, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} relies on exchange-level creative scanning alone, with no real-time ad-quality module in the Prebid header-bidding wrapper, so the demand other bidders return renders in the page without an in-page scan. Index Exchange (IX) screens its own demand at the exchange layer, but the wrapper is a separate path, and a creative carrying malware or a forced redirect from any bidder can hijack a session or trip a Coalition for Better Ads violation that suppresses ads across the property. {{voice_recommend}} adding a real-time ad-quality module to the wrapper, such as one of the Prebid Real-Time Data defenses, and confirming it covers every format and demand path the property runs. After the change, recheck that each path a creative can take to the page is covered by the exchange or the wrapper."
+      }
+    },
+    {
+      "id": "index-exchange-ad-quality-scanning-flags-not-acted-on",
+      "title": "Flagged creatives are not reviewed and acted on",
+      "category": "brand-safety",
+      "subcategory": "ad_quality_scanning",
+      "impact_score": 3,
+      "impact_rationale": "Scanning only protects the audience if a flag leads to action. A creative the exchange or a wrapper module flags for malware, a redirect, or a policy violation keeps running until someone reviews the alert and blocks the buyer or the creative. With no owner and no routine for working the flags, the alerts accumulate while the offending creative continues to serve.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "ad-experience"],
+      "educate": {
+        "base": "A scanner that flags a bad creative has done half the job. The other half is the response, which means reviewing the flag, confirming what tripped it, and blocking the creative or the buyer behind it so the same ad cannot keep serving. A flag that no one works is a malicious or deceptive creative left running on the page while the alert sits unread.<br><br>Index Exchange (IX) handles the response at the exchange layer. Its Exchange Quality team is alerted when the scanner rejects a creative, investigates the reason, and enforces against the buyer. A publisher's review at the IX layer is mostly a matter of watching for any quality notice from IX and following up on inventory that gets restricted. The work the publisher owns directly is the response on the wrapper side.<br><br>When a real-time ad-quality module runs in the Prebid wrapper, it blocks the offending creative in the page and produces a record of what it caught. Modules such as Confiant generate analytics tags that document each scan result, flagging the bids found to carry an issue. Those records are useful only if someone reads them. They tell the publisher which bidders are sending bad creatives and how often. That is the signal a publisher uses to tighten which buyers it accepts, raise the issue with the bidder, or drop a demand path that keeps sending malware.<br><br>The audit question is whether a flag leads anywhere. A few things confirm the response loop is working:<ul><li>Someone owns the ad-quality alerts from both the exchange and the wrapper module, with a routine for reviewing them rather than alerts piling up unread</li><li>A flagged creative or a repeat-offending bidder is actually blocked or escalated, not just logged</li><li>The records from the wrapper module are read often enough to spot a bidder sending bad creatives repeatedly, so the publisher can act on the pattern</li></ul>You may want to confirm that the flags from scanning reach an owner who reviews and acts on them. One approach is to ask who works the ad-quality alerts, how often, and what the last action taken was, then check that a recent flag led to a block or an escalation rather than sitting in a log.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a repeat offender sending forced-redirect creatives through one bidder will keep pulling readers off-site until the pattern is caught and the bidder is blocked or escalated. You may want to confirm someone reviews the wrapper module's records on a regular cadence, so a bidder sending bad creatives repeatedly is identified and acted on rather than tolerated.",
+          "ecommerce": "On a commerce-content site, a deceptive creative that fakes a checkout prompt or redirects a shopper does the most damage on the high-intent pages, so a flag there warrants a fast response. You may want to confirm flagged creatives on the commercial placements are blocked or escalated promptly rather than left to serve while the alert waits for review."
+        },
+        "learn_more": [
+          {
+            "source_type": "Index Exchange Knowledge Base",
+            "source_title": "Inventory quality guidelines",
+            "source_url": "https://kb.indexexchange.com/publishers/guidelines/supply_quality_guidelines.htm"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Confiant Ad Quality Module for Prebid Server",
+            "source_url": "https://docs.prebid.org/prebid-server/pbs-modules/confiant-ad-quality.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review who owns the ad-quality alerts from the exchange and the wrapper module, how often they are worked, and whether a recent flag led to a block or escalation.",
+        "tools": {
+          "free": {
+            "ix_console": {
+              "label": "Index Exchange console",
+              "steps": [
+                "Check for any ad-quality or inventory-quality notices from Index Exchange on the account and confirm someone monitors them.",
+                "Ask the publisher who follows up when Index Exchange restricts inventory or flags a quality issue, and record the most recent example and the action taken."
+              ]
+            },
+            "prebid_config": {
+              "label": "Prebid wrapper module reporting",
+              "steps": [
+                "Open the analytics or reporting the wrapper's ad-quality module produces, such as the analytics tags from a Confiant integration, and locate the record of flagged bids.",
+                "Identify whether any bidder shows repeated flags, and ask whether that bidder has been blocked, escalated, or left running.",
+                "Record who reviews these records, on what cadence, and the last action taken in response to a flag."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records who owns the ad-quality alerts from the exchange and the wrapper module, the review cadence, and a recent example of a flag and its outcome. A response loop where an owner reviews the flags on a routine and a recent flag led to a block or escalation passes. A setup where no one owns the alerts, or where flagged creatives and repeat-offending bidders keep serving with the alerts unread, is a fail recorded with the unworked flags and the demand paths involved.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record who owns the ad-quality alerts, the review cadence, and a recent flag and its outcome above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the ad-quality flags from {{site_name}}, whether from Index Exchange (IX) or from the wrapper's real-time module, are not reviewed and acted on, so a flagged creative or a repeat-offending bidder can keep serving while the alerts sit unread. Scanning protects the audience only when a flag leads to a block or an escalation, and the records the wrapper module produces are the signal that shows which bidders send bad creatives and how often. {{voice_recommend}} assigning an owner to the ad-quality alerts from both the exchange and the wrapper, setting a routine to review them, and confirming that a recent flag led to a block or an escalation rather than sitting in a log. After the change, recheck that flagged creatives and repeat offenders are acted on rather than tolerated."
+      }
+    }
+  ]
+}

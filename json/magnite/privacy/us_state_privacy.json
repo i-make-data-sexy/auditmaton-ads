@@ -1,0 +1,152 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "US state privacy laws give a consumer the right to opt out of the sale or sharing of their personal data, and the way that choice reaches a sell-side platform (SSP) like Magnite is through a privacy string carried by the Global Privacy Platform. When the right GPP sections are missing, or the opt-out inside them is not honored downstream, a publisher can pass impressions to demand that the consumer asked to be excluded from, which is a legal exposure rather than a yield question. The check is a review of the consent signal a publisher already passes, so it costs reading and a test request rather than rebuild time, and the finding points to a concrete wiring fix in the consent management platform (CMP) or the path to Magnite.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "A consumer's opt-out of the sale or sharing of personal data under a US state privacy law only protects them if the signal carrying that choice reaches the demand a publisher works with. The Global Privacy Platform (GPP) is the IAB Tech Lab protocol that carries those signals, with a US national section for Multi-State Privacy Agreement (MSPA) signatories and per-state sections for the rest, alongside the legacy US Privacy string that some integrations still read. This subcategory is about whether the publisher's setup passes the correct GPP sections to Magnite and whether the opt-out inside them is honored in the signal Magnite forwards to demand, so the consumer's choice is respected end to end rather than collected and then dropped.",
+  "audit_checks": [
+    {
+      "id": "magnite-us-state-privacy-gpp-sections-not-passed",
+      "title": "US national and state GPP sections are not passed to Magnite",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "If the GPP sections that carry a consumer's opt-out never reach Magnite, the opt-out cannot be applied on the impressions sent to demand, so a publisher can sell or share data the consumer asked to keep private. That is a compliance and legal exposure across every state whose section is missing, not a revenue trade, which puts it above a routine hygiene finding.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "US state privacy laws, starting with the California Consumer Privacy Act (CCPA) as amended by the California Privacy Rights Act (CPRA) and now joined by laws in many other states, give a consumer the right to opt out of the sale or sharing of their personal data. For that opt-out to mean anything on a programmatic impression, the choice has to travel from the consumer to the demand a publisher works with. The Global Privacy Platform (GPP) is the IAB Tech Lab protocol that carries that choice as an encoded string, and a sell-side platform (SSP) like Magnite reads the relevant GPP section to decide how an impression may be offered.<br><br>The GPP is built in sections. The Multi-State Privacy Agreement (MSPA) US National section covers signatories who handle data under the national approach, and there are per-state sections for publishers who signal at the state level instead. Some integrations also still read the legacy US Privacy string, which predates the GPP and used a separate consent management platform (CMP) interface. The publisher's CMP encodes the consumer's choice into whichever sections apply, and the path to Magnite has to carry those sections so the SSP receives the signal rather than an empty value.<br><br>The exposure appears when a section the consumer's state requires is never passed. If the CMP encodes a California opt-out but the path to Magnite forwards no GPP string, or forwards a string whose section identifier list omits California, Magnite has no opt-out to apply and may offer the impression to demand the consumer asked to be excluded from. The signal was collected at the CMP and then dropped before it reached the SSP, so the consumer's choice never took effect downstream.<br><br>A few signs point to GPP sections not reaching Magnite:<ul><li>A test request to a Magnite-integrated page shows no GPP string, or a GPP string whose section list omits the states the publisher's audience covers</li><li>The CMP is configured for the US national section only while the publisher signals at the state level, or the reverse, so the section that applies is not the one being passed</li><li>The legacy US Privacy string is the only signal present on integrations that have since moved to GPP, leaving newer state sections unrepresented</li></ul>You may want to confirm that the GPP sections the publisher's states require are present in the signal Magnite receives. One approach is to capture the GPP string on a live request and read its section list against the states the audience covers.",
+        "site_type_overlays": {
+          "publishing": "On a media site, audience often spans many states, so the GPP signal needs to carry whichever sections apply to the readers actually served rather than a single state's section. You may want to confirm the CMP is encoding the US national or per-state sections that match the audience footprint, and that the path to Magnite forwards them, so a reader in a state with an opt-out law is covered rather than left out of the string.",
+          "ecommerce": "On a commerce-content site, the same shopper may be known from account or purchase data, which raises the stakes of an opt-out being honored on the programmatic impression. You may want to confirm the GPP sections reach Magnite for the states where shoppers are served, so an opt-out of sale or sharing applies to the ad request and not only to the first-party records the site keeps."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform (GPP)",
+            "source_url": "https://iabtechlab.com/gpp/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "US State Signals",
+            "source_url": "https://iabtechlab.com/us-state-signals/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - GPP for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Capture the GPP signal on a live request to a Magnite-integrated page and read which sections are present against the states the publisher's audience covers.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open a page that runs the Magnite integration in the browser, then open the developer tools and the 'Network' panel.",
+                "Filter the requests for the SSP or the header-bidding wrapper, open an ad request, and find the GPP string and its section identifier list in the request payload.",
+                "Read the section list and confirm whether it includes the Multi-State Privacy Agreement (MSPA) US national section or the per-state sections that match the audience, and whether a legacy US Privacy string is present in place of GPP.",
+                "Record any state whose section the audience requires but the string omits, and note whether the path to Magnite forwards a GPP string at all."
+              ]
+            },
+            "cmp_console": {
+              "label": "Consent management platform settings",
+              "steps": [
+                "Open the CMP configuration and record which GPP sections it is set to encode, the US national section, the per-state sections, or both.",
+                "Confirm the CMP passes the GPP string into the header-bidding wrapper or the path that reaches Magnite, rather than encoding it without forwarding it.",
+                "Note any mismatch where the CMP encodes one approach while the integration to Magnite expects another."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, from a live request, which GPP sections reach Magnite and reads them against the states the publisher's audience covers. A setup where the GPP string carries the US national or per-state sections that match the audience, forwarded through to Magnite, passes. A setup where a required section is absent, where no GPP string reaches the SSP, or where only the legacy US Privacy string is present on an integration that should pass GPP, is a fail recorded with the states and the path affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which GPP sections reach Magnite and the states the audience covers above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not pass the US national or per-state Global Privacy Platform (GPP) sections that its audience requires through to Magnite, so the opt-out a consumer set in the consent management platform (CMP) may not reach the demand the impression is offered to. A GPP section that never reaches the sell-side platform cannot be applied, which leaves the sale or sharing of data the consumer opted out of unprotected on the programmatic impression. {{voice_recommend}} capturing the GPP string on a live request, reading its section list against the states the audience covers, and correcting the CMP and the path to Magnite so the required sections are encoded and forwarded. After the change, recheck a live request to confirm the sections arrive at the SSP."
+      }
+    },
+    {
+      "id": "magnite-us-state-privacy-opt-out-not-honored",
+      "title": "Opt-out of sale or sharing is not honored in the signal forwarded to demand",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "A GPP section can reach Magnite and still fail to protect the consumer if the opt-out fields inside it are not set or not carried forward to demand. An impression offered to demand without the opt-out applied sells or shares data the consumer asked to withhold, which is a legal exposure that the presence of the string alone does not resolve.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Passing the right Global Privacy Platform (GPP) section to Magnite is the first half of honoring a consumer's choice. The second half is the content of that section. Within the Multi-State Privacy Agreement (MSPA) US national section and the per-state sections, specific fields carry the opt-out, including a sale opt-out and a targeted-advertising opt-out, plus a Global Privacy Control (GPC) sub-signal that some browsers send automatically. A section that reaches the sell-side platform (SSP) with those fields unset reads as no opt-out, so the impression can still be offered to demand for sale or sharing.<br><br>The opt-out also has to survive the hop from the SSP to demand. Magnite reads the GPP signal and forwards a privacy signal to the demand partners it offers the impression to, so a consumer's choice is only honored end to end if the forwarded signal still reflects it. If the opt-out is set in the string the CMP produces but the value Magnite forwards no longer carries it, the impression reaches demand as though the consumer made no choice, which is the same outcome as never passing the section at all.<br><br>The IAB implementation guidance also notes that opt-out fields and the GPC sub-signal can conflict, for example a set GPC alongside an unset sale opt-out, and a recipient is expected to resolve a conflict toward the more limited processing. A setup that ignores the GPC sub-signal, or that lets a conflicting combination through without resolving it conservatively, can offer the impression more broadly than the consumer's combined signals allow.<br><br>A few signs point to an opt-out that is present in name but not honored:<ul><li>A test request from a state with an opt-out set shows the GPP section reaching Magnite while the sale or sharing opt-out field inside it is unset</li><li>The signal Magnite forwards to demand no longer reflects the opt-out the CMP encoded, so the choice is lost on the hop to demand</li><li>A browser sending GPC is not reflected in the opt-out fields, leaving the automatic signal unhonored</li></ul>You may want to confirm that an opt-out set by a consumer is both present in the section Magnite reads and carried through to demand. One approach is to set an opt-out in a test, then read both the GPP fields Magnite receives and the privacy signal it forwards.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a reader who sets an opt-out, or whose browser sends GPC automatically, expects that choice to apply across the ad slots on the page. You may want to test an opt-out from a covered state and confirm the sale and sharing fields Magnite reads are set, so the reader's choice is honored on the programmatic impressions rather than only recorded at the consent management platform (CMP).",
+          "ecommerce": "On a commerce-content site, an opt-out matters most where shopper data could be shared for targeted advertising, so the forwarded signal needs to carry the opt-out to demand and not only the SSP. You may want to confirm that a sale or sharing opt-out set by a shopper survives the hop from Magnite to its demand partners, so the choice applies to the ad request the way it applies to the site's own use of the data."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "US State Signals",
+            "source_url": "https://iabtechlab.com/us-state-signals/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "GPP Control Module - USNat string",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/gppControl_usnat.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Set an opt-out in a test from a covered state, then read both the GPP fields Magnite receives and the privacy signal it forwards to demand to confirm the choice survives both steps.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "On a page running the Magnite integration, set an opt-out of sale or sharing through the consent management platform (CMP), or use a browser that sends Global Privacy Control (GPC).",
+                "Open the developer tools 'Network' panel, find the ad request to the SSP or the header-bidding wrapper, and read the GPP section fields for the sale opt-out, the targeted-advertising opt-out, and the GPC sub-signal.",
+                "Confirm the opt-out fields reflect the choice that was set rather than reading as unset, and note any conflict between the GPC sub-signal and the opt-out fields.",
+                "Record whether the privacy signal that leaves Magnite toward demand still carries the opt-out, or whether the choice is dropped on the hop to demand."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner sets an opt-out in a test and records whether the GPP fields Magnite receives reflect it and whether the signal Magnite forwards to demand still carries it. A setup where the sale and sharing opt-out fields are set, any Global Privacy Control (GPC) conflict resolves toward more limited processing, and the forwarded signal preserves the opt-out passes. A setup where the opt-out field is unset, the GPC sub-signal is ignored, or the forwarded signal drops the opt-out is a fail recorded with the step where the choice is lost.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the opt-out reaches Magnite's GPP fields and survives in the signal forwarded to demand above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that an opt-out of sale or sharing set on {{site_name}} is not honored in the signal Magnite forwards to demand, so a consumer's choice is recorded at the consent management platform (CMP) but not applied where the impression is offered. The Global Privacy Platform (GPP) section can reach the sell-side platform with the opt-out fields unset, or the opt-out can be dropped on the hop from Magnite to demand, and either way the impression reaches demand as though no choice was made. {{voice_recommend}} testing an opt-out from a covered state, confirming the sale and sharing fields Magnite reads are set, resolving any Global Privacy Control (GPC) conflict toward more limited processing, and checking that the forwarded signal preserves the opt-out. After the change, repeat the test to confirm the choice survives to demand."
+      }
+    }
+  ]
+}

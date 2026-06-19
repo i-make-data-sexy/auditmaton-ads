@@ -50,7 +50,7 @@ class Config:
     REMEMBER_COOKIE_SAMESITE = "Lax"
 
     # Route prefix for deployment behind reverse proxy
-    APPLICATION_ROOT = os.environ.get("APPLICATION_ROOT", "/tools/auditmaton/ads-audits")
+    APPLICATION_ROOT = os.environ.get("APPLICATION_ROOT", "/tools/auditmaton/ad-audits")
 
     # Firebase Authentication (client-side JS SDK config)
     FIREBASE_API_KEY = os.environ.get("FIREBASE_API_KEY", "")

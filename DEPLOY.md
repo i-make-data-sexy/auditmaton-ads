@@ -37,11 +37,11 @@ If the current branch has unmerged work Annie has not yet signed off on, **STOP 
 ```
 APP_NAME=          auditmaton-ads
 APP_DISPLAY_NAME=  Auditmaton: Ads
-STAGING_PORT=      8020
-PROD_PORT=         8021
-APP_PATH_SEGMENT=  tools/auditmaton/ads-audits
-BASE_URL_PROD=     https://www.annielytics.com/tools/auditmaton/ads-audits
-BASE_URL_STAGING=  https://staging.annielytics.com/tools/auditmaton/ads-audits
+STAGING_PORT=      8022
+PROD_PORT=         8023
+APP_PATH_SEGMENT=  tools/auditmaton/ad-audits
+BASE_URL_PROD=     https://www.annielytics.com/tools/auditmaton/ad-audits
+BASE_URL_STAGING=  https://staging.annielytics.com/tools/auditmaton/ad-audits
 HAS_DATABASE=      yes        # confirm DB name before the first server deploy
 DB_NAME=           auditmaton_ads   # CONFIRM — may differ from scaffold
 ```
@@ -75,8 +75,11 @@ DB_NAME=           auditmaton_ads   # CONFIRM — may differ from scaffold
 | 8017 | Conversion Canvas (Auditmaton: Analytics) | production |
 | 8018 | Auditmaton: Tag Management | staging |
 | 8019 | Auditmaton: Tag Management | production |
-| 8020 | **Auditmaton: Ads** | **staging** |
-| 8021 | **Auditmaton: Ads** | **production** |
+| 8020 | Vinspire| staging |
+| 8021 | Vinspire | production |
+| 8022 | **Auditmaton: Ads** | **staging** |
+| 8023 | **Auditmaton: Ads** | **production** |
+
 
 > After deploying, keep this table in sync with the master in Cloud Kingdom's DEPLOY.md.
 
@@ -149,10 +152,10 @@ systemd:      auditmaton-ads-staging.service  /  auditmaton-ads.service
 
 1. **Branch + merge:** ensure work is merged to `main` (Rule #1), push.
 2. **Staging:** `git pull` on `~/apps/staging/auditmaton-ads/`, `pip install -r requirements.txt` in the 3.11 venv, restart `auditmaton-ads-staging`.
-3. **Nginx block** for `/tools/auditmaton/ads-audits/` → `127.0.0.1:8020` (staging) with `X-Forwarded-Prefix` + `X-Script-Name` set to the path segment; `sudo nginx -t && sudo systemctl reload nginx`.
+3. **Nginx block** for `/tools/auditmaton/ad-audits/` → `127.0.0.1:8022` (staging) with `X-Forwarded-Prefix` + `X-Script-Name` set to the path segment; `sudo nginx -t && sudo systemctl reload nginx`.
 4. **systemd `SCRIPT_NAME`** must match the path segment, or gunicorn 500s with a SCRIPT_NAME-mismatch error. `daemon-reload` after editing the unit.
 5. **✅ Wait for Annie's sign-off on staging before prod.** Never deploy prod unprompted.
-6. **Prod:** repeat on `~/apps/auditmaton-ads/` with port 8021 and the prod nginx/systemd files.
+6. **Prod:** repeat on `~/apps/auditmaton-ads/` with port 8023 and the prod nginx/systemd files.
 
 > The full step-by-step (venv, nginx block, systemd unit templates, troubleshooting) is identical to Cloud Kingdom's DEPLOY.md Parts 1–2 — follow that for the mechanics; this file owns the Auditmaton-specific variables, invariants, and the branch rule.
 

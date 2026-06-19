@@ -220,7 +220,7 @@ def create_app(config_class=None):
 
         Templates use {{ app_root }} to prefix hardcoded URLs so links
         work correctly when the app is mounted behind a reverse proxy
-        at /tools/auditmaton/ads-audits/.
+        at /tools/auditmaton/ad-audits/.
 
         Strip any trailing slash so templates that write `{{ app_root }}/x`
         never produce a double slash. In particular, a local APPLICATION_ROOT

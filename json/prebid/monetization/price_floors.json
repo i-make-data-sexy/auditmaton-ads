@@ -1,0 +1,234 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://docs.prebid.org/dev-docs/modules/floors.html",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Floor pricing in Prebid.js decides the price a header-bidding bid has to beat, so it sets the line between filling an impression and protecting what the impression is worth. A floor that runs on one flat number, or one that fights the publisher's ad-server floor, can suppress demand or leave value uncollected without anyone noticing. The check is a review of the Price Floors module config a publisher already runs in their pages, so it costs reading time rather than rebuild time, and the finding points to a concrete pricing decision the publisher can test with the module's own skipRate measurement.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "The Prebid.js Price Floors module sets the minimum CPM a header-bidding bid must meet, which decides where the line falls between filling more impressions and protecting the value of each one. This subcategory is about the floor strategy itself, the values chosen and how they are applied through the module, rather than the ad server's own floors that sit downstream. These checks confirm that the floors are a deliberate, evidence-based choice rather than one flat number accepted by default, and that the Prebid floor config does not work against the floors the ad server already enforces.",
+  "audit_checks": [
+    {
+      "id": "prebid-price-floors-not-segmented",
+      "title": "A single flat floor is applied instead of floors segmented by inventory and format",
+      "category": "monetization",
+      "subcategory": "price_floors",
+      "impact_score": 3,
+      "impact_rationale": "A single flat floor across every ad unit, size, and media type ignores that some placements and formats clear at higher prices than others. A flat floor either underprices the strong inventory, leaving revenue uncollected, or overprices the weak inventory, suppressing bids that would have cleared lower, so one number cannot serve inventory whose value varies.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "yield",
+        "inventory"
+      ],
+      "educate": {
+        "base": "A floor price works best when it matches what the impression is worth, and impressions are not worth the same across a publisher's inventory. An above-the-fold unit on a high-engagement page clears higher than a unit far down a thin page. A video slot carries different demand and a different clearing price from a small display banner. A floor set as one flat number across all of this cannot fit inventory whose value varies along every one of those lines.<br><br>The Prebid.js Price Floors module is built to express those differences. A publisher defines a floor schema keyed to the dimensions that move clearing price, e.g., 'mediaType', 'size', 'gptSlot', 'adUnitCode', and 'domain', then supplies a values object that maps each combination to its own floor CPM. The module also supports a wildcard rule written as '*', which acts as the fallback floor when no more specific rule matches. A setup that defines only the wildcard, or one rule for everything, is the flat-floor case in module form.<br><br>The cost of a flat floor cuts both ways. Set it to the average and it sits below the strong inventory, so bids that could have cleared higher clear at the floor and the difference is left uncollected. Set it higher to protect the strong inventory and it sits above the weak inventory, so bids that would have won at a lower price are rejected and the impression goes unfilled. Either way, one number serves the middle and misprices the ends.<br><br>A few signs point to floors that are not segmented:<ul><li>The Price Floors config defines a single floor, or only the '*' wildcard rule, with no breakout by ad unit, size, or media type</li><li>Bid data shows winning prices that differ widely across placements and formats while the floor stays the same for all of them</li><li>Premium placements clear at or near the same floor as filler inventory, which suggests the floor is not protecting their value</li></ul>You may want to confirm that the floor schema reflects the price differences the inventory actually shows. One approach is to read average winning CPM by ad unit, size, and media type, then build floor rules that follow those differences rather than a single number across the board.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a homepage or section-front placement usually clears higher than an article-footer unit, and a video slot clears higher than a sidebar banner. You may want to key the Price Floors schema to 'gptSlot' or 'adUnitCode' and 'mediaType' so the premium placements and video hold their value while the lower-value display units keep a floor low enough to stay filled.",
+          "ecommerce": "On a commerce-content site, product and category pages reach an audience closer to a purchase and clear higher than editorial pages. You may want to segment Prebid floors by 'adUnitCode' so the commercial, higher-intent inventory carries a higher floor than the editorial inventory rather than sharing one wildcard floor across the whole site."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Module - Price Floors for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/floors.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Video Intro to Floors for Prebid.js and Prebid Server",
+            "source_url": "https://docs.prebid.org/dev-docs/floors-video-overview.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the Price Floors module config on the page to see whether the floor schema breaks out by inventory and format or whether one flat floor covers everything, then compare it against the winning prices the inventory actually shows.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console",
+              "steps": [
+                "Load a page that runs Prebid and open the browser developer console.",
+                "Run 'pbjs.getConfig(\"floors\")' to read the active Price Floors config, and note the schema fields and the values object that map rule combinations to floor CPMs.",
+                "Record whether the schema breaks out by 'mediaType', 'size', 'adUnitCode', or 'gptSlot', or whether only a single floor or the '*' wildcard rule is defined.",
+                "Run 'pbjs.getBidResponses()' across a sample of refreshes to read the winning CPMs by ad unit and format, and note how widely they vary."
+              ]
+            },
+            "analytics_reporting": {
+              "label": "Header-bidding analytics or reporting",
+              "steps": [
+                "Build a report broken out by ad unit, then by size, then by media type, with average winning CPM and win rate.",
+                "Compare the average clearing price across those dimensions to see how much it varies between strong and weak inventory.",
+                "Note any case where winning prices differ widely but the floor stays the same, which points to inventory that a segmented floor could price more accurately."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the floor schema and values from the Price Floors config alongside the average winning CPM for each ad unit, size, and media type. Floors that follow the value differences the bid data shows, with higher floors on inventory that clears higher and lower floors on inventory that clears lower, pass. A single flat floor, or a config with only the '*' wildcard rule, applied across inventory whose winning prices differ widely is a fail recorded with the dimensions where the floor and the value diverge.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the Price Floors schema and the average winning CPM by ad unit, size, and media type above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs the Prebid.js Price Floors module with a single flat floor across inventory whose value differs by ad unit, size, and media type. A flat floor either underprices the strong inventory, leaving revenue uncollected, or overprices the weak inventory, rejecting bids that would have cleared lower, so one number cannot fit inventory that wins at different prices. {{voice_recommend}} reading the average winning CPM by ad unit, size, and media type, then building a floor schema keyed to those dimensions that carries higher floors on the inventory that clears higher and lower floors on the inventory that clears lower. After the change, recheck win rate and average price across the segments to confirm the floors fit the value of each."
+      }
+    },
+    {
+      "id": "prebid-price-floors-not-measured-with-skiprate",
+      "title": "Floors run without measuring their effect through skipRate",
+      "category": "monetization",
+      "subcategory": "price_floors",
+      "impact_score": 2,
+      "impact_rationale": "The Price Floors module includes skipRate so a publisher can hold out a slice of auctions with floors turned off and read the difference, but a floor strategy chosen without that measurement is an untested guess. Whether dynamic or fixed, a floor set without a holdout comparison cannot be shown to raise revenue rather than suppress demand, so the publisher cannot tell whether the floors are helping or costing fill.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "yield",
+        "inventory"
+      ],
+      "educate": {
+        "base": "Floors trade fill for price. A higher floor protects the value of an impression but rejects the bids that fall below it, and a lower floor fills more impressions but may clear below what the inventory was worth. The right floor is the one where the gain in price across the impressions that still clear is larger than the revenue lost on the impressions the floor rejected. That balance cannot be reasoned out in advance. It has to be measured.<br><br>The Prebid.js Price Floors module is built to measure it. The 'skipRate' setting takes an integer from 0 through 100 and skips all floor logic for that percentage of auctions at random, where 0 always applies the floor data and 100 always skips it. Setting skipRate to a value such as 10 holds out roughly one auction in ten with floors turned off, which gives the publisher a control group. Reading revenue, win rate, and average CPM across the floored auctions versus the skipped ones shows whether the floors are adding value or suppressing demand. The module attaches a 'modelVersion' to the floor data so this comparison can be tied back to a specific floor model in the publisher's analytics.<br><br>The module also exposes 'floorMin', a global minimum applied as of Prebid.js 4.13. As the documentation describes it, the module takes the greater of floorMin and the matched rule floor when it evaluates a bid, so floorMin is a safety net that keeps any floor from falling below a price the publisher will not go under. A publisher leaning on a dynamic floors provider may still want floorMin set so the automated floor cannot clear inventory below the publisher's own walk-away price.<br><br>A few signs point to floors running without measurement:<ul><li>The Price Floors config sets skipRate to 0, or omits it, so every auction is floored and no holdout control group exists</li><li>No before-and-after read or holdout comparison is on record showing how revenue and win rate moved when floors were applied versus skipped</li><li>The publisher cannot say why the current floor values were chosen beyond a provider default or a one-time guess</li></ul>You may want to confirm that the floor strategy was chosen on evidence rather than by default. One approach is to set skipRate to a small holdout percentage, tag the floor model with a 'modelVersion', and read the floored auctions against the skipped ones before settling on the floors.",
+        "site_type_overlays": {
+          "publishing": "On a media site, demand can swing widely between a breaking-news traffic spike and a quiet weekend, so a floor that looked right one week can suppress fill the next. You may want to keep a skipRate holdout running continuously rather than as a one-time test, so the floored-versus-skipped read stays current as demand shifts across the publishing calendar.",
+          "ecommerce": "On a commerce-content site, demand rises and falls with the buying season, so a floor tuned in a slow month can leave revenue uncollected during a peak. You may want to re-read the skipRate holdout around seasonal demand shifts so the floors track the higher clearing prices a peak brings rather than holding a level set during a trough."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Module - Price Floors for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/floors.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Video Intro to Floors for Prebid.js and Prebid Server",
+            "source_url": "https://docs.prebid.org/dev-docs/floors-video-overview.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the skipRate, floorMin, and modelVersion settings in the Price Floors config, then look for any holdout comparison that reads floored auctions against skipped ones.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console",
+              "steps": [
+                "Load a page that runs Prebid and open the browser developer console.",
+                "Run 'pbjs.getConfig(\"floors\")' and record the 'skipRate', 'floorMin', and 'modelVersion' values from the active config.",
+                "Note whether skipRate is 0 or omitted, which means no holdout group exists, and whether floorMin is set as a walk-away safety net.",
+                "Run 'pbjs.getEvents()' to inspect auction events and confirm whether floor data is being applied or skipped on individual auctions."
+              ]
+            },
+            "analytics_reporting": {
+              "label": "Header-bidding analytics or reporting",
+              "steps": [
+                "If a skipRate holdout is running, build a report that splits auctions into floored and skipped groups, keyed by the 'modelVersion' tag, with revenue, win rate, and average CPM for each.",
+                "Compare the two groups to see whether the floors raised revenue or suppressed demand against the no-floor control.",
+                "Ask the publisher whether any prior holdout or before-and-after comparison was run, and record what it showed and when it was measured."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the skipRate, floorMin, and modelVersion settings and whether a holdout comparison between floored and skipped auctions exists with a result on record. A setup where skipRate runs a holdout and the floor values are backed by a floored-versus-skipped read passes. A setup where skipRate is 0 or omitted, with no holdout comparison and no stated reason for the floor values, is a fail recorded with the settings and the missing measurement.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the skipRate, floorMin, and modelVersion settings and whether a floored-versus-skipped comparison exists above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs the Prebid.js Price Floors module with skipRate set to 0 or omitted, so every auction is floored and no holdout control group exists to measure the floors against. Floors trade fill for price, and without a floored-versus-skipped read the trade goes unmeasured, so the floors cannot be shown to raise revenue rather than suppress demand. {{voice_recommend}} setting skipRate to a small holdout percentage, tagging the floor model with a 'modelVersion', and reading revenue, win rate, and average CPM across the floored auctions versus the skipped ones. {{voice_recommend}} also setting 'floorMin' as a walk-away safety net so no floor clears inventory below the price {{site_name}} will not go under. Keep whichever floor values the holdout supports."
+      }
+    },
+    {
+      "id": "prebid-price-floors-conflict-with-ad-server-floors",
+      "title": "Prebid floors conflict with the ad server's own floors",
+      "category": "monetization",
+      "subcategory": "price_floors",
+      "impact_score": 3,
+      "impact_rationale": "Prebid floors and the ad server's floors sit in sequence, so a header-bidding bid that clears the Prebid floor can still be rejected by a higher ad-server floor downstream, and a Prebid floor set far below the ad-server floor does no work at all. When the two are not reconciled, bids are filtered twice on different numbers, which can suppress demand the publisher meant to keep or render the Prebid floor inert.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "yield",
+        "inventory"
+      ],
+      "educate": {
+        "base": "A header-bidding bid passes through two floors before it can win. The Prebid.js Price Floors module applies the publisher's Prebid floor first, rejecting any bid below the matched floor when enforcement is on. The bid that survives is then sent to the ad server, where it competes against the ad server's own floor, e.g., a unified pricing rule or a line-item rate floor in Google Ad Manager. The bid has to clear both. The two floors are set in different places by different config, and nothing keeps them in agreement on its own.<br><br>When the numbers diverge, the publisher pays for it in one of two ways. If the Prebid floor sits well below the ad-server floor, the Prebid floor does no work because the ad server rejects below its own higher number anyway, and the publisher is maintaining a Prebid floor that never changes an outcome. If the Prebid floor sits above the ad-server floor, the Prebid module rejects bids the ad server would have accepted, so demand the publisher meant to keep is filtered out one step too early. Either way the two layers are filtering on different numbers, and the result is not the floor the publisher thinks they set.<br><br>The fix is to reconcile the two deliberately rather than tune them in isolation. A publisher may decide the Prebid floor should match the ad-server floor so the two enforce the same price, or set the Prebid floor intentionally lower and let the ad server be the binding floor, or use the module's 'floorMin' so the Prebid layer never falls below a known ad-server minimum. The audit question is whether that decision was made on purpose, with both numbers read side by side, rather than two floors drifting apart in two systems.<br><br>A few signs point to floors that conflict:<ul><li>The Prebid floor values and the ad server's pricing-rule floors were set separately and have not been read against each other</li><li>Bids that win the Prebid auction are being rejected downstream at the ad server, which shows the ad-server floor is higher than the Prebid floor</li><li>The Prebid floor sits far below the ad-server floor, so it never changes which bid wins and is doing no work</li></ul>You may want to confirm that the Prebid floor and the ad-server floor were reconciled on purpose. One approach is to read the matched Prebid floor for a given placement against the ad server's pricing-rule floor for the same placement and decide which layer should be the binding floor.",
+        "site_type_overlays": {
+          "publishing": "On a media site that sells some inventory direct, the ad server may carry a deliberately high floor on premium placements to protect a direct-sold rate. You may want to set the Prebid floor on those placements to match or sit just below that ad-server floor, so the two layers enforce one coherent price rather than the Prebid module rejecting bids the direct-sold floor would have governed.",
+          "ecommerce": "On a commerce-content site, the ad server's floors on high-intent product pages may already reflect the value of that inventory. You may want to read the Prebid floor for those pages against the ad-server floor and let one layer be the binding floor, rather than running two different numbers that filter the same bids twice."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Module - Price Floors for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/floors.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js Troubleshooting Guide for Header Bidding",
+            "source_url": "https://docs.prebid.org/troubleshooting/troubleshooting-guide.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the matched Prebid floor for a placement against the ad server's own floor for the same placement, and look for bids that win the Prebid auction but are rejected downstream at the ad server.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console",
+              "steps": [
+                "Load a page that runs Prebid and open the browser developer console.",
+                "Run 'pbjs.getConfig(\"floors\")' to read the Prebid floor schema and values, and note the matched floor for a sample placement.",
+                "Run 'pbjs.getBidResponses()' and 'pbjs.getAllWinningBids()' to see which bids clear the Prebid auction, and run 'pbjs.getAdserverTargeting()' to confirm the price handed to the ad server.",
+                "Open the ad server's pricing rules and record the floor it enforces on the same placement, then compare the two numbers."
+              ]
+            },
+            "ad_server_console": {
+              "label": "Ad server console",
+              "steps": [
+                "Use the Google Publisher Console or the ad server's delivery diagnostics to inspect how a Prebid-won bid competed in the ad server auction.",
+                "Note any case where a bid that won the Prebid auction lost or was rejected at the ad server, which points to an ad-server floor higher than the Prebid floor.",
+                "Record, per placement, whether the Prebid floor and the ad-server floor agree, the Prebid floor sits inert below the ad-server floor, or the Prebid floor rejects bids the ad server would have taken."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per sampled placement, the matched Prebid floor and the ad server's enforced floor side by side, plus whether Prebid-won bids are being rejected downstream. A setup where the two floors were reconciled on purpose, with one layer chosen as the binding floor or floorMin tied to the ad-server minimum, passes. A setup where the Prebid floor sits inert below the ad-server floor, or rejects bids the ad server would have accepted, with no record of the two being read together, is a fail recorded with the placements where the floors diverge.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the matched Prebid floor and the ad server's floor for each sampled placement, side by side, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Prebid.js floors on {{site_name}} were set separately from the ad server's own floors and have not been reconciled, so the two layers filter bids on different numbers. A header-bidding bid clears the Prebid floor first and then the ad-server floor, so a Prebid floor below the ad-server floor does no work, while a Prebid floor above it rejects bids the ad server would have accepted. {{voice_recommend}} reading the matched Prebid floor for each placement against the ad server's pricing-rule floor for the same placement, then deciding which layer should be the binding floor, or tying the module's 'floorMin' to the ad-server minimum so the Prebid layer never falls below it. After the change, recheck that Prebid-won bids are no longer rejected downstream and that the Prebid floor is changing outcomes rather than sitting inert."
+      }
+    }
+  ]
+}

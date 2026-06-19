@@ -1,0 +1,161 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://docs.prebid.org/dev-docs/modules/currency.html",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Currency handling decides whether a non-USD bid is priced correctly before it competes in the auction and before it reaches the ad server. When the Currency module is missing or misconfigured, bids in another currency are treated as the wrong number, so an auction can be won by the wrong bidder or a winning bid can be sent to the ad server at a price that does not match what the buyer agreed to pay. The check reads the Prebid configuration already on the page, so it costs review time rather than rebuild time, and the finding points to a concrete config change a publisher can make.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Prebid.js compares bids from many demand sources in a single auction, and those bids do not all arrive in the same currency. A bid adapter can return a price in euros, yen, or pounds, and Prebid assumes a bid is in United States dollars (USD) whenever the adapter does not say otherwise. The Currency module is what reconciles those differences, converting each bid into the currency the rest of the auction and the ad server expect. This subcategory looks at whether currency conversion is set up to match the bidders a publisher actually runs and the currency their ad server is built around. These checks confirm that a non-USD bid is converted before it competes rather than compared as a raw number, and that the converted price lands in the currency and the price buckets the ad server line items were created for.",
+  "audit_checks": [
+    {
+      "id": "prebid-currency-management-module-missing-for-non-usd-bidders",
+      "title": "The Currency module is not enabled while bidders return non-USD bids",
+      "category": "monetization",
+      "subcategory": "currency_management",
+      "impact_score": 4,
+      "impact_rationale": "When a bidder returns a price in a non-USD currency and the Currency module is not enabled, Prebid compares the raw number against USD bids as though the currencies matched. A 5 EUR bid is read as 5, which sits above a 4 USD bid even though the dollar bid is worth more, so the auction can hand the impression to the wrong bidder and the publisher loses the higher-value bid on every affected auction.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "yield",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "Prebid.js runs one auction across every demand source on the page and picks a winner by comparing bid prices. The comparison only holds if every price is in the same currency. A bid adapter returns its price in whatever currency the demand source quotes, which can be euros, pounds, yen, or another currency, and Prebid treats a bid as United States dollars (USD) whenever the adapter does not declare a currency of its own.<br><br>The Currency module is the piece that makes the prices comparable. Setting 'adServerCurrency' in the Prebid config turns the feature on, which loads a conversion-rate file, converts each incoming bid into the ad server currency, and scales the price granularity buckets to match. Without the module enabled, no conversion happens. A bid that arrives as 5 EUR is compared as the number 5 against a 4 USD bid, so the euro bid appears to win even though the dollar bid is worth more once the exchange rate is applied. The auction can hand the impression to the wrong bidder, and the publisher loses the difference on every auction where the currencies diverge.<br><br>The module reads exchange rates from a file Prebid hosts and updates daily, and it also accepts a 'defaultRates' value the documentation recommends as a fallback for when the file cannot load. A publisher whose bidders all quote in USD does not need the module. A publisher running even one bidder that returns a non-USD price does since a single uncovered bidder is enough to skew the auction.<br><br>A few signs point to a missing Currency module while non-USD bids are in play:<ul><li>The Prebid build does not include the currency module and the config sets no 'adServerCurrency' value</li><li>One or more bid adapters are known to quote in a currency other than USD, for example a European or Japanese demand partner</li><li>Bid responses captured from the page show a currency field other than USD on at least one bidder</li></ul>You may want to confirm whether any active bidder returns a non-USD price, and if so, whether the Currency module is enabled to convert it. One approach is to read the currency on captured bid responses and check the config for an 'adServerCurrency' setting.",
+        "site_type_overlays": {
+          "publishing": "A media site that sells to demand partners in more than one region is the common place for currencies to mix since a European or Asia-Pacific bidder may quote in its home currency while the rest bid in USD. You may want to list which demand partners serve which regions and confirm the Currency module covers every region whose bidders do not quote in the ad server currency.",
+          "ecommerce": "A commerce-content site that runs region-specific demand to match its shopper base can pull in bidders that quote in local currency alongside USD bidders. You may want to confirm the Currency module is enabled wherever a regional bidder returns a non-USD price, so the local-currency bids compete on equal terms with the dollar bids rather than as raw numbers."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Currency module for header bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/currency.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the Prebid configuration and the live bid responses to see whether any bidder returns a non-USD price and whether the Currency module is enabled to convert it.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console",
+              "steps": [
+                "Open the page that runs Prebid.js and open the browser developer tools console.",
+                "Run 'pbjs.getConfig()' and read the 'currency' section to see whether 'adServerCurrency' is set and whether 'defaultRates' is present.",
+                "Run 'pbjs.getEvents()' or inspect 'pbjs.getBidResponses()' and read the currency on each bid response, noting any bidder whose currency is not USD.",
+                "Record each bidder that returns a non-USD price and whether the Currency module is enabled to convert it."
+              ]
+            },
+            "prebid_debug": {
+              "label": "Prebid debugging tools",
+              "steps": [
+                "Load the page with the Prebid debug flag enabled, for example by appending the 'pbjs_debug=true' query parameter, and watch the console for currency-conversion log lines.",
+                "Confirm whether the console reports the conversion file loading and bids being converted, or whether no conversion activity appears while non-USD bids are present.",
+                "Note whether the absence of conversion lines lines up with a missing currency module in the build."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per bidder, the currency on its bid responses and whether the Currency module is enabled in the Prebid config. A setup where every bidder returns USD, or where the Currency module is enabled and converting the non-USD bidders, passes. A setup where at least one bidder returns a non-USD price while the Currency module is not enabled is a fail recorded with the bidders and currencies affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each bidder's bid currency and whether the Currency module is enabled above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs at least one bidder returning a non-USD price while the Prebid Currency module is not enabled, so those bids are compared as raw numbers rather than converted into the ad server currency. A 5 EUR bid read as 5 can beat a 4 USD bid that is worth more once the exchange rate is applied, so the auction can hand the impression to the wrong bidder and the higher-value bid is lost. {{voice_recommend}} enabling the Currency module, setting 'adServerCurrency' to the ad server currency, and adding a 'defaultRates' fallback so conversion still works when the rate file cannot load. After the change, recapture the bid responses to confirm the non-USD bids are converted before they compete."
+      }
+    },
+    {
+      "id": "prebid-currency-management-adservercurrency-mismatched-with-ad-server",
+      "title": "adServerCurrency does not match the ad server currency and its price buckets",
+      "category": "monetization",
+      "subcategory": "currency_management",
+      "impact_score": 3,
+      "impact_rationale": "The Currency module converts every bid into the currency named in 'adServerCurrency' and scales the price buckets to that currency. When the value does not match the currency the ad server line items were built for, winning bids arrive in the wrong unit and land in the wrong bucket, so the price targeted in the line item does not reflect the real bid and revenue is reported and paid against a mispriced bucket.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "yield",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "When the Currency module is enabled, the 'adServerCurrency' value tells Prebid which currency to convert every bid into and which currency to build the price granularity buckets around. Those buckets are passed to the ad server in the 'hb_pb' key value, and the ad server matches that value against line items the publisher created at fixed price points. The system works as a chain, so the converted bid currency, the bucket currency, and the line item currency all have to be the same unit for the price to carry through correctly.<br><br>A mismatch breaks the chain. If 'adServerCurrency' names one currency while the ad server line items were created in another, a winning bid is converted into a unit the line items do not expect. The 'hb_pb' value Prebid sends no longer lines up with the buckets the line items target, so a bid lands in the wrong line item or fails to match the price point it should. The impression may still serve, but the price recorded against it does not reflect what the bid was worth.<br><br>Currencies with very different typical price ranges make this worse because the price buckets themselves need scaling. Prebid's default granularity buckets were designed around USD, and a currency such as Japanese yen (JPY) or Indian rupee (INR) clears at numbers many times larger. Prebid.js offers a 'granularityMultiplier' to scale the default buckets up to the chosen currency, and the multiplier has to match the factor used to create the ad server line items. Prebid Server does not support 'granularityMultiplier', so a publisher on Prebid Server uses a custom price granularity for those currencies instead.<br><br>A few combinations to check on the page point to a currency mismatch:<ul><li>The 'adServerCurrency' value does not match the currency the ad server account and its line items were set up in</li><li>The ad server line items use a currency or price points that the Prebid price buckets, after conversion, do not align with</li><li>A high-value currency such as JPY or INR is in use without a matching 'granularityMultiplier' on Prebid.js, or without a custom price granularity on Prebid Server</li></ul>You may want to confirm that 'adServerCurrency' matches the ad server currency and that the price buckets line up with the line items. One approach is to read the configured 'adServerCurrency' and granularity, then compare them against the currency and price points the ad server line items were created in.",
+        "site_type_overlays": {
+          "publishing": "A media site that set up its ad server in a local currency, then reused a Prebid template defaulting to USD, is a common place for this mismatch to appear. You may want to confirm that 'adServerCurrency' matches the currency the line items were built in, and that any granularity scaling lines up with the price points those line items target.",
+          "ecommerce": "A commerce-content site operating in a market with a high-value currency such as JPY or INR needs the price buckets scaled to that currency so winning bids land in the right line item. You may want to confirm a 'granularityMultiplier' is set on Prebid.js, or a custom price granularity on Prebid Server, and that it matches the factor used to create the line items."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Currency module for header bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/currency.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Price granularity, including currency considerations",
+            "source_url": "https://docs.prebid.org/adops/price-granularity.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Currency conversion in Prebid Server",
+            "source_url": "https://docs.prebid.org/prebid-server/features/pbs-currency.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the configured adServerCurrency and price granularity against the currency and price points the ad server line items were created in.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console",
+              "steps": [
+                "Open the page that runs Prebid.js and open the browser developer tools console.",
+                "Run 'pbjs.getConfig()' and read the 'currency.adServerCurrency' value and the 'priceGranularity' or 'granularityMultiplier' settings.",
+                "Compare the 'adServerCurrency' value against the currency the ad server account and its header-bidding line items were set up in.",
+                "Note whether the price buckets, after any granularity scaling, line up with the price points the line items target, and record any mismatch."
+              ]
+            },
+            "ad_server_line_items": {
+              "label": "Ad server line item review",
+              "steps": [
+                "Open the ad server and read the currency the account and the header-bidding line items were created in.",
+                "List the price points the line items target and compare them against the Prebid price buckets the 'hb_pb' key would carry after conversion.",
+                "Record whether the line item currency and price points match the Prebid configuration or diverge from it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the configured 'adServerCurrency', the price granularity or multiplier, and the currency and price points the ad server line items were created in. A setup where 'adServerCurrency' matches the line item currency and the buckets align with the line item price points passes. A setup where the currencies diverge, or where a high-value currency runs without matching granularity scaling, is a fail recorded with the mismatch and the inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the adServerCurrency value, the price granularity, and the ad server line item currency and price points above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the 'adServerCurrency' configured for {{site_name}} does not match the currency the ad server line items were built in, so winning bids are converted into a unit the line items do not expect. The 'hb_pb' value Prebid passes then lands in the wrong price bucket, so the price recorded against the impression does not reflect what the bid was worth. {{voice_recommend}} setting 'adServerCurrency' to the currency the line items were created in, and aligning the price granularity, through a 'granularityMultiplier' on Prebid.js or a custom granularity on Prebid Server, with the price points those line items target. After the change, confirm that converted bids land in the buckets the line items expect."
+      }
+    }
+  ]
+}

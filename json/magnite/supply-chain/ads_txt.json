@@ -1,0 +1,156 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://iabtechlab.com/ads-txt/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "ads.txt and app-ads.txt are the public record of who a publisher authorizes to sell their inventory, so a missing or wrong Magnite line can cut a real demand path or leave the door open to spoofed inventory traded under the publisher's name. The check reads files the publisher already controls and compares them against the seller account ID Magnite assigned, so it costs reading time rather than rebuild time. The finding points to a specific line to add, correct, or remove, which is a change the publisher can make the same day.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "ads.txt (Authorized Digital Sellers) and its mobile and connected-TV counterpart app-ads.txt are plain-text files a publisher hosts on their own domain to declare which companies may sell their ad inventory. For inventory monetized through Magnite, the file needs the right Magnite seller account ID carrying the right DIRECT or RESELLER designation, and it needs to stay clean of stale or unauthorized lines that no longer describe a real selling relationship. These checks confirm that the Magnite authorization is present and correct, and that nothing else in the file misrepresents who is allowed to sell the publisher's inventory.",
+  "audit_checks": [
+    {
+      "id": "magnite-ads-txt-missing-or-wrong-magnite-line",
+      "title": "ads.txt or app-ads.txt is missing the correct Magnite seller line",
+      "category": "supply-chain",
+      "subcategory": "ads_txt",
+      "impact_score": 4,
+      "impact_rationale": "When a buyer's verification cannot match Magnite's bid request to an authorized line in the publisher's ads.txt or app-ads.txt, demand-side platforms filter the bid as unauthorized, so the impression goes unsold through that path. A missing or mistyped Magnite line, the wrong account ID, or the wrong DIRECT versus RESELLER value cuts a real demand source across the whole site, which is revenue lost at scale until the line is corrected.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["transparency", "compliance"],
+      "educate": {
+        "base": "ads.txt (Authorized Digital Sellers) is a public file a publisher hosts at the root of their domain, and app-ads.txt is the same idea for inventory sold through mobile or connected-TV apps. Each line names a company the publisher authorizes to sell their inventory. A buyer's verification reads that file, and when a bid arrives through a seller the file does not list, demand-side platforms treat it as unauthorized and filter it out. For inventory monetized through Magnite, the file has to carry a line that matches the seller account Magnite uses to represent the publisher, or that demand path closes.<br><br>Each ads.txt line follows the IAB Tech Lab format of four comma-separated fields. The first is the advertising system's canonical domain (the exchange domain Magnite specifies). The second is the seller account ID Magnite assigned to this publisher. The third is the account relationship, either 'DIRECT' or 'RESELLER'. 'DIRECT' means the publisher has a direct account and contract with Magnite for this inventory. 'RESELLER' means the publisher authorized Magnite to resell inventory it does not directly own the relationship for. The fourth field, where present, is the certification authority ID that identifies the advertising system in a separate registry. A line that names the right exchange domain but the wrong account ID, or the right ID with the wrong relationship value, fails to authorize the path just as a missing line would.<br><br>The DIRECT versus RESELLER value is not cosmetic. It tells buyers whether they are one hop from the inventory owner or further down a resale chain, which feeds the SupplyChain object buyers use to judge how clean a path is. Declaring 'DIRECT' where the relationship is actually a resale, or the reverse, misrepresents the supply chain and can cause buyers who screen for direct paths to drop the bid.<br><br>A few signs point to a missing or wrong Magnite line:<ul><li>The publisher's ads.txt or app-ads.txt has no entry for the Magnite exchange domain at all</li><li>An entry exists but carries a seller account ID that does not match the one Magnite assigned to this publisher</li><li>The relationship value reads 'DIRECT' where the account is actually a resold path, or 'RESELLER' where it is a direct contract</li><li>App or connected-TV inventory is monetized through Magnite but only ads.txt exists, with no app-ads.txt covering the apps</li></ul>You may want to confirm the file carries the exact Magnite exchange domain, seller account ID, and relationship value that Magnite provided for this publisher. One approach is to read the live file directly, then compare each Magnite field against the seller record in the Magnite console rather than against memory.",
+        "site_type_overlays": {
+          "publishing": "A media publisher often sells the same inventory through more than one path, for example a direct Magnite contract for premium placements and a resold path for remnant inventory. You may want to confirm each path has its own correctly designated line, so a 'DIRECT' premium relationship and a 'RESELLER' remnant relationship are both declared rather than collapsed into one entry that misstates the chain for part of the inventory.",
+          "ecommerce": "A commerce-content site that runs apps or a connected-TV experience alongside the website needs app-ads.txt on the domain the app stores point to, not only ads.txt on the main site. You may want to confirm the Magnite line appears in the file that covers the app inventory, given that a buyer verifying an in-app bid reads app-ads.txt and will not find an authorization that lives only in the website's ads.txt."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt - Authorized Digital Sellers",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt 1.1 Implementation Guide",
+            "source_url": "https://iabtechlab.com/wp-content/uploads/2022/04/Ads.txt-1.1-Implementation-Guide.pdf"
+          }
+        ],
+        "learn_more_note": "Magnite's detailed instructions for the exact seller account ID and DIRECT or RESELLER designation to use for a given publisher are in its partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the live ads.txt and app-ads.txt files, find the Magnite entries, and compare the exchange domain, seller account ID, and relationship value against the seller record Magnite assigned to this publisher.",
+        "tools": {
+          "free": {
+            "live_file": {
+              "label": "Live ads.txt and app-ads.txt files",
+              "steps": [
+                "Open the publisher's ads.txt at the root of the domain (e.g., https://example.com/ads.txt) and, for any app or connected-TV inventory, the app-ads.txt at the developer domain the app stores list.",
+                "Search the file for the Magnite exchange domain and list every line that references it.",
+                "Record each Magnite line's seller account ID, its DIRECT or RESELLER value, and the certification authority ID where one is present.",
+                "Note whether app-ads.txt exists at all when the publisher monetizes app or connected-TV inventory through Magnite."
+              ]
+            },
+            "magnite_console": {
+              "label": "Magnite console",
+              "steps": [
+                "Open the Magnite console and locate the seller record for this publisher, including the seller account ID and the relationship type Magnite represents the inventory under.",
+                "Compare the account ID and relationship in the console against the values read from the live file, and record any mismatch.",
+                "Confirm the exchange domain in the file matches the canonical domain Magnite specifies for ads.txt, rather than a typo or an outdated domain."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for the Magnite path, whether a line exists in the correct file (ads.txt for web, app-ads.txt for apps), and whether its exchange domain, seller account ID, and DIRECT or RESELLER value match the seller record Magnite assigned. A line present in the right file with all three fields matching passes. A missing line, a wrong account ID, a wrong relationship value, or an app path declared only in ads.txt is a fail recorded with the field that diverges.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the Magnite line's exchange domain, seller account ID, and DIRECT or RESELLER value from the live file and the Magnite console above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Magnite authorization in {{site_name}}'s ads.txt or app-ads.txt does not match the seller record Magnite assigned, so the line either is missing, carries the wrong seller account ID, or states the wrong DIRECT versus RESELLER relationship. When a buyer's verification cannot match Magnite's bid request to an authorized line, demand-side platforms filter the bid as unauthorized and the impression goes unsold through that path. {{voice_recommend}} correcting the entry so the exchange domain, the seller account ID, and the relationship value match exactly what Magnite provides for this publisher, and adding an app-ads.txt line wherever Magnite monetizes app or connected-TV inventory. After the change, recheck the live file to confirm the corrected line is published and reachable."
+      }
+    },
+    {
+      "id": "magnite-ads-txt-stale-or-unauthorized-lines",
+      "title": "Stale, duplicate, or unauthorized Magnite lines remain in the file",
+      "category": "supply-chain",
+      "subcategory": "ads_txt",
+      "impact_score": 3,
+      "impact_rationale": "A Magnite line for an account that is no longer active, a duplicate of a valid line, or an entry the publisher never authorized leaves a path open that does not describe a real selling relationship. That clutter weakens the file's purpose as a trust signal, can let inventory trade under the publisher's name through a stale account, and makes the file harder to keep correct as relationships change.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["transparency", "compliance"],
+      "educate": {
+        "base": "An ads.txt file is only as trustworthy as it is current. Each line authorizes a path, and a line that no longer describes a real relationship still reads as a valid authorization to any buyer parsing the file. Over time a publisher's ads.txt and app-ads.txt collect lines that should have been removed, for example a Magnite seller account that was retired, a relationship that ended, or a duplicate that crept in when a managed line list was merged with hand-edited entries.<br><br>Three patterns matter here. A stale line points at a Magnite account ID that is no longer active for this publisher, which keeps a dead path declared as live. A duplicate line repeats a valid Magnite entry, which adds no authorization and only makes the file noisier and harder to audit. An unauthorized line names a Magnite account the publisher does not actually have a relationship for, which can happen when a template or a reseller's suggested block is pasted in without checking that every line applies. Each of these weakens the signal the file is meant to send, that the listed sellers, and only the listed sellers, are authorized.<br><br>Keeping the file clean also supports the wider supply-chain transparency the IAB Tech Lab format is built for. ads.txt works with sellers.json and the SupplyChain object so a buyer can trace a bid from the exchange back to the inventory owner. A stale or unauthorized line breaks that trace by claiming an authorization that the matching sellers.json record will not support, which is exactly the kind of gap supply-path verification flags.<br><br>A few signs point to lines that no longer belong:<ul><li>A Magnite entry references a seller account ID that the publisher's current Magnite seller record does not list</li><li>The same Magnite line appears more than once in the file</li><li>A Magnite line was added from a template or a third party's block without confirming the relationship exists</li><li>The file has not been reconciled against Magnite's current seller record since the last contract or account change</li></ul>You may want to confirm every Magnite line in the file maps to a relationship the publisher can account for today. One approach is to reconcile the Magnite lines against the current Magnite seller record and remove any entry that no longer has a match.",
+        "site_type_overlays": {
+          "publishing": "A media publisher that has changed monetization partners over the years can accumulate Magnite lines from accounts that closed when a contract ended. You may want to reconcile the file against the active Magnite seller record and remove any line tied to a retired account, so the file reflects only the relationships that exist now rather than a history of past ones.",
+          "ecommerce": "A commerce-content site that maintains separate ads.txt and app-ads.txt files can end up with a Magnite line copied into one file but never updated when the account changed in the other. You may want to reconcile both files against the same current Magnite seller record, so a stale line does not survive in app-ads.txt after it was corrected in ads.txt or the reverse."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt - Authorized Digital Sellers",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt 1.1 Implementation Guide",
+            "source_url": "https://iabtechlab.com/wp-content/uploads/2022/04/Ads.txt-1.1-Implementation-Guide.pdf"
+          }
+        ],
+        "learn_more_note": "Magnite's current seller account record, which the file should be reconciled against, lives in its partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "List every Magnite line in ads.txt and app-ads.txt, then reconcile each against the current Magnite seller record to find lines that are stale, duplicated, or never authorized.",
+        "tools": {
+          "free": {
+            "live_file": {
+              "label": "Live ads.txt and app-ads.txt files",
+              "steps": [
+                "Open the publisher's ads.txt and app-ads.txt and extract every line that references the Magnite exchange domain.",
+                "Flag any line that appears more than once as a duplicate.",
+                "Record each unique Magnite seller account ID found in the file so it can be checked against the current seller record."
+              ]
+            },
+            "magnite_console": {
+              "label": "Magnite console",
+              "steps": [
+                "Open the Magnite console and pull the current list of active seller account IDs for this publisher.",
+                "Compare each Magnite account ID found in the file against that list, and mark any ID with no match as a candidate for removal.",
+                "Confirm with the publisher whether any unmatched line ties to a relationship they recognize, so a line is removed because it is genuinely stale rather than because the console view is incomplete."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records every Magnite line in the file and whether each maps to an active account in the current Magnite seller record, with duplicates noted. A file where every Magnite line matches a current account and no line repeats passes. Any stale line tied to a retired account, any duplicate, or any line the publisher cannot account for is a fail recorded with the specific lines to remove.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each Magnite line in the file and whether it matches a current account in the Magnite seller record above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s ads.txt or app-ads.txt carries Magnite lines that no longer describe a real relationship, whether stale entries for retired accounts, duplicates of a valid line, or lines the publisher cannot account for. Each one weakens the file as a trust signal and can leave a path declared as authorized that the matching sellers.json record will not support, which supply-path verification flags. {{voice_recommend}} reconciling every Magnite line against the current Magnite seller record, removing any entry tied to a retired account, and collapsing duplicates so each authorized path appears once. After the cleanup, recheck the live file to confirm only current, accountable Magnite lines remain."
+      }
+    }
+  ]
+}

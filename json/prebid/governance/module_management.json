@@ -1,0 +1,170 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://docs.prebid.org/dev-docs/modules/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Prebid.js is a custom-built library, so the bundle a publisher ships is exactly the set of modules they selected at build time. A bundle carrying bid adapters, user-ID submodules, and feature modules that no longer serve any live demand or feature adds weight to a file that runs in the critical path on every page. The check reads the modules compiled into the running build against the modules the site actually uses, so it costs review time rather than rebuild time, and the finding points to a concrete rebuild the publisher can make with a documented build command.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Prebid.js ships as a custom build, meaning the file a publisher serves contains only the modules named when the package was built. Bid adapters connect to demand, user-ID submodules read identity signals, and feature modules add capabilities such as video, real-time data, or consent handling. Every module included adds to the size of a script that runs in the page's critical path, so a build scoped to the modules in use keeps the file lean while a build carrying leftovers from past tests carries weight that returns nothing. These checks confirm the running build matches the modules the site relies on and that no abandoned adapter or module lingers from earlier work.",
+  "audit_checks": [
+    {
+      "id": "prebid-module-management-build-not-scoped-to-modules-in-use",
+      "title": "The Prebid.js build includes modules the site does not use",
+      "category": "governance",
+      "subcategory": "module_management",
+      "impact_score": 3,
+      "impact_rationale": "Prebid.js runs in the page's critical path before ad slots can request bids, so every module compiled into the build adds weight to a script that gates ad rendering and competes with page content for load time. A build that carries bid adapters, user-ID submodules, and feature modules the site does not use enlarges that script for no return, which slows the auction start and the page without adding any demand or capability.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "performance"
+      ],
+      "educate": {
+        "base": "Prebid.js is not a single fixed library. It is a custom build, assembled by naming the modules the publisher wants and compiling them into one file. The build command takes a list of modules, for example 'gulp build --modules=ixBidAdapter,sharedIdSystem,consentManagementGpp', and the resulting package contains exactly those modules and nothing else. Three kinds of module make up most builds. Bid adapters connect the auction to a demand partner. User-ID submodules read an identity signal such as a shared ID or a UID2 token. Feature modules add capabilities such as video support, real-time data, or consent management.<br><br>Because the build is hand-assembled, it can drift from the modules the site actually uses. A bid adapter stays in the build after the publisher stops working with that demand partner. A user-ID submodule remains after the identity signal it reads was dropped. A real-time data module lingers after the test it was added for ended. None of these throw an error, so the build keeps shipping them, and each one adds to the size of the Prebid.js file.<br><br>That size matters because of where Prebid.js runs. The library loads and starts the header-bidding auction in the page's critical path, before the ad server is called, so the bytes it carries compete directly with page content for load time and push back the moment ad slots can request bids. A module that returns no demand and adds no capability still adds weight to that script, which is cost without return.<br><br>A few signs point to a build that is not scoped to the modules in use:<ul><li>The modules compiled into the running build include bid adapters for demand partners the site no longer works with</li><li>User-ID submodules remain in the build for identity signals the site has stopped reading</li><li>Feature or real-time data modules sit in the build with no live configuration that uses them</li></ul>You may want to confirm that the modules in the running build match the modules the site relies on. One approach is to read the compiled module list from the running page, compare it against the demand partners, identity signals, and features actually in use, and rebuild Prebid.js with only those modules named.",
+        "site_type_overlays": {
+          "publishing": "On a media site running several ad units across many page templates, the Prebid.js build often accumulates bid adapters and feature modules over time as the publisher tests demand partners and identity signals. You may want to read the compiled module list against the partners and signals currently live in the wrapper config, so the modules left behind by past tests come out of the build rather than loading on every article view.",
+          "ecommerce": "On a commerce-content site, the editorial pages and the product pages may rely on different demand and features, yet they usually share one Prebid.js build. You may want to confirm the shared build is scoped to the union of modules those page types actually use rather than carrying adapters or modules that no template requests. The file loads on both page types regardless."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Prebid.js Module Overview",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Getting Started for Developers",
+            "source_url": "https://docs.prebid.org/dev-docs/getting-started.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "pbjs.installedModules",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/installedModules.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the modules compiled into the running Prebid.js build, then compare that list against the demand partners, identity signals, and features the site actually uses to find any module that returns nothing.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console",
+              "steps": [
+                "Open a page that runs Prebid.js, open the browser developer tools, and switch to the Console tab.",
+                "Type 'pbjs.installedModules' and read the array it returns, which lists every module compiled into the running build.",
+                "Note each bid adapter, user-ID submodule, and feature or real-time data module the array contains."
+              ]
+            },
+            "config_comparison": {
+              "label": "Wrapper config comparison",
+              "steps": [
+                "From the same console, run 'pbjs.getConfig()' and review the live configuration, including the bidders set on ad units, the userSync and user-ID configuration, and any real-time data setup.",
+                "Match each module from the installed list against a live use in the configuration, recording which modules map to an active demand partner, identity signal, or feature.",
+                "List any module in the installed array that has no matching live configuration. Those are the candidates for removal from the next build."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the modules compiled into the running build from the installed-modules list and maps each one to a live use in the configuration. A build where every compiled module corresponds to an active demand partner, identity signal, or feature passes. A build that carries bid adapters, user-ID submodules, or feature modules with no matching live use is a fail recorded with the specific modules that return nothing and the bundle weight they add.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the compiled module list and the modules with no matching live use above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Prebid.js build on {{site_name}} includes modules the site does not use, such as bid adapters for demand partners no longer in the auction and feature or user-ID modules with no live configuration behind them. Prebid.js runs in the page's critical path before ad slots can request bids, so every compiled module adds weight to a script that gates ad rendering, and a module that returns no demand and adds no capability is cost without return. {{voice_recommend}} reading the compiled module list with 'pbjs.installedModules', comparing it against the demand partners, identity signals, and features actually in use, and rebuilding Prebid.js with only those modules named. After the rebuild, confirm the installed-modules list matches the modules the site relies on."
+      }
+    },
+    {
+      "id": "prebid-module-management-abandoned-adapters-and-modules-linger",
+      "title": "Abandoned adapters or modules linger from past tests",
+      "category": "governance",
+      "subcategory": "module_management",
+      "impact_score": 2,
+      "impact_rationale": "A bid adapter or module left in the build after the test or partnership it served ended keeps loading on every page and keeps running its auction logic, which adds weight and timeout exposure for demand or a feature that no longer exists. The waste is bounded by the size of the leftover module rather than catastrophic, but it persists unnoticed because nothing flags a module that is included yet unused.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "performance"
+      ],
+      "educate": {
+        "base": "Header-bidding setups change as a publisher tests demand partners, trials identity signals, and trials real-time data or feature modules. Each test usually means adding a module to the Prebid.js build. The trouble is that ending a test rarely means removing the module. The demand partner relationship lapses, the identity signal is dropped, or the real-time data trial concludes, yet the module stays compiled into the build because removing it takes a deliberate rebuild that the change to the live configuration does not force.<br><br>An abandoned module is not inert. A leftover bid adapter still loads with the build, and if it is still referenced anywhere in the auction setup it still participates, holding a slot in the bidder timeout window for a partner that returns nothing. A leftover user-ID submodule still loads even when no configuration reads its signal. A real-time data module from a finished trial still loads, and depending on its wiring may still run. The result is weight, and sometimes auction time, spent on capability that the site no longer relies on.<br><br>Distinguishing an abandoned module from one in active use takes a comparison rather than a glance. Both look identical in the build. The compiled module list shows what is present. The live configuration and the auction's own event log show what is actually being called. A module that appears in the build but never appears as an active bidder or a read signal in the auction's events is a candidate for removal.<br><br>A few signs point to abandoned adapters or modules:<ul><li>The build contains a bid adapter for a demand partner the publisher confirms is no longer active</li><li>A module from a finished real-time data or identity test remains compiled in with no current configuration calling it</li><li>The auction event log shows bidders or modules that never return a bid or a signal across repeated page loads</li></ul>You may want to confirm that every module in the build still serves a live purpose. One approach is to read the auction's event history alongside the compiled module list, identify any module that never participates, confirm with the publisher that it is no longer needed, and remove it in the next build.",
+        "site_type_overlays": {
+          "publishing": "On a media site that has run header bidding for a while, the Prebid.js build often holds adapters and modules from demand and identity tests across several seasons of optimization. You may want to read the auction event log against the compiled list to find adapters that never return a bid, then confirm with the publisher which partnerships have lapsed before removing those adapters from the build.",
+          "ecommerce": "On a commerce-content site, identity and real-time data modules are sometimes trialed to sharpen targeting on product pages and then left in place after the trial. You may want to check whether those modules still have a live configuration reading them. An identity submodule left in the build after its signal was dropped loads on every page while returning nothing."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "pbjs.installedModules",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/installedModules.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "pbjs.getEvents()",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/getEvents.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Prebid.js Module Overview",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Compare the modules compiled into the build against the modules and bidders that actually participate in the auction, using the auction event log to separate live modules from leftovers.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console",
+              "steps": [
+                "On a page running Prebid.js, open the developer tools Console tab and run 'pbjs.installedModules' to capture the full list of compiled modules.",
+                "Run 'pbjs.getEvents()' to read the auction's event history for the page load, which records the bidders that requested and responded and the modules that ran.",
+                "Reload the page a few times and repeat, so a module that never participates across loads can be told apart from one that simply had no bid on a single load.",
+                "List any bid adapter or module present in the installed list that never appears as an active participant in the events."
+              ]
+            },
+            "publisher_confirmation": {
+              "label": "Publisher confirmation",
+              "steps": [
+                "Take the list of modules that never participate to the publisher and ask whether each one maps to a current demand partner, identity signal, or feature.",
+                "Record which modules the publisher confirms are no longer needed, noting the partnership or test each one came from where known.",
+                "Mark each confirmed-abandoned module for removal from the next Prebid.js build."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the compiled module list, the modules and bidders that participate in the auction events across repeated loads, and the publisher's confirmation of which modules still serve a live purpose. A build where every compiled module either participates in the auction or is confirmed in active use passes. A build holding adapters or modules that never participate and that the publisher confirms are no longer needed is a fail recorded with the specific leftover modules and the test or partnership each came from.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the compiled module list, the modules that never participate in the auction events, and the publisher's confirmation above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Prebid.js build on {{site_name}} carries adapters or modules left over from past tests, including modules that never participate in the auction and that the publisher confirms are no longer needed. A leftover module still loads on every page and, where still referenced, still holds time in the bidder timeout window for demand that no longer returns, so it adds weight and auction exposure for capability the site dropped. {{voice_recommend}} comparing the compiled module list from 'pbjs.installedModules' against the auction event history from 'pbjs.getEvents()' across repeated loads, confirming with the publisher which modules have been abandoned, and removing them in the next build. After the rebuild, recheck the event log to confirm every remaining module participates."
+      }
+    }
+  ]
+}

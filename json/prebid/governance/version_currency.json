@@ -1,0 +1,165 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://docs.prebid.org/download.html",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The deployed Prebid.js version decides which security fixes, bid adapter updates, and modules a publisher's header-bidding stack has access to, so a version that has fallen several majors behind limits revenue and exposes the site to issues that newer releases have already fixed. This check is a read of the version already running on the page and the process behind keeping it current, so it costs inspection time rather than a rebuild, and the finding points to a concrete upgrade decision the publisher can schedule.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Prebid.js is the open-source library a publisher runs on their own pages to hold a header-bidding auction before the ad server call. The project ships frequent releases that carry security fixes, new and updated bid adapters, and new modules, so the version a site is pinned to sets a ceiling on what its header-bidding stack can do. This subcategory is about version currency, whether the deployed build is recent and still supported and whether a process exists to review and update it on a cadence, rather than the auction settings or the adapters themselves. These checks confirm that the version is a maintained, deliberate choice rather than a build pinned once and left in place.",
+  "audit_checks": [
+    {
+      "id": "prebid-version-currency-outdated-build",
+      "title": "The deployed Prebid.js version is several majors behind the current release",
+      "category": "governance",
+      "subcategory": "version_currency",
+      "impact_score": 3,
+      "impact_rationale": "Prebid.js supports the previous major version for a minimum of 30 days, so a build several majors behind no longer receives security fixes or bid adapter updates. Running an unsupported version means missing demand from adapters that have changed their endpoints, missing modules introduced in later releases, and carrying any bug or security issue that a newer release already fixed.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "performance"
+      ],
+      "educate": {
+        "base": "Prebid.js (the open-source header-bidding library a publisher runs on their own pages) ships a new release on roughly a weekly cadence and cuts a new major version at most once per 30 days. Each release can carry security fixes, updates to the bid adapters that connect to demand partners, and new modules that extend what the auction can do. The version a site has deployed is therefore not a static choice. It is a point on a moving timeline, and the further behind that point sits, the more fixed issues and new capability the site is missing.<br><br>The project sets an explicit support boundary. Prebid.js commits to supporting the previous major version for a minimum of 30 days after a new major ships, and all breaking changes are confined to major releases under semantic versioning. A build that is one major behind is within a supported, predictable window. A build that is several majors behind sits outside that window, which means demand partners may have moved their adapter endpoints past what the old build can call, and security or stability fixes landed in releases the site never took.<br><br>The cost of an outdated build is rarely a single visible failure. It shows up as demand that stops arriving when an adapter the old version still calls the old way is dropped or changed, as modules a publisher cannot adopt because they did not exist in the pinned version, and as exposure to issues that newer releases already resolved. None of that announces itself in the ad server, so the version number is the signal that has to be read directly.<br><br>A few signs point to a build that has fallen behind:<ul><li>The reported version, read from 'pbjs.version' in the console, is more than one or two majors below the current Prebid.js release</li><li>The deployment date of the current build predates several major releases that have shipped since</li><li>Bid adapters or modules the publisher wants are documented as available only in a release newer than the one running on the page</li></ul>You may want to confirm which version is actually deployed and how far it sits from the current release. One approach is to read 'pbjs.version' on a live page, compare it against the current major on the Prebid.js release history, and treat anything more than one major behind as a candidate for a scheduled upgrade.",
+        "site_type_overlays": {
+          "publishing": "On a media site, demand can be spread across many bid adapters, and an outdated Prebid.js build raises the chance that one or more of those adapters has changed in a way the old version cannot call correctly. You may want to read the deployed version against the adapters the site relies on for the bulk of its revenue, where a lagging build carries the most cost because demand is concentrated there.",
+          "ecommerce": "On a commerce-content site, header bidding often runs alongside other revenue-related scripts on product and category pages, so an old Prebid.js build that misses performance improvements in later releases can add weight where page speed already matters for conversion. You may want to weigh the upgrade against both the demand it restores and the load improvements newer releases carry."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js Release History for Header Bidding",
+            "source_url": "https://docs.prebid.org/prebid/prebidjsReleases.html"
+          },
+          {
+            "source_type": "Prebid.js GitHub",
+            "source_title": "Prebid.js Versioning and Deprecation Policy",
+            "source_url": "https://github.com/prebid/Prebid.js/blob/master/PREBID_VERSIONING_DEPRECATION.md"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Troubleshooting Prebid.js",
+            "source_url": "https://docs.prebid.org/troubleshooting/troubleshooting-guide.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the version that is actually deployed on the page, then compare it against the current Prebid.js major release and the project's support window.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console",
+              "steps": [
+                "Open a page on the site that runs header bidding, open the browser developer tools, and switch to the 'Console' tab.",
+                "Enter 'pbjs.version;' and record the version string the console returns, which is the build deployed on the page.",
+                "Optionally enter 'pbjs.getConfig();' to confirm the configuration belongs to the same build and note any modules present.",
+                "Compare the deployed version against the current major on the Prebid.js release history and record how many majors behind it sits."
+              ]
+            },
+            "professor_prebid": {
+              "label": "Professor Prebid extension",
+              "steps": [
+                "Install the free Professor Prebid Chrome extension and open it on a page running header bidding.",
+                "Read the detected Prebid.js version and the configuration data the extension reports, including modules and bidder setup.",
+                "Record the version alongside the current release so the gap, if any, is captured with evidence."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the deployed Prebid.js version read from 'pbjs.version' and the current major release at the time of the audit, then notes the gap between them. A build on the current major or one major behind, which sits inside the supported window, passes. A build more than one major behind, which sits outside the minimum 30-day support window for the previous major, is a fail recorded with the deployed version and the number of majors it lags.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the deployed Prebid.js version and the current major release above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs a Prebid.js build that sits more than one major version behind the current release, which places it outside the project's minimum 30-day support window for the previous major. An outdated build no longer receives security fixes or bid adapter updates, so it can miss demand from adapters that have changed their endpoints and modules introduced in later releases. {{voice_recommend}} reading the deployed version from 'pbjs.version', comparing it against the current major on the Prebid.js release history, and scheduling an upgrade to a supported version. After the upgrade, recheck the adapters and modules the site depends on to confirm they call correctly against the new build."
+      }
+    },
+    {
+      "id": "prebid-version-currency-no-update-cadence",
+      "title": "No process exists to review and update the Prebid.js version on a cadence",
+      "category": "governance",
+      "subcategory": "version_currency",
+      "impact_score": 2,
+      "impact_rationale": "A version pinned once and left without a review schedule drifts behind the current release as Prebid.js ships, so the site falls out of the supported window over time even when it started current. Without a cadence, the upgrade only happens after something breaks, which turns a routine maintenance task into reactive firefighting.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "performance"
+      ],
+      "educate": {
+        "base": "A current Prebid.js build does not stay current on its own. The project releases roughly weekly and cuts major versions at most once per 30 days, so a version that is on the current major today drifts behind as new releases ship. The question this check asks is not only whether the deployed version is recent, but whether a process exists to keep it recent. A version with no review schedule will fall behind regardless of how current it was when it was first deployed.<br><br>A maintenance process has a few moving parts. Someone owns the decision to upgrade, there is a defined cadence on which the deployed version is checked against the current release, and there is a way to test a new build before it reaches production so an upgrade does not break the live auction. When those parts are missing, the upgrade happens only after a visible problem, such as demand dropping when an adapter changes or a module the team needs turning out to require a newer version. That reactive pattern means the site spends time outside the supported window between fire drills.<br><br>The Prebid.js versioning policy makes the cadence easier to reason about. Because breaking changes are confined to major releases under semantic versioning, and the previous major is supported for a minimum of 30 days, a review schedule that checks the version at least within each support window keeps the site inside a maintained, predictable range. The release notes for each major document the breaking changes a publisher needs to plan for, so the review has a concrete reference rather than a guess.<br><br>A few signs point to a missing update process:<ul><li>No one on the team can name who owns the Prebid.js version or when it was last reviewed</li><li>The deployed build has not changed across several Prebid.js major releases, with no record of a decision to hold it</li><li>Past upgrades happened only in response to a break rather than on a planned schedule</li></ul>You may want to confirm that a review cadence and an owner exist for the Prebid.js version. One approach is to set a recurring review tied to the project's release cadence, read the major release notes when a new major ships, and test a candidate build in a staging context before deploying it.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the header-bidding stack is often a meaningful share of revenue, so a missing upgrade process puts that revenue at the mercy of an unplanned break. You may want to tie the version review to the same operational calendar the revenue team already uses, so the check happens on a schedule rather than after a drop is noticed.",
+          "ecommerce": "On a commerce-content site, changes to the page's scripts can affect both ad revenue and the shopping experience, so an untested Prebid.js upgrade carries more than a demand risk. You may want the process to include a staging test that checks page performance and the auction together before a new build reaches the product pages."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Release Notes for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/release-notes.html"
+          },
+          {
+            "source_type": "Prebid.js GitHub",
+            "source_title": "Prebid.js Versioning and Deprecation Policy",
+            "source_url": "https://github.com/prebid/Prebid.js/blob/master/PREBID_VERSIONING_DEPRECATION.md"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Find out who owns the Prebid.js version, when it was last reviewed, and whether a cadence and a test path exist before a new build reaches production.",
+        "tools": {
+          "free": {
+            "process_review": {
+              "label": "Process review with the publisher",
+              "steps": [
+                "Ask the publisher who owns the decision to upgrade Prebid.js and how often the deployed version is reviewed against the current release.",
+                "Ask whether a new build is tested in a staging or non-production context before it goes live, and record how that test is run.",
+                "Review any change record or ticket history for past Prebid.js upgrades and note whether they were scheduled or triggered by a break."
+              ]
+            },
+            "browser_console": {
+              "label": "Browser console",
+              "steps": [
+                "Read 'pbjs.version;' on a live page to capture the version currently deployed.",
+                "Cross-reference the deployed version against the dates on the Prebid.js release notes to estimate how long the current build has been in place.",
+                "Record whether the elapsed time and the absence of a review cadence have let the build drift toward or past the supported window."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a named owner, a defined review cadence, and a pre-production test path exist for the Prebid.js version. A setup with an owner and a recurring review tied to the project's release cadence, with new builds tested before deployment, passes. A setup where no one owns the version, no cadence exists, and past upgrades only followed a break is a fail recorded with the missing parts of the process.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether an owner, a review cadence, and a test path exist for the Prebid.js version above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has no defined process to review and update its Prebid.js version, so the deployed build drifts behind the current release as Prebid.js ships. Without an owner, a review cadence, and a way to test a new build before production, the upgrade happens only after a break rather than on a schedule, which leaves the site outside the supported window between fire drills. {{voice_recommend}} naming an owner for the Prebid.js version, setting a recurring review tied to the project's release cadence, reading the major release notes when a new major ships, and testing a candidate build in staging before it goes live. After the process is in place, confirm the deployed version sits within the supported window and stays there on the next review."
+      }
+    }
+  ]
+}

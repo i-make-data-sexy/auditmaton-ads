@@ -1,0 +1,233 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://docs.prebid.org/dev-docs/publisher-api-reference/setConfig.html",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Every Prebid.js auction reads from the configuration set by 'pbjs.setConfig', so the timeout, price granularity, user sync, and floor settings decide how the auction runs on every page view. Defaults left in place because no one revisited them, or a single global setting forced onto inventory that needs different treatment, shape revenue on every impression without leaving an obvious trace. This check reads the configuration a publisher already has in place, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration decision the publisher can adjust and test.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Prebid.js drives its header-bidding auction from a configuration object the publisher builds with 'pbjs.setConfig'. The bidder timeout, price granularity, user sync behavior, and floor rules all live there, and the auction reads them on every page load. This subcategory is about whether that configuration is deliberate and documented rather than a stack of defaults and copy-pasted settings nobody owns. These checks confirm that the global config reflects choices the publisher made for their own inventory, and that per-ad-unit and per-bidder overrides are used where the inventory calls for them rather than one global value forced across everything.",
+  "audit_checks": [
+    {
+      "id": "prebid-config-hygiene-defaults-not-reviewed",
+      "title": "Global setConfig values are left at defaults that do not fit the inventory",
+      "category": "governance",
+      "subcategory": "config_hygiene",
+      "impact_score": 3,
+      "impact_rationale": "The global 'pbjs.setConfig' values, especially the bidder timeout and price granularity, run on every auction. A timeout left too short cuts off bidders before they respond, so demand that would have cleared never reaches the auction, and a price granularity that does not match the inventory rounds bids into buckets that misprice them. Defaults accepted without a review apply across every page view, so the cost compounds across the whole site.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "Prebid.js builds its auction from a configuration object the publisher sets with 'pbjs.setConfig'. The settings that matter most for revenue and behavior are the global ones, and each carries a default that applies until the publisher changes it. The bidder timeout sets how long the auction waits for bid responses before it hands off to the ad server. Price granularity controls the size of the CPM buckets that bids round into for ad-server targeting. User sync governs whether and how bidders drop their cookie-sync pixels, which affects match rates and therefore demand. The floors configuration, when the Price Floors module is in use, sets the minimum CPM a bid must meet to enter the auction.<br><br>A default is a starting point, not a decision. A bidder timeout that is comfortable for one site can be too short for another whose bidders sit behind a slower connection, and a timeout set too low drops responses that would have cleared. Price granularity left on a coarse default rounds distinct bids into the same bucket, so a bid worth more than the bucket boundary reports at the lower value to the ad server. User sync left at its default may sync fewer bidders than the inventory could support, which lowers match rates and thins demand. Each of these runs on every auction, so a setting that does not fit the inventory is paid on every page view rather than once.<br><br>The audit question is not whether the defaults are wrong. It is whether the global config reflects choices the publisher made for their own inventory or whether it is a set of values nobody has revisited. Prebid.js exposes the live configuration through 'pbjs.getConfig()' in the browser console, so the values in force on the page can be read directly and compared against what the publisher intended.<br><br>A few signs point to global config left at defaults rather than chosen:<ul><li>The bidder timeout sits at a round default value with no record of why it was set there or whether bidder response times were measured against it</li><li>Price granularity is on a coarse preset (e.g., 'low' or 'medium') while the inventory clears at prices that the wider buckets round away from</li><li>User sync settings have never been reviewed against the bidders in the configuration, so 'syncsPerBidder' or 'filterSettings' may be limiting matches the inventory could support</li><li>The publisher cannot state why each global value is set as it is beyond it being the example value from a setup guide</li></ul>You may want to confirm that each global setting was chosen for this inventory rather than carried over from a template. One approach is to read the live values with 'pbjs.getConfig()', measure bidder response times against the timeout, and adjust the values that do not fit what the data shows.",
+        "site_type_overlays": {
+          "publishing": "On a media site, page weight and slower mobile connections can push bidder response times past a short default timeout, so demand that would have cleared gets cut off before it responds. You may want to measure bidder response times on real article pages and set the bidder timeout against that data rather than a template default.",
+          "ecommerce": "On a commerce-content site, product and category pages can clear at prices that a coarse price-granularity preset rounds into the wrong bucket, so the bid reports to the ad server below its real value. You may want to set price granularity fine enough that the higher-value commercial inventory reports its true clearing price rather than a rounded-down bucket."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "pbjs.setConfig",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/setConfig.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "pbjs.getConfig",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/getConfig.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Price Floors module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/floors.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the live global configuration on the page and compare each value against what the publisher intended for the inventory, paying attention to the bidder timeout, price granularity, user sync, and floors.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser developer console",
+              "steps": [
+                "Open the page in a browser, open developer tools, and run 'pbjs.getConfig()' in the console to print the full live configuration object.",
+                "Record the global values for bidder timeout, price granularity, user sync, and floors, reading 'pbjs.getConfig(\"bidderTimeout\")' or the relevant topic string for a single setting.",
+                "Add 'pbjs_debug=true' to the page URL and reload to surface Prebid's debug messages, then watch for bid responses arriving after the timeout, which points to a timeout set shorter than the bidders need.",
+                "Ask the publisher why each global value is set as it is, and record whether the answer reflects a measured choice or a carried-over default."
+              ]
+            },
+            "prebid_events": {
+              "label": "Prebid auction events",
+              "steps": [
+                "Run 'pbjs.getEvents()' in the console after an auction completes to read the emitted events, including 'bidResponse' and 'bidTimeout', for the page.",
+                "Compare the elapsed time on bid responses against the configured bidder timeout to see how many bidders respond inside the window and how many are cut off.",
+                "Note any bidder that consistently responds just after the timeout, which suggests the timeout is set tighter than that bidder's response time on this inventory."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each global setConfig value (bidder timeout, price granularity, user sync, floors) alongside the reason it is set that way and any supporting measurement, such as bidder response times against the timeout. A configuration where each value reflects a deliberate choice for the inventory, backed by data where data applies, passes. A configuration where values sit at template defaults with no stated reason, or where measurement shows a default that does not fit (e.g., bidders responding after the timeout), is a fail recorded with the specific settings affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each global setConfig value and the reason behind it above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs Prebid.js with global 'pbjs.setConfig' values left at defaults that do not fit the inventory. The bidder timeout, price granularity, and user sync settings read on every auction, so a default that does not match the site is paid on every page view, for example a timeout short enough to cut off bidders before they respond or a price granularity coarse enough to round bids into the wrong bucket. {{voice_recommend}} reading the live configuration with 'pbjs.getConfig()', measuring bidder response times against the timeout, and setting each global value to fit this inventory rather than carrying over template defaults. After the change, recheck bid response timing and clearing prices to confirm the new values fit."
+      }
+    },
+    {
+      "id": "prebid-config-hygiene-no-per-unit-overrides",
+      "title": "One global setting is forced across inventory that needs per-ad-unit or per-bidder overrides",
+      "category": "governance",
+      "subcategory": "config_hygiene",
+      "impact_score": 2,
+      "impact_rationale": "A single global value forced across all inventory ignores that some ad units, formats, and bidders need different treatment. A floor set for display applied to video misprices the video inventory, and a global setting that suits most bidders can underserve one that needs its own parameters. Prebid.js supports ad-unit-level and per-bidder overrides for this reason, so forcing one value everywhere leaves the inventory that needs an exception mispriced or misconfigured.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "Global configuration is the right default for most settings, but a publisher's inventory is rarely uniform enough that one value fits every ad unit and every bidder. Prebid.js anticipates this. The Price Floors module reads floor rules from three places in priority order, a dynamic provider, the package-level 'setConfig', and the ad unit itself, so a publisher can set a global floor and still override it on a specific ad unit. Price granularity can be set globally and then overridden per media type with 'mediaTypePriceGranularity', so video and display can round into buckets that suit each. And 'pbjs.setBidderConfig' exists alongside 'pbjs.setConfig' for the cases where a single bidder needs first-party data or parameters the others do not.<br><br>The risk is forcing one global value across inventory that needs an exception. A floor chosen for standard display, applied unchanged to a high-value video unit, prices the video either too low to protect its worth or too high to fill. A coarse global price granularity that suits low-CPM display rounds high-CPM video bids into buckets that hide their real value. A global config that fits the bulk of bidders may leave one bidder, the one that needs its own OpenRTB2 user or site data, working from settings that do not include it. In each case the global value is not wrong for the inventory it was meant for. It is wrong for the slice that needed an override and did not get one.<br><br>The audit question is whether the publisher uses per-ad-unit and per-bidder overrides where the inventory calls for them, or whether one global setting is doing work that a targeted override should do. Reading the live config and the ad-unit definitions together shows where a global value applies and whether any unit or bidder carries an exception.<br><br>A few signs point to global settings forced where overrides belong:<ul><li>A single global floor or price granularity applies to display and video inventory alike, with no 'mediaTypePriceGranularity' or ad-unit-level floor for the video units</li><li>Ad units that differ in value or format share one global setting with no override on the units that clear differently</li><li>A bidder that needs its own first-party data or parameters is configured only through the global 'setConfig' rather than 'setBidderConfig'</li><li>The publisher set a global value to suit the exception and lives with it fitting the bulk of inventory poorly, rather than overriding the exception</li></ul>You may want to confirm that the inventory and bidders needing different treatment carry an override rather than sharing one global value. One approach is to list the ad units and bidders that differ in value or requirements, then check whether each carries the per-ad-unit floor, 'mediaTypePriceGranularity', or 'setBidderConfig' entry it needs.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a video unit in an article or a premium homepage placement clears differently from a standard in-content display unit, so one global floor or granularity rarely fits both. You may want to set an ad-unit-level floor or 'mediaTypePriceGranularity' on the video and premium units while the global value serves the standard display inventory.",
+          "ecommerce": "On a commerce-content site, product-page units can carry different value and formats from editorial units, and a single bidder may need product-related first-party data the others do not. You may want to use ad-unit-level overrides for the commercial inventory and 'setBidderConfig' for the bidder that needs its own data, rather than forcing one global setting across all of it."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Price Floors module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/floors.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "pbjs.setBidderConfig",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/setBidderConfig.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "pbjs.setConfig",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/setConfig.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the global configuration and the ad-unit definitions together, then check whether the ad units and bidders that differ in value or requirements carry the overrides they need rather than sharing one global value.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser developer console",
+              "steps": [
+                "Open the page in a browser, open developer tools, and run 'pbjs.getConfig()' to read the global floor, price granularity, and other settings in force.",
+                "Run 'pbjs.adUnits' to list the ad units on the page and inspect each for an ad-unit-level floor or media-type configuration that overrides the global value.",
+                "Note which units carry video or other higher-value formats and whether they have a 'mediaTypePriceGranularity' or ad-unit floor, or whether the global display value is applied to them unchanged.",
+                "Ask the publisher whether any bidder is configured through 'setBidderConfig', and record which bidders need parameters or first-party data the global config does not carry."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad unit and per bidder that differs in value or requirements, whether it carries the override it needs (an ad-unit-level floor, 'mediaTypePriceGranularity', or a 'setBidderConfig' entry) or shares the global value. A setup where the inventory and bidders needing different treatment carry the appropriate override passes. A setup where one global setting is forced across inventory whose value or format differs, with no override on the slice that needs it, is a fail recorded with the units or bidders affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each differentiated ad unit or bidder and whether it carries an override above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} forces one global Prebid.js setting across inventory that needs per-ad-unit or per-bidder overrides. A global floor or price granularity chosen for standard display, applied unchanged to video or premium units, misprices the inventory it was not meant for, and a bidder needing its own data is left on the global config. {{voice_recommend}} setting ad-unit-level floors or 'mediaTypePriceGranularity' on the units that clear differently and using 'pbjs.setBidderConfig' for any bidder that needs its own parameters, while the global 'setConfig' serves the bulk of the inventory. After the change, recheck fill and clearing prices on the overridden units to confirm each fits its own value."
+      }
+    },
+    {
+      "id": "prebid-config-hygiene-scattered-undocumented",
+      "title": "setConfig calls are scattered and undocumented rather than consolidated and owned",
+      "category": "governance",
+      "subcategory": "config_hygiene",
+      "impact_score": 2,
+      "impact_rationale": "When 'pbjs.setConfig' is called from several places across the page or tag setup, a later call can overwrite an earlier value without anyone intending it, so the configuration in force may not match what any single block reads. Settings that nobody documented or owns drift over time as people copy blocks between sites, and the publisher loses the ability to say with confidence what their own auction is configured to do.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "A clean Prebid.js setup keeps its configuration in one place that a person owns. 'pbjs.setConfig' merges what it receives into the running configuration, so calling it more than once is valid, and each call updates the topics it names. That flexibility turns into a problem when the calls are scattered. A 'setConfig' in the page template, another in a tag-manager block, and a third injected by a wrapper can each set overlapping topics, and the last one to run wins. The value in force then depends on load order rather than intent, and reading any single block does not tell the publisher what their auction is actually configured to do.<br><br>The second problem is ownership. Configuration that nobody documented drifts over time. A timeout copied from another site, a price granularity left from a past test, a user-sync setting added to fix one bidder and never removed, each accumulates until the configuration is a record of past edits rather than a current decision. When no one can explain why a value is set as it is, no one can safely change it, and the setup ossifies around settings that may no longer fit.<br><br>Prebid.js gives a publisher the means to read the truth regardless of how the calls are written. 'pbjs.getConfig()' returns the merged configuration actually in force, which can be compared against what each block of code appears to set. The troubleshooting guidance also documents reading the live config and the ad units in the console as a first step in any audit of the setup.<br><br>A few signs point to scattered or undocumented configuration:<ul><li>'pbjs.setConfig' is called from more than one place (e.g., the page template, a tag-manager container, and a wrapper) with overlapping topics, so the merged result depends on load order</li><li>The merged config read with 'pbjs.getConfig()' does not match what any single 'setConfig' block in the source appears to set</li><li>No document or comment records why each setting is set as it is or who owns the configuration</li><li>Settings remain in place that trace to a past test or a one-off fix that nobody removed</li></ul>You may want to confirm that the configuration lives in one owned, documented place and that the merged result matches intent. One approach is to read the live config with 'pbjs.getConfig()', trace each value back to the block that sets it, and consolidate overlapping calls into a single source the team maintains.",
+        "site_type_overlays": {
+          "publishing": "On a media site, ad operations and the editorial CMS often touch the same pages, so a 'setConfig' call can live in the page template and another in a tag-manager container that ad ops controls. You may want to consolidate them into one owned block and document it, so an editorial template change does not alter the auction configuration without anyone noticing.",
+          "ecommerce": "On a commerce-content site, the storefront platform and the ad setup may be maintained by different teams, which makes scattered configuration more likely. You may want to keep the Prebid configuration in a single place one team owns and documents, so a platform update does not overwrite a setting nobody is watching."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "pbjs.getConfig",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/getConfig.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "pbjs.setConfig",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/setConfig.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Prebid.js troubleshooting guide",
+            "source_url": "https://docs.prebid.org/troubleshooting/troubleshooting-guide.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the merged configuration in force, trace each value back to the code that sets it, and confirm the configuration lives in one owned and documented place rather than scattered calls that overwrite each other.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser developer console",
+              "steps": [
+                "Open the page in a browser, open developer tools, and run 'pbjs.getConfig()' to capture the merged configuration actually in force.",
+                "Search the page source and any tag-manager container for 'pbjs.setConfig' to find every place a configuration call is made, and note which topics each one sets.",
+                "Compare the merged result from 'pbjs.getConfig()' against what each individual 'setConfig' block appears to set, and note any value that does not match its block, which points to a later call overwriting it.",
+                "Ask the publisher who owns the configuration and whether any document records why each setting is set as it is, and record settings that trace to a past test or one-off fix nobody removed."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records where each 'pbjs.setConfig' call lives, which topics it sets, and whether the merged config read with 'pbjs.getConfig()' matches intent and is documented and owned. A configuration kept in one owned place, documented, with the merged result matching the source, passes. A configuration spread across overlapping calls whose merged result depends on load order, or settings nobody can explain or owns, is a fail recorded with the conflicting calls or undocumented values found.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record where each setConfig call lives and whether the merged config matches intent above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sets its Prebid.js configuration through scattered 'pbjs.setConfig' calls that are not documented or owned in one place. Because 'setConfig' merges into the running configuration, overlapping calls let a later one overwrite an earlier value by load order, so the merged config in force may not match what any single block reads, and undocumented settings drift over time. {{voice_recommend}} reading the live configuration with 'pbjs.getConfig()', tracing each value to the block that sets it, and consolidating the calls into one documented source a team owns. After the change, confirm the merged config matches intent and assign an owner who keeps it current."
+      }
+    }
+  ]
+}

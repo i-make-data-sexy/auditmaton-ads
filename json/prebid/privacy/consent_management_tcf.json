@@ -1,0 +1,239 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://docs.prebid.org/dev-docs/modules/consentManagementTcf.html",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Header bidding sends a bid request to many third-party bidders on every page load, and the Transparency and Consent Framework requires each of those bidders to have a legal basis before it may read or write to the device. This check is a review of the Prebid configuration a publisher already runs, so it costs reading time rather than rebuild time. The finding points to a concrete wiring fix, either enabling the consent modules and registering a Consent Management Platform (CMP) or correcting how bidding is gated, and the cost of getting it wrong is a compliance exposure that touches every European visitor.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Prebid.js runs a real-time auction across many third-party bidders on the publisher's own pages, and under the General Data Protection Regulation (GDPR) those bidders need a legal basis before they read or write to a visitor's device. The Transparency and Consent Framework (TCF), maintained by the Interactive Advertising Bureau (IAB) Europe, is the standard that carries that consent signal as a string the bidders can read. This subcategory is about whether TCF consent is wired through Prebid correctly, both that the signal is read and passed to bidders and that bidding is gated where consent is absent and a legal basis is required. These checks confirm the consent plumbing matches the publisher's regulatory exposure rather than being absent, partial, or set to defaults that were never reviewed.",
+  "audit_checks": [
+    {
+      "id": "prebid-consent-management-tcf-module-not-enabled",
+      "title": "The Consent Management TCF module is not enabled or has no registered CMP",
+      "category": "privacy",
+      "subcategory": "consent_management_tcf",
+      "impact_score": 4,
+      "impact_rationale": "Without the Consent Management TCF module enabled and a registered Consent Management Platform (CMP) behind it, Prebid sends bid requests to third-party bidders with no consent signal attached. For visitors in a TCF region, that means third parties may read or write to the device with no legal basis on record, which is the kind of gap that turns into a regulatory exposure across the publisher's entire European traffic.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
+      "educate": {
+        "base": "Prebid.js runs a header-bidding auction on the publisher's own pages, and that auction sends a bid request to many third-party bidders at once. Under the General Data Protection Regulation (GDPR), each of those bidders needs a legal basis before it may read or write to a visitor's device. The Transparency and Consent Framework (TCF), maintained by the Interactive Advertising Bureau (IAB) Europe, is the standard that carries that legal basis. A CMP asks the visitor for their choices, encodes them into a TCF consent string, and exposes it through the 'window.__tcfapi()' interface on the page.<br><br>Prebid does not read that string on its own. The Consent Management TCF module is the piece that connects Prebid to the CMP. When the module is included in the build and configured, Prebid calls the CMP through the TCF API, waits for the consent string, and attaches it to the auction so each bidder receives it in the 'bidderRequest.gdprConsent' object. Without the module, no consent string reaches the bidders, so the bid requests go out with the consent fields empty regardless of what the visitor chose.<br><br>Enabling the module takes two things working together. A TCF v2.0 or v2.2 compliant CMP has to be installed on the page and registered, and the module has to be configured through 'pbjs.setConfig()' with a 'consentManagement.gdpr' block that names the CMP API ('iab' for a standard CMP), a timeout, and the 'defaultGdprScope' behavior for when the CMP does not answer in time. If either half is missing, the wiring is incomplete.<br><br>A few signs point to the module being absent or unwired:<ul><li>The Prebid build does not include the consentManagement module, so 'pbjs.installedModules' has no entry for it</li><li>'pbjs.getConfig('consentManagement')' returns nothing or has no 'gdpr' block</li><li>No registered CMP is present on the page, so 'window.__tcfapi' is undefined and no TCF string is generated</li><li>Bid requests in the network panel show empty 'gdpr' and 'gdpr_consent' parameters for visitors in a TCF region</li></ul>You may want to confirm that the Consent Management TCF module is in the build and that a registered CMP is supplying a consent string Prebid can read. One approach is to inspect the live page's Prebid configuration and the outgoing bid requests, then check the CMP's registration against the IAB Europe CMP list.",
+        "site_type_overlays": {
+          "publishing": "On a media site, ad revenue usually depends on a wide set of demand partners, so a missing consent signal touches many third parties at once and the exposure scales with traffic. You may want to confirm the Consent Management TCF module is enabled and the CMP is registered before adding more bidders since each new bidder inherits whatever consent plumbing is already in place.",
+          "ecommerce": "On a commerce-content site, the same pages often carry both analytics and advertising tags, so a CMP that is registered for one but not wired into Prebid can leave the ad auction running without a consent signal while the rest of the page looks compliant. You may want to confirm the Consent Management TCF module reads from the same registered CMP that the rest of the site relies on."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Consent Management - TCF for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementTcf.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Prebid.js CMP Best Practices for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/cmp-best-practices.html"
+          },
+          {
+            "source_type": "IAB Europe",
+            "source_title": "Transparency and Consent Framework",
+            "source_url": "https://iabeurope.eu/transparency-consent-framework/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the Consent Management TCF module is in the Prebid build, whether a registered CMP is present on the page, and whether outgoing bid requests carry a consent string for visitors in a TCF region.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console and Prebid debug tools",
+              "steps": [
+                "Open the page in a browser, open the developer console, and run 'pbjs.installedModules' to confirm whether 'consentManagement' is present in the build.",
+                "Run 'pbjs.getConfig('consentManagement')' and note whether a 'gdpr' block exists with a 'cmpApi', a 'timeout', and a 'defaultGdprScope' value.",
+                "Check whether 'window.__tcfapi' is defined, which indicates a TCF-compliant CMP is installed, and call it to confirm a consent string is being generated.",
+                "Run 'pbjs.getEvents()' and look for the auction picking up consent data, or use the Prebid debugging help to trace whether 'gdprConsent' is attached to the bidder requests."
+              ]
+            },
+            "network_panel": {
+              "label": "Browser network panel",
+              "steps": [
+                "Open the network panel, reload the page, and filter for the outgoing bid requests Prebid sends to its bidders.",
+                "Inspect a sample of those requests and note whether the 'gdpr' and 'gdpr_consent' parameters are populated with a consent string or left empty.",
+                "Record whether the consent string is absent for visitors who should fall under TCF scope, which points to the module being missing or unwired."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the Consent Management TCF module is in the build, whether a registered CMP is present and generating a consent string, and whether outgoing bid requests carry that string for TCF-scope visitors. A setup where the module is enabled, the CMP is registered, and bidders receive the consent string passes. A setup where the module is absent, no CMP is registered, or bid requests go out with empty consent parameters is a fail recorded with the specific gap found.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the module is enabled, whether a registered CMP is present, and whether bid requests carry a consent string above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs Prebid.js header bidding without the Consent Management TCF module enabled and a registered Consent Management Platform (CMP) behind it, so bid requests reach third-party bidders with no consent string attached. Under the General Data Protection Regulation (GDPR), each bidder needs a legal basis before it reads or writes to a visitor's device, and the Transparency and Consent Framework (TCF) string is what carries that basis. {{voice_recommend}} including the Consent Management TCF module in the Prebid build, registering a TCF v2.2 compliant CMP, and configuring the 'consentManagement.gdpr' block through 'pbjs.setConfig()' so Prebid reads the consent string and passes it to every bidder. After the change, confirm in the network panel that outgoing bid requests carry a populated consent string for visitors in a TCF region."
+      }
+    },
+    {
+      "id": "prebid-consent-management-tcf-enforcement-not-configured",
+      "title": "Bidding is not gated when consent is absent and a legal basis is required",
+      "category": "privacy",
+      "subcategory": "consent_management_tcf",
+      "impact_score": 4,
+      "impact_rationale": "Reading the consent string is only half of compliance. If the TCF Control module is not enforcing purposes and vendors, Prebid passes the string to bidders but still lets them participate when the visitor has not given consent and no other legal basis applies. That means third parties act on a device without the basis the visitor withheld, which is the exposure TCF is meant to prevent.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
+      "educate": {
+        "base": "Passing the consent string to bidders and acting on it are two separate jobs. The Consent Management TCF module reads the Transparency and Consent Framework (TCF) string from the Consent Management Platform (CMP) and hands it to each bidder, but on its own it does not stop a bidder from participating when consent is missing. Deciding what Prebid itself enforces is the job of the TCF Control module.<br><br>The TCF Control module reads the consent values and takes action on them at the Prebid level. It checks two things for each entity in the auction. The first is purpose consent, meaning whether the visitor agreed to a specific TCF purpose, for example Purpose 1 for storing or accessing information on the device or Purpose 2 for selecting basic ads. The second is vendor consent, meaning whether the visitor agreed to that particular bidder or module. With 'enforcePurpose' and 'enforceVendor' turned on, Prebid requires the matching consent before it lets the activity proceed.<br><br>When the legal basis is absent, the module gates the activity rather than letting it run. A bidder without Purpose 2 consent is held out of the auction, a user ID module without Purpose 1 consent does not activate, and an analytics adapter without Purpose 7 consent does not collect. The module also supports 'vendorExceptions' for entities a publisher has a separate basis for, and Prebid's own guidance recommends working with a privacy lawyer before making any enforcement exception.<br><br>A few signs point to enforcement not being configured:<ul><li>The Prebid build reads the consent string but the tcfControl module is not included, so nothing acts on the values</li><li>Enforcement is set so that purposes and vendors are not actually checked, for example 'enforcePurpose' or 'enforceVendor' left off where the publisher intends to enforce</li><li>The required purpose and vendor configuration is missing, which can either let entities through unchecked or exclude them in ways the publisher did not intend</li><li>'vendorExceptions' carry entries that nobody can tie to a documented legal basis</li></ul>You may want to confirm that Prebid is not only reading the consent string but acting on it, holding bidders and modules out when the visitor has not given the consent their activity requires. One approach is to review the enforcement configuration against the purposes each entity relies on, then test a no-consent scenario and watch which bidders are gated.",
+        "site_type_overlays": {
+          "publishing": "On a media site with many demand partners, enforcement decides which of those partners drop out of the auction when a visitor declines, so a misconfigured rule can either leak data to partners the visitor refused or exclude partners the publisher meant to keep. You may want to review the purpose and vendor enforcement against the partner list so the gating matches the consent each partner actually needs.",
+          "ecommerce": "On a commerce-content site, the same visitor may decline advertising purposes while the site still relies on first-party analytics, so enforcement needs to gate the ad bidders without breaking the measurement the business depends on. You may want to confirm the enforcement rules separate advertising vendors from the analytics the site runs under its own basis."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "TCF Control Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/tcfControl.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Consent Management - TCF for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementTcf.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the TCF Control module is in the build, how its purpose and vendor enforcement is configured, and what happens to bidders and modules in a no-consent scenario.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console and Prebid debug tools",
+              "steps": [
+                "In the developer console, run 'pbjs.installedModules' and note whether 'tcfControl' is present alongside the consentManagement module.",
+                "Run 'pbjs.getConfig('consentManagement')' and inspect the 'gdpr.rules' array, recording whether 'enforcePurpose' and 'enforceVendor' are set as the publisher intends and which purposes are covered.",
+                "Note any 'vendorExceptions' entries and record whether each one ties to a documented legal basis.",
+                "Run 'pbjs.getEvents()' after the auction and trace whether bidders that lack the required consent are held out, which confirms the enforcement is acting rather than just reading."
+              ]
+            },
+            "no_consent_test": {
+              "label": "No-consent test in the browser",
+              "steps": [
+                "Use the CMP to set a no-consent or limited-consent state for a test session, then reload the page.",
+                "Watch the network panel and the Prebid events to see which bidders, user ID modules, and analytics adapters still participate.",
+                "Record any entity that runs without the consent its purpose requires, which points to enforcement that is missing or misconfigured."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the TCF Control module is in the build, how purpose and vendor enforcement is configured, and which entities are gated in a no-consent test. A setup where enforcement checks the purposes and vendors each entity relies on, holds non-consented entities out, and documents any vendor exception passes. A setup where the consent string is read but no enforcement acts on it, or where entities run without the consent their purpose requires, is a fail recorded with the entities and purposes affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the TCF Control module is present, how enforcement is configured, and which entities are gated in a no-consent test above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} reads the Transparency and Consent Framework (TCF) consent string in Prebid.js but does not gate bidding when consent is absent and a legal basis is required because the TCF Control module is either not enabled or not enforcing purposes and vendors. Reading the string is only half of compliance since without enforcement third parties can still act on a visitor's device after that visitor declined. {{voice_recommend}} adding the TCF Control module, configuring purpose and vendor enforcement to match the consent each bidder and module relies on, and documenting any vendor exception with its legal basis. After the change, run a no-consent test on {{site_name}} and confirm that non-consented bidders, user ID modules, and analytics adapters are held out of the auction."
+      }
+    },
+    {
+      "id": "prebid-consent-management-tcf-defaults-not-reviewed",
+      "title": "CMP timeout and default scope settings are accepted without review",
+      "category": "privacy",
+      "subcategory": "consent_management_tcf",
+      "impact_score": 3,
+      "impact_rationale": "The consent timeout and the 'defaultGdprScope' fallback decide what Prebid does when the Consent Management Platform (CMP) does not answer in time. A timeout that is too short or a default scope set to assume no GDPR applies can let the auction proceed with no consent on record, so a setting left at a convenient default rather than a reviewed choice can weaken the consent flow it was meant to protect.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
+      "educate": {
+        "base": "The Consent Management TCF module has to handle the case where the Consent Management Platform does not respond in time. Two settings govern that case, and both deserve a deliberate choice rather than a default left in place. The first is the consent timeout, which is how long Prebid waits for the CMP to return a consent string before it stops waiting. The second is 'defaultGdprScope', which tells Prebid whether to assume the General Data Protection Regulation (GDPR) applies when the CMP has not answered.<br><br>The timeout is a balance. Set it too short and a slow CMP misses the window on real visitors, so the auction runs before consent arrives. Set it too long and the auction stalls behind a CMP that is failing, which costs revenue and degrades the page. The right value depends on how the publisher's CMP loads, and Prebid's guidance is to load a CMP stub synchronously and the CMP code asynchronously so the consent string is ready as early as possible.<br><br>The 'defaultGdprScope' setting is the riskier of the two to leave unreviewed. It decides the fallback when the CMP times out. Prebid's CMP best-practices guidance is that 'defaultGdprScope' should not be set to false globally because a global false tells Prebid to assume GDPR does not apply whenever the CMP fails to answer, which is exactly the moment a publisher most needs the protective assumption. A publisher serving European traffic generally wants the fallback to treat the visitor as in scope rather than out of it.<br><br>A few signs point to these settings being accepted rather than reviewed:<ul><li>'defaultGdprScope' is set to false globally, so a CMP timeout drops the visitor out of GDPR scope by default</li><li>The consent timeout is left at a value nobody can tie to how the CMP actually loads, either far too short or far too long</li><li>No record exists of why the timeout and scope values were chosen, which suggests they were never reviewed against the publisher's traffic and CMP</li></ul>You may want to confirm that the timeout and 'defaultGdprScope' values are a reviewed choice that fits the publisher's audience and CMP behavior. One approach is to read the current 'consentManagement.gdpr' configuration, then test a CMP timeout and watch whether the fallback treats the visitor as in scope or out of it.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a slow-loading page can push the CMP response past a short timeout for a real share of visitors, so the timeout value and the fallback both matter for traffic that genuinely falls under GDPR. You may want to set 'defaultGdprScope' to treat European visitors as in scope on timeout and tune the timeout to the CMP's real load behavior rather than a round number.",
+          "ecommerce": "On a commerce-content site, checkout and product pages often carry heavier scripts that can delay the CMP, so a timeout tuned on a light editorial page may be too short on the pages that matter most. You may want to confirm the timeout holds up on the heaviest pages and that the fallback keeps European visitors in scope when the CMP is slow."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Prebid.js CMP Best Practices for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/cmp-best-practices.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Consent Management - TCF for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementTcf.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the consent timeout and 'defaultGdprScope' values in the Prebid configuration and test how the auction behaves when the CMP does not answer in time.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console and Prebid config",
+              "steps": [
+                "In the developer console, run 'pbjs.getConfig('consentManagement')' and read the 'gdpr.timeout' and 'gdpr.defaultGdprScope' values.",
+                "Note whether 'defaultGdprScope' is set to false globally, which drops a timed-out visitor out of GDPR scope, or set to keep European visitors in scope.",
+                "Record the timeout value and ask the publisher what it was based on, then compare it against how the CMP loads on the page.",
+                "Check whether the page loads a CMP stub synchronously and the CMP code asynchronously, which affects how early the consent string is ready."
+              ]
+            },
+            "timeout_test": {
+              "label": "CMP timeout test in the browser",
+              "steps": [
+                "Simulate a slow or non-responding CMP, for example by throttling the network or blocking the CMP script in a test session, then reload the page.",
+                "Watch whether Prebid proceeds after the timeout and which scope it assumes for the visitor.",
+                "Record whether the fallback keeps a European visitor in GDPR scope or drops them out, and whether the timeout value gave the CMP a fair chance to respond."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the consent timeout and 'defaultGdprScope' values and the result of a CMP timeout test. A setup where the timeout fits how the CMP loads and 'defaultGdprScope' keeps European visitors in scope on timeout passes. A setup where 'defaultGdprScope' is false globally, the timeout is set without reference to the CMP's behavior, or a timeout test drops a European visitor out of scope is a fail recorded with the values found.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the timeout and 'defaultGdprScope' values and the result of a CMP timeout test above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} accepts the Prebid consent timeout and 'defaultGdprScope' settings without a reviewed choice behind them, so the behavior when the Consent Management Platform (CMP) does not answer in time may not fit the audience. A 'defaultGdprScope' set to false globally drops a timed-out visitor out of General Data Protection Regulation (GDPR) scope by default, and a timeout untied to how the CMP loads can let the auction run before consent arrives. {{voice_recommend}} setting 'defaultGdprScope' to keep European visitors in scope on timeout, tuning the timeout to the CMP's real load behavior, and loading a CMP stub synchronously so the consent string is ready early. After the change, run a CMP timeout test on {{site_name}} and confirm the fallback keeps in-scope visitors protected."
+      }
+    }
+  ]
+}

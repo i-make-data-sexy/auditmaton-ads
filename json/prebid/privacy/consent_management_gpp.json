@@ -1,0 +1,249 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The Global Privacy Platform (GPP) string is how a publisher tells every bidder which privacy rules apply to a given user and what the user chose. If Prebid.js never reads that string and passes it to demand, bidders receive requests with no privacy signal attached, which can lead to demand partners dropping the bid for safety or processing data they should not. The check is a review of the consent configuration a publisher already has in their Prebid.js setup, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration change the publisher can make in setConfig.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Prebid.js is the header-bidding library a publisher runs on their own pages, and it decides what signals each bidder receives in the bid request. The GPP is the IAB framework that carries a user's privacy and consent choices for multiple jurisdictions in a single string, and Prebid reads that string through its Consent Management GPP module. This subcategory is about whether GPP consent is wired through Prebid at all and whether the sections that apply to the markets the site serves are configured, rather than about the consent management platform's own user-facing prompt. These checks confirm that the GPP string reaches demand partners and reflects the rules of the jurisdictions where the publisher's audience sits.",
+  "audit_checks": [
+    {
+      "id": "prebid-consent-management-gpp-module-not-enabled",
+      "title": "The Consent Management GPP module is not enabled",
+      "category": "privacy",
+      "subcategory": "consent_management_gpp",
+      "impact_score": 4,
+      "impact_rationale": "Without the Consent Management GPP module in the build, Prebid.js never reads the Global Privacy Platform string from the consent management platform and never attaches gppConsent to bid requests. Bidders then receive requests with no GPP signal, which can lead a demand partner to drop the bid as a precaution or to process data without the consent record the publisher's framework was meant to carry, so the gap touches both revenue and legal exposure.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
+      "educate": {
+        "base": "Prebid.js does not read a user's privacy choices on its own. It relies on a consent management platform (CMP) on the page to gather those choices and on a Prebid module to fetch them and pass them to bidders. For the Global Privacy Platform (GPP), that module is the Consent Management GPP module. The CMP, built to the IAB GPP CMP API, holds the GPP string, and the module reads that string and places it on the auction objects so each adapter can attach it to its bid request.<br><br>The module is not part of a default Prebid.js build. It has to be compiled in, for example with a build command that names 'consentManagementGpp' alongside the bid adapters, and then switched on with a 'consentManagement' object inside the 'setConfig()' call. The configuration names the CMP API to read from (the IAB API by default), a timeout for how long Prebid waits for the CMP to respond, and the sections of GPP that apply. Once the module runs, an adapter that supports GPP finds the data in 'bidderRequest.gppConsent' during its 'buildRequests()' method and includes it in the call to its endpoint.<br><br>When the module is absent, the chain breaks at the first link. Prebid has no way to read the GPP string even if the CMP on the page is collecting choices correctly, so the auction proceeds with no GPP signal attached. A bidder that expects a privacy signal in regulated markets may respond by withholding a bid rather than risk processing data it cannot account for, which removes demand from the auction. A bidder that bids anyway may process personal data without the consent record the framework was meant to carry, which is the legal exposure the framework exists to prevent.<br><br>A few signs point to the module not being enabled:<ul><li>The Prebid.js build does not include 'consentManagementGpp' among its compiled modules</li><li>The 'setConfig()' call has no 'consentManagement' object with a 'gpp' section, or has one that is disabled</li><li>Bid requests inspected in the network tab carry no GPP string even on page loads where the CMP shows a privacy choice was recorded</li></ul>You may want to confirm that the Consent Management GPP module is compiled into the build and configured in 'setConfig()'. One approach is to inspect the running configuration in the browser console and check a sample of outgoing bid requests for the GPP signal.",
+        "site_type_overlays": {
+          "publishing": "A media site that draws audience across several US states and into Europe sits under more than one privacy regime at once, so the GPP string is the mechanism that tells each bidder which rules apply to the reader in front of them. You may want to confirm the module is enabled before relying on geography-based logic elsewhere. Without it, no GPP signal reaches demand regardless of where the reader sits.",
+          "ecommerce": "A commerce-content site often runs remarketing and audience-based demand that depends on a clear consent signal to operate within the rules. You may want to confirm the Consent Management GPP module is enabled so that the consent choices the CMP records actually reach the bidders, rather than being collected on the page and then dropped before the auction."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - GPP for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js CMP Best Practices for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/cmp-best-practices.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform",
+            "source_url": "https://iabtechlab.com/gpp/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the Consent Management GPP module is compiled into the Prebid.js build and configured in setConfig(), then confirm that the GPP signal reaches outgoing bid requests.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console",
+              "steps": [
+                "Open the site in a browser, open DevTools, and switch to the 'Console' tab.",
+                "Run 'pbjs.installedModules' and check whether 'consentManagementGpp' appears in the list of compiled modules.",
+                "Run 'pbjs.getConfig('consentManagement')' and note whether a 'gpp' object exists and is enabled, along with its 'cmpApi' and 'timeout' values.",
+                "Run 'pbjs.getEvents()' and look for the bid request events to confirm whether a GPP value is present on the bidder requests."
+              ]
+            },
+            "network_tab": {
+              "label": "Browser network tab",
+              "steps": [
+                "Open DevTools, switch to the 'Network' tab, and reload the page so the bid requests are captured.",
+                "Filter to the bidder endpoints and inspect a sample of outgoing requests for a GPP string and the applicable-sections value.",
+                "Record whether the GPP signal is attached on a page load where the CMP recorded a privacy choice, or whether the requests carry no GPP signal at all."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether 'consentManagementGpp' is in the compiled build, whether 'setConfig()' carries an enabled 'gpp' configuration, and whether a sample of bid requests carries the GPP signal. A setup where the module is compiled, configured, and visibly passing the GPP string to bidders passes. A setup where the module is missing from the build, or present but disabled, or where bid requests carry no GPP signal on a consented page load, is a fail recorded with the evidence from the console and the network tab.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the GPP module is compiled and configured and whether the GPP signal reaches bid requests above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not have the Prebid.js Consent Management GPP module enabled, so the Global Privacy Platform (GPP) string the consent management platform records never reaches the bidders. Without the module, Prebid attaches no GPP signal to bid requests, which can lead a demand partner to withhold a bid in a regulated market or to process data without the consent record the framework was meant to carry. {{voice_recommend}} compiling the 'consentManagementGpp' module into the build, configuring it with a 'consentManagement' object in 'setConfig()', and confirming through the browser console and the network tab that the GPP string then appears on outgoing bid requests. After the change, recheck a sample of requests across the markets the site serves to confirm the signal is present."
+      }
+    },
+    {
+      "id": "prebid-consent-management-gpp-sections-not-configured",
+      "title": "GPP sections are not configured for the jurisdictions the site serves",
+      "category": "privacy",
+      "subcategory": "consent_management_gpp",
+      "impact_score": 3,
+      "impact_rationale": "The Global Privacy Platform string carries a section for each jurisdiction, and Prebid acts on the sections named in the configuration. If the applicable sections do not cover the markets the site serves, for example the European TCF section or the US national and state sections, then readers in those markets get the auction defaults rather than the rules that apply to them, so the consent the publisher collected does not govern the auction.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
+      "educate": {
+        "base": "The Global Privacy Platform (GPP) string is built to carry many jurisdictions at once. It concatenates a separate section for each regime into a single string, so one string can hold the IAB Europe Transparency and Consent Framework (TCF) section, the US national section, and a set of US state sections together. The string also names its applicable sections, which tell a reader which of those regimes apply to the user in front of it.<br><br>Prebid's Consent Management GPP module reads that string, but the configuration decides which sections Prebid recognizes and acts on. The module references section identifiers such as 'tcfeu' for the European framework, 'tcfca' for the Canadian one, 'usnat' for the US national signal, and the US state sections, passed through the applicable-sections field. A configuration that names only one regime, or that leaves the sections at a default that does not match where the audience actually sits, will read the string but apply the wrong slice of it.<br><br>The consequence is quiet because the auction still runs. A reader in a US state whose section is not configured, or a reader in Europe when the TCF section is not handled, falls through to the auction's default behavior rather than the rules their jurisdiction requires. The publisher collected the choice through the consent management platform, the GPP string carries it, and Prebid then ignores it because the section was never wired in. The signal exists end to end except for the one step that makes it count.<br><br>A few signs point to sections that are not configured for the markets served:<ul><li>The Prebid configuration handles only one regime, e.g., the European TCF section, while the site draws meaningful audience from the US as well</li><li>The applicable-sections value in inspected bid requests does not match the user's actual location across a sample of page loads</li><li>The audience reaches jurisdictions, such as several US states, whose sections are absent from the configuration</li></ul>You may want to confirm that the GPP sections configured in Prebid cover the jurisdictions the site's audience actually spans. One approach is to compare the configured sections against the markets shown in the publisher's own analytics, then add any regime that has meaningful audience but no section.",
+        "site_type_overlays": {
+          "publishing": "A media site with a national or international readership commonly serves audience under the European framework and across multiple US states in the same day, so a single-regime configuration leaves whole segments of readers on the auction defaults. You may want to confirm the configured GPP sections cover both the European section and the US sections that match where the readership sits.",
+          "ecommerce": "A commerce-content site that ships or markets across regions reaches buyers under different privacy regimes depending on location, and audience-based demand depends on the right section governing each one. You may want to confirm the GPP configuration names the sections for every market the store serves rather than only the home market."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - GPP for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "GPP Control Module - USNat string",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/gppControl_usnat.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform",
+            "source_url": "https://iabtechlab.com/gpp/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which GPP sections the Prebid configuration names against the jurisdictions the site's audience actually spans, then confirm the applicable-sections value on bid requests matches the user's location.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console",
+              "steps": [
+                "Open DevTools and switch to the 'Console' tab on the live site.",
+                "Run 'pbjs.getConfig('consentManagement')' and read the 'gpp' object to note which sections the configuration names.",
+                "Run 'pbjs.getEvents()' and inspect the bidder request events for the GPP applicable-sections value Prebid is acting on.",
+                "Compare the configured and acted-on sections against the publisher's audience-by-geography data to find any regime with audience but no section."
+              ]
+            },
+            "network_tab": {
+              "label": "Browser network tab",
+              "steps": [
+                "Open the 'Network' tab in DevTools and reload the page to capture the bid requests.",
+                "Inspect a sample of outgoing bidder requests and record the GPP string and its applicable-sections value.",
+                "If access to a test client in another region is available, compare the applicable sections across locations to see whether they shift to match the jurisdiction or stay fixed."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the GPP sections named in the Prebid configuration, the applicable sections seen on bid requests, and the jurisdictions the site's audience spans from the publisher's analytics. A configuration whose sections cover every regime with meaningful audience passes. A configuration that names only a subset, leaving readers in unhandled jurisdictions on the auction defaults, is a fail recorded with the missing sections and the audience they correspond to.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the configured GPP sections, the applicable sections on bid requests, and the audience by jurisdiction above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} configures the Prebid Consent Management GPP module for only a subset of the jurisdictions its audience spans, so readers in the unhandled regimes fall through to the auction defaults rather than the rules that apply to them. The Global Privacy Platform (GPP) string carries a section for each regime, and Prebid acts only on the sections named in the configuration, so a section that is absent means the consent collected for that jurisdiction does not govern the auction. {{voice_recommend}} comparing the configured sections against the markets shown in the site's own analytics and adding the European, US national, and US state sections that match where the audience sits. After the change, confirm through inspected bid requests that the applicable-sections value follows the user's location."
+      }
+    },
+    {
+      "id": "prebid-consent-management-gpp-us-state-control-module-missing",
+      "title": "US state GPP strings are not normalized into activity controls",
+      "category": "privacy",
+      "subcategory": "consent_management_gpp",
+      "impact_score": 3,
+      "impact_rationale": "Reading the Global Privacy Platform string is one step, acting on it is another. The GPP Control Module for US states translates the state sections into activity restrictions Prebid enforces. Without it, the US state choices a reader makes are carried in the string but are not turned into the restrictions the auction should respect, so the publisher passes the signal along without applying it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
+      "educate": {
+        "base": "Passing the Global Privacy Platform (GPP) string to bidders is necessary but it is not the same as enforcing the choices the string carries. The Consent Management GPP module reads the string and attaches it to bid requests. Turning the US state sections of that string into restrictions Prebid acts on is the job of a separate module, the GPP Control Module for US states ('gppControl_usstates').<br><br>That module normalizes the US state strings into a common form and applies the matching activity restrictions through Prebid's activity controls. Per the Prebid documentation, it covers the GPP sections for several states, including California, Virginia, Colorado, Connecticut, and Utah, and it translates each state's string into the equivalent national-style rules rather than asking the publisher to manage each state's logic by hand. A companion module exists for the US national string. The documentation frames the state control module as the more mature and less error-prone path for state-level rules because it reuses one normalization rather than separate handling per state.<br><br>Without the control module, the auction reads the GPP string and may even pass it to bidders, yet nothing inside Prebid restricts the activities the state choices were meant to limit, such as the sale or sharing of data or the use of certain identifiers. The reader opted out under their state's law, the choice rides along in the string, and Prebid takes no action on it. The publisher is then relying entirely on each downstream bidder to interpret and honor the string, which is a weaker position than enforcing the restriction at the source.<br><br>A few signs point to the US state control module being absent:<ul><li>The build includes 'consentManagementGpp' but not 'gppControl_usstates'</li><li>The site draws audience from US states with their own privacy laws, yet no activity restrictions are configured for those state sections</li><li>Inspecting the auction shows the GPP string present on requests but no Prebid-side restriction applied when a state opt-out is recorded</li></ul>You may want to confirm that the US state sections are not only read but enforced. One approach is to add the 'gppControl_usstates' module and configure the state sections (the 'sids') for the states the audience reaches, then verify that a recorded opt-out produces the expected restriction in the auction.",
+        "site_type_overlays": {
+          "publishing": "A media site with a US-wide readership reaches states whose privacy laws grant opt-out rights, and a reader who exercises one expects it to take effect rather than merely travel in a string. You may want to add the US state control module and configure the relevant state sections so those opt-outs become restrictions Prebid enforces, not signals it only forwards.",
+          "ecommerce": "A commerce-content site that markets nationally serves buyers across states with opt-out rights over the sale and sharing of their data, which bears directly on remarketing and audience demand. You may want to confirm the US state control module is in place so a buyer's opt-out restricts the relevant activities in the auction rather than depending on each bidder to honor the string."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "GPP Control Module - US state strings",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/gppControl_usstates.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "GPP Control Module - USNat string",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/gppControl_usnat.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform",
+            "source_url": "https://iabtechlab.com/gpp/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the GPP Control Module for US states is compiled and configured, then confirm a recorded state opt-out produces an enforced restriction in the auction rather than only a forwarded string.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console",
+              "steps": [
+                "Open DevTools and switch to the 'Console' tab on the live site.",
+                "Run 'pbjs.installedModules' and check whether 'gppControl_usstates' appears alongside 'consentManagementGpp'.",
+                "Run 'pbjs.getConfig()' and read the activity-control or GPP control settings to note which state sections (the 'sids') are configured.",
+                "Run 'pbjs.getEvents()' and review the auction events to see whether a recorded state opt-out produced a Prebid-side restriction or only a forwarded GPP string."
+              ]
+            },
+            "network_tab": {
+              "label": "Browser network tab",
+              "steps": [
+                "Open the 'Network' tab in DevTools and reload the page to capture the bid requests.",
+                "On a session where a US state opt-out is recorded, inspect the outgoing requests and the bidders called.",
+                "Record whether the opt-out changed which bidders or activities ran, which indicates an enforced restriction, or whether the string was simply forwarded with no change in behavior."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether 'gppControl_usstates' is compiled, which state sections it is configured for, and whether a recorded state opt-out produces an enforced restriction in the auction. A setup that compiles the control module, configures the state sections matching the audience, and visibly enforces the opt-out passes. A setup that reads or forwards the GPP string but has no US state control module, or one configured for states the audience does not include while omitting the states it does, is a fail recorded with the states affected and the evidence from the auction events.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the US state control module is compiled, which state sections it covers, and whether a state opt-out is enforced above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} reads the Global Privacy Platform (GPP) string but does not enforce its US state sections. The GPP Control Module for US states is missing, so nothing turns the state opt-outs into restrictions the auction applies. Reading and forwarding the string is one step, and turning the state opt-outs into restrictions Prebid acts on is another that the control module performs by normalizing each state's string into the matching activity rules. Without it, a reader's state opt-out rides along in the string while the auction takes no action on it, which leaves enforcement to each downstream bidder. {{voice_recommend}} adding the 'gppControl_usstates' module, configuring the state sections for the states the audience reaches, and confirming that a recorded opt-out produces the expected restriction in the auction. After the change, test a state opt-out and verify the restriction is applied at the source rather than only forwarded."
+      }
+    }
+  ]
+}

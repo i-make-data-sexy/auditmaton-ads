@@ -1,0 +1,169 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Video completion and viewability are the two numbers a buyer leans on when deciding what a video impression is worth, so they decide whether a publisher's video rates hold up under scrutiny. When the completion events or the viewability signal are missing, miscounted, or disagree across the player and the sell-side platform, the publisher loses the evidence it needs to defend its CPMs and the buyer discounts the inventory to cover the doubt. This check reads the video event tracking and the viewability integration a publisher already runs through Equativ, so it costs reading time rather than rebuild time, and the finding points to a concrete reporting gap the publisher can close.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Video Through Rate (VTR) and viewability are the metrics that let a buyer value a video impression and let a publisher defend the price it charges for one. This subcategory is about the integrity of those two signals on Equativ, the sell-side platform formerly known as Smart AdServer. These checks confirm that the quartile and completion events fire and reconcile between the video player and Equativ's reporting, and that a viewability measurement vendor is integrated so the impression carries an in-view signal a buyer trusts.",
+  "audit_checks": [
+    {
+      "id": "equativ-video-completion-viewability-quartile-events-not-reconciled",
+      "title": "Video quartile and completion events are not reconciled between the player and Equativ",
+      "category": "measurement",
+      "subcategory": "video_completion_viewability",
+      "impact_score": 3,
+      "impact_rationale": "Video Through Rate (VTR) and the quartile breakdown are derived from the completion events the player fires back through the VAST tags. If those events are missing or fire inconsistently, the completion numbers in Equativ drift from what the player actually played, so a publisher reports a VTR it cannot stand behind and a buyer values the inventory off a number neither side trusts.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "VTR is the share of video ads that play to the end, and it sits on top of the quartile events that the VAST creative tells the player to fire. The Video Ad Serving Template (VAST) standard from IAB Tech Lab defines a fixed set of tracking events the player calls as playback advances, including start, firstQuartile at 25 percent, midpoint at 50 percent, thirdQuartile at 75 percent, and complete at the end. Equativ reads those calls to build its completion and quartile reporting, so the numbers in the sell-side platform are only as accurate as the events the player sends back.<br><br>The problem the audit looks for is a gap between what the player played and what Equativ counted. A player that drops the complete event, fires quartiles out of order, or never wires the VAST tracking nodes leaves Equativ to report a VTR built on partial data. The publisher then quotes a completion rate that does not match the player's own analytics, and a buyer who reconciles against a verification vendor sees a third number again. Three sources that should agree instead disagree, and the inventory gets discounted to cover the uncertainty.<br><br>Reconciliation is the way to catch this. A publisher can pull the quartile and complete counts from Equativ's reporting for a defined window, pull the same events from the video player's own analytics, and compare them line by line. Small variance is expected because the two systems sample and dedupe differently, but a large or one-sided gap, for example a complete count in Equativ that runs well below the player's, points to a tracking break rather than normal measurement noise.<br><br>A few signs point to quartile and completion events that are not reconciled:<ul><li>Equativ's reported VTR or completion rate differs widely from the video player's own completion analytics for the same period</li><li>The quartile funnel in Equativ does not step down in order, for example a thirdQuartile count higher than the midpoint count</li><li>The player or its Prebid video setup was changed without a check that the VAST tracking events still fire into Equativ afterward</li></ul>You may want to confirm that the quartile and complete events reconcile between the player and Equativ within a tolerance the publisher sets. One approach is to run a fixed-window comparison of the two sources and treat any large or one-directional gap as a tracking issue to trace back to the VAST configuration.",
+        "site_type_overlays": {
+          "publishing": "On a media site, instream video in articles and a persistent outstream or sticky player can run on different player configurations, so the VAST tracking may be wired correctly in one and broken in the other. You may want to reconcile completion events per player placement rather than across the whole site, so a single misconfigured unit does not hide inside a blended VTR.",
+          "ecommerce": "On a commerce-content site, product-page and review video often sits in a lightweight player added for that page type, which can ship without the full VAST tracking nodes. You may want to confirm the quartile and complete events fire from the commerce-page player specifically since that inventory carries the higher video rates a buyer will scrutinize."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "Video Ad Serving Template (VAST) 4.3 Specification",
+            "source_url": "https://iabtechlab.com/wp-content/uploads/2022/09/VAST_4.3.pdf"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js for Video Overview for Header Bidding",
+            "source_url": "https://docs.prebid.org/prebid-video/video-overview.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the quartile and complete event counts in Equativ's reporting against the video player's own completion analytics for the same window, and trace any large gap back to the VAST tracking configuration.",
+        "tools": {
+          "free": {
+            "equativ_reporting": {
+              "label": "Equativ reporting",
+              "steps": [
+                "Open Equativ's reporting and build a video report for a defined window broken out by quartile (start, firstQuartile, midpoint, thirdQuartile, complete) and the completion rate or Video Through Rate (VTR).",
+                "Record the count at each quartile and confirm the funnel steps down in order since a later quartile counting higher than an earlier one points to a tracking break.",
+                "Note the reported completion rate so it can be compared against the player's own analytics for the same window."
+              ]
+            },
+            "player_analytics": {
+              "label": "Video player analytics",
+              "steps": [
+                "Pull the same quartile and completion events from the video player's own analytics (e.g., the player vendor's dashboard or the site's analytics) for the identical window.",
+                "Compare the player's quartile and complete counts against Equativ's line by line and record the size and direction of any gap.",
+                "Where the gap is large or one-sided, inspect the VAST tags or the Prebid video setup to confirm the tracking events are wired and fire into Equativ."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the quartile and complete counts from Equativ alongside the same events from the player's analytics for a defined window, plus the resulting completion rate from each source. A setup where the two sources reconcile within the publisher's tolerance and the quartile funnel steps down in order passes. A setup where the completion counts diverge widely, the gap runs in one direction, or the funnel is out of order is a fail recorded with the window, the counts, and the player placement affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the quartile and complete counts from Equativ and from the player analytics for the same window above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} reports a Video Through Rate (VTR) in Equativ that does not reconcile with the video player's own completion analytics, so the quartile and complete events are not being counted consistently across the two systems. Video Through Rate is built on the VAST tracking events the player fires, and when those events are missing or fire out of order the completion numbers drift from what actually played, which leaves the video rates hard to defend to a buyer. {{voice_recommend}} running a fixed-window comparison of the quartile and complete counts between Equativ and the player, then tracing any large or one-directional gap back to the VAST configuration so the events fire and reconcile. After the fix, recheck the funnel to confirm each quartile steps down in order and the two sources agree within tolerance."
+      }
+    },
+    {
+      "id": "equativ-video-completion-viewability-no-viewability-measurement-integrated",
+      "title": "Viewability measurement is not integrated on video inventory",
+      "category": "measurement",
+      "subcategory": "video_completion_viewability",
+      "impact_score": 3,
+      "impact_rationale": "Buyers value a video impression partly on whether it was in view, and many trade against a viewability threshold. Video inventory that carries no in-view signal forces a buyer to assume the worst or measure it themselves, so the publisher cannot defend its rates with its own data and the inventory clears below what an in-view impression would.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "Viewability is the measure of whether an ad had a genuine chance to be seen, and for video the bar is specific. The Media Rating Council (MRC) defines a viewable video impression as at least 50 percent of the ad's pixels in view for a continuous two seconds while the ad plays, a higher bar than the one-second standard for display. A buyer uses that signal to value the impression, and many buy against a viewability rate, so a video impression that carries no in-view measurement is harder to value and easier to discount.<br><br>The audit question is whether a viewability vendor is wired into the video inventory at all, and whether the measurement runs through a standard the buy side recognizes. The Open Measurement SDK (OMSDK) from IAB Tech Lab is the common path. It exposes a single interface, the Open Measurement Interface Definition (OMID), that lets third-party verification vendors read in-view signals from the player without each vendor bolting on its own code. When OMSDK is integrated, the publisher and the buyer can read the same viewability number from a source both trust, rather than arguing over two vendors' figures.<br><br>Without an integration, the publisher is left in a weak spot. It can quote a viewability rate from its own player, but a buyer has no independent confirmation, so the number carries little weight in a rate negotiation. The buyer either measures viewability with its own vendor and trades on that figure, or assumes a low rate and bids accordingly. Either way the publisher loses control of how its video inventory is valued.<br><br>A few signs point to viewability measurement that is not integrated on video:<ul><li>No verification vendor (e.g., a Media Rating Council accredited measurement provider) is wired into the video player or the VAST creative path</li><li>OMSDK is not implemented, so third-party vendors cannot read in-view signals through a standard interface</li><li>The publisher reports a viewability rate from its own player only, with no independent source a buyer can reconcile against</li></ul>You may want to confirm that video inventory carries an independent, standards-based viewability signal a buyer recognizes. One approach is to integrate the Open Measurement SDK so an accredited vendor can measure in-view rates against the MRC video standard from a source both sides read the same way.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a sticky or floating player that follows the reader down the page can post a strong viewability rate, while an instream unit deep in a long article may post a weak one. You may want viewability measured per player placement, so the publisher can price the high-viewability units up and understand why the buried inventory clears lower rather than blending the two.",
+          "ecommerce": "On a commerce-content site, video on product and category pages reaches a higher-intent audience and commands higher rates, so an independent viewability signal matters most there. You may want to confirm the commerce-page video carries OMSDK-based measurement specifically since that is the inventory where a buyer is most likely to scrutinize the in-view rate before paying a premium."
+        },
+        "learn_more": [
+          {
+            "source_type": "MRC Standard",
+            "source_title": "MRC Measurement Standards and Guidelines",
+            "source_url": "https://mediaratingcouncil.org/standards-and-guidelines"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Open Measurement SDK (OM SDK)",
+            "source_url": "https://iabtechlab.com/standards/open-measurement-sdk/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Show Video Ads with Google Ad Manager for Header Bidding",
+            "source_url": "https://docs.prebid.org/adops/setting-up-prebid-video-in-dfp.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether a viewability vendor is integrated on the video inventory, whether it runs through the Open Measurement SDK, and whether the resulting in-view rate uses the MRC video standard.",
+        "tools": {
+          "free": {
+            "equativ_reporting": {
+              "label": "Equativ reporting",
+              "steps": [
+                "Open Equativ's reporting and check whether a viewability or in-view rate is available for video inventory, and note the vendor or measurement source behind it.",
+                "Record whether the in-view rate is reported per player placement or only as a single blended number across all video.",
+                "Note whether the reported rate comes from a third-party verification vendor or only from the publisher's own player."
+              ]
+            },
+            "player_inspection": {
+              "label": "Video player and tag inspection",
+              "steps": [
+                "Inspect the video player and the VAST creative path for an Open Measurement SDK (OMSDK) integration or a verification vendor's measurement code.",
+                "Confirm whether the integration reads in-view signals through the Open Measurement Interface Definition (OMID) rather than a one-off vendor script.",
+                "Record which video placements carry the measurement and which, if any, run with no independent viewability signal."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a third-party viewability vendor is integrated on video, whether it runs through the Open Measurement SDK, and whether the in-view rate is measured against the MRC video standard, per player placement. A setup where an accredited vendor measures in-view rates through a standard interface passes. A setup where video inventory carries no independent viewability signal, or relies on the publisher's own player only, is a fail recorded with the placements affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a third-party viewability vendor is integrated on the video inventory and which placements it covers above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs video inventory with no independent viewability measurement integrated, so the in-view signal a buyer needs to value the impression is missing. The Media Rating Council (MRC) defines a viewable video impression as at least 50 percent of pixels in view for a continuous two seconds, and a buyer with no independent measurement of that signal will either measure it themselves or assume a low rate and bid accordingly. {{voice_recommend}} integrating the Open Measurement SDK (OMSDK) so an accredited verification vendor can read in-view signals through a standard interface, then reporting the viewability rate per player placement. After the integration, confirm the in-view rate comes from a source both {{site_name}} and its buyers read the same way so the video rates can be defended with shared data."
+      }
+    }
+  ]
+}

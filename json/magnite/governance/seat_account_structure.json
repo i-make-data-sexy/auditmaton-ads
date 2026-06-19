@@ -1,0 +1,157 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "A seat and seller-entity structure decides how a publisher's inventory is represented to buyers and how payments flow back, so a fragmented or stale structure can split reporting, dilute the seller record buyers verify, and leave open integrations no one is watching. This check is a review of the account structure a publisher already has in Magnite, so it costs reading time rather than rebuild time, and the finding points to a concrete consolidation or closure the publisher can act on.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "A publisher's seat and seller-entity structure in Magnite determines how its inventory is presented to buyers and how money moves back from buyer to publisher. The structure also feeds the public records buyers use to verify supply, namely the seller entry in Magnite's sellers.json file and the node Magnite contributes to the SupplyChain object on each bid request. This subcategory is about whether that structure is clean and current rather than fragmented across duplicate seats or cluttered with seats and integrations that no longer carry traffic. These checks confirm that the seller entities consolidate reporting and payment as intended, and that inactive or orphaned seats are identified and closed.",
+  "audit_checks": [
+    {
+      "id": "magnite-seat-account-structure-fragmented-seats",
+      "title": "Inventory is split across fragmented or duplicate seller entities",
+      "category": "governance",
+      "subcategory": "seat_account_structure",
+      "impact_score": 3,
+      "impact_rationale": "When a publisher's inventory is represented by more than one seller entity that should have been a single account, reporting and payment split across those entities, so no single view shows total revenue, and reconciliation has to stitch the pieces together by hand. The split also fragments the seller record in sellers.json, which gives buyers more entries to verify for the same inventory and weakens the transparency signal the record is meant to provide.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "Magnite is a sell-side platform (SSP), which means it represents a publisher's inventory to buyers and routes payment back from the buyer to the publisher. Each publisher is represented by a seller entity, and that entity is what appears in Magnite's public sellers.json file under a seller identifier (seller ID) with a seller type of PUBLISHER. The seller ID also appears as the seller identifier (sid) in the node Magnite adds to the SupplyChain object on each bid request, so the seller entity is the anchor that ties a publisher's reporting, its payment record, and the transparency records buyers verify.<br><br>Fragmentation happens when a publisher ends up represented by more than one seller entity that should have been one. A separate seat opened during a trial that was never folded in, a duplicate account created during an onboarding handoff, or distinct entities standing in for inventory that belongs to the same business can all leave the same publisher split across several seller IDs. The inventory still sells, so nothing breaks loudly, and the fragmentation is easy to miss until someone tries to reconcile total revenue.<br><br>The cost shows up in three places. Reporting splits across the entities, so a publisher reading one seat sees only part of its revenue and has to combine seats by hand to see the whole. Payment can split the same way, with separate remittances and separate minimums to clear per entity. The sellers.json record fragments too, so a buyer verifying the supply sees several seller IDs for what is really one publisher, which gives them more entries to cross-reference and a weaker, more confusing transparency signal than a single consolidated entry.<br><br>A few signs point to fragmented or duplicate seller entities:<ul><li>The same inventory or domain is represented under more than one seller ID in Magnite's sellers.json record</li><li>Reporting has to be combined across two or more seats to see total revenue for one publisher</li><li>A seat exists that was opened for a trial, a migration, or a handoff and was never consolidated into the primary account</li></ul>You may want to confirm that the publisher is represented by a single seller entity per business rather than several. One approach is to list every seller ID tied to the publisher's inventory, identify any that duplicate the same domain or business, and work with Magnite to consolidate them so reporting, payment, and the sellers.json record resolve to one entry.",
+        "site_type_overlays": {
+          "publishing": "On a media business that runs several titles or domains, it can be deliberate to represent each title under its own seller entity, and it can also be accidental fragmentation where one title ended up with two seats. You may want to map each seller ID to the title and domain it represents, confirm the split is intentional per title, and consolidate any case where a single title is divided across more than one entity.",
+          "ecommerce": "On a commerce-content business, the editorial domain and any separate storefront or subdomain may be represented under one seller entity or several. You may want to confirm that the entities match how the business actually accounts for the inventory, and consolidate any duplicate seat that splits the same property across more than one seller ID."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB SupplyChain object specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/openrtb/blob/main/supplychainobject.md"
+          }
+        ],
+        "learn_more_note": "Magnite's detailed documentation for managing seller entities and seats is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the seller entities tied to the publisher's inventory and compare them against Magnite's public sellers.json record to find any case where one publisher is split across more than one seller ID.",
+        "tools": {
+          "free": {
+            "magnite_console": {
+              "label": "Magnite console",
+              "steps": [
+                "Sign in to the Magnite console and open the account or seller-entity view that lists the seats tied to this publisher.",
+                "Record each seller entity, its seller ID, and the inventory or domains it represents.",
+                "Note any seat that was opened for a trial, a migration, or a handoff and ask the publisher whether it was meant to be consolidated into the primary account.",
+                "Check Magnite's Demand Manager setup for any wrapper or header-bidding integration that points at a seat other than the primary one."
+              ]
+            },
+            "sellers_json": {
+              "label": "Magnite sellers.json record",
+              "steps": [
+                "Open Magnite's public sellers.json file and search it for the publisher's domains and seller IDs.",
+                "List every seller entry that represents this publisher, with its seller_id, name, domain, and seller_type.",
+                "Flag any case where the same domain or business appears under more than one seller ID, which points to a fragmented or duplicate seller entity."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner lists every seller entity tied to the publisher, with its seller ID and the inventory it represents, and cross-references that against Magnite's sellers.json record. A structure where each business or property resolves to a single, intentional seller entity passes. A structure where one publisher or one property is split across more than one seller ID, with no deliberate reason on record, is a fail recorded with the duplicate entities and the inventory each one represents.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each seller entity, its seller ID, and the inventory it represents above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} is represented by more than one Magnite seller entity for inventory that belongs to a single business, so reporting and payment split across those seats and the public sellers.json record carries more than one seller identifier (seller ID) for the same supply. A fragmented structure forces revenue to be combined by hand and gives buyers a weaker transparency signal than a single consolidated entry. {{voice_recommend}} listing every seller ID tied to {{site_name}}, confirming which splits are intentional, and working with Magnite to consolidate any duplicate entity so reporting, payment, and the sellers.json record resolve to one entry per business. After the consolidation, confirm the sellers.json record shows a single seller ID for the affected inventory."
+      }
+    },
+    {
+      "id": "magnite-seat-account-structure-inactive-orphaned-seats",
+      "title": "Inactive or orphaned seats and integrations are not identified and closed",
+      "category": "governance",
+      "subcategory": "seat_account_structure",
+      "impact_score": 3,
+      "impact_rationale": "A seat or integration that no longer carries traffic but stays open leaves an authorized seller record and a live connection that no one is monitoring, which widens the surface a buyer or a fraud actor could reference and clutters the ads.txt and sellers.json records that are meant to read cleanly. The open seat also keeps appearing as authorized supply for the publisher even though it is not in active use, which weakens the authorization signal those records carry.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "A seat or integration in Magnite stays authorized supply for as long as it is open, whether or not it is carrying traffic. The publisher's ads.txt file lists Magnite as an authorized seller for the relevant seller IDs, Magnite's sellers.json file lists the publisher's seller entities, and any header-bidding or wrapper connection through Magnite's Demand Manager keeps the path live. When a seat or an integration falls out of use, for example after a redesign, a migration to a different setup, or the end of a partnership, those records and connections do not close themselves. They remain as orphaned supply unless someone identifies and closes them.<br><br>An orphaned seat carries a real cost even when it earns nothing. It leaves a live authorization that a buyer reading the publisher's ads.txt and Magnite's sellers.json will treat as active supply, which widens the set of paths to the publisher's inventory beyond the ones actually in use. A wider authorized surface is harder to monitor and gives a domain-spoofing or arbitrage actor more entries to reference. Any authorized line is a line they can try to exploit. The clutter also makes the publisher's own transparency records harder to read, so a genuine problem is easier to miss among lines that should not be there.<br><br>Keeping the structure current means treating an inactive seat as something to close rather than something to leave alone. That covers Magnite seats with no recent delivery, Demand Manager wrapper or bidder configurations that point at retired inventory, and ads.txt lines authorizing Magnite seller IDs that are no longer in use. Closing or removing each one tightens the authorized surface to match what the publisher is actually selling.<br><br>A few signs point to inactive or orphaned seats and integrations:<ul><li>A Magnite seat shows no delivery over a sustained recent period yet remains open and authorized</li><li>The publisher's ads.txt file still authorizes Magnite seller IDs for inventory or partnerships that have ended</li><li>A Demand Manager wrapper or bidder configuration points at a placement or domain that was retired</li></ul>You may want to confirm that every open seat and integration matches inventory the publisher is actively selling. One approach is to read recent delivery per seat, list the Magnite lines in ads.txt against the seats actually in use, and close or remove anything that no longer corresponds to live inventory.",
+        "site_type_overlays": {
+          "publishing": "On a media business that has launched and retired titles or sections over time, seats and ads.txt lines tied to inventory that no longer exists can linger after the property is gone. You may want to reconcile the open Magnite seats and the Magnite lines in ads.txt against the titles the business currently runs, and close anything tied to a retired property.",
+          "ecommerce": "On a commerce-content business that has migrated platforms or changed monetization setups, a Demand Manager integration or seat from a prior setup may stay live after the switch. You may want to confirm that each open integration matches the current setup and close any seat or wrapper configuration left behind by a migration."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt - Authorized Digital Sellers",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "learn_more_note": "Magnite's detailed documentation for closing seats and managing Demand Manager integrations is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review delivery per seat, the Magnite lines in the publisher's ads.txt file, and the active Demand Manager integrations to find seats and connections that no longer carry traffic.",
+        "tools": {
+          "free": {
+            "magnite_console": {
+              "label": "Magnite console",
+              "steps": [
+                "Sign in to the Magnite console and list every open seat tied to this publisher.",
+                "Build a delivery report per seat over a recent sustained period and record which seats show no delivery.",
+                "Open Magnite's Demand Manager setup and list the wrapper and bidder configurations, noting any that point at a placement or domain that was retired.",
+                "For each inactive seat or integration, ask the publisher whether it is meant to be retired and record the reason it is still open."
+              ]
+            },
+            "ads_txt": {
+              "label": "Publisher ads.txt file",
+              "steps": [
+                "Open the publisher's ads.txt file (at the root of each domain) and list the lines authorizing Magnite seller IDs.",
+                "Match each Magnite line against the seats that are actually in active use from the console review.",
+                "Flag any ads.txt line that authorizes a Magnite seller ID for inventory or a partnership that has ended, which points to an orphaned authorization to remove."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each open Magnite seat with its recent delivery, the Magnite lines in the publisher's ads.txt file, and the active Demand Manager integrations. A structure where every open seat, integration, and ads.txt authorization corresponds to inventory the publisher is actively selling passes. A structure where a seat shows no recent delivery, an ads.txt line authorizes a retired seller ID, or an integration points at retired inventory, with no stated reason for keeping it open, is a fail recorded with the inactive seats and lines to close.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each open seat with its recent delivery, the Magnite ads.txt lines, and the active integrations above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} keeps Magnite seats or integrations open that no longer carry traffic, so the authorized supply recorded in ads.txt and Magnite's sellers.json file is wider than the inventory actually in use. An orphaned seat stays authorized supply that no one is monitoring, which widens the surface a fraud or arbitrage actor could reference and clutters the transparency records buyers read. {{voice_recommend}} reading recent delivery per seat, reconciling the Magnite lines in ads.txt against the seats in active use, and closing or removing each seat, integration, and authorization that no longer matches live inventory. After the cleanup, confirm the ads.txt and sellers.json records list only the seats {{site_name}} is actively selling through."
+      }
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://iabtechlab.com/sellers-json/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Buyers use sellers.json and the SupplyChain object to decide whether a bid request is worth spending on, so a publisher whose PubMatic seller entry is wrong, or whose schain breaks somewhere along the path, can be filtered out of demand without any error showing in their own console. The check reads records the publisher can pull and inspect, so it costs reading time rather than rebuild time, and the finding points to a concrete transparency fix that protects access to spend rather than a speculative optimization.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Supply Chain Object (SCO) transparency lets a buyer trace every party that touched a bid request back to the publisher who owns the inventory. Two records carry that trust. PubMatic's sellers.json lists the publisher as a seller, and the SupplyChain object travels with each bid request to name the path. This subcategory is about whether the publisher's own seller entry is accurate and whether the chain is complete from PubMatic out to the buyer, rather than the ads.txt declarations that authorize PubMatic to sell in the first place. These checks confirm a buyer can verify the publisher as a legitimate seller and follow an unbroken path, so the inventory does not get discounted or filtered for looking opaque.",
+  "audit_checks": [
+    {
+      "id": "pubmatic-sellers-json-entry-mismatch",
+      "title": "PubMatic's sellers.json entry does not match the publisher's seller ID and relationship",
+      "category": "supply-chain",
+      "subcategory": "sellers_json",
+      "impact_score": 3,
+      "impact_rationale": "A buyer reads PubMatic's sellers.json to confirm the seller behind a bid request is a real, identifiable entity with a stated relationship. If the publisher's seller ID is missing from the file, or lists the wrong relationship, or is marked confidential when the publisher meant to be disclosed, the buyer cannot verify the seller and may discount or filter the inventory, so the mismatch limits demand without surfacing as an error in the publisher's console.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "PubMatic publishes a sellers.json file that lists every seller account it transacts on behalf of, and a buyer reads that file to confirm the entity behind a bid request is real and identifiable. Each entry pairs a seller ID with the seller's name, domain, and a relationship value that says how PubMatic relates to that seller. The seller ID in the file is the same ID that appears in the SupplyChain object on the bid request, so the two records have to agree for a buyer to trace the chain back to a named seller.<br><br>The relationship value carries specific meaning defined by the IAB Tech Lab sellers.json specification. A value of 'DIRECT' means PubMatic pays the seller directly for the inventory, which is the normal case for a publisher selling its own inventory. A value of 'RESELLER' means PubMatic pays an intermediary who in turn pays the seller. A publisher selling its own inventory through its own PubMatic account is a direct seller, so a 'RESELLER' relationship on that entry points to a setup that does not match how the inventory is actually sold.<br><br>The sellers.json specification also lets a seller be listed as confidential, where the name and domain are withheld and only the seller ID and a confidential flag appear. Confidential status is a deliberate choice, not a default, and it reduces what a buyer can see. Some buyers treat a confidential seller as lower trust and weight the inventory down, so a publisher listed as confidential without meaning to be can lose demand it would otherwise reach as a disclosed, named seller.<br><br>A few signs point to a sellers.json entry that does not match the publisher's setup:<ul><li>The publisher's PubMatic seller ID does not appear in PubMatic's sellers.json file at all</li><li>The entry lists a 'RESELLER' relationship for inventory the publisher sells directly, or 'DIRECT' for inventory that actually routes through an intermediary</li><li>The entry is marked confidential when the publisher intended to be disclosed, or the listed name and domain do not match the publisher's legal entity and site</li></ul>You may want to confirm that the publisher's seller entry in PubMatic's sellers.json matches the seller ID on its bid requests, states the relationship that reflects how the inventory is sold, and uses the disclosure setting the publisher intended.",
+        "site_type_overlays": {
+          "publishing": "A media publisher selling its own inventory through PubMatic should appear as a 'DIRECT' seller with its publishing entity named since the audience and the inventory both belong to that publisher. You may want to confirm the entry is disclosed rather than confidential so buyers can match the named publisher to the brand they intend to buy, which matters when direct-sold relationships depend on the buyer recognizing the seller.",
+          "ecommerce": "A commerce-content site monetizing editorial inventory through PubMatic is still a direct seller of its own inventory, so the relationship should read 'DIRECT' under the commerce entity's name. You may want to confirm the listed domain matches the content site rather than a separate storefront domain since a mismatch between the selling domain and the sellers.json entry gives a buyer reason to question the seller."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed configuration documentation for its seller account settings and sellers.json listing is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Pull the publisher's seller ID from its PubMatic account, find that ID in PubMatic's published sellers.json file, and check the relationship, disclosure setting, name, and domain against how the inventory is actually sold.",
+        "tools": {
+          "free": {
+            "sellers_json_file": {
+              "label": "PubMatic sellers.json file",
+              "steps": [
+                "Open PubMatic's published sellers.json file at its hosted location, which a buyer reads to verify sellers.",
+                "Find the entry matching the publisher's PubMatic seller ID, the same ID that appears in the SupplyChain object on the publisher's bid requests.",
+                "Record the relationship value ('DIRECT' or 'RESELLER'), whether the entry is disclosed or marked confidential, and the listed name and domain.",
+                "Compare the relationship against how the inventory is sold, and compare the name and domain against the publisher's entity and site."
+              ]
+            },
+            "pubmatic_console": {
+              "label": "PubMatic console",
+              "steps": [
+                "Sign in to the PubMatic console and locate the publisher's seller ID and seller account profile.",
+                "Note the disclosure preference the publisher selected, disclosed or confidential, and the entity name and domain on file.",
+                "Record any difference between what the console shows and what the published sellers.json entry shows since the published file is what buyers read."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the publisher's PubMatic seller ID, then the matching sellers.json entry's relationship, disclosure setting, name, and domain. An entry that is present, states a relationship matching how the inventory is sold, uses the intended disclosure setting, and names the correct entity and domain passes. A missing entry, a relationship that contradicts the actual selling path, an unintended confidential flag, or a name or domain that does not match the publisher is a fail recorded with the specific field that diverges.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the publisher's seller ID and the matching sellers.json entry's relationship, disclosure, name, and domain above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s entry in PubMatic's sellers.json does not match how its inventory is sold. A buyer reads sellers.json to confirm the seller behind a bid request is real and identifiable, so a missing entry, a relationship that contradicts the selling path, or an unintended confidential flag gives the buyer reason to discount or filter the inventory without any error showing in the publisher's console. {{voice_recommend}} confirming the seller ID in PubMatic's sellers.json matches the ID on {{site_name}}'s bid requests, that the relationship reads as the inventory is actually sold, and that the disclosure setting and listed entity reflect what the publisher intended. After the correction, re-pull the published file to confirm the entry a buyer sees now matches the setup."
+      }
+    },
+    {
+      "id": "pubmatic-sellers-json-supplychain-object-incomplete",
+      "title": "The SupplyChain object is not complete or not passed end to end",
+      "category": "supply-chain",
+      "subcategory": "sellers_json",
+      "impact_score": 3,
+      "impact_rationale": "The SupplyChain object travels with a bid request to name every party in the path, and a buyer uses it alongside sellers.json to verify the inventory is legitimate. If a node is missing, or the chain is flagged incomplete, or the wrapper does not pass the object through, the buyer cannot trace the path and may treat the request as lower trust, so an incomplete chain limits demand even when each individual seller is correctly listed.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "The SupplyChain object, defined by the IAB Tech Lab as part of OpenRTB, is a record that rides along with a bid request and lists every party that handled the inventory on its way to the buyer. Each party is a node in the chain, and each node carries the advertising system's domain and the seller ID that party uses, the same seller ID that should appear in that party's sellers.json file. A buyer reads the chain from the publisher outward and checks each node against the matching sellers.json entry, so the SupplyChain object and sellers.json work as a pair.<br><br>The object has a 'complete' flag that states whether the chain represents the full path from the publisher to the buyer. A 'complete' value of 1 means every party that touched the request is named in the chain. A value of 0 means at least one party is missing, which tells the buyer the path cannot be fully traced. A chain marked incomplete, or one missing a node that should be there, gives the buyer less than the full picture, and some buyers weight incomplete chains down or filter them.<br><br>For a publisher using a header-bidding wrapper, the path the chain has to reflect matters. PubMatic's OpenWrap is built on Prebid, so the way the wrapper handles the SupplyChain object follows the Prebid schain module, where a service provider that manages the wrapper on behalf of publishers declares its intermediary status and the object is assembled and passed on the bid request. If the wrapper does not pass the object through, or assembles it without the publisher's node, the chain reaches the buyer broken even when PubMatic's sellers.json entry for the publisher is correct.<br><br>A few signs point to a SupplyChain object that is incomplete or not passed end to end:<ul><li>The 'complete' flag reads 0 on requests where the full path is known, marking the chain incomplete</li><li>A node is missing for a party that handled the request, so the chain skips a hop a buyer expects to trace</li><li>A node's seller ID or advertising system domain does not match that party's sellers.json entry, so a buyer cannot reconcile the node</li><li>The header-bidding wrapper does not attach or forward the object, so requests reach the buyer without a chain at all</li></ul>You may want to confirm the SupplyChain object on the publisher's bid requests is marked complete, names every party in order, and that each node reconciles against the matching sellers.json entry.",
+        "site_type_overlays": {
+          "publishing": "A media publisher running a header-bidding wrapper alongside PubMatic should see the wrapper attach a SupplyChain object that names the publisher's node and any intermediary, then PubMatic's node, in order. You may want to confirm the wrapper forwards the object rather than dropping it since a media site that sells across several demand paths can have one path passing a complete chain while another drops it.",
+          "ecommerce": "A commerce-content site monetizing through PubMatic should confirm its own node appears at the start of the chain with the seller ID that matches its sellers.json entry. You may want to check that the chain stays complete across the devices and ad formats the site runs since a format handled by a different integration can pass the object differently than the standard display path."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "OpenRTB SupplyChain Object",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/openrtb/blob/main/supplychainobject.md"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Supply Chain (schain) Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/schain.html"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed configuration documentation for OpenWrap and how it assembles the SupplyChain object is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect the SupplyChain object on the publisher's bid requests, confirm the 'complete' flag and the node list, and reconcile each node's seller ID and domain against the matching sellers.json entry.",
+        "tools": {
+          "free": {
+            "bid_request_inspection": {
+              "label": "Bid request inspection",
+              "steps": [
+                "Capture a sample of the publisher's bid requests, for example through the wrapper's debug output or a request the demand path exposes.",
+                "Locate the SupplyChain object on each request and read the 'complete' flag and the ordered list of nodes.",
+                "For each node, record the advertising system domain and the seller ID, then check that ID against the party's published sellers.json file.",
+                "Note any request where the chain is marked incomplete, a node is missing, a node fails to reconcile, or no object is present."
+              ]
+            },
+            "prebid_debug": {
+              "label": "Prebid wrapper debug",
+              "steps": [
+                "For an OpenWrap or Prebid-based wrapper, enable the wrapper's debug mode to see the SupplyChain configuration it applies.",
+                "Confirm the wrapper attaches the object and that the publisher's node and any intermediary node are present in the configuration.",
+                "Record whether the wrapper forwards a complete chain on every demand path or drops the object on any path."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a sample of bid requests, whether a SupplyChain object is present, the value of its 'complete' flag, the ordered nodes, and whether each node's seller ID and domain reconcile against the matching sellers.json entry. Requests carrying a complete chain whose nodes all reconcile pass. A missing object, a 'complete' flag of 0 where the full path is known, a missing or unreconciled node, or a demand path that drops the object is a fail recorded with the path and node affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the SupplyChain object's presence, 'complete' flag, nodes, and reconciliation against sellers.json above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the SupplyChain object on {{site_name}}'s bid requests is not complete or is not passed end to end. The object names every party that handled a request so a buyer can trace the path and reconcile each node against sellers.json, so a missing node, an incomplete flag, or a wrapper that drops the object leaves the buyer unable to verify the path and may cause the inventory to be weighted down or filtered. {{voice_recommend}} confirming the object is attached on every demand path, marked complete where the full path is known, and that each node's seller ID and domain reconcile against the matching sellers.json entry, including {{site_name}}'s own node. After the fix, re-capture a sample of bid requests to confirm the chain a buyer receives is complete and reconcilable."
+      }
+    }
+  ]
+}

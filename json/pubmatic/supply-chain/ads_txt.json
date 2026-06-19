@@ -1,0 +1,165 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://iabtechlab.com/ads-txt/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The ads.txt and app-ads.txt files are the public record of who a publisher authorizes to sell its inventory, so a missing or wrong PubMatic line can block legitimate demand or let counterfeit inventory trade under the publisher's name. The check reads files the publisher already hosts against the PubMatic seller account in the partner portal, so it costs reading time rather than rebuild time, and the finding points to a specific line to add, correct, or remove.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "An ads.txt file is the publicly hosted list that declares which companies a publisher authorizes to sell its inventory, and app-ads.txt does the same for mobile and connected TV apps. For PubMatic to monetize a publisher's inventory in the open market, the publisher's ads.txt or app-ads.txt has to authorize PubMatic with the correct seller account ID and the right relationship designation. This subcategory checks that the PubMatic authorization is present and accurate, and that no stale or unauthorized PubMatic lines remain to confuse buyers crawling the file. The IAB Tech Lab ads.txt specification defines the record format these checks read against.",
+  "audit_checks": [
+    {
+      "id": "pubmatic-ads-txt-authorization-line-missing-or-wrong",
+      "title": "The PubMatic authorization line is missing or carries the wrong account ID or relationship",
+      "category": "supply-chain",
+      "subcategory": "ads_txt",
+      "impact_score": 4,
+      "impact_rationale": "Buyers crawl ads.txt and app-ads.txt to confirm a seller is authorized before bidding. If the publisher's file omits PubMatic, names the wrong seller account ID, or marks the relationship incorrectly, demand-side platforms can treat PubMatic's bid requests for that inventory as unauthorized and filter them, so the inventory loses access to that demand at scale until the line is corrected.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "An ads.txt file sits at the root of a publisher's domain (e.g., example.com/ads.txt) and lists, one record per line, every company the publisher authorizes to sell its inventory. App-ads.txt does the same job for mobile and connected TV apps, hosted on the developer domain listed in the app store. The IAB Tech Lab ads.txt specification defines each record as a comma-separated line with three required fields and one optional field: the advertising system's canonical domain, the publisher's seller account ID on that system, a relationship of either DIRECT or RESELLER, and an optional certification authority ID.<br><br>For PubMatic to sell a publisher's inventory in the open market, the file has to carry a record that authorizes PubMatic. That record names PubMatic's advertising system domain, the publisher's own PubMatic seller account ID, and the relationship that describes how PubMatic is selling the inventory. DIRECT means the publisher has a direct account relationship with PubMatic for that inventory. RESELLER means PubMatic is authorized to resell the inventory on the publisher's behalf, which applies when the inventory reaches PubMatic through another authorized partner rather than a direct account. The seller account ID is specific to the publisher's account and is shown in the PubMatic partner portal, so the value in the file has to match the account exactly.<br><br>When the line is missing, wrong, or carries the wrong relationship, the consequence is concrete. Demand-side platforms crawl these files and compare each bid request against the authorized records. A bid request from PubMatic for inventory whose file does not authorize PubMatic, or authorizes a different account ID, can be treated as unauthorized and dropped. The inventory then loses access to that demand even though PubMatic is selling it, and the loss persists until the file is corrected and recrawled.<br><br>A few signs point to a missing or incorrect PubMatic authorization:<ul><li>The ads.txt or app-ads.txt file has no record naming PubMatic's advertising system domain</li><li>A PubMatic record exists but the seller account ID does not match the ID shown in the publisher's PubMatic partner portal</li><li>The relationship is marked DIRECT where the inventory actually reaches PubMatic through a reseller, or marked RESELLER where the publisher holds a direct account</li><li>The app-ads.txt file is missing entirely for inventory that includes apps, or is hosted on a domain the app store listing does not point to</li></ul>You may want to confirm the PubMatic record against the account details in the partner portal, and check that app-ads.txt exists and is correct wherever app inventory is in scope. One approach is to copy the exact authorization line PubMatic provides for the account and reconcile it against what the live file serves.",
+        "site_type_overlays": {
+          "publishing": "A media publisher often sells the same inventory through several exchanges and adds resellers over time, so the PubMatic record can drift from the account as relationships change. You may want to reconcile the live ads.txt against the current PubMatic account, and confirm app-ads.txt is in place if the publisher runs a news or video app alongside the website.",
+          "ecommerce": "A commerce-content site may run display advertising on editorial and category pages while treating the storefront as out of scope for programmatic sale. You may want to confirm the PubMatic authorization covers the domains where ads actually serve, and that any subdomain serving monetized content resolves to an ads.txt that authorizes PubMatic."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "About ads.txt",
+            "source_url": "https://iabtechlab.com/ads-txt-about/"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "About ads.txt/app-ads.txt",
+            "source_url": "https://support.google.com/admanager/answer/7441288?hl=en"
+          }
+        ],
+        "learn_more_note": "PubMatic's account-specific seller account ID and the exact authorization line for a given publisher account are in the PubMatic partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the live ads.txt and app-ads.txt files, find the PubMatic record, and reconcile its account ID and relationship against the publisher's PubMatic account.",
+        "tools": {
+          "free": {
+            "browser": {
+              "label": "Web browser",
+              "steps": [
+                "Open the publisher's root domain ads.txt file directly in a browser (e.g., example.com/ads.txt) and confirm it loads as plain text.",
+                "Search the file for PubMatic's advertising system domain and note the seller account ID, the relationship (DIRECT or RESELLER), and any certification authority ID on that line.",
+                "If app inventory is in scope, open the app-ads.txt file on the developer domain listed in the app store and repeat the search for the PubMatic record.",
+                "Open the PubMatic partner portal and record the publisher's seller account ID and the relationship PubMatic expects for this inventory, then compare both against what the files serve."
+              ]
+            },
+            "iab_validator": {
+              "label": "IAB Tech Lab ads.txt validator",
+              "steps": [
+                "Run the publisher's ads.txt and app-ads.txt through the IAB Tech Lab validator to confirm the file parses and each record has the required fields.",
+                "Note any syntax error on the PubMatic line, such as a missing relationship field or a malformed account ID, that would cause buyers to skip the record."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the live ads.txt, and app-ads.txt where app inventory is in scope, carries a PubMatic record whose seller account ID and relationship match the publisher's PubMatic account. A file with a present, correct PubMatic authorization passes. A file that omits PubMatic, names a mismatched account ID, or marks the wrong relationship is a fail recorded with the exact line served and the value it should hold.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the PubMatic record from the live file and the account ID and relationship from the partner portal above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the ads.txt for {{site_name}} does not carry a correct PubMatic authorization, so the record is missing, names the wrong seller account ID, or marks the wrong relationship. Buyers crawl ads.txt and app-ads.txt to confirm a seller is authorized before bidding, so a PubMatic bid request for inventory the file does not authorize can be filtered as unauthorized, which cuts that inventory off from demand until the file is fixed. {{voice_recommend}} copying the exact authorization line from the PubMatic partner portal, reconciling the seller account ID and the DIRECT or RESELLER relationship against the account, and updating the live file so the record matches. After the update, confirm the file recrawls and the inventory shows as authorized."
+      }
+    },
+    {
+      "id": "pubmatic-ads-txt-stale-or-unauthorized-lines",
+      "title": "Stale, duplicate, or unauthorized PubMatic lines remain in the file",
+      "category": "supply-chain",
+      "subcategory": "ads_txt",
+      "impact_score": 3,
+      "impact_rationale": "A PubMatic line left over from a closed account, a duplicated record, or a reseller entry the publisher never authorized weakens the file's value as a record of who may sell the inventory. Leftover or unauthorized lines can let inventory trade under a relationship the publisher no longer holds and make the file harder for buyers to trust, though the effect is narrower than an outright missing authorization.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "An ads.txt file is only as trustworthy as the records it carries. The file is meant to be the current, accurate list of who may sell the inventory, so records that no longer reflect the publisher's relationships work against that purpose. Over time a file accumulates lines that should have been removed: a PubMatic record for an account the publisher has since closed, a duplicate of an existing PubMatic line, or a reseller entry that a partner asked to be added but that the publisher never actually authorized for PubMatic.<br><br>Each kind of leftover line carries its own risk. A stale DIRECT or RESELLER record for a closed PubMatic account leaves the door open for inventory to trade under a relationship the publisher no longer holds. A duplicate record adds noise and, depending on the buyer's parser, can be flagged as a warning that lowers confidence in the file. An unauthorized reseller line means a path to the inventory the publisher did not knowingly approve, which is the kind of unmanaged reselling that ads.txt was built to expose rather than hide.<br><br>The IAB Tech Lab specification treats the file as a deliberate declaration, so every PubMatic line should trace back to a relationship the publisher can confirm. The audit question is whether each PubMatic record in the file still maps to a current, authorized account, and whether any duplicate or unrecognized PubMatic line should be removed.<br><br>A few signs point to stale or unauthorized PubMatic lines:<ul><li>A PubMatic record names an account ID the publisher no longer recognizes or has closed</li><li>The same PubMatic record appears more than once in the file</li><li>A PubMatic RESELLER line exists that the publisher cannot trace to a partner it authorized to resell through PubMatic</li><li>The file still authorizes PubMatic for inventory or a domain the publisher has stopped monetizing through PubMatic</li></ul>You may want to reconcile every PubMatic line in the file against the accounts the publisher currently holds, and remove any record that no longer maps to an authorized, active relationship. One approach is to list each PubMatic record, confirm it against the partner portal and the publisher's own record of authorized resellers, and strike the ones that cannot be confirmed.",
+        "site_type_overlays": {
+          "publishing": "A media publisher that has changed partners or consolidated exchanges over the years can carry PubMatic lines from arrangements that have ended. You may want to compare the PubMatic records in the file against the accounts the publisher actively uses today and remove records tied to closed accounts or partners no longer in the chain.",
+          "ecommerce": "A commerce-content site that ran a seasonal or one-off monetization arrangement may have added a PubMatic reseller line that outlived the campaign. You may want to confirm each PubMatic record still reflects a live relationship and remove any reseller entry that was added for an arrangement that has since ended."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "About ads.txt",
+            "source_url": "https://iabtechlab.com/ads-txt-about/"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Validate ads.txt/app-ads.txt syntax",
+            "source_url": "https://support.google.com/admanager/answer/9422220?hl=en"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Review the authorization status of your domains",
+            "source_url": "https://support.google.com/admanager/answer/9422066?hl=en"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "List every PubMatic record in the file, then reconcile each one against the publisher's current PubMatic accounts and authorized resellers to find lines that no longer belong.",
+        "tools": {
+          "free": {
+            "browser": {
+              "label": "Web browser",
+              "steps": [
+                "Open the live ads.txt, and app-ads.txt where app inventory is in scope, and list every record that names PubMatic's advertising system domain.",
+                "For each PubMatic record, note the seller account ID, the relationship, and whether the same record appears more than once.",
+                "Open the PubMatic partner portal and the publisher's own record of authorized resellers, and mark each PubMatic line as confirmed-current, stale, duplicate, or unauthorized.",
+                "Record any PubMatic record that cannot be traced to a current, authorized account or reseller relationship."
+              ]
+            },
+            "iab_validator": {
+              "label": "IAB Tech Lab ads.txt validator",
+              "steps": [
+                "Run the file through the IAB Tech Lab validator and note any duplicate-line warnings on PubMatic records.",
+                "Use the validator output to confirm which PubMatic records the file actually serves, so the reconciliation works from parsed records rather than a visual scan."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner lists each PubMatic record in the file and marks it confirmed-current, stale, duplicate, or unauthorized against the publisher's active accounts and authorized resellers. A file where every PubMatic record maps to a current, authorized relationship and no duplicates remain passes. A file that carries a stale account record, a duplicated line, or a reseller entry the publisher cannot confirm is a fail recorded with each line that should be removed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "List each PubMatic record and mark it confirmed-current, stale, duplicate, or unauthorized above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the ads.txt for {{site_name}} carries PubMatic records that no longer map to a current, authorized relationship, whether a stale account line, a duplicate, or a reseller entry the publisher cannot confirm. The file is meant to be the accurate list of who may sell the inventory, so leftover lines let inventory trade under relationships the publisher no longer holds and make the file harder for buyers to trust. {{voice_recommend}} listing every PubMatic record, reconciling each against the active accounts in the partner portal and the publisher's authorized resellers, and removing the lines that cannot be confirmed. After the cleanup, revalidate the file so it reflects only current, authorized PubMatic relationships."
+      }
+    }
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Supply Path Optimization (SPO) and reseller hygiene decide how clean a path buyers see when they reach a publisher's inventory through PubMatic. When the same impression is reachable through several reseller hops, buyers face duplicate paths, the supply chain looks longer than it is, and demand-side path-optimization tools may rank the publisher's inventory below a cleaner equivalent. This check is a review of the paths and the supply-chain declarations a publisher already has, so it costs reading and reconciliation time rather than a rebuild, and the finding points to a concrete path or declaration the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Supply Path Optimization is the work of making sure buyers reach a publisher's inventory through the shortest, cleanest set of paths, and reseller hygiene is the part of that work that keeps unauthorized or redundant resellers out of those paths. For a publisher monetizing through PubMatic, the audit question is whether the same inventory is being offered through more paths than it needs, and whether the supply-chain declarations that describe those paths (ads.txt, app-ads.txt, and the entries in each seller's sellers.json) are accurate. These checks confirm that the path a buyer sees is deliberate and that made-for-advertising (MFA) and unauthorized reseller risk is being watched rather than left to drift.",
+  "audit_checks": [
+    {
+      "id": "pubmatic-spo-reseller-hygiene-redundant-paths",
+      "title": "The same inventory is sold through redundant reseller paths",
+      "category": "supply-chain",
+      "subcategory": "spo_reseller_hygiene",
+      "impact_score": 3,
+      "impact_rationale": "When one impression is reachable through several reseller hops to PubMatic, buyers see duplicate supply paths for the same inventory and demand-side path optimization can route around the publisher toward a cleaner equivalent. Redundant paths lengthen the declared supply chain and dilute the value buyers assign to the inventory, so the publisher can lose demand without any single path failing.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["transparency", "fraud"],
+      "educate": {
+        "base": "Supply Path Optimization (SPO) is the buyer-side practice of choosing the shortest, cleanest route to a publisher's inventory and dropping the rest. Mike Racic, president of Prebid, has described it as understanding who is touching your inventory and removing as many touches as you can. For a publisher, the mirror of that practice is making sure the paths you offer through PubMatic are the ones worth keeping, rather than every path an account migration or a reseller relationship happened to leave in place.<br><br>A path is direct when the exchange you transact with pays you, and it is a reseller path when an exchange is authorized to sell the inventory but pays another seller who holds the contract with you. Reseller paths are not wrong on their own. The problem is redundancy, where the same impression is reachable through a direct path and one or more reseller hops that all end at the same inventory. Buyers running SPO see those duplicate paths, and they tend to keep the shortest one and prune the others, which can route demand away from the path you actually earn the most on.<br><br>The declarations that describe these paths are ads.txt and app-ads.txt on the publisher side, and sellers.json on each seller's side, with the OpenRTB SupplyChain object carrying the path at auction time. When a reseller line in ads.txt points to a seller whose sellers.json entry adds another hop, the chain a buyer sees grows by a node. Auditing reseller hygiene means reading those declarations together and asking whether each reseller path still earns its place.<br><br>A few signs point to redundant reseller paths:<ul><li>ads.txt lists several reseller entries that all resolve to the same PubMatic-reachable inventory</li><li>Reporting shows the same impression clearing through multiple seller paths with no meaningful price difference between them</li><li>Reseller relationships remain in ads.txt after the partner stopped driving demand or after an account migration changed the direct path</li></ul>You may want to confirm that each reseller path still adds demand the direct path does not. One approach is to read ads.txt against actual revenue by path, then remove reseller lines that duplicate a direct path without bringing distinct buyers.",
+        "site_type_overlays": {
+          "publishing": "On a media site, reseller relationships can accumulate as the publisher tries new monetization partners over time, and old lines often stay in ads.txt after a partner goes quiet. You may want to read revenue by seller path and retire the reseller entries that no longer bring demand the direct PubMatic path does not already reach.",
+          "ecommerce": "On a commerce-content site, the editorial pages and the commercial pages may have been onboarded through different partners, leaving overlapping reseller paths to the same inventory. You may want to map which paths reach which inventory and keep the reseller lines that bring distinct demand rather than ones that duplicate the direct path."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json and the SupplyChain Object",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt and app-ads.txt authorized sellers",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Supply Chain Object module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/schain.html"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed configuration documentation for managing seller paths and account settings is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the reseller entries in ads.txt and app-ads.txt that resolve to PubMatic-reachable inventory, and read revenue by seller path to see whether any reseller path duplicates a direct path without adding demand.",
+        "tools": {
+          "free": {
+            "ads_txt_review": {
+              "label": "ads.txt and app-ads.txt review",
+              "steps": [
+                "Open the publisher's ads.txt (and app-ads.txt for apps and connected TV) and list every line where the relationship is marked 'RESELLER'.",
+                "For each reseller line, identify the seller it names and trace, through that seller's sellers.json, whether the path ends at PubMatic-reachable inventory.",
+                "Record which reseller paths reach the same inventory as a direct PubMatic line. Those are the candidates for redundancy.",
+                "Note any reseller line that remains after a partner stopped driving demand or after an account migration changed the direct path."
+              ]
+            },
+            "revenue_by_path": {
+              "label": "Revenue by seller path",
+              "steps": [
+                "Pull revenue and impressions broken out by seller path or by the partner each reseller line names.",
+                "Compare the price and demand each reseller path brings against the direct PubMatic path for the same inventory.",
+                "Record any reseller path that clears at the same price as the direct path and brings no distinct buyers, which marks it as redundant."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each reseller path that resolves to PubMatic-reachable inventory alongside the revenue and distinct demand it brings relative to the direct path. A setup where every reseller path adds demand or price the direct path does not reach passes. A setup where one or more reseller paths duplicate a direct path with no distinct buyers and no price advantage is a fail recorded with the reseller lines and the inventory they duplicate.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the reseller paths and the revenue each brings relative to the direct path above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} offers the same inventory through redundant reseller paths to PubMatic, where one or more reseller hops reach inventory that a direct path already serves. Buyers running Supply Path Optimization (SPO) see those duplicate paths and tend to prune all but the shortest, which can route demand away from the path the publisher earns the most on, and the extra hops lengthen the declared supply chain. {{voice_recommend}} reading ads.txt against revenue by seller path, then retiring the reseller lines that duplicate a direct path without bringing distinct buyers or a price advantage. After the change, confirm the remaining paths each reach demand the direct path does not."
+      }
+    },
+    {
+      "id": "pubmatic-spo-reseller-hygiene-mfa-unauthorized-resellers",
+      "title": "Made-for-advertising and unauthorized reseller risk is not monitored",
+      "category": "supply-chain",
+      "subcategory": "spo_reseller_hygiene",
+      "impact_score": 4,
+      "impact_rationale": "An unauthorized reseller declaring a publisher's seller ID, or a made-for-advertising site spoofing the domain, lets invalid or low-quality inventory transact under the publisher's name. The publisher can lose buyer trust and demand across the whole account when the supply chain looks compromised, and the risk grows quietly because no single declaration fails, which is why it warrants active monitoring rather than a one-time setup.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["fraud", "transparency"],
+      "educate": {
+        "base": "The supply-chain standards exist to make it hard for inventory to transact under a name it does not own. The publisher declares its authorized sellers in ads.txt and app-ads.txt, each seller declares its account holders in sellers.json, and the OpenRTB SupplyChain object carries the path so a buyer can check that every node was authorized. Made-for-advertising (MFA) abuse and unauthorized reselling both work by slipping past those checks, so monitoring them is part of keeping the path through PubMatic trustworthy.<br><br>Unauthorized reselling happens when a seller declares your seller ID, or sells your inventory, without a relationship that ads.txt and sellers.json support. A buyer who traces the SupplyChain object back and finds a node that does not reconcile against your ads.txt has reason to distrust the path, and that distrust can spread to your legitimate paths. The same harm comes from a domain spoof, where an MFA site or an outright counterfeit declares your domain to launder its impressions through your reputation.<br><br>MFA sites are built to win programmatic scale while delivering a poor experience, with heavy ad density, slow loads, and thin or repetitive content. IAB Tech Lab guidance describes using OpenRTB signals together with manual review (ad density, load speed measured over roughly a minute, content quality, and ads.txt maintenance) to identify them. For a legitimate publisher, the exposure is reputational rather than direct: when buyers tighten inclusion lists against MFA and unauthorized supply, inventory that shares a compromised path or a spoofed domain can get caught in the same net.<br><br>A few signs point to reseller and MFA risk going unmonitored:<ul><li>No routine reconciliation of seller IDs declared in partner sellers.json files against the publisher's own ads.txt</li><li>No watch for domains or apps spoofing the publisher's identity in others' supply-chain declarations</li><li>ads.txt and app-ads.txt are not maintained on a schedule, so stale or unauthorized lines linger</li></ul>You may want to confirm that someone owns the recurring task of checking these declarations rather than treating supply-chain setup as finished once. One approach is to reconcile partner sellers.json entries against your ads.txt on a regular cadence and flag any node that does not reconcile.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a recognizable brand domain is a target for spoofing because laundering impressions through a known name carries more value to a bad actor. You may want to monitor third-party sellers.json files and supply-chain declarations for entries that name your domain or seller ID without an authorized relationship, and report any you find to the seller and to PubMatic.",
+          "ecommerce": "On a commerce-content site, the commercial inventory carries higher value, which makes it a more attractive target for an unauthorized reseller to attach to. You may want to reconcile the seller IDs that appear for your inventory against your ads.txt regularly so an unauthorized path cannot ride alongside the legitimate commercial demand unnoticed."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Using OpenRTB signals to identify Made for Advertising",
+            "source_url": "https://iabtechlab.com/using-openrtb-signals-to-identify-made-for-advertising/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt and app-ads.txt authorized sellers",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json and the SupplyChain Object",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "learn_more_note": "PubMatic's specific tooling for reporting unauthorized resellers and reviewing inventory quality is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether anyone reconciles partner seller IDs against the publisher's ads.txt on a schedule, and whether the publisher watches for domains or apps spoofing its identity in others' supply-chain declarations.",
+        "tools": {
+          "free": {
+            "declaration_reconciliation": {
+              "label": "Declaration reconciliation",
+              "steps": [
+                "Collect the publisher's ads.txt and app-ads.txt and the sellers.json files of each authorized partner, including PubMatic.",
+                "For each authorized seller, confirm the seller ID declared in that partner's sellers.json reconciles with a matching line in the publisher's ads.txt.",
+                "Flag any seller ID or reseller node that appears for the publisher's inventory but does not reconcile against ads.txt, which points to an unauthorized path.",
+                "Record whether this reconciliation happens on a recurring cadence or whether it was last done at setup."
+              ]
+            },
+            "mfa_spoof_review": {
+              "label": "MFA and spoof review",
+              "steps": [
+                "Search third-party sellers.json files and supply-chain declarations for the publisher's domain, app bundle, or seller ID to find any entry that names the publisher without an authorized relationship.",
+                "For the publisher's own inventory, apply the IAB Tech Lab MFA signals (ad density, load speed measured over roughly a minute, content quality, and ads.txt maintenance) to confirm it does not read as made-for-advertising to buyers.",
+                "Record any spoofed declaration or MFA signal found, and note whether a process exists to report it to the partner and to PubMatic."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether seller-ID reconciliation against ads.txt runs on a recurring cadence and whether the publisher watches for spoofed declarations and MFA signals. A setup with regular reconciliation, an owner for the task, and a route to report unauthorized or spoofed entries passes. A setup with no recurring reconciliation, no spoof monitoring, or unmaintained ads.txt is a fail recorded with the gap and any unauthorized or unreconciled node found.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether reconciliation runs on a cadence and whether spoof and MFA monitoring exist above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not monitor made-for-advertising (MFA) and unauthorized reseller risk, so unreconciled seller IDs or a spoofed domain could let inventory transact under the publisher's name without anyone noticing. The harm is reputational and account-wide, where buyers who distrust one compromised path can pull demand from the legitimate paths beside it. {{voice_recommend}} reconciling partner sellers.json entries against ads.txt on a recurring cadence, watching third-party declarations for entries that spoof the domain or seller ID, and applying the IAB Tech Lab MFA signals to confirm the inventory reads as legitimate to buyers. Assign an owner for the recurring check rather than treating supply-chain setup as finished once."
+      }
+    }
+  ]
+}

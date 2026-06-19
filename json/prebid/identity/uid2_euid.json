@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://unifiedid.com/docs/guides/integration-prebid",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Unified ID 2.0 (UID2) and European Unified ID (EUID) replace the third-party cookie with a token a publisher generates from a logged-in user's hashed email or phone number, so the value of the token depends on whether it actually reaches the bid stream and whether it was created on a legal basis. A submodule that loads but never produces a token adds weight without adding addressable demand, and a token created without consent turns an addressability feature into a regulatory exposure. The check reads the Prebid configuration and the IDs leaving the page, so it costs inspection time rather than rebuild time, and the finding points to a concrete configuration or consent decision the publisher can act on.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "UID2 and EUID are token-based identity solutions a publisher integrates through Prebid.js to keep audiences addressable as third-party cookies recede. UID2 and EUID work the same way at the page level. The publisher exchanges a user's hashed email or phone number for an advertising token through an operator, and Prebid carries that token to bidders as an ORTB extended ID. This subcategory checks that the integration actually delivers a token where a legal basis allows it, and that the token is never created without that basis. The two checks below cover whether the submodule produces and passes a token, and whether token creation is gated on consent.",
+  "audit_checks": [
+    {
+      "id": "prebid-uid2-euid-token-not-generated-or-passed",
+      "title": "The UID2 or EUID submodule is configured but no token reaches the bid stream",
+      "category": "identity",
+      "subcategory": "uid2_euid",
+      "impact_score": 3,
+      "impact_rationale": "A UID2 or EUID submodule that loads but never produces an advertising token gives bidders no addressable signal, so the publisher carries the build weight and the integration effort without the demand the token was meant to attract. The gap is usually a configuration or token-supply problem rather than a design flaw, which means the addressable inventory the publisher believes is in the auction is not actually there.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "privacy"
+      ],
+      "educate": {
+        "base": "Unified ID 2.0 (UID2) and European Unified ID (EUID) are not generated inside the browser. The publisher exchanges a user's hashed email or phone number for an advertising token through a UID2 or EUID operator, which returns a token along with a refresh token and an expiry. Prebid.js then carries that advertising token to bidders as an ORTB extended ID, so the token has to exist and reach the auction for the integration to do anything. A submodule that loads in the build but never receives or passes a token is, from the auction's point of view, not running.<br><br>Prebid supports two ways to supply the token. In client-refresh mode the publisher hands Prebid the full operator response, as a cookie or in the configuration object, and Prebid refreshes the token automatically as it nears expiry. In server-only mode the publisher supplies the advertising token alone, through the '__uid2_advertising_token' or '__euid_advertising_token' cookie or a configuration value, and no automatic refresh happens. Either mode works, but each one depends on the publisher's own systems putting a valid token where Prebid expects it, which is the part that breaks without an error message when a login flow or a server endpoint changes.<br><br>The failure is rarely a visible error. The submodule appears in the configuration, the page loads, and the auction runs, so nothing signals that the token is missing. The only reliable way to confirm the integration is to read what Prebid is actually passing. The 'pbjs.getUserIdsAsEids()' call returns the extended IDs leaving the page in ORTB EIDs format, so a UID2 or EUID entry there confirms a token is in the bid stream and its absence confirms it is not.<br><br>A few signs point to a submodule that is configured but not delivering a token:<ul><li>The Prebid configuration lists the UID2 or EUID submodule, but 'pbjs.getUserIdsAsEids()' returns no matching entry on pages where a logged-in user should produce one</li><li>The cookie or configuration value the chosen mode depends on (e.g., '__uid2_advertising_token') is absent, empty, or expired</li><li>Server-only mode is in use with no process to refresh the token, so it works until the token expires and then stops with no error</li></ul>You may want to confirm that a valid token reaches the auction for users who should have one, rather than assuming the submodule's presence in the build means it is working. One approach is to check 'pbjs.getUserIdsAsEids()' on a page with a known logged-in user and trace back through the token supply if the entry is missing.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the token usually depends on a registration or newsletter login that identifies the reader, so the integration only produces a token for the logged-in slice of the audience. You may want to confirm the token is present specifically on authenticated pageviews, and to size how much of the inventory is addressable this way rather than assuming the whole audience carries a token.",
+          "ecommerce": "On a commerce-content site, the email a shopper uses at checkout or account creation is the common source of the hashed identifier behind the token. You may want to confirm the token is generated after that identifying moment and reaches Prebid on the ad-supported editorial pages. The login event and the ad request can sit on different parts of the site."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Unified ID 2.0 for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/unified2.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "European Unified ID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/euid.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "pbjs.getUserIdsAsEids() for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/getUserIdsAsEids.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that the UID2 or EUID submodule is configured, then check whether a token actually reaches the bid stream for a user who should produce one.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console and Prebid debug tools",
+              "steps": [
+                "Open the page in a browser with a known logged-in or identified user, open the developer tools console, and run 'pbjs.getConfig()' to confirm the UID2 or EUID submodule is listed under the user ID configuration with its mode and parameters.",
+                "Run 'pbjs.getUserIdsAsEids()' and look for a UID2 or EUID entry in the returned array. Its presence confirms a token is in the bid stream and its absence confirms no token is being passed.",
+                "Run 'pbjs.getEvents()' or enable the Prebid debug output to watch the user ID submodule resolve, and note any sign that the submodule ran but produced no value.",
+                "Inspect the cookie the chosen mode depends on (e.g., '__uid2_advertising_token' for server-only mode, or the cookie or configuration object holding the full operator response for client-refresh mode) and record whether it is present, populated, and unexpired."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the UID2 or EUID submodule is configured, and whether 'pbjs.getUserIdsAsEids()' returns a matching token entry on a page where a logged-in or identified user should produce one. A configuration that produces a valid token in the EIDs output for those users passes. A submodule that is present in the configuration but yields no token entry, or one whose supplying cookie or value is missing or expired, is a fail recorded with the mode in use and the point in the token supply where the value is missing.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the submodule is configured and whether 'pbjs.getUserIdsAsEids()' returns a token entry above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} configures the UID2 or EUID submodule in Prebid but no advertising token reaches the bid stream for users who should produce one. The 'pbjs.getUserIdsAsEids()' call returns no matching entry. UID2 and EUID tokens are generated by an operator from a user's hashed email or phone number and then carried by Prebid to bidders, so a submodule that loads without a token adds build weight without adding the addressable demand it was meant to attract. {{voice_recommend}} tracing the token supply for the mode in use, confirming the cookie or configuration value Prebid reads is present and unexpired, and rechecking 'pbjs.getUserIdsAsEids()' on an authenticated page until a token entry appears. After the fix, confirm the token persists across a refresh so it does not lapse without notice once it expires."
+      }
+    },
+    {
+      "id": "prebid-uid2-euid-token-not-consent-gated",
+      "title": "UID2 or EUID tokens are created without gating on a consent signal",
+      "category": "identity",
+      "subcategory": "uid2_euid",
+      "impact_score": 4,
+      "impact_rationale": "UID2 and EUID build a token from a user's hashed email or phone number, which is personal data, so creating that token without a legal basis is a privacy and compliance exposure rather than a tuning question. A token generated and passed before consent is recorded can place an identifier into the bid stream the user never agreed to, and on EUID the General Data Protection Regulation (GDPR) makes that a regulatory risk that scales with every affected user.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "A Unified ID 2.0 (UID2) or European Unified ID (EUID) token is built from a user's hashed email or phone number, which is personal data, so the question of whether the token may be created at all comes before any question of whether it is working. Prebid's own documentation states that UID2 and EUID rely on user consent before an identifier can be added to the bid stream. For EUID in particular, GDPR governs that processing, so a legal basis has to exist before the token is generated, not after it has already been passed to bidders.<br><br>Two layers usually carry this gate, and a sound integration uses both. The first is the consent moment that feeds the token. The hashed email or phone number that becomes a token should come from a point where the user has agreed to the processing, such as a login flow or a single sign-on provider that captures consent, rather than from an address collected for another purpose. The second is the Prebid consent-management layer. With the Transparency and Consent Framework (TCF) module and a compatible consent management platform (CMP) in place, Prebid reads the consent string and, where the required purposes are not granted, excludes user ID submodules from the auction so the token is not passed.<br><br>The risk appears when token creation runs ahead of either gate. If the integration mints a token for every identified user regardless of the consent signal, or if the CMP and TCF wiring are missing so Prebid never checks consent before passing the ID, the token can enter the bid stream for users who declined or were never asked. The build looks complete and the auction runs, so the gap does not announce itself. It surfaces only when someone confirms that no token is produced or passed for a user who has not consented.<br><br>A few signs point to token creation that is not gated on consent:<ul><li>A UID2 or EUID token appears in 'pbjs.getUserIdsAsEids()' for a user who has declined consent or before any consent prompt has resolved</li><li>No TCF consent-management module or compatible CMP is present, so Prebid has no consent string to enforce against before passing the ID</li><li>The token's source identifier is collected at a point that does not capture consent for advertising use, so the legal basis for the token is unclear</li></ul>You may want to confirm that token creation and passing are tied to a recorded consent signal, with particular care on EUID where GDPR applies. One approach is to test the page as a user who declines consent and confirm that 'pbjs.getUserIdsAsEids()' returns no UID2 or EUID entry in that state.",
+        "site_type_overlays": {
+          "publishing": "On a media site serving European readers, EUID and GDPR are the live concern, so the consent gate has to hold for the audience the regulation covers. You may want to confirm that the TCF consent-management module and a compatible CMP are in place and that a reader who declines produces no token, rather than relying on the login flow alone to carry consent.",
+          "ecommerce": "On a commerce-content site, the email captured at checkout or account creation is collected for fulfilling an order, which is a different purpose from advertising identity. You may want to confirm that the advertising use of that email to mint a UID2 or EUID token rests on its own consent, rather than treating the transactional email as standing consent for the bid stream."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Unified ID 2.0 for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/unified2.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - TCF for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementTcf.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Module - User ID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userId.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that a consent signal gates token creation and passing, by checking both the Prebid consent-management wiring and the IDs produced for a user who declines consent.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console and Prebid debug tools",
+              "steps": [
+                "Run 'pbjs.getConfig()' in the developer tools console and confirm that a Transparency and Consent Framework (TCF) consent-management module is configured, which means Prebid has a consent string to enforce against before passing user IDs.",
+                "Load the page as a user who declines consent at the consent management platform (CMP) prompt, then run 'pbjs.getUserIdsAsEids()' and confirm no UID2 or EUID entry is returned in that state.",
+                "Load the page again as a user who grants consent and confirm a UID2 or EUID entry now appears, which shows the token is gated on the consent signal rather than always created.",
+                "Run 'pbjs.getEvents()' or read the Prebid debug output to see whether the user ID submodule was excluded when consent was absent, and ask the publisher where the source identifier behind the token is collected and what consent that point captures."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a TCF consent-management module and a compatible CMP are in place, and whether 'pbjs.getUserIdsAsEids()' withholds the UID2 or EUID token for a user who declines consent and returns it for a user who grants it. A setup where token creation and passing follow the consent signal, with EUID gated for users the General Data Protection Regulation (GDPR) covers, passes. A setup that produces a token regardless of consent, or that lacks the consent-management wiring to enforce one, is a fail recorded with the missing gate and the inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a consent-management module is present and whether the token is withheld for a user who declines consent above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} creates UID2 or EUID tokens without gating on a recorded consent signal, so an identifier built from a user's hashed email or phone number can enter the bid stream for users who have not agreed. UID2 and EUID rely on consent before an ID is added to the auction, and on EUID the General Data Protection Regulation (GDPR) makes processing without a legal basis a regulatory risk that grows with every affected user. {{voice_recommend}} confirming a Transparency and Consent Framework (TCF) consent-management module and a compatible consent management platform (CMP) are in place, tying the source identifier to a consent moment that covers advertising use, and testing the page as a user who declines to confirm no token is passed in that state. After the change, recheck both the declined and granted states so the gate holds in production."
+      }
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://docs.prebid.org/dev-docs/modules/userid-submodules/pubprovided.html",
+  "worth_it": "Yes",
+  "worth_it_explanation": "A publisher-provided identifier lets curated demand recognize a logged-in or known audience without a third-party cookie, which is the part of header-bidding revenue most exposed to cookie deprecation. The check is a review of the PubProvided ID configuration a publisher already runs in Prebid.js, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration decision the publisher can verify in the browser console.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "A Publisher Provided Identifier (PPID) is a first-party user ID the publisher sets and passes into the bid stream, so demand partners can recognize a known audience without relying on a third-party cookie. In Prebid.js this is carried by the PubProvided ID submodule, which places the identifier into the OpenRTB extended identifiers (EIDs) that travel with each bid request. This subcategory is about whether that first-party identifier is passed at all, and whether it is scoped to the consent the user actually granted, rather than about which third-party ID vendors a publisher has enabled. These checks confirm that the PPID reaches demand when it should and is withheld when consent is absent.",
+  "audit_checks": [
+    {
+      "id": "prebid-ppid-first-party-not-passed",
+      "title": "No publisher-provided first-party identifier is passed to demand",
+      "category": "identity",
+      "subcategory": "ppid_first_party",
+      "impact_score": 3,
+      "impact_rationale": "Without a publisher-provided identifier, demand partners fall back to whatever third-party signal survives in the user's browser, which on Safari and Firefox is little and on Chrome is shrinking. A publisher with a logged-in or otherwise known audience that passes no first-party ID leaves a recognized, addressable user looking anonymous to bidders, which suppresses the bids that depend on recognizing the user.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "privacy"
+      ],
+      "educate": {
+        "base": "A Publisher Provided Identifier (PPID) is an identifier the publisher controls, derived from its own first-party relationship with the user, such as a hashed login, a registration ID, or a stable first-party cookie the publisher set. In Prebid.js the PubProvided ID submodule is the mechanism that carries this identifier into the auction. It places the value into the OpenRTB extended identifiers (EIDs) that ride along with each bid request, so demand partners receive it through the standardized 'userIdAsEids' structure rather than as a loose string.<br><br>The reason this matters is the state of third-party identifiers. Safari and Firefox already block third-party cookies, and Chrome has reduced the role they play. A demand partner that cannot recognize the user falls back to contextual signals alone, which usually clear at a lower price than a bid placed against a known audience. A publisher that has a first-party relationship with its audience, through logins, registrations, or newsletter subscriptions, holds an identifier that survives this loss, but only if that identifier is actually passed into the bid stream.<br><br>The PubProvided ID submodule accepts the identifier in two ways. A publisher can supply a static 'eids' array through 'setConfig', or supply an 'eidsFunction' that the module calls to build the EIDs at auction time, which suits an ID that is resolved per page. Each entry names a 'source' (the domain providing the ID), a 'uids' array holding the value, and an 'atype' that records what kind of agent the ID describes. The Prebid documentation notes that 'mergeConfig' is the safer call when other ID submodules may already be configured, so a new entry does not overwrite existing ones.<br><br>A few signs point to no first-party identifier reaching demand:<ul><li>The Prebid configuration includes no 'pubProvidedId' entry in the 'userIds' array, so the submodule is never invoked</li><li>The publisher has a logged-in or registered audience but resolves no first-party ID into an EID for those users</li><li>Inspecting a bid request in the browser shows the 'user.ext.eids' array carrying only third-party vendor IDs, or empty, with no publisher-sourced entry</li></ul>You may want to confirm that a known audience is passed a publisher-provided identifier rather than left to third-party signals alone. One approach is to read the EIDs on a live bid request and check whether a publisher-sourced entry is present for a logged-in user.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the logged-in or registered audience is the part of the user base least dependent on third-party cookies, so it is the audience a first-party identifier protects most. You may want to confirm that registration and newsletter signups feed a 'pubProvidedId' for those users, so the recognized audience is the one demand can still bid against as third-party signals fade.",
+          "ecommerce": "On a commerce-content site, account holders and repeat purchasers carry a stable first-party relationship that a publisher-provided identifier can express to demand. You may want to confirm that the logged-in shopper audience resolves into a 'pubProvidedId' rather than relying on cookies that the shopper's browser may already block."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "PubProvided ID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/pubprovided.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "User ID module for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userId.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect the live Prebid configuration and a bid request to see whether the PubProvided ID submodule is configured and whether a publisher-sourced identifier reaches the EIDs that travel with the bid.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console (pbjs)",
+              "steps": [
+                "Open the page in a browser, open DevTools, and switch to the 'Console' tab.",
+                "Run 'pbjs.getConfig(\"userSync\")' and read the 'userIds' array to confirm whether a 'pubProvidedId' entry is present.",
+                "Run 'pbjs.getUserIdsAsEids()' on a page loaded as a known or logged-in user, and check whether the returned array carries an entry whose 'source' is the publisher's own domain.",
+                "If no publisher-sourced entry appears, record that no first-party identifier is being passed for that user."
+              ]
+            },
+            "prebid_debug": {
+              "label": "Prebid debugging",
+              "steps": [
+                "Add '?pbjs_debug=true' to the page URL, reload, and watch the console for the auction's bid requests.",
+                "Inspect a bid request's 'user.ext.eids' (or the adapter's userIdAsEids) and note which ID sources are present.",
+                "Record whether a publisher-sourced EID is present alongside any third-party vendor IDs, or whether none is."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the PubProvided ID submodule is configured and whether a publisher-sourced EID reaches the bid stream for a known or logged-in user. A setup that resolves a first-party identifier into an EID for the audience the publisher can recognize passes. A setup with a recognizable audience but no 'pubProvidedId' entry, where bid requests carry no publisher-sourced EID, is a fail recorded with the user state tested and what the EIDs showed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the PubProvided ID submodule is configured and whether a publisher-sourced EID appears on a bid request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes no publisher-provided first-party identifier into the bid stream, even for known or logged-in users. The PubProvided ID submodule in Prebid.js carries a first-party identifier into the OpenRTB extended identifiers (EIDs) that travel with each bid, and without it demand partners fall back to third-party signals that Safari and Firefox already block and Chrome has reduced. {{voice_recommend}} resolving the first-party identifier the audience already has, through logins or registrations, into a 'pubProvidedId' entry so demand can recognize the user. After the change, read 'pbjs.getUserIdsAsEids()' for a logged-in user to confirm a publisher-sourced EID is present."
+      }
+    },
+    {
+      "id": "prebid-ppid-first-party-not-consent-scoped",
+      "title": "The publisher-provided identifier is passed without checking consent",
+      "category": "identity",
+      "subcategory": "ppid_first_party",
+      "impact_score": 4,
+      "impact_rationale": "Passing a first-party identifier to demand partners is a transfer of personal data, so it sits inside the consent the user granted. An identifier resolved and passed for a user who has not consented to the relevant purpose turns a revenue feature into a regulatory exposure, and unlike a misconfigured floor, the cost lands as a compliance breach rather than as uncollected revenue.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "A Publisher Provided Identifier (PPID) is personal data once it leaves the publisher and reaches demand partners, so the decision to pass it has to respect the consent the user gave. Prebid.js connects to a Consent Management Platform (CMP) through its consent management modules, which read the Transparency and Consent Framework (TCF) string in the European Economic Area (EEA) and the Global Privacy Platform (GPP) signal elsewhere. The User ID module uses these signals to gate whether each identifier is built and shared.<br><br>The Prebid documentation describes the gate directly. If no consent string is available, or if the user has not consented to Purpose 1 (storing and accessing information on a device), the module blocks external vendor calls and stores nothing locally. The PubProvided ID submodule sits inside this same framework, and the documentation states that 'bid adapters will receive the eid values after consent is validated'. The mechanism is there, but it only protects the publisher if the identifier is actually routed through it rather than written onto the bid request by code that runs ahead of the consent check.<br><br>The failure to look for is a first-party identifier that is resolved and passed regardless of the consent signal. This happens when an 'eidsFunction' reads a login cookie and returns the EID without consulting consent, or when a page script writes the identifier into the configuration before the CMP has resolved. In both cases the identifier reaches demand for users who declined, which is the data transfer the consent framework exists to prevent.<br><br>A few signs point to an identifier passed without a consent check:<ul><li>The 'eidsFunction' resolves and returns the identifier with no reference to the TCF or GPP consent state</li><li>The identifier appears in 'pbjs.getUserIdsAsEids()' for a session where consent was withheld in the CMP</li><li>No consent management module is configured, so Prebid has no consent signal to gate the identifier against</li></ul>You may want to confirm that the first-party identifier is scoped to the consent the user granted. One approach is to withhold consent in the CMP, reload, and check that no publisher-sourced EID appears on the bid request for that session.",
+        "site_type_overlays": {
+          "publishing": "On a media site serving EEA readers, the TCF consent string governs whether a reader's identifier can be shared, and a reader who declines should generate no publisher-sourced EID. You may want to test a withheld-consent session against the live configuration so the identifier follows the reader's choice rather than the publisher's default.",
+          "ecommerce": "On a commerce-content site with account holders across regions, the GPP signal in the United States and the TCF string in the EEA each scope what may be passed for a given shopper. You may want to confirm the 'eidsFunction' reads the active consent state before returning an EID, so a logged-in shopper who declined is not passed to demand anyway."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "User ID module: consent and Purpose 1 gating",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userId.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "PubProvided ID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/pubprovided.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Test how the publisher-provided identifier behaves when consent is granted versus withheld, and confirm a consent management module is configured to supply the signal.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console (pbjs)",
+              "steps": [
+                "Open the page, open DevTools, and run 'pbjs.getConfig(\"consentManagement\")' to confirm a TCF or GPP consent module is configured.",
+                "In the Consent Management Platform (CMP) on the page, grant consent, reload, and run 'pbjs.getUserIdsAsEids()' to confirm the publisher-sourced EID appears.",
+                "Clear the consent decision or withhold consent in the CMP, reload, and run 'pbjs.getUserIdsAsEids()' again, noting whether the publisher-sourced EID is now absent.",
+                "Record whether the identifier follows the consent decision or appears regardless of it."
+              ]
+            },
+            "prebid_debug": {
+              "label": "Prebid debugging",
+              "steps": [
+                "Add '?pbjs_debug=true' to the URL, reload with consent withheld, and inspect a bid request's 'user.ext.eids'.",
+                "Confirm that no publisher-sourced EID is present on the request for the withheld-consent session.",
+                "Record any case where the identifier reaches the bid request despite consent being withheld."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a consent management module supplies a signal and whether the publisher-provided identifier follows the consent decision. A setup where the identifier appears for a consented session and is absent for a withheld-consent session passes. A setup where no consent module is configured, or where the identifier reaches demand for a session that withheld consent, is a fail recorded with the consent state tested and what the EIDs showed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the consent module configuration and whether the identifier follows the consent decision above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes its publisher-provided identifier into the bid stream without scoping it to the consent the user granted. A first-party identifier becomes personal data once it reaches demand partners, and Prebid.js gates identifiers on the Transparency and Consent Framework (TCF) and Global Privacy Platform (GPP) signals so a user who declined is not shared, but only when the identifier is routed through that gate. {{voice_recommend}} confirming a consent management module is configured and that the 'eidsFunction' reads the active consent state before returning an identifier. After the change, withhold consent in the consent management platform, reload, and confirm no publisher-sourced EID appears for that session."
+      }
+    }
+  ]
+}

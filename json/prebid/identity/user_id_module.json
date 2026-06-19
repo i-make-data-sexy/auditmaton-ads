@@ -1,0 +1,158 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://docs.prebid.org/dev-docs/modules/userId.html",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The User ID module decides which identifiers ride along with each bid request, so it sets how much addressability a publisher's inventory carries into the auction after the third-party cookie. A submodule list assembled by copying a vendor snippet, or storage and consent settings left at whatever an example showed, can attach IDs that add nothing, fail to gate on consent, or resolve a collision the wrong way. This check is a review of the Prebid configuration the publisher already runs, readable from the page itself, so it costs inspection time rather than a rebuild, and each finding points to a concrete config field the publisher can change.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Prebid.js runs the User ID module to collect identifiers from one or more submodules and attach them to every bid request, which is how a publisher keeps addressability on inventory as the third-party cookie fades. This subcategory is about the configuration of that module, the submodules a publisher enables and how their storage, expiration, and consent gating are set, rather than the auction or floor logic that runs alongside it. These checks confirm that the enabled IDs are a deliberate choice that each add reach, that collisions between submodules resolve on a stated priority, and that storage and consent for each ID are set so the module behaves the way privacy rules require.",
+  "audit_checks": [
+    {
+      "id": "prebid-user-id-module-submodules-not-deliberate",
+      "title": "Enabled ID submodules are not deliberate and lack a collision priority",
+      "category": "identity",
+      "subcategory": "user_id_module",
+      "impact_score": 3,
+      "impact_rationale": "Each ID submodule adds page weight and a vendor relationship, so a submodule that adds no addressability is cost without return. When two submodules can populate the same identifier source and no priority is set, Prebid resolves the collision on its own default order, which means the ID a publisher relies on for matching may come from a submodule they did not intend, weakening match rates on the demand they care about.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "privacy"
+      ],
+      "educate": {
+        "base": "Prebid.js collects user identifiers through the User ID module, which a publisher configures as an array of submodules under the 'userSync.userIds' setting passed to 'pbjs.setConfig()'. Each entry names a submodule, such as 'sharedId', 'unifiedId', 'id5Id', or 'uid2', and carries that submodule's own params, storage, and optional 'bidders' list. The module gathers the IDs each submodule returns, then attaches them to every bid request in two shapes, the native 'bidRequest.userId' object and the OpenRTB 'bidRequest.userIdAsEids' array that bidders read. More enabled submodules can mean more demand partners able to match the user, but only when each submodule actually reaches the demand a publisher works with.<br><br>The first audit question is whether the enabled submodules are a deliberate set rather than a list inherited from a vendor snippet or a template. Each submodule adds a script to the build, a config block to maintain, and in most cases a call to an external vendor, so a submodule that no bidder on the page consumes, or one whose ID the publisher's demand does not match against, is cost without return. A deliberate set is one where the publisher can name what each ID adds, which bidders use it, and why it earns its place.<br><br>The second question is what happens when two submodules can populate the same identifier source. Prebid lets a publisher set an explicit order with the 'userSync.idPriority' setting, which names, per identifier, the submodules in the order they should win. The documented example reads as follows.<br><br>'userSync': { 'idPriority': { 'uid2': ['liveIntentId', 'uid2'] } }<br><br>When no priority is set and more than one submodule returns the same source, Prebid resolves the tie on its own internal order, so the winning ID may come from a submodule the publisher did not intend. That weakens matching on the demand the publisher actually relies on.<br><br>A few signs point to a submodule list that was assembled rather than chosen:<ul><li>A submodule is enabled that no bidder in the 'bidders' lists consumes, or whose ID the publisher's demand does not match against</li><li>Two or more submodules can return the same identifier source, yet no 'idPriority' entry exists for that source</li><li>The publisher cannot say what addressability each enabled submodule adds beyond it being in a snippet they were given</li></ul>You may want to confirm that each enabled submodule earns its place and that any source two submodules can fill has a stated priority. One approach is to list the live 'userSync.userIds' entries, match each to the demand that consumes its ID, and add an 'idPriority' entry wherever a collision is possible.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a logged-in audience can support a deterministic ID submodule, such as a publisher-provided or authenticated email-based ID, that adds reach a probabilistic ID cannot. You may want to confirm the submodule set reflects the audience the site actually authenticates, rather than enabling probabilistic submodules that overlap an authenticated ID the publisher already has.",
+          "ecommerce": "On a commerce-content site, first-party signals from purchase and account activity can feed a publisher-provided ID that demand values for its accuracy. You may want to confirm that ID has a clear priority over any third-party submodule that could populate the same source, so the higher-quality first-party ID wins the collision rather than a vendor ID that resolves on Prebid's default order."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "User ID Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userId.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the live User ID configuration from the page itself, list the enabled submodules, and check whether each maps to demand that consumes it and whether any collidable source has a priority set.",
+        "tools": {
+          "free": {
+            "prebid_console": {
+              "label": "Browser console and pbjs config",
+              "steps": [
+                "Open a page that loads Prebid in the browser, open DevTools, and in the console run 'pbjs.getConfig('userSync')' to read the live 'userIds' array and any 'idPriority' object.",
+                "List each enabled submodule by its 'name', and note its 'params', 'storage', and 'bidders' list if present.",
+                "Run 'pbjs.getUserIds()' and 'pbjs.getUserIdsAsEids()' to see which IDs the module actually resolved and attached on the page.",
+                "For any identifier source that two or more enabled submodules can populate, record whether an 'idPriority' entry names the intended winner or whether none exists.",
+                "Match each enabled submodule to the demand that consumes its ID, and record any submodule no bidder uses or whose ID the publisher's demand does not match against."
+              ]
+            },
+            "prebid_events": {
+              "label": "Prebid events and debug output",
+              "steps": [
+                "Append '?pbjs_debug=true' to the page URL, reload, and watch the console for User ID module messages that show which submodules initialized and which returned an ID.",
+                "Run 'pbjs.getEvents()' and inspect the bid requests to confirm the 'userIdAsEids' array carries the IDs the publisher expects, and only those.",
+                "Note any submodule that initialized but returned no usable ID, which points to a submodule that adds cost without addressability."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each enabled submodule, the demand that consumes its ID, and whether any identifier source two submodules can fill has an 'idPriority' entry. A configuration where every enabled submodule maps to demand that uses it and every collidable source has a stated priority passes. A configuration with a submodule no demand consumes, or a collidable source with no priority set, is a fail recorded with the submodules and sources affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each enabled submodule, the demand that consumes it, and whether collidable sources have a priority set above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} enables Prebid User ID submodules without a clear reason for each one and without a collision priority where two submodules can fill the same identifier source. Each submodule adds page weight and a vendor relationship, so a submodule no demand consumes is cost without return, and when no 'idPriority' is set Prebid resolves a collision on its own default order, so the ID a publisher relies on may come from a submodule they did not intend. {{voice_recommend}} listing the live 'userSync.userIds' entries, matching each submodule to the demand that uses its ID, dropping any that add no addressability, and adding an 'idPriority' entry for every source more than one submodule can populate. After the change, recheck 'pbjs.getUserIdsAsEids()' on the page to confirm only the intended IDs attach."
+      }
+    },
+    {
+      "id": "prebid-user-id-module-storage-expiry-consent",
+      "title": "ID storage, expiration, and consent gating are not set correctly per submodule",
+      "category": "identity",
+      "subcategory": "user_id_module",
+      "impact_score": 3,
+      "impact_rationale": "When a submodule's 'storage.expires' is left unset, Prebid falls back to a session cookie or regenerates the ID on every page, so the identifier does not persist and match rates fall. When the User ID module runs without the consent management module gating it, storage and vendor calls can fire without a Purpose 1 signal, which is a privacy and legal exposure rather than only a tuning miss.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "Each submodule in the User ID module carries its own 'storage' object that controls where the ID lives and how long it survives. The fields are 'type', which is 'cookie', 'html5', or 'cookie&html5', 'name', the key the ID is written under, 'expires', the retention in days, and 'refreshInSeconds', how long a cached ID is used before the submodule fetches a fresh one. These settings decide whether an identifier persists across visits, which is what lets a returning user match the same ID and keeps match rates stable.<br><br>The expiration setting is where a quiet failure hides. Per the Prebid documentation, when 'storage.expires' is not specified, a session cookie is used in cookie mode, and local storage mode creates a new ID on every page. A session cookie disappears when the browser closes, and a regenerated ID never matches a prior visit, so an ID that looks present in a console check can still be failing to persist. The audit reads the 'expires' and 'refreshInSeconds' values against the persistence the publisher intends rather than assuming a present ID is a durable one.<br><br>Consent gating is the second half. The User ID module does not enforce privacy rules on its own. It relies on the consent management module, and reading or writing device storage falls under Transparency and Consent Framework (TCF) Purpose 1, store and access information on a device. The TCF Control module enforces that purpose, and with 'enforcePurpose' set it can stop a submodule from reading or writing cookies or local storage when the user has not given Purpose 1 consent. Without the consent management module loaded and gating the User ID module, storage and external vendor calls can fire with no consent signal, which is exposure rather than only a tuning issue.<br><br>A few signs point to storage or consent settings that need attention:<ul><li>A submodule has no 'storage.expires' set, so its ID falls back to a session cookie or regenerates each page instead of persisting</li><li>The 'refreshInSeconds' value is missing or so short that the submodule refetches the ID far more often than the data changes</li><li>The User ID module is enabled without the consent management module loaded, so Purpose 1 gating is not applied to storage and vendor calls</li></ul>You may want to confirm that each submodule's storage persists the way the publisher intends and that consent gating sits in front of every ID write. One approach is to read the 'storage' block for each submodule, set an explicit 'expires', and confirm the consent management and TCF Control modules are present and configured to enforce Purpose 1.",
+        "site_type_overlays": {
+          "publishing": "On a media site serving readers under the General Data Protection Regulation (GDPR), Purpose 1 gating on the User ID module is the difference between an ID that writes only on consent and one that writes regardless. You may want to confirm the consent management and TCF Control modules are loaded and set to enforce Purpose 1, so the submodules a media audience triggers do not store an ID before the reader has consented.",
+          "ecommerce": "On a commerce-content site where a first-party ID is built from account and purchase activity, the 'expires' setting decides whether that ID still matches when a shopper returns days later. You may want to set 'storage.expires' to a window that fits the typical return-to-purchase gap, so the ID persists across the visits that matter rather than resetting between sessions."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "User ID Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userId.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "TCF Control Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/tcfControl.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the storage block for each submodule from the live config, check the expiration and refresh values against the persistence intended, and confirm the consent management module is gating the User ID module on Purpose 1.",
+        "tools": {
+          "free": {
+            "prebid_console": {
+              "label": "Browser console and pbjs config",
+              "steps": [
+                "Open a page that loads Prebid, open DevTools, and run 'pbjs.getConfig('userSync')' to read the 'storage' object for each entry in 'userIds'.",
+                "For each submodule, record 'storage.type', 'storage.name', 'storage.expires', and 'storage.refreshInSeconds', and flag any submodule with no 'expires' set.",
+                "In the Application tab, inspect cookies and local storage for the recorded 'storage.name' keys, and note whether the value persists after closing and reopening the browser or whether it regenerates on reload.",
+                "Run 'pbjs.getConfig('consentManagement')' to confirm the consent management module is configured, and check that the TCF Control module is present and set to enforce Purpose 1 for storage.",
+                "Record any submodule whose ID writes before a consent signal is available, which points to gating that is missing or not enforced."
+              ]
+            },
+            "prebid_events": {
+              "label": "Prebid events and debug output",
+              "steps": [
+                "Append '?pbjs_debug=true' to the page URL, reload, and watch the console for consent management and User ID messages that show whether storage was allowed or blocked under the current consent state.",
+                "Simulate a no-consent state through the consent management platform (CMP) and reload, then confirm the submodules do not write storage or call external vendors when Purpose 1 is denied.",
+                "Note any case where an ID still writes under a denied Purpose 1 signal, which is a gating failure to record."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per submodule, the 'storage.type', 'expires', and 'refreshInSeconds' values, whether the ID persists across sessions, and whether the consent management and TCF Control modules gate the write on Purpose 1. A configuration where each submodule has an explicit 'expires' that persists the ID and where Purpose 1 gating blocks storage under denied consent passes. A submodule with no 'expires', or any ID that writes under a denied Purpose 1 signal, is a fail recorded with the submodule and the setting affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the storage, expiration, and consent-gating state for each submodule above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs Prebid User ID submodules with storage and consent settings that do not match the persistence and privacy the configuration needs. When 'storage.expires' is unset, Prebid falls back to a session cookie or regenerates the ID each page, so the identifier does not persist and match rates fall, and when the consent management module is not gating the User ID module, storage and vendor calls can fire without a Transparency and Consent Framework (TCF) Purpose 1 signal. {{voice_recommend}} setting an explicit 'expires' on each submodule's 'storage' block, confirming 'refreshInSeconds' fits how often the ID changes, and loading the consent management and TCF Control modules so Purpose 1 gates every ID write. After the change, recheck the stored values and simulate a denied-consent state to confirm the IDs persist when allowed and do not write when consent is absent."
+      }
+    }
+  ]
+}

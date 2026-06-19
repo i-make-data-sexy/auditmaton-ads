@@ -1,0 +1,163 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Supply Path Optimization (SPO) is the work buyers do to reach inventory through the cleanest, shortest path, and publishers who carry redundant reseller hops or unexplained resold inventory get pruned out of those buyer paths. The check reads the publisher's existing ads.txt, sellers.json exposure, and reseller declarations rather than rebuilding anything, so it costs reading time and points to specific paths a publisher can defend or remove. Cleaning the path costs less than the spend a buyer's SPO program reroutes away from a publisher whose supply looks muddy.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "SPO is the process buyers use to reach a publisher's inventory through the fewest, most transparent intermediaries, and TripleLift sits in that path as one of the sellers a buyer may choose to route through. This subcategory is about reseller and path hygiene for a publisher selling through TripleLift, meaning how many declared paths reach the same inventory, whether each path is authorized in ads.txt and resolvable through sellers.json, and whether any of the supply carries made-for-advertising (MFA) risk. These checks confirm that the paths reaching a publisher's inventory are deliberate and declarable rather than an accumulation of resold hops that buyers' SPO programs route around.",
+  "audit_checks": [
+    {
+      "id": "triplelift-spo-reseller-hygiene-redundant-paths",
+      "title": "Redundant reseller paths reach the same inventory",
+      "category": "supply-chain",
+      "subcategory": "spo_reseller_hygiene",
+      "impact_score": 3,
+      "impact_rationale": "When several declared paths reach the same impression through different resellers, a buyer running Supply Path Optimization (SPO) sees a muddy chain and keeps the shortest, cheapest path while pruning the rest. The pruned paths do not just lose a sale, they can pull spend away from the publisher entirely if the path the buyer keeps is not the one that pays the publisher best, so redundant paths trade transparency and yield for hops nobody is buying through.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["transparency", "fraud"],
+      "educate": {
+        "base": "SPO is the work a buyer does to reach a publisher's inventory through the cleanest path. Buyers compare the routes available to the same impression, count the intermediaries on each, weigh the fees and the transparency of each hop, and keep the routes that reach the inventory most directly. A publisher whose inventory is reachable through one clear path looks easy to buy. A publisher whose same inventory shows up through several reseller chains looks muddy, and the buyer's SPO program prunes the extra routes.<br><br>Redundant paths build up without anyone deciding to create them. A publisher may sell the same inventory directly through TripleLift, then also have it resold into TripleLift by a second seller, and also have it appear through a third party that resells into that second seller. Each hop is declared as a reseller in the publisher's ads.txt and resolves through the seller's sellers.json, so each one is technically authorized, yet they all reach the same impression. The OpenRTB SupplyChain object carries the full list of nodes a bid passed through, so a buyer can see every hop on the way to the inventory.<br><br>The cost of redundant paths is not a policy violation, it is lost preference in the buyer's SPO decision. A path with more hops carries more fees and more parties to trust, so when a buyer chooses among the routes to the same inventory, the longer chains lose. If the path the buyer keeps is a reseller chain rather than the publisher's direct TripleLift path, the publisher can end up paid less for inventory it could have sold more directly, and the redundant hops carry no offsetting demand of their own.<br><br>A few signs point to redundant reseller paths reaching the same inventory:<ul><li>The same ad units are sold both directly through TripleLift and resold into TripleLift by other sellers, with no clear reason for the duplicate route</li><li>ads.txt lists reseller entries for sellers whose only role is to pass the same inventory along to a path the publisher already has directly</li><li>SupplyChain object data on bids for the inventory shows chains of three or more nodes where a shorter direct path exists</li></ul>You may want to map every declared path that reaches a given ad unit and confirm each one earns its place. One approach is to keep the direct TripleLift path and any reseller path that brings demand the direct path cannot, then remove the reseller entries that only duplicate a route the publisher already has.",
+        "site_type_overlays": {
+          "publishing": "On a media site, premium placements such as a homepage or section-front unit are the inventory buyers most want to reach cleanly, so a tangle of reseller paths to those units is the costliest. You may want to start the path map with the premium placements, confirm the direct TripleLift path is the shortest route to them, and remove reseller hops that only lengthen the chain to inventory buyers already value.",
+          "ecommerce": "On a commerce-content site, product and category pages reach a higher-intent audience and draw stronger demand, so redundant reseller paths to that inventory dilute the routes buyers most want to keep. You may want to confirm the commercial inventory is reachable through the direct TripleLift path and prune reseller entries that resell the same high-intent units through longer chains."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json: Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Supply Chain Object module for header bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/schain.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt Implementation Guide",
+            "source_url": "https://iabtechlab.com/wp-content/uploads/2022/04/Ads.txt-1.1-Implementation-Guide.pdf"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Map every declared path that reaches a sample of the publisher's ad units, then check how many of those paths reach the same inventory and whether each carries demand the others do not.",
+        "tools": {
+          "free": {
+            "ads_txt_review": {
+              "label": "ads.txt and sellers.json review",
+              "steps": [
+                "Open the publisher's ads.txt file and list every entry for TripleLift, noting which are marked 'DIRECT' and which are marked 'RESELLER'.",
+                "For each reseller entry, follow the seller's published sellers.json to confirm the seller resolves and to see whether its path leads back into a TripleLift route the publisher already has directly.",
+                "Record which ad units or domains each path reaches, and flag any case where a direct path and one or more reseller paths reach the same inventory."
+              ]
+            },
+            "supplychain_review": {
+              "label": "SupplyChain object review",
+              "steps": [
+                "For a sample of bids on the publisher's inventory, read the OpenRTB SupplyChain object and count the nodes in each chain.",
+                "Compare the chains reaching the same ad unit, and note any chain of three or more nodes where a shorter direct path to that inventory exists.",
+                "Record which paths the inventory is actually winning on, so the path map shows what buyers are routing through alongside what is merely declared."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a sample of ad units, every declared path that reaches each one and whether each path is direct or a reseller chain. A setup where each ad unit has a clear direct path and any reseller path brings demand the direct path does not passes. A setup where reseller paths duplicate a route the publisher already has directly, with no added demand, is a fail recorded with the ad units and the redundant reseller entries affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the declared paths reaching each sampled ad unit and whether each is direct or a redundant reseller chain above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that several declared reseller paths reach the same {{site_name}} inventory that the direct TripleLift path already covers. When a buyer running Supply Path Optimization (SPO) sees the same impression through several chains, it keeps the shortest route and prunes the rest, and if the path it keeps is a longer reseller chain rather than the direct path, {{site_name}} can be paid less for inventory it could sell more directly. {{voice_recommend}} mapping every path that reaches each ad unit, keeping the direct TripleLift path and any reseller path that brings demand the direct path cannot, and removing the reseller ads.txt entries that only duplicate an existing route. After the cleanup, recheck the SupplyChain object data to confirm the inventory reaches buyers through fewer, clearer paths."
+      }
+    },
+    {
+      "id": "triplelift-spo-reseller-hygiene-mfa-unauthorized-reseller-risk",
+      "title": "Made-for-advertising and unauthorized reseller risk is not monitored",
+      "category": "supply-chain",
+      "subcategory": "spo_reseller_hygiene",
+      "impact_score": 3,
+      "impact_rationale": "Made-for-advertising (MFA) inventory and unauthorized reseller declarations sit alongside legitimate supply in the same declared paths, and buyers increasingly screen both out. A publisher who does not monitor whether MFA-adjacent domains or sellers it never authorized are riding its declared paths risks being grouped with that supply by buyers' filters, which can suppress demand for the publisher's clean inventory along with the questionable supply.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["fraud", "transparency"],
+      "educate": {
+        "base": "MFA sites are built to win programmatic scale rather than to serve readers, so they carry heavy ad density, fast refresh, and thin or reworked content. Buyers screen MFA inventory out because it delivers poor outcomes, and the screening is getting sharper as the industry builds signals to flag it. A publisher with genuine content can still be caught by that screening if its declared supply paths are tangled with MFA-adjacent domains or with reseller declarations the publisher never authorized.<br><br>Two distinct risks live here. The first is MFA proximity, where a reseller in the publisher's path also sells MFA inventory, so a buyer filtering MFA at the seller level can sweep up the publisher's clean inventory along with the questionable supply on the same path. The second is unauthorized reselling, where a seller declares the right to resell the publisher's inventory in its sellers.json without the publisher having authorized it in ads.txt, which is the mismatch ads.txt and sellers.json were built to expose. The IAB Tech Lab guidance on identifying MFA points buyers toward ad clutter, refresh rates, content quality, and ads.txt maintenance as tells, so a publisher's own ads.txt hygiene is part of how clean its supply reads.<br><br>Monitoring this is a recurring read rather than a one-time fix. ads.txt and sellers.json change as sellers add and drop relationships, and a path that was clean last quarter can pick up an MFA-adjacent reseller or an unauthorized declaration without the publisher acting at all. The audit question is whether the publisher checks, on a schedule, that the sellers carrying its inventory are authorized and that none of its declared paths run through supply a buyer would screen as MFA.<br><br>A few signs point to MFA and unauthorized reseller risk going unmonitored:<ul><li>No regular check compares the sellers declaring the right to resell the publisher's inventory in their sellers.json against the resellers the publisher authorized in ads.txt</li><li>Reseller entries point to sellers that also carry MFA-adjacent inventory, with no review of whether buyers' MFA filters reach the publisher's supply through them</li><li>The publisher cannot say when its ads.txt and sellers.json exposure were last reviewed against the supply actually being sold under its name</li></ul>You may want to reconcile the sellers declaring your inventory against your authorized ads.txt list on a schedule, and review each reseller path for MFA proximity. One approach is to remove or flag any seller declaring inventory you did not authorize, then assess whether the remaining reseller paths route through supply a buyer's MFA screening would catch.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the value of the brand depends on advertisers trusting that the inventory is genuine editorial rather than MFA, so an unauthorized reseller selling under the publisher's name or an MFA-adjacent path is a direct threat to that trust. You may want to reconcile authorized sellers against sellers.json declarations often because a media brand has the most to lose if buyers group its inventory with MFA supply.",
+          "ecommerce": "On a commerce-content site, the commercial pages draw demand precisely because the audience is genuine and high-intent, so any MFA-adjacent path or unauthorized reseller riding that inventory undercuts the quality buyers are paying for. You may want to focus the reconciliation on the sellers declaring the high-intent commercial inventory and confirm each is authorized and free of MFA proximity."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Using OpenRTB Signals to Identify Made for Advertising",
+            "source_url": "https://iabtechlab.com/using-openrtb-signals-to-identify-made-for-advertising/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Supply Chain Validation for Publishers",
+            "source_url": "https://iabtechlab.com/wp-content/uploads/2021/05/Supply-Chain-Validation-for-Publishers.pdf"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt Implementation Guide",
+            "source_url": "https://iabtechlab.com/wp-content/uploads/2022/04/Ads.txt-1.1-Implementation-Guide.pdf"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Reconcile the sellers declaring the right to resell the publisher's inventory against the resellers the publisher authorized, then review each reseller path for proximity to made-for-advertising (MFA) supply.",
+        "tools": {
+          "free": {
+            "reconciliation": {
+              "label": "ads.txt and sellers.json reconciliation",
+              "steps": [
+                "List every reseller the publisher authorized for its inventory in its ads.txt file.",
+                "For each seller carrying the publisher's inventory, open that seller's sellers.json and confirm the publisher appears as an authorized relationship, flagging any seller declaring the inventory without a matching ads.txt authorization.",
+                "Record every mismatch because a seller declaring inventory the publisher did not authorize is the unauthorized-reseller case ads.txt and sellers.json exist to surface."
+              ]
+            },
+            "mfa_review": {
+              "label": "MFA proximity review",
+              "steps": [
+                "For each authorized reseller path, check the IAB Tech Lab MFA tells against the other inventory that seller carries, e.g., heavy ad density, fast refresh, and thin or reworked content.",
+                "Note any reseller path that routes through a seller also carrying MFA-adjacent supply because a buyer's MFA filter applied at that seller can reach the publisher's clean inventory.",
+                "Record when this review was last run, so the finding reflects whether monitoring is a recurring practice or a one-time look."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether sellers declaring the publisher's inventory reconcile against the authorized ads.txt list and whether any reseller path routes through made-for-advertising (MFA) proximate supply, with a date for the last review. A setup where authorized sellers reconcile cleanly, no unauthorized declarations exist, and reseller paths are free of MFA proximity, reviewed on a schedule, passes. A setup with unauthorized seller declarations, MFA-adjacent reseller paths, or no recurring review is a fail recorded with the sellers and paths affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the reconciliation of authorized sellers against sellers.json declarations and any MFA-adjacent reseller paths above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not monitor its declared supply paths for made-for-advertising (MFA) proximity or for sellers declaring its inventory without authorization. Buyers screen MFA supply out and increasingly screen at the seller level, so an unauthorized reseller selling under {{site_name}} or a reseller path that routes through MFA-adjacent supply can pull {{site_name}}'s clean inventory into that screening. {{voice_recommend}} reconciling the sellers declaring {{site_name}} inventory against its authorized ads.txt list on a schedule, removing or flagging any declaration it did not authorize, and reviewing each remaining reseller path for MFA proximity. After the review, set a recurring cadence so ads.txt and sellers.json exposure stays matched to the supply actually sold under {{site_name}}."
+      }
+    }
+  ]
+}

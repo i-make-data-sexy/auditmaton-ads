@@ -1,0 +1,152 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://iabtechlab.com/sellers-json/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "A seller's entry in TripleLift's sellers.json file and the SupplyChain object passed alongside each bid are what let a buyer verify that the publisher is an authorized seller of the inventory. A wrong relationship value, a confidential entry where the publisher meant to be disclosed, or a SupplyChain object that drops a node can make legitimate inventory look unverifiable, which buyers may discount or filter out. The check reads what TripleLift publishes for the seller against the publisher's own records, so it costs reading time rather than rebuild time, and the finding points to a specific correction the publisher can request.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Supply chain transparency rests on two records that have to agree. TripleLift, as a Supply-Side Platform (SSP), publishes a sellers.json file that lists each seller it works with along with that seller's account identifier and relationship. Each bid request then carries a SupplyChain object that names every entity that touched the impression on its way to the buyer. This subcategory is about whether the publisher's seller record in TripleLift's sellers.json is accurate and whether the SupplyChain object is complete and passed end to end, so a buyer can trace the inventory back to its source and confirm the publisher is authorized to sell it.",
+  "audit_checks": [
+    {
+      "id": "triplelift-sellers-json-entry-mismatch",
+      "title": "The sellers.json entry does not match the publisher's seller ID or relationship",
+      "category": "supply-chain",
+      "subcategory": "sellers_json",
+      "impact_score": 3,
+      "impact_rationale": "Buyers use TripleLift's sellers.json to confirm that the account selling the impression is an authorized seller of it. If the seller ID does not match the one the publisher transacts under, or the relationship is recorded as RESELLER when the publisher is a direct owner of the inventory, the chain a buyer reconstructs does not resolve cleanly, so legitimate inventory can be discounted or filtered as unverifiable.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "A sellers.json file is a public record an advertising system publishes so that buyers can look up who it is selling on behalf of. For each seller, the file carries a seller ID, a seller type that states the relationship, and a flag for whether the entry is confidential or disclosed. The seller type is one of three values. PUBLISHER means the seller directly owns the inventory. INTERMEDIARY means the seller is reselling inventory it does not own. BOTH means the seller does both, depending on the impression. A buyer reads this file to confirm that the account named in a bid is a seller the system actually recognizes and that the stated relationship is consistent with the rest of the supply chain.<br><br>TripleLift, as a Supply-Side Platform (SSP), publishes its own sellers.json that lists the publisher's seller account. The audit question is whether the entry TripleLift publishes for the publisher matches the publisher's own records. Two parts can drift. The seller ID in the file has to be the same identifier the publisher transacts under, the one that also appears in the publisher's ads.txt line for TripleLift, so a buyer following the chain lands on the right account. The seller type has to describe the real relationship. A publisher that directly owns the inventory it sells through TripleLift is a PUBLISHER, not an INTERMEDIARY, and a record that says otherwise misstates the chain.<br><br>The confidential flag is a separate decision with its own consequence. When an entry is confidential, the seller's name and domain are withheld from the public file. Some publishers choose this on purpose. Others find their entry confidential without having asked for it, which can leave buyers unable to attach a recognizable name to the inventory. Whether disclosed or confidential is right depends on the publisher's intent, so the audit records what the entry says and whether it matches what the publisher meant.<br><br>A few signs point to a sellers.json entry that does not match the publisher's records:<ul><li>The seller ID in TripleLift's sellers.json differs from the ID in the publisher's ads.txt line for TripleLift</li><li>The seller type is recorded as INTERMEDIARY or RESELLER for inventory the publisher directly owns, or the other way around</li><li>The entry is confidential when the publisher intended to be disclosed, or disclosed when the publisher intended confidentiality</li></ul>You may want to confirm that the seller ID, relationship, and confidentiality in TripleLift's sellers.json match the publisher's own records and intent. One approach is to read the publisher's entry in TripleLift's published file, compare the seller ID against the ads.txt line, and confirm the relationship and confidentiality with the publisher before deciding whether a correction is needed.",
+        "site_type_overlays": {
+          "publishing": "A media publisher selling its own placements through TripleLift is a direct owner of that inventory, so the seller type should read PUBLISHER. If the entry reads INTERMEDIARY, that points to inventory routed through another party or a misstated relationship, and you may want to trace which account actually holds the TripleLift seat before requesting a change.",
+          "ecommerce": "A commerce-content site monetizing its own pages through TripleLift directly owns that inventory, so the seller type should read PUBLISHER. If the site also resells inventory for partner properties, BOTH may be correct, and you may want to confirm which case applies so the relationship value reflects what the site actually sells."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "SupplyChain Object (schain) Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/schain.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the publisher's entry in TripleLift's published sellers.json, then compare the seller ID against the publisher's ads.txt line and confirm the relationship and confidentiality with the publisher.",
+        "tools": {
+          "free": {
+            "sellers_json_lookup": {
+              "label": "TripleLift sellers.json (public file)",
+              "steps": [
+                "Open TripleLift's public sellers.json file at its published location on the TripleLift domain.",
+                "Find the publisher's entry and record the seller_id, the seller_type (e.g., PUBLISHER, INTERMEDIARY, or BOTH), and whether the entry is confidential or shows a name and domain.",
+                "Open the publisher's ads.txt file and find the line for the TripleLift domain, then compare the account ID on that line against the seller_id in the sellers.json entry.",
+                "Ask the publisher whether the recorded relationship and the confidential-versus-disclosed choice match what they intended, and record any mismatch."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the seller ID, seller type, and confidentiality flag from TripleLift's sellers.json entry alongside the publisher's ads.txt account ID and the publisher's stated intent. An entry whose seller ID matches the ads.txt line, whose relationship reflects who owns the inventory, and whose confidentiality matches the publisher's intent passes. A mismatch on the seller ID, a relationship that misstates ownership, or a confidentiality setting the publisher did not intend is a fail recorded with the specific field that diverges.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the seller ID, seller type, and confidentiality from the sellers.json entry alongside the ads.txt account ID and the publisher's intent above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the entry for {{site_name}} in TripleLift's sellers.json does not match the publisher's own records. Buyers read this file to confirm that the account selling an impression is an authorized seller of it, so a seller ID that differs from the ads.txt line, a relationship that misstates who owns the inventory, or a confidentiality setting the publisher did not intend can leave legitimate inventory looking unverifiable. {{voice_recommend}} confirming the intended seller ID, relationship, and confidentiality with the publisher, then requesting that TripleLift correct the sellers.json entry so it matches the ads.txt line and the real ownership of the inventory. After the correction, recheck the published entry to confirm the values resolve cleanly against the rest of the chain."
+      }
+    },
+    {
+      "id": "triplelift-sellers-json-schain-incomplete",
+      "title": "The SupplyChain object is incomplete or not passed end to end",
+      "category": "supply-chain",
+      "subcategory": "sellers_json",
+      "impact_score": 3,
+      "impact_rationale": "The SupplyChain object lets a buyer reconstruct every party that handled an impression from the publisher to the bid. If the object is marked incomplete, drops a node, or is not passed through the header-bidding wrapper to TripleLift, the buyer cannot trace the chain back to its source, so the inventory may be treated as opaque and discounted or filtered even when it is legitimate.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "Where sellers.json is a static lookup a buyer reads offline, the SupplyChain object travels with the bid request itself. It is an OpenRTB object that lists every entity that participated in selling or reselling the impression, in order, so a buyer can reconstruct the path from the publisher to the bid and check it against the sellers.json records along the way. The two records work together. The chain in the bid names the parties, and sellers.json lets the buyer verify each one.<br><br>The object carries a small set of fields that have to be right for the chain to resolve. A complete flag states whether the object lists every node in the transaction. Each node names the advertising system through its canonical domain, the seller or reseller account ID within that system, and a flag for whether the node is part of the payment flow. For TripleLift inventory sold through a header-bidding wrapper such as Prebid, the wrapper or the publisher's setup is responsible for building the object and passing it on to TripleLift, which then carries it forward to buyers. If any link drops the object or leaves a node out, the chain a buyer reconstructs is broken or marked incomplete.<br><br>Two failure modes show up in practice. The object is passed but marked incomplete, which tells the buyer the chain is missing at least one party and cannot be fully traced. Or the object is not passed at all because the wrapper is not configured to attach it or the publisher's seller ID is missing from the node, so the impression arrives at the buyer with no chain to verify. Either way, the inventory loses the transparency the object is meant to provide.<br><br>A few signs point to a SupplyChain object that is incomplete or not passed end to end:<ul><li>The header-bidding wrapper, e.g., Prebid, has no SupplyChain (schain) configuration for TripleLift, so no object is attached to the bid</li><li>The object is present but its complete flag is set to incomplete, which signals a missing node</li><li>A node's seller ID does not match the publisher's seller_id in TripleLift's sellers.json, so the chain cannot be verified against the published record</li></ul>You may want to confirm that the SupplyChain object is configured, complete, and carried through to TripleLift with node values that match the sellers.json record. One approach is to inspect a live bid request from the publisher's setup, read the SupplyChain object and its nodes, and confirm the complete flag and the TripleLift node resolve against the published seller entry.",
+        "site_type_overlays": {
+          "publishing": "A media publisher running TripleLift through a header-bidding wrapper relies on that wrapper to build and pass the SupplyChain object. You may want to confirm the wrapper's schain configuration names the publisher's TripleLift seller ID and the canonical TripleLift domain, so the node a buyer reads matches the published sellers.json entry.",
+          "ecommerce": "A commerce-content site monetizing through a header-bidding wrapper has the same dependency on the wrapper to attach the SupplyChain object. You may want to confirm the object is passed on the inventory that runs through TripleLift specifically since a wrapper can be configured for some bidders and not others, which leaves part of the inventory without a chain."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "SupplyChain Object (schain) Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/schain.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect a live bid request from the publisher's setup, read the SupplyChain object and its nodes, and confirm the object is configured, complete, and carried through to TripleLift with values that match the sellers.json record.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Header-bidding wrapper configuration (e.g., Prebid)",
+              "steps": [
+                "Open the header-bidding wrapper configuration and find the SupplyChain (schain) settings.",
+                "Confirm a SupplyChain object is configured for the TripleLift bidder, and record the node values, including the canonical TripleLift domain and the publisher's seller ID.",
+                "Note whether the object is set globally for all bidders or per bidder, and whether TripleLift is covered either way."
+              ]
+            },
+            "bid_request_inspection": {
+              "label": "Live bid request inspection (browser network tools)",
+              "steps": [
+                "Load a page that serves TripleLift inventory and capture the bid request in the browser network tools.",
+                "Find the SupplyChain object in the request and record the complete flag and each node's domain, seller ID, and payment-flow flag.",
+                "Compare the TripleLift node's seller ID against the publisher's seller_id in TripleLift's sellers.json, and note whether the complete flag indicates the chain is whole or missing a node."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a SupplyChain object is configured for TripleLift, whether it is passed on the inventory in question, the value of its complete flag, and whether the TripleLift node's seller ID matches the published sellers.json entry. An object that is present, marked complete, carried through to TripleLift, and whose node resolves against the sellers.json record passes. A missing object, a complete flag set to incomplete, or a node seller ID that does not match the published entry is a fail recorded with the specific gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the SupplyChain object is configured and passed, its complete flag, and whether the TripleLift node matches the sellers.json entry above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the SupplyChain object for {{site_name}} is incomplete or not carried through to TripleLift. This object travels with the bid and lets a buyer reconstruct every party that handled the impression, so an object that is missing, marked incomplete, or carrying a node that does not match TripleLift's sellers.json leaves the inventory without a chain a buyer can verify. {{voice_recommend}} configuring the SupplyChain object in the header-bidding wrapper for the TripleLift bidder, confirming the complete flag and the node's seller ID match the published seller entry, and inspecting a live bid request to verify the object is passed end to end. After the change, recheck a captured bid request to confirm the chain resolves cleanly from the publisher to TripleLift."
+      }
+    }
+  ]
+}

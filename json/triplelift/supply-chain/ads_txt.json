@@ -1,0 +1,169 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://iabtechlab.com/ads-txt/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "An ads.txt or app-ads.txt file is the public record of who a publisher has authorized to sell its inventory, and a missing or wrong TripleLift line can cause buyers to treat TripleLift demand on that inventory as unauthorized and pull their spend. The check reads files the publisher already publishes and compares them against the seller account TripleLift assigned, so it costs reading time rather than rebuild time, and the finding points to a specific line to add, correct, or remove. The result protects demand the publisher is already entitled to receive.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Authorized Digital Sellers (ads.txt) and its app and Connected TV (CTV) extension, app-ads.txt, let a publisher publish a plain-text file that names every advertising system authorized to sell its inventory and the seller account each one uses. Buyers read that file before they bid, so a TripleLift line that is missing, wrong, or carries the wrong relationship type can make TripleLift demand on the inventory look unauthorized and cost the publisher fill it should have received. This subcategory covers the TripleLift entries in those files, whether the correct seller account is present with the right DIRECT or RESELLER designation, and whether stale or unauthorized TripleLift lines have been removed.",
+  "audit_checks": [
+    {
+      "id": "triplelift-ads-txt-missing-or-wrong-seller-line",
+      "title": "The TripleLift authorization line is missing, malformed, or uses the wrong seller account or relationship type",
+      "category": "supply-chain",
+      "subcategory": "ads_txt",
+      "impact_score": 4,
+      "impact_rationale": "When the TripleLift line is absent or wrong, buyers reading the file see no proof that TripleLift is authorized to sell the inventory, so demand-side platforms can filter TripleLift bids on that domain or app as unauthorized supply. The publisher loses fill it was entitled to receive, and because the file is what buyers trust, the loss continues until the line is corrected.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "The Authorized Digital Sellers standard, published by IAB Tech Lab as ads.txt, defines a plain-text file a publisher posts at the root of its domain to declare which advertising systems may sell its inventory. The app and Connected TV (CTV) version, app-ads.txt, does the same for inventory inside an app by reading the developer URL listed in the app store. Each line in the file names one advertising system, the seller account the publisher holds on that system, a relationship type, and an optional certification authority identifier.<br><br>A TripleLift authorization line has a specific shape. The first field is TripleLift's canonical exchange domain, the second is the publisher's TripleLift seller account identifier exactly as TripleLift assigned it, and the third is the relationship type. The relationship type carries real meaning. Per the IAB Tech Lab specification, 'DIRECT' states that the publisher directly controls that account through a contract with TripleLift, and 'RESELLER' states that the publisher has authorized TripleLift, or another party, to control and resell on that account. A line that names TripleLift but with the wrong account identifier, or with 'DIRECT' where the relationship is actually a resale, misrepresents the authorization and can be read as invalid.<br><br>Buyers treat the file as the source of truth. A demand-side platform that does not find a valid line authorizing TripleLift for the domain or app can treat TripleLift bids on that inventory as unauthorized and stop bidding, so a missing or malformed line translates directly into lost demand. The failure is quiet because nothing in the publisher's own reporting flags it. The bids simply do not arrive.<br><br>A few signs point to a missing or wrong TripleLift line:<ul><li>The ads.txt or app-ads.txt file contains no line for TripleLift's exchange domain at all</li><li>A TripleLift line exists but the seller account identifier does not match the one TripleLift assigned for this property</li><li>The relationship type is set to 'DIRECT' for a resale arrangement, or to 'RESELLER' for an account the publisher controls directly</li><li>The line is malformed, e.g., wrong field order, missing commas, or a typo in the exchange domain, so a parser cannot read it</li></ul>You may want to confirm the TripleLift line against the seller account and relationship type TripleLift provided for this exact property. One approach is to fetch the live file, locate every TripleLift line, and check the account identifier and relationship type field by field against TripleLift's own record before deciding whether the line authorizes the inventory correctly.",
+        "site_type_overlays": {
+          "publishing": "On a media site, TripleLift inventory often spans both directly contracted placements and inventory a partner monetizes on the publisher's behalf. You may want to confirm that each TripleLift line carries the relationship type that matches how that slice is actually sold, 'DIRECT' for the contracted account and 'RESELLER' where a partner resells, so a buyer reading the file sees an accurate authorization for every placement.",
+          "ecommerce": "On a commerce-content site, the same domain may run TripleLift across editorial and product pages under one seller account. You may want to confirm a single correct TripleLift line covers the domain rather than assuming separate entries are needed per page type, given that ads.txt authorizes the seller at the domain level rather than per placement."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "ads.txt: Authorized Digital Sellers",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          },
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "ads.txt 1.1 Implementation Guide",
+            "source_url": "https://iabtechlab.com/wp-content/uploads/2022/04/Ads.txt-1.1-Implementation-Guide.pdf"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "TripleLift bid adapter (Prebid.js)",
+            "source_url": "https://docs.prebid.org/dev-docs/bidders/triplelift.html"
+          }
+        ],
+        "learn_more_note": "TripleLift's exact required ads.txt and app-ads.txt entries, including the canonical exchange domain and the publisher's seller account identifier, are documented in the TripleLift partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Fetch the live ads.txt or app-ads.txt file, locate every line for TripleLift's exchange domain, and check the seller account identifier and relationship type against the values TripleLift assigned for this property.",
+        "tools": {
+          "free": {
+            "browser": {
+              "label": "Web browser",
+              "steps": [
+                "For a website, open the file at the root of the domain, e.g., 'https://example.com/ads.txt', and view the raw text.",
+                "For an app, find the developer URL listed on the app's store page, then open 'app-ads.txt' at the root of that domain.",
+                "Search the file for TripleLift's exchange domain and list every line that references it.",
+                "For each TripleLift line, read the seller account identifier (field two) and the relationship type (field three), and compare them against the account and designation TripleLift provided for this property.",
+                "Note any case where the TripleLift line is absent, the account identifier does not match, the relationship type is wrong, or the line is malformed."
+              ]
+            },
+            "ads_txt_validator": {
+              "label": "ads.txt parser or validator",
+              "steps": [
+                "Run the file through an ads.txt parser, e.g., the open-source parser referenced from the IAB Tech Lab ads.txt page, to confirm it is syntactically valid.",
+                "Confirm the parser reads the TripleLift line as a complete, well-formed record rather than skipping it as malformed.",
+                "Record any parse warning that touches the TripleLift line."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a TripleLift line is present in the live file, whether its seller account identifier matches the one TripleLift assigned for this property, and whether the relationship type matches how the inventory is actually sold. A file that carries a well-formed TripleLift line with the correct account and the right DIRECT or RESELLER designation passes. A file with no TripleLift line, a wrong account identifier, a wrong relationship type, or a malformed line is a fail recorded with the exact line and the field that is wrong.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the TripleLift line from the live file and the assigned seller account and relationship type above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the ads.txt or app-ads.txt file for {{site_name}} does not carry a correct TripleLift authorization line, so the seller account or relationship type that buyers read does not match what TripleLift assigned. Buyers treat this file as the record of who may sell the inventory, so a demand-side platform that cannot find a valid TripleLift line can drop TripleLift bids as unauthorized supply and the lost demand goes unflagged in the publisher's own reporting. {{voice_recommend}} correcting the TripleLift line to the exact exchange domain, seller account identifier, and DIRECT or RESELLER designation TripleLift provided for this property, then refetching the live file to confirm the line parses cleanly. After the fix, watching TripleLift fill and demand on the affected inventory confirms the authorization reads correctly."
+      }
+    },
+    {
+      "id": "triplelift-ads-txt-stale-or-duplicate-lines",
+      "title": "Stale, duplicate, or unauthorized TripleLift lines remain in the file",
+      "category": "supply-chain",
+      "subcategory": "ads_txt",
+      "impact_score": 3,
+      "impact_rationale": "Leftover TripleLift lines from a discontinued partner, a closed account, or a copy-paste duplicate keep advertising the authorization to sell inventory the publisher no longer transacts through that path. The extra lines widen the set of accounts that can claim to sell the inventory, which weakens the file's purpose of narrowing supply to authorized sellers and can route demand through a path the publisher meant to close.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "An ads.txt or app-ads.txt file is a list a publisher is meant to keep current because every line in it is a standing authorization. The Authorized Digital Sellers standard from IAB Tech Lab works by narrowing the set of sellers a buyer will trust for a given domain or app down to the ones the publisher has explicitly named. A line that no longer reflects a live relationship widens that set again and works against the purpose of the file.<br><br>TripleLift lines accumulate the same way any list does. A publisher that once monetized through a reseller and later moved to a direct TripleLift account may leave the old reseller line in place. A team that copied a partner's recommended entries may have pasted a duplicate TripleLift line, or a line pointing at a TripleLift seller account that belongs to a partner the publisher no longer works with. None of these break the file outright, so they sit unnoticed while continuing to advertise an authorization the publisher did not intend to keep.<br><br>The risk is twofold. A duplicate or contradictory line, e.g., the same account listed as both 'DIRECT' and 'RESELLER', sends a buyer a mixed signal about who actually controls the account. A genuinely stale line keeps a closed selling path open on paper, so demand can still flow through an account the publisher meant to retire, which spreads the inventory across more paths than the publisher chose. Keeping the TripleLift entries down to the lines that match live, intended relationships is what keeps the file doing its job.<br><br>A few signs point to stale or duplicate TripleLift lines:<ul><li>The file lists the same TripleLift seller account more than once</li><li>The same account appears with conflicting relationship types, e.g., once as 'DIRECT' and once as 'RESELLER'</li><li>A TripleLift line references a seller account tied to a reseller or partner the publisher no longer works with</li><li>A TripleLift line predates a move from a reseller arrangement to a direct account and was never removed</li></ul>You may want to confirm that every TripleLift line in the file maps to a relationship that is still live and intended. One approach is to list each TripleLift line, match it against the publisher's current TripleLift account and active partners, and remove any line that no longer corresponds to a relationship in force.",
+        "site_type_overlays": {
+          "publishing": "On a media site that has changed monetization partners over time, old TripleLift reseller lines from a prior arrangement can linger after the publisher moved to a direct account. You may want to reconcile the TripleLift lines against the current contract so only the account in force remains and retired reseller paths are removed.",
+          "ecommerce": "On a commerce-content site, ads.txt entries are sometimes managed by more than one team or pasted in from a partner's template, which can leave duplicate or partner-owned TripleLift lines. You may want to confirm each TripleLift line maps to an account the publisher still uses and remove any duplicate or partner line that no longer applies."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "ads.txt: Authorized Digital Sellers",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          },
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "ads.txt 1.1 Implementation Guide",
+            "source_url": "https://iabtechlab.com/wp-content/uploads/2022/04/Ads.txt-1.1-Implementation-Guide.pdf"
+          }
+        ],
+        "learn_more_note": "TripleLift's current required seller account entries, which a publisher uses to tell a live line from a stale one, are documented in the TripleLift partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "List every TripleLift line in the live file and match each one against the publisher's current TripleLift account and active partners to find duplicates, conflicts, and lines that no longer reflect a live relationship.",
+        "tools": {
+          "free": {
+            "browser": {
+              "label": "Web browser",
+              "steps": [
+                "Open the live ads.txt file at the domain root, or the app-ads.txt file at the developer URL listed on the app store, and view the raw text.",
+                "List every line that references TripleLift's exchange domain, including the seller account identifier and relationship type on each.",
+                "Flag any seller account that appears more than once, and any account that appears with conflicting relationship types.",
+                "Match each remaining TripleLift line against the publisher's current TripleLift account and the partners still in force, and flag any line tied to a closed account or a former partner."
+              ]
+            },
+            "ads_txt_validator": {
+              "label": "ads.txt parser or validator",
+              "steps": [
+                "Run the file through an ads.txt parser to list its records in a structured form.",
+                "Sort the TripleLift records by seller account to surface duplicate accounts and conflicting relationship types.",
+                "Record which TripleLift records the publisher confirms are stale or unauthorized so they can be removed."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records every TripleLift line in the live file with its seller account and relationship type, then marks each as live and intended or as stale, duplicate, or unauthorized after matching it against the publisher's current TripleLift account and active partners. A file whose TripleLift lines all map to live, intended relationships with no duplicates or conflicts passes. A file that retains a duplicate, a conflicting relationship type, or a line tied to a closed account or former partner is a fail recorded with each line to remove.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each TripleLift line from the live file and whether it maps to a live, intended relationship above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the ads.txt or app-ads.txt file for {{site_name}} keeps TripleLift lines that no longer reflect a live, intended relationship, e.g., a duplicate account, a conflicting relationship type, or a line tied to a partner no longer in use. Every line in the file is a standing authorization, so a stale or duplicate TripleLift line keeps a selling path open on paper and widens the set of accounts that can claim to sell the inventory, which works against the file's purpose of narrowing supply to authorized sellers. {{voice_recommend}} reconciling each TripleLift line against the current TripleLift account and active partners, then removing every duplicate, conflicting, or retired line so only the lines in force remain. After the cleanup, refetching the live file confirms the TripleLift entries match the relationships the publisher actually holds."
+      }
+    }
+  ]
+}

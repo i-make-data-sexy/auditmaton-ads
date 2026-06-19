@@ -1,0 +1,139 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "User access controls the people and the systems that can change how a publisher monetizes through Amazon Publisher Services (APS), so a loose roster or a shared credential turns into a way for the wrong person to redirect revenue or leak demand-partner terms. This check is a review of who holds access in the publisher console and how API credentials are scoped and rotated, so it costs reading time rather than rebuild time, and the finding points to a concrete access decision the publisher can act on.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Access to the APS publisher console and to the APS API decides who can change a publisher's monetization setup, read its demand-partner reporting, and move money, so the access roster is a control surface in its own right. This subcategory is about the people and the credentials that can reach APS, not the ad-serving configuration they touch once inside. These checks confirm that console users hold only the access their role needs and that departed staff are removed, and that API credentials are scoped, attributed to a known owner, and rotated rather than shared and left in place.",
+  "audit_checks": [
+    {
+      "id": "amazon-publisher-services-roles-permissions-least-privilege-not-enforced",
+      "title": "Console user roles do not follow least privilege",
+      "category": "governance",
+      "subcategory": "roles_permissions",
+      "impact_score": 3,
+      "impact_rationale": "When every console user holds admin access and departed staff keep their logins, any one account can change pricing, alter demand-partner setup, or pull confidential reporting, and a former employee retains a path back in. The blast radius of a single compromised or misused account grows with each over-privileged or stale login, so a loose roster turns a small mistake into a wide one.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "The Amazon Publisher Services (APS) publisher console lets an account administrator add users and set what each one can do, from read-only reporting access through to full administrative control over the monetization setup. Least privilege is the principle that each user holds only the access their job needs and nothing more. A reporting analyst who reads earnings does not need the ability to change pricing rules or add demand partners, and a contractor brought in for one project does not need standing admin access after the project ends.<br><br>The reason this matters is the blast radius of a single account. Every login is a way into the setup that decides how a publisher earns. An over-privileged account that gets phished, or a shared login whose password leaks, hands the attacker everything that account can reach. When most users sit at admin, that is the whole monetization configuration and the confidential demand-partner reporting underneath it. Holding each user to the narrowest role that lets them do their work means a compromised account exposes only its own slice rather than the entire console.<br><br>The other half of least privilege is removing access when it is no longer needed. A staff member who changes teams, or leaves the company, should lose their console login as part of that change. A login that outlives the person's need for it is a standing risk that nobody is watching, and a former employee with a live credential is a path back into the publisher's revenue setup. The OWASP Authorization guidance frames this as deny by default, where access is granted deliberately to those who need it rather than left open.<br><br>A few signs point to roles that do not follow least privilege:<ul><li>Most or all console users hold admin access rather than a role scoped to what they actually do</li><li>Logins exist for people who have changed teams or left the company and no longer need access</li><li>No periodic review of the user roster exists, so access only ever accumulates and is never pruned</li></ul>You may want to confirm that each console user holds the narrowest role their work requires and that departed staff have been removed. One approach is to review the full user list against the current team, downgrade any account broader than its role needs, and remove any login tied to someone who has left.",
+        "site_type_overlays": {
+          "publishing": "On a media site with an ad operations team, several people may touch the APS console for reporting while only one or two manage the monetization setup. You may want to give the reporting users a read-only or limited role and reserve administrative access for the people who actually configure demand and pricing, so a wider team does not mean a wider set of admin logins.",
+          "ecommerce": "On a commerce-content site where ad revenue is a secondary line and the team is small, console access often gets granted broadly because it is easier than scoping it. You may want to still hold each login to what it needs because a small team rarely needs more than one administrator and the rest can read reporting without the ability to change the setup."
+        },
+        "learn_more": [
+          {
+            "source_type": "OWASP Cheat Sheet Series",
+            "source_title": "Authorization Cheat Sheet",
+            "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's detailed documentation for adding console users and assigning roles is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the full list of users with access to the Amazon Publisher Services (APS) publisher console, the role each one holds, and whether any login belongs to someone who has left or changed teams.",
+        "tools": {
+          "free": {
+            "aps_console": {
+              "label": "Amazon Publisher Services publisher console",
+              "steps": [
+                "Sign in to the Amazon Publisher Services publisher console as an administrator and open the user management or account settings area where users and their access are listed.",
+                "Record every user with access, the role or permission level each one holds, and the date each was last active if the console shows it.",
+                "For each user, ask the publisher whether that person still needs the access and at what level, and mark any login that belongs to someone who has left or changed teams.",
+                "Note whether any periodic review of the roster exists, or whether access has only ever been added and never pruned."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each console user, the role they hold, and whether that role matches the access their work needs. A roster where each user sits at the narrowest role their job requires and no login belongs to a departed or reassigned person passes. A roster where most users hold admin access beyond their role, or where stale logins for former staff remain active, is a fail recorded with the accounts that are over-privileged or should be removed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each console user, the role they hold, and whether it matches their work above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Amazon Publisher Services (APS) console roster for {{site_name}} does not follow least privilege, with users holding access broader than their role needs and logins still active for people who no longer need them. Every console login is a way into the setup that decides how {{site_name}} earns, so an over-privileged or stale account widens the damage from a single phished password or a former employee with a live credential. {{voice_recommend}} reviewing the full user list against the current team, narrowing each account to the role its work requires, and removing any login tied to someone who has left or changed teams. After the cleanup, scheduling a regular review keeps access from accumulating again."
+      }
+    },
+    {
+      "id": "amazon-publisher-services-roles-permissions-api-credentials-shared-not-rotated",
+      "title": "API credentials are shared and not scoped or rotated",
+      "category": "governance",
+      "subcategory": "roles_permissions",
+      "impact_score": 3,
+      "impact_rationale": "A single API credential shared across people and systems, with no scoping and no rotation, cannot be traced to one owner and cannot be revoked without breaking every consumer at once. A leaked key keeps working until someone notices, and a departing engineer who knew the shared secret retains access to the publisher's monetization API, so the credential becomes a standing exposure rather than a controlled one.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "Programmatic access to Amazon Publisher Services (APS) runs on API credentials, the keys or tokens that let a script or a system read reporting and interact with the monetization setup without a person signing in. These credentials carry the same weight as a console login because whatever they can reach is reachable by anyone holding the key. How a publisher scopes, attributes, and rotates those credentials decides whether a leak is a contained problem or a wide one.<br><br>Scoping means a credential carries only the permissions the system using it actually needs, in the same least-privilege spirit as a user role. A token that powers a reporting export does not need write access to the setup. Attribution means each credential ties to a known owner, a named person or a named system, so the publisher can answer who holds it and why. A credential nobody owns is a credential nobody is watching, and when it leaks there is no one accountable for noticing.<br><br>Rotation is the practice of replacing credentials on a schedule and immediately on any suspected compromise, so a stolen key works for a short window rather than indefinitely. The OWASP Secrets Management guidance frames regular rotation as the way to limit how long a leaked credential stays useful, and it recommends against secrets that are shared widely and left in place. A single key copied into several scripts, pasted into a shared document, and never changed is the opposite pattern. It cannot be traced to one owner, it cannot be revoked without breaking every consumer at once, and a departing engineer who memorized or saved it keeps working access after they leave.<br><br>A few signs point to API credentials that are shared rather than scoped and rotated:<ul><li>One credential is reused across multiple people, scripts, or systems rather than each having its own</li><li>Credentials carry broad access regardless of what the consuming system actually needs</li><li>No rotation schedule exists and keys have not been changed since they were first issued</li><li>No record ties each credential to a named owner who is accountable for it</li></ul>You may want to confirm that each API credential is scoped to one system, tied to a known owner, and on a rotation schedule. One approach is to inventory every credential in use, replace any shared key with per-system credentials scoped to their need, and set a rotation cadence with an immediate rotation on any suspected leak.",
+        "site_type_overlays": {
+          "publishing": "On a media site that pulls APS reporting into a revenue dashboard or a data warehouse, the export job usually needs only read access. You may want to scope that job's credential to reporting reads alone and keep it separate from any credential used for configuration work, so the routine pipeline cannot become a path to changing the setup.",
+          "ecommerce": "On a commerce-content site where a small team or an outside contractor wired up the APS integration, a single key often ends up doing every job because it was quicker to set up. You may want to split that into per-system credentials and rotate the original, especially if a contractor who set it up no longer works with the site."
+        },
+        "learn_more": [
+          {
+            "source_type": "OWASP Cheat Sheet Series",
+            "source_title": "Secrets Management Cheat Sheet",
+            "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's documentation for generating and managing API credentials is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the API credentials in use against Amazon Publisher Services (APS), how each one is scoped, who owns it, and whether any rotation schedule exists.",
+        "tools": {
+          "free": {
+            "aps_console": {
+              "label": "Amazon Publisher Services publisher console",
+              "steps": [
+                "Sign in to the Amazon Publisher Services publisher console as an administrator and open the area where API access or credentials are managed.",
+                "Record every active credential, the access it carries, and the date it was issued or last rotated if the console shows it.",
+                "Ask the publisher which systems or people use each credential and whether any single key is shared across more than one consumer.",
+                "Note whether each credential ties to a named owner and whether any rotation schedule or rotation-on-compromise practice exists."
+              ]
+            },
+            "credential_inventory": {
+              "label": "Credential and integration inventory",
+              "steps": [
+                "Gather from the publisher the list of scripts, pipelines, and systems that call the APS API and the credential each one uses.",
+                "Cross-reference that list against the credentials shown in the console to find any key reused across several consumers or any consumer with broader access than its task needs.",
+                "Record which credentials lack a named owner and which have never been rotated since issue."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each API credential in use, its scope, its owner, and its rotation history. A setup where each credential is scoped to one system's need, tied to a named owner, and on a rotation schedule passes. A setup where one credential is shared across consumers, carries access beyond what a consumer needs, has no named owner, or has never been rotated is a fail recorded with the credentials and the gap found.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each API credential, its scope, its owner, and its rotation history above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} uses Amazon Publisher Services (APS) API credentials that are shared across systems, carry broad access, and are not rotated. A shared, unrotated key cannot be traced to one owner and cannot be revoked without breaking every consumer at once, so a leaked credential keeps working until someone notices and a departing engineer who knew it retains access. {{voice_recommend}} inventorying every credential in use, replacing each shared key with per-system credentials scoped to what they need, tying each to a named owner, and setting a rotation schedule with an immediate rotation on any suspected leak. After the change, a regular rotation cadence keeps any future leak short-lived."
+      }
+    }
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Unified ID 2.0 (UID2) and European Unified ID (EUID) tokens carry a deterministic, consented identifier into the bid stream that helps an impression earn addressable demand as third-party cookies fade. A publisher whose Magnite integration generates these tokens where consent allows can recover bids that anonymous inventory would lose. The check reviews the integration a publisher already has, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration the publisher can fix.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "UID2 and EUID are deterministic identity frameworks that convert a consented, hashed email or phone number into an encrypted token the publisher passes into the bid stream, so demand-side buyers can recognize the user without a third-party cookie. This subcategory is about whether the publisher's Magnite integration generates and passes these tokens correctly where a legal basis exists, and whether that generation is gated on consent so a token is never created without a lawful basis. These checks confirm the integration is present and earning addressable demand, and that it respects the consent signal that the frameworks require.",
+  "audit_checks": [
+    {
+      "id": "magnite-uid2-euid-tokens-not-in-bidstream",
+      "title": "UID2 or EUID tokens are not generated or passed into the bid stream",
+      "category": "identity",
+      "subcategory": "uid2_euid",
+      "impact_score": 3,
+      "impact_rationale": "When a publisher has consented first-party identifiers but no UID2 or EUID token reaches the bid stream, demand-side buyers see anonymous inventory and bid lower or not at all. The lost addressable demand is revenue the publisher could earn on the same impressions, so a missing or broken token integration is a steady leak rather than a one-off gap.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "privacy"],
+      "educate": {
+        "base": "Unified ID 2.0 (UID2) is a deterministic identity framework that takes a user's hashed email address or phone number, sends it to a UID2 Operator, and receives back an encrypted token the publisher can place into the real-time bidding (RTB) bid stream. European Unified ID (EUID) is the parallel framework built on the same design for European markets, where the privacy controls are set to meet local requirements. A demand-side buyer that recognizes a UID2 or EUID token can match the impression to its own audience data and bid with confidence, which is harder on inventory that carries no addressable signal at all.<br><br>For a publisher monetizing through Magnite, the token has to be generated and then carried into the bid stream for it to do any work. Generation happens client-side in the user's browser or server-side on the publisher's own infrastructure, and the resulting token is passed alongside the bid request so buyers integrated with UID2 or EUID can read it. If the integration was never wired up, or if it generates a token that never reaches the request Magnite sends to buyers, the inventory looks anonymous to demand even though the publisher holds a consented identifier that could have made it addressable.<br><br>The audit question is whether tokens are actually present in the bid stream on impressions where the publisher has a consented first-party identifier, not merely whether the integration was installed at some point. A token that fails to refresh, a misconfigured operator key, or a header-bidding wrapper that drops the identity module can all leave the integration installed but silent.<br><br>A few signs point to tokens not reaching the bid stream:<ul><li>The header-bidding configuration has no UID2 or EUID user-ID module, or the module is present but disabled</li><li>The publisher holds consented logged-in identifiers but cannot confirm a token is generated for those sessions</li><li>Bid requests inspected in a browser session show no UID2 or EUID token where consent was granted</li></ul>You may want to confirm that a token is generated and present in the bid stream for consented sessions. One approach is to inspect a logged-in, consented session and trace whether the token is created and carried into the request Magnite sends to buyers.",
+        "site_type_overlays": {
+          "publishing": "On a media site with a registration or newsletter wall, logged-in sessions are the natural place a consented email lives, so they are where UID2 or EUID tokens should be generating. You may want to confirm the integration fires on those authenticated sessions specifically since they hold the first-party identifier the framework needs.",
+          "ecommerce": "On a commerce-content site, account holders and repeat buyers log in with an email the publisher already holds, which is a strong basis for a UID2 or EUID token where consent allows. You may want to check that the token generates on those authenticated commercial sessions since they carry both the identifier and the higher-value audience buyers want to reach."
+        },
+        "learn_more": [
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Publisher Web Integration Overview",
+            "source_url": "https://unifiedid.com/docs/guides/integration-options-publisher-web"
+          },
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Server-Side Token Generation",
+            "source_url": "https://unifiedid.com/docs/ref-info/ref-server-side-token-generation"
+          },
+          {
+            "source_type": "European Unified ID Documentation",
+            "source_title": "EUID overview",
+            "source_url": "https://euid.eu/docs/intro"
+          }
+        ],
+        "learn_more_note": "Magnite's detailed configuration steps for this are in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the UID2 or EUID integration is configured in the publisher's header-bidding setup and Magnite account, then confirm a token actually reaches the bid stream on a consented, logged-in session.",
+        "tools": {
+          "free": {
+            "header_bidding_config": {
+              "label": "Header-bidding configuration",
+              "steps": [
+                "Open the header-bidding wrapper configuration, e.g., the Prebid.js or Demand Manager setup, and look for a UID2 or EUID user-ID module.",
+                "Record whether the module is present, enabled, and pointed at a valid operator endpoint and subscription, or whether it is missing or disabled.",
+                "Confirm with the publisher which sessions are expected to carry a consented identifier, e.g., logged-in or registered users."
+              ]
+            },
+            "browser_inspection": {
+              "label": "Browser network inspection",
+              "steps": [
+                "Open a logged-in session where consent has been granted, then open the browser developer tools and watch the network requests as a page loads.",
+                "Inspect the bid requests for a UID2 or EUID token in the identity or extended-ID fields, and record whether a token is present.",
+                "Repeat on a session with no consent to confirm the contrast, which is the basis for the consent-gating check in this subcategory."
+              ]
+            },
+            "magnite_console": {
+              "label": "Magnite console",
+              "steps": [
+                "Open the Magnite console and review the identity or addressability settings for the publisher's account.",
+                "Record whether UID2 and EUID are enabled for the relevant inventory and whether any reporting shows the share of impressions carrying an addressable token."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the UID2 or EUID module is configured in the header-bidding setup, whether Magnite has the framework enabled for the inventory, and whether a token was observed in the bid stream on a consented, logged-in session. An integration that is configured and produces a token in the bid stream on consented sessions passes. An integration that is missing, disabled, or installed but producing no token where consent exists is a fail recorded with the sessions and inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the UID2 or EUID module is configured and whether a token was observed in the bid stream above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} holds consented first-party identifiers but no Unified ID 2.0 (UID2) or European Unified ID (EUID) token is reaching the bid stream, so the inventory looks anonymous to demand-side buyers even on sessions where a consented email exists. A missing or silent token integration leaves addressable demand uncollected on impressions that could have earned a higher bid. {{voice_recommend}} confirming the UID2 or EUID module is enabled in the header-bidding setup and the Magnite account, then tracing a logged-in, consented session to verify a token is generated and carried into the request Magnite sends to buyers. After the fix, recheck the share of impressions carrying an addressable token to confirm the integration is doing its work."
+      }
+    },
+    {
+      "id": "magnite-uid2-euid-not-consent-gated",
+      "title": "Token generation is not gated on a valid consent signal",
+      "category": "identity",
+      "subcategory": "uid2_euid",
+      "impact_score": 4,
+      "impact_rationale": "UID2 and EUID require a lawful basis before an identifier enters the bid stream, and EUID in particular relies on user consent gathered before the token is created. Generating a token without a valid consent signal processes personal data without a legal basis, which exposes the publisher to a privacy and regulatory breach rather than a revenue gap.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "European Unified ID (EUID) relies on a valid legal basis before an identifier is added to the bid stream, and for most participants that basis is user consent gathered through a Consent Management Platform (CMP) or the publisher's own login and consent flow. Unified ID 2.0 (UID2) carries the same principle: the framework is built to process a consented identifier, not to convert any email it can find. A token created without that signal turns a first-party identifier into an addressable identity with no lawful basis behind it, which is the failure mode this check looks for.<br><br>The technical risk is that the integration generates a token whenever it has a hashed email, regardless of what the consent string says. A correctly wired integration reads the consent signal first, e.g., the Transparency and Consent Framework (TCF) string in Europe, and generates a token only when the relevant purposes are granted. A misconfigured integration may fire on every session, or fall back to generating a token when the consent string is missing or fails to parse, which produces tokens for users who never agreed.<br><br>For a publisher monetizing through Magnite, the consent check has to sit ahead of token generation, so no token is created when the legal basis is absent. The audit question is whether the gate is present and works, not merely whether a CMP is installed somewhere on the page. A CMP can be present while the identity module ignores its output.<br><br>A few signs point to token generation that is not consent-gated:<ul><li>The integration generates a UID2 or EUID token on sessions where the consent string denies the relevant purposes</li><li>A missing or unparseable consent string results in a token being generated rather than withheld</li><li>The CMP is installed but the identity module reads no consent signal before calling the operator</li></ul>You may want to confirm that token generation reads and respects the consent signal before creating an identifier. One approach is to test a session that denies consent and confirm that no UID2 or EUID token appears in the bid stream.",
+        "site_type_overlays": {
+          "publishing": "On a media site serving European audiences, the consent string is the signal that governs whether a token may be created, and the registration flow is where consent is usually captured. You may want to test a denied-consent session from a European context and confirm no token is generated since that is where the legal risk concentrates.",
+          "ecommerce": "On a commerce-content site, account creation and checkout are points where consent is captured, and a denied or absent signal there should stop a token from forming. You may want to confirm the identity module reads the consent signal from those flows before it generates a token, so a buyer never receives an identifier the shopper did not agree to."
+        },
+        "learn_more": [
+          {
+            "source_type": "European Unified ID Documentation",
+            "source_title": "Consent Examples",
+            "source_url": "https://euid.eu/docs/legal/legal-consent-examples"
+          },
+          {
+            "source_type": "European Unified ID Documentation",
+            "source_title": "EUID overview",
+            "source_url": "https://euid.eu/docs/intro"
+          }
+        ],
+        "learn_more_note": "Magnite's detailed configuration steps for this are in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the identity module reads a consent signal before generating a token, then test a denied-consent session to confirm no UID2 or EUID token reaches the bid stream.",
+        "tools": {
+          "free": {
+            "cmp_review": {
+              "label": "Consent Management Platform review",
+              "steps": [
+                "Open the Consent Management Platform (CMP) configuration and confirm which purposes the UID2 or EUID integration depends on, e.g., the relevant Transparency and Consent Framework (TCF) purposes.",
+                "Confirm in the header-bidding or identity configuration that the module is set to read the consent string before calling the operator, rather than generating a token unconditionally.",
+                "Record whether a missing or unparseable consent string causes the module to withhold a token or to generate one as a fallback."
+              ]
+            },
+            "denied_consent_test": {
+              "label": "Denied-consent browser test",
+              "steps": [
+                "Load a page in a session that denies consent for the relevant purposes, then open the browser developer tools and watch the bid requests as the page loads.",
+                "Inspect the requests for a UID2 or EUID token and record whether a token is present despite the denial, which is the failure this check looks for.",
+                "Repeat with consent granted to confirm the contrast, so the result reflects the consent gate rather than an integration that is off entirely."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the identity module reads a consent signal before token generation, how it behaves when the consent string is missing or unparseable, and whether a token appeared in a denied-consent test. An integration that withholds a token whenever the consent signal is absent or denies the relevant purposes passes. An integration that generates a token on denied or missing consent is a fail recorded with the consent state and the sessions affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether token generation reads the consent signal and the result of the denied-consent test above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} generates Unified ID 2.0 (UID2) or European Unified ID (EUID) tokens without gating them on a valid consent signal, so an identifier can reach the bid stream on sessions where the legal basis is absent. EUID relies on user consent before an identifier enters the bid stream, and generating a token without it processes personal data with no lawful basis behind it. {{voice_recommend}} setting the identity module to read the consent string, e.g., the Transparency and Consent Framework (TCF) string, before it calls the operator, so no token forms when the relevant purposes are denied or the signal is missing. After the change, test a denied-consent session and confirm no token appears in the bid stream."
+      }
+    }
+  ]
+}

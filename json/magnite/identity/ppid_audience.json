@@ -1,0 +1,158 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "First-party audience signals are how a publisher stays addressable to curated demand when third-party cookies are absent, so passing them correctly is a direct revenue lever, and scoping them to the consent the user granted is a legal one. This check reviews what the publisher already sends through Magnite, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration change the publisher can act on.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "When third-party cookies are unavailable, a publisher's first-party audience signals are what keep its inventory addressable to curated demand. Magnite carries those signals, a Publisher Provided Identifier (PPID) and first-party audience or segment data, from the page or app into the auction so buyers can target without a shared cookie. This subcategory looks at whether those signals are passed at all, and whether the audience data that travels with them stays inside the bounds of the consent the user granted. The checks confirm the publisher is both capturing the addressability value of its first-party data and respecting the limits a user set on how that data is used.",
+  "audit_checks": [
+    {
+      "id": "magnite-ppid-audience-signals-not-passed",
+      "title": "First-party audience signals are not passed to curated demand",
+      "category": "identity",
+      "subcategory": "ppid_audience",
+      "impact_score": 3,
+      "impact_rationale": "When third-party cookies are absent, a Publisher Provided Identifier (PPID) and first-party audience segments are what let curated demand target the inventory at all. A publisher that passes neither leaves its addressable inventory looking anonymous to buyers, so it competes on cookieless traffic at a lower price than its first-party data could command.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "privacy"],
+      "educate": {
+        "base": "A PPID is a stable identifier a publisher assigns to a user, usually drawn from signed-in traffic, that travels into the auction in place of a third-party cookie. Alongside it, a publisher can pass first-party audience signals, the segments it has built from its own data, so that buyers can target the impression without sharing an identity graph. In browsers that restrict third-party cookies and in environments such as connected TV (CTV) and in-app, these first-party signals are often the only addressability a publisher has. Magnite is the path that carries them from the page or app into the bidstream where curated demand can act on them.<br><br>The value is concrete. Addressable inventory clears at a higher price than anonymous inventory because a buyer can match it to an audience the campaign is paying to reach. A signed-in user with a PPID and a first-party segment attached is inventory a curation deal can target. The same user with neither attached looks like unaddressable traffic, and the bid reflects that. The gap widens as cookie deprecation removes the third-party fallback that once filled it.<br><br>Industry approaches to packaging these signals are standardized rather than proprietary. The Interactive Advertising Bureau (IAB) Tech Lab's Curated Audiences specification, formerly Seller Defined Audiences, defines how a publisher's first-party and contextual segments travel through the supply chain without data leakage. Identity frameworks such as Unified ID 2.0 (UID2) convert a signed-in email or phone number into a token the publisher can pass to the supply-side platform, which places it in the bidstream. Both are ways to make a publisher's first-party data usable by demand without a third-party cookie.<br><br>A few signs point to first-party audience signals going unpassed:<ul><li>Signed-in traffic carries no PPID into the auction, so authenticated users look anonymous to buyers</li><li>The publisher has built first-party segments but does not attach them to the impression through Magnite or a header-bidding wrapper</li><li>Cookieless inventory, such as Safari, Firefox, CTV, or in-app, clears well below the price the equivalent cookied inventory commands</li></ul>You may want to confirm that signed-in traffic and first-party segments reach the auction as addressable signals rather than arriving anonymous. One approach is to trace a known signed-in session and check whether a PPID and segment data appear in the bid request Magnite sends.",
+        "site_type_overlays": {
+          "publishing": "On a media site with registration or a subscription wall, signed-in readers are the inventory most worth making addressable because a stable login lets a PPID persist across sessions and devices. You may want to confirm that the authenticated audience carries a PPID and the publisher's own interest segments into curated demand, rather than only the logged-out traffic that has no first-party signal to pass.",
+          "ecommerce": "On a commerce-content site, a logged-in shopper carries purchase-intent signals that curated demand will pay a premium to reach. You may want to confirm that the first-party segments built from on-site behavior, such as a category browsed or a cart abandoned, are attached to the impression through Magnite so that high-intent inventory is addressable rather than anonymous."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "Curated Audiences (formerly Seller Defined Audiences)",
+            "source_url": "https://iabtechlab.com/sda/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Publisher Provided ID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/pubprovided.html"
+          },
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Publishers integration overview",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-publishers"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Trace whether signed-in traffic and first-party segments reach the auction. Confirm a Publisher Provided Identifier (PPID) and audience data appear in the bid request Magnite sends, rather than the impression arriving anonymous.",
+        "tools": {
+          "free": {
+            "magnite_console": {
+              "label": "Magnite console and Demand Manager UI",
+              "steps": [
+                "In the Magnite console or Demand Manager, review the identity and audience configuration for the publisher's accounts to see which first-party signals are enabled to pass into the auction.",
+                "Confirm whether a PPID source is configured for signed-in traffic and whether first-party audience segments are mapped to inventory.",
+                "Note any inventory, such as connected TV or in-app, where no first-party signal is configured to pass."
+              ]
+            },
+            "bid_request_inspection": {
+              "label": "Bid request inspection",
+              "steps": [
+                "On a test page or app, sign in as a known user and capture the outgoing bid request, for example through the browser network panel or a Prebid debug build.",
+                "Check the request for an Extended ID (eid) entry carrying a PPID or a framework token (e.g., UID2), and for first-party audience segments in the user data fields.",
+                "Repeat in a cookieless context such as Safari or Firefox to confirm the first-party signals still travel when the third-party cookie is absent."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a PPID is passed for signed-in traffic and whether first-party audience segments reach the auction, across cookied and cookieless contexts. A setup that attaches a PPID and first-party segments to authenticated inventory, including in cookieless environments, passes. A setup where signed-in traffic arrives anonymous, or where built segments are not attached to the impression, is a fail recorded with the inventory and contexts affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a PPID and first-party segments reach the auction for signed-in traffic above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not pass its first-party audience signals to curated demand, so authenticated and cookieless inventory reaches the auction looking anonymous. When third-party cookies are absent, a Publisher Provided Identifier (PPID) and first-party segments are what let curated demand target the impression, and inventory carrying neither clears below the price the publisher's first-party data could command. {{voice_recommend}} configuring a PPID for signed-in traffic and mapping first-party audience segments to inventory through Magnite, then tracing a known signed-in session to confirm the signals appear in the bid request. After the change, compare the clearing price on cookieless inventory before and after to confirm the first-party signals raised its addressable value."
+      }
+    },
+    {
+      "id": "magnite-ppid-audience-consent-scope",
+      "title": "Audience data is passed beyond the scope of the consent granted",
+      "category": "identity",
+      "subcategory": "ppid_audience",
+      "impact_score": 4,
+      "impact_rationale": "Passing a Publisher Provided Identifier (PPID) or first-party audience segments for a user who did not consent to that use, or in a jurisdiction where the user opted out, exposes the publisher to a privacy and legal breach rather than a pricing inefficiency. The signal is the publisher's own first-party data, so the publisher is the accountable party when it travels past the limits the user set.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "A PPID and first-party audience segments are personal data the publisher controls, and the permission to use them for advertising depends on the consent the user granted and the jurisdiction the user is in. A user in the European Union who declined targeting under the Transparency and Consent Framework (TCF), or a user in a United States state who opted out, has set a limit on how that data may be used. Passing the PPID or the segment into the auction anyway sends the data past that limit, and because the data is the publisher's own first-party signal, the publisher is the party answerable for it.<br><br>The control that keeps the signal inside the consent the user granted is the privacy string that travels with the bid request. The Interactive Advertising Bureau (IAB) Tech Lab's Global Privacy Platform (GPP) carries consent and opt-out signals from the page through the supply chain, consolidating the TCF in Europe and the US state strings into one protocol. The audience-signal configuration in Magnite has to read those signals and suppress the PPID and segment data for any user whose consent does not cover audience targeting, rather than passing the data for everyone and leaving the limit unenforced downstream.<br><br>The failure is quiet because the auction still runs and revenue still arrives. A PPID passed for a non-consenting user clears an impression the same way a consented one does, so nothing in the revenue report flags it. The exposure surfaces only when a regulator, a consent-management audit, or a demand partner's own compliance review traces a segment back to a user who opted out. By then the data has already moved.<br><br>A few conditions point to audience data traveling past the consent granted:<ul><li>The PPID or first-party segments pass regardless of the TCF or GPP signal, with no suppression for users who declined targeting</li><li>Consent is checked for third-party vendors but the publisher's own first-party signal is exempted from the same gate</li><li>The audience configuration was set up before a privacy framework was adopted and has not been rechecked against the current consent strings</li></ul>You may want to confirm that the PPID and segment data are suppressed for any user whose consent does not cover audience targeting. One approach is to test a session with targeting consent declined and verify that no PPID or first-party segment appears in the outgoing bid request.",
+        "site_type_overlays": {
+          "publishing": "On a media site serving a European audience, the Transparency and Consent Framework signal governs whether a reader's data may be used for targeting, and a reader who declined sets a limit the publisher's own PPID must honor. You may want to test a declined-consent session from a European context and confirm the PPID and first-party segments are withheld from the bid request rather than passed by default.",
+          "ecommerce": "On a commerce-content site, the first-party segments built from shopping behavior are exactly the data a privacy opt-out is meant to restrict. You may want to confirm that a shopper who opted out under a US state signal, carried through the Global Privacy Platform, has their purchase-intent segments suppressed in Magnite rather than passed alongside the impression."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "Global Privacy Platform (GPP)",
+            "source_url": "https://iabtechlab.com/gpp/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Publisher Provided ID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/pubprovided.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Test whether the Publisher Provided Identifier (PPID) and first-party segments are suppressed when consent does not cover audience targeting. Confirm the privacy string is read before the signal is passed.",
+        "tools": {
+          "free": {
+            "magnite_console": {
+              "label": "Magnite console and Demand Manager UI",
+              "steps": [
+                "In the Magnite console or Demand Manager, review how the audience-signal configuration reads the Transparency and Consent Framework (TCF) and Global Privacy Platform (GPP) strings before passing a PPID or segment.",
+                "Confirm whether a consent gate is applied to the publisher's own first-party signal, not only to third-party vendors.",
+                "Record any case where the PPID or segments are configured to pass regardless of the consent signal."
+              ]
+            },
+            "consent_signal_testing": {
+              "label": "Consent signal testing",
+              "steps": [
+                "Load a test page through the consent management platform and decline targeting consent, then capture the outgoing bid request.",
+                "Confirm that no PPID and no first-party audience segment appear in the request for the declined session.",
+                "Repeat for a US state opt-out carried through the GPP string to confirm the suppression holds across jurisdictions, not only under the TCF."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the PPID and first-party segments are suppressed for users whose consent does not cover audience targeting, tested under both the TCF and the GPP signals. A configuration that reads the privacy string and withholds the publisher's own first-party signal for non-consenting users passes. A configuration that passes the PPID or segments regardless of the consent signal, or that gates only third-party vendors, is a fail recorded with the consent contexts where the signal leaked.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the PPID and segments are suppressed for declined or opted-out users above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes its Publisher Provided Identifier (PPID) and first-party audience segments without checking whether the user's consent covers audience targeting, so the data travels past the limit some users set. The PPID and segments are the publisher's own first-party data, which makes {{site_name}} the accountable party when the signal reaches the auction for a user who declined under the Transparency and Consent Framework (TCF) or opted out through the Global Privacy Platform (GPP). {{voice_recommend}} gating the first-party signal on the consent string so the PPID and segments are suppressed for any user whose consent does not cover targeting, then testing a declined-consent session to confirm no signal appears in the bid request. After the change, recheck under both a TCF decline and a US state opt-out to confirm the suppression holds across jurisdictions."
+      }
+    }
+  ]
+}

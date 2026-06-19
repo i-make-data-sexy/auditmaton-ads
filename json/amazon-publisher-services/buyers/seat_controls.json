@@ -1,0 +1,144 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Buyer and seat controls decide which demand sources can bid into Amazon Publisher Services (APS) and which are held out, so they sit directly on top of fill rate and revenue. A blocklist that grew by reflex, with entries added during one incident and never reviewed, can keep suppressing demand long after the reason has passed. The check is a review of the buyer and bidder settings a publisher already has in place, so it costs reading time rather than rebuild time, and the finding points to a concrete list a publisher can prune or extend.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "APS routes a publisher's inventory to a set of demand partners through Transparent Ad Marketplace (TAM) and Unified Ad Marketplace (UAM), and the buyer and seat controls decide which of those partners can bid and which are excluded. This subcategory is about whether those allow and block decisions are maintained on purpose rather than left as whatever accumulated over time. These checks confirm that the buyer list reflects current intent and that the blocks in place are narrow enough to hold back the demand a publisher means to exclude without starving legitimate competition for the impression.",
+  "audit_checks": [
+    {
+      "id": "amazon-publisher-services-seat-controls-buyer-list-not-reviewed",
+      "title": "The buyer allowlist and blocklist are not maintained on purpose",
+      "category": "buyers",
+      "subcategory": "seat_controls",
+      "impact_score": 3,
+      "impact_rationale": "The set of demand partners allowed to bid through APS sets the ceiling on competition for each impression. A buyer list that was set once and never revisited can hold blocks that no longer apply or miss demand a publisher would want, so the bids that decide fill and price are shaped by stale decisions rather than current intent.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "brand-safety"],
+      "educate": {
+        "base": "Amazon Publisher Services (APS) connects a publisher to demand through two server-side products. Transparent Ad Marketplace (TAM) lets a publisher run a server-side header-bidding setup where named demand partners compete, and Unified Ad Marketplace (UAM) is the managed version that handles partner connections for the publisher. In both, the publisher decides which buyers and bidders take part, and that decision is the buyer allowlist and blocklist.<br><br>The list matters because it sets the boundary of competition. Every demand partner allowed to bid is another bid that can raise the clearing price for an impression, and every partner blocked is one fewer. A publisher blocks for real reasons, such as a buyer that ran an unsafe creative, a partner whose payment terms went bad, or demand a publisher chose to route elsewhere. Those reasons are valid when they are current. The risk is a list that was set during one incident and then left untouched, so a block put in place for a creative problem two years ago still holds even though the buyer cleaned it up, and the impressions that buyer would have competed for now clear lower or go unsold.<br><br>The audit question is not whether blocks exist because a healthy setup has them. The question is whether the list is maintained as a deliberate, current record or whether it is a pile of one-off decisions nobody owns. A maintained list has a reason recorded for each block and a review cadence that retires entries when the reason no longer applies. APS is a declared seller in the supply chain, so the buyers transacting through it are visible to the rest of the chain through the sellers.json and SupplyChain records, which is another reason to keep the participant list intentional rather than accidental.<br><br>A few signs point to a buyer list that is not maintained on purpose:<ul><li>No reason is recorded for the blocks in place, so nobody can say why a given buyer or bidder is excluded</li><li>The list has not been reviewed on any schedule, and entries from past incidents remain after the issue was resolved</li><li>No owner is responsible for adding, reviewing, and retiring entries, so changes happen ad hoc during incidents and never get revisited</li></ul>You may want to confirm that each entry on the allowlist and blocklist still reflects a current decision. One approach is to pull the full list, attach a recorded reason to each block, and set a review cadence that retires entries once the reason behind them has passed.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a newsroom or brand-safety team may have asked for specific buyers to be blocked over where their ads appeared next to sensitive coverage. You may want to keep those blocks tied to a recorded reason and an owner on that team, so a block added during one news cycle is revisited rather than left to suppress demand on unrelated inventory indefinitely.",
+          "ecommerce": "On a commerce-content site, a publisher may block buyers whose products compete directly with the site's own retail offering or its sponsors. You may want to record which blocks exist for that commercial reason and review them when sponsor relationships change, so a competitor block from a lapsed partnership is not still holding back demand."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Server Bidder Params",
+            "source_url": "https://docs.prebid.org/dev-docs/pbs-bidders.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json and the SupplyChain Object",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the full list of buyers and bidders allowed and blocked in the APS setup, and look for a recorded reason and a review history behind each block.",
+        "tools": {
+          "free": {
+            "manual_inspection": {
+              "label": "Amazon Publisher Services console",
+              "steps": [
+                "Open the Amazon Publisher Services console and locate the buyer and bidder settings for the publisher's TAM or UAM setup.",
+                "List every demand partner and bidder that is allowed to bid, and every one that is blocked.",
+                "For each blocked entry, record whether a reason is documented and when the block was last reviewed.",
+                "Ask the publisher who owns the list and on what schedule it is reviewed, and record the answer.",
+                "Note any block with no recorded reason or no review since it was added, which are the entries most likely to be stale."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the full allowlist and blocklist, whether each block carries a recorded reason, the last review date, and whether an owner is named. A list where each block has a current reason, a review cadence is in place, and an owner is responsible passes. A list with blocks that carry no recorded reason, no review since they were added, or no owner is a fail recorded with the entries that lack a justification or a review.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the allowlist and blocklist entries, the reason and last review date for each block, and the named owner above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the buyer allowlist and blocklist in {{site_name}}'s Amazon Publisher Services (APS) setup are not maintained as a current record, with blocks that carry no recorded reason and no review since they were added. The set of buyers allowed to bid sets the ceiling on competition for each impression, so a block left in place after its reason has passed keeps suppressing demand that could have raised fill and price. {{voice_recommend}} pulling the full list, attaching a recorded reason to each block, naming an owner, and setting a review cadence that retires entries once the reason behind them no longer applies. After the review, keep only the blocks a current decision supports."
+      }
+    },
+    {
+      "id": "amazon-publisher-services-seat-controls-blocks-too-broad",
+      "title": "Buyer or bidder blocks are broad enough to suppress legitimate demand",
+      "category": "buyers",
+      "subcategory": "seat_controls",
+      "impact_score": 3,
+      "impact_rationale": "A block aimed at one bad actor can be drawn so wide that it removes demand a publisher would have wanted. Excluding an entire demand partner over a single creative, or blocking a buyer across all inventory when the concern was one placement, cuts competition more than the problem required and lowers fill and price on impressions that had nothing to do with the issue.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "brand-safety"],
+      "educate": {
+        "base": "A block in Amazon Publisher Services (APS) is a tool for holding back demand a publisher does not want, and like any tool it can be aimed too wide. A publisher who runs into a problem with one creative, one campaign, or one placement has a choice in how broadly to respond. The narrow response removes the specific thing that caused the problem. The broad response removes a whole demand partner, or blocks a buyer across all of a publisher's inventory, when the concern was confined to a corner of it.<br><br>The broad block feels safer in the moment because it cannot miss the problem, but it carries a cost that does not show up right away. Every buyer or bidder removed is competition removed, and APS routes inventory to a set of partners precisely so they bid against each other. Pull one out across the board and the remaining bids decide the price with less pressure, so fill and clearing price soften on inventory that was never part of the original concern. The damage is spread thin across many impressions, which is why it can run for a long time without being traced back to the block that caused it.<br><br>The audit question is whether the blocks in place are scoped to the actual problem or whether they reach wider than the concern that prompted them. A block on a specific creative or a specific placement is proportionate. A block on an entire demand partner over a single creative, or a sitewide block over a problem that lived on one ad unit, is the kind of overreach worth flagging. Where APS supports scoping a control to a placement or a creative rather than the whole buyer, the narrower control usually protects revenue better while still addressing the concern.<br><br>A few signs point to blocks that reach wider than the problem required:<ul><li>An entire demand partner is excluded over a concern that came from a single creative or campaign</li><li>A buyer is blocked across all inventory when the issue was limited to one placement or content type</li><li>The fill rate or clearing price on inventory unrelated to the original concern dropped after a broad block went in, with no other change to explain it</li></ul>You may want to confirm that each block is scoped to the problem it was meant to solve rather than reaching past it. One approach is to review the broad blocks against the incident that prompted each one and narrow any that exclude more demand than the concern called for.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a brand-safety concern usually lives on a particular section or story rather than the whole site, so a buyer blocked over coverage in one section may still be safe demand everywhere else. You may want to scope such a block to the section or content category it came from rather than excluding the buyer across all of the publisher's inventory.",
+          "ecommerce": "On a commerce-content site, a block placed to keep a competitor's ads off product pages does not need to extend to the editorial inventory, where that competitor may be acceptable demand. You may want to narrow a competitor block to the commercial pages it was meant to protect so the editorial inventory keeps the competition."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid First Party Data and bidder permissions",
+            "source_url": "https://docs.prebid.org/features/firstPartyData.html"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's detailed configuration documentation for buyer and bidder blocks is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the scope of each block in the APS setup against the concern that prompted it, and look for broad blocks that reach past the problem they were meant to solve.",
+        "tools": {
+          "free": {
+            "manual_inspection": {
+              "label": "Amazon Publisher Services console",
+              "steps": [
+                "Open the Amazon Publisher Services console and list every active block, noting whether each applies to a specific creative or placement or to an entire buyer across all inventory.",
+                "For each broad block, ask the publisher what incident prompted it and how narrow the original concern was.",
+                "Flag any block that excludes a whole demand partner or applies sitewide when the concern was limited to one creative, campaign, placement, or content type.",
+                "Note whether a narrower control, scoped to the placement or creative, would address the same concern."
+              ]
+            },
+            "amazon_publisher_services_reporting": {
+              "label": "Amazon Publisher Services reporting",
+              "steps": [
+                "Build a report broken out by ad unit and content type with fill rate and average clearing price.",
+                "Compare fill and price on inventory unrelated to a broad block before and after the block went in, to see whether competition softened there.",
+                "Note any drop on unrelated inventory that lines up with a broad block, which points to a control reaching wider than the concern required."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each block, its scope, the concern that prompted it, and whether a narrower control would address that concern. Blocks scoped to the specific creative, placement, or content type that caused the problem pass. A block that excludes an entire demand partner or applies across all inventory over a concern confined to one creative or placement is a fail recorded with the block and the narrower scope that would fit the actual problem.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each block, its scope, and the concern that prompted it above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Amazon Publisher Services (APS) setup carries buyer or bidder blocks scoped wider than the concern that prompted them, such as an entire demand partner excluded over a single creative. Every buyer removed is competition removed, so a block that reaches past its original problem softens fill and clearing price on inventory that had nothing to do with the concern. {{voice_recommend}} reviewing each broad block against the incident behind it and narrowing any that exclude more demand than the problem required, scoping the control to the specific creative, placement, or content type where the concern actually lived. After narrowing the blocks, recheck fill and price on the affected inventory to confirm the competition returned."
+      }
+    }
+  ]
+}

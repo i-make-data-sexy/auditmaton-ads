@@ -1,0 +1,157 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "A publisher's seat and account structure in Microsoft Monetize decides how reporting rolls up, how payments are routed, and how the seller identity reaches buyers through sellers.json and the SupplyChain object. A structure that fragmented across duplicate seats, or one carrying inactive seats and dead integrations, splits the numbers a publisher reads and the trail a buyer follows. The check is a review of the account setup the publisher already has, so it costs reading time rather than rebuild time, and the finding points to a concrete consolidation or cleanup the publisher can act on.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "The seat and account structure in Microsoft Monetize (formerly Xandr Monetize) is the frame everything else hangs on. It sets how a publisher's inventory groups into seller accounts, how reporting and payments roll up to those accounts, and how each seller identity is published to buyers through sellers.json and carried in the SupplyChain object. This subcategory is about that structure itself, not the pricing or yield logic that runs inside it. These checks confirm that the seats are organized cleanly with no duplicates splitting the picture, and that inactive seats and dead integrations are identified and closed rather than left to accumulate.",
+  "audit_checks": [
+    {
+      "id": "xandr-monetize-seat-account-structure-fragmented-duplicate-seats",
+      "title": "Inventory is split across fragmented or duplicate seats",
+      "category": "governance",
+      "subcategory": "seat_account_structure",
+      "impact_score": 3,
+      "impact_rationale": "When a publisher's inventory is spread across more seller accounts than the structure needs, reporting and payments split along the same lines, so revenue, fill, and clearing price get read in pieces rather than as a whole. Duplicate seats also mean more than one seller_id can represent the same entity, which muddies the sellers.json record buyers rely on to verify who they are paying.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "In Microsoft Monetize (formerly Xandr Monetize), a publisher's inventory is organized under seller accounts, and each account carries its own reporting roll-up, its own payment routing, and its own seller identity. That identity is published to buyers in the SSP's sellers.json file and travels with each bid request in the SupplyChain object, so a buyer can trace which entity is being paid for an impression. The structure of those seats is the frame the rest of the setup sits inside.<br><br>A structure built deliberately keeps one seat per distinct selling entity and groups inventory under it. A structure that grew without a plan can fragment instead, with the same publisher's inventory spread across several seats that were spun up for a one-off integration, a test, or a partner deal and then never consolidated. The IAB Tech Lab sellers.json specification is built on the rule that a seller_id maps to exactly one entity that is paid for that inventory, so duplicate seats representing the same entity work against the record buyers use to verify the supply chain.<br><br>The cost of fragmentation is not abstract. Reporting splits across the seats, so a publisher reading revenue, fill rate, or average clearing price sees each slice on its own rather than the whole picture, and a problem on one seat is harder to spot against the others. Payments route per account, so reconciliation takes more work. The seller identity that buyers read becomes harder to keep consistent across sellers.json and the SupplyChain object, which can lower a buyer's confidence in the path.<br><br>A few signs point to fragmented or duplicate seats:<ul><li>More than one seat represents the same legal selling entity, with inventory divided between them for no current reason</li><li>Reporting has to be stitched together across several accounts to read total revenue or fill for the same inventory</li><li>The sellers.json record lists multiple seller IDs that map to the same entity, rather than one ID per entity</li><li>A seat exists for a partner deal or test that has ended, yet still carries live inventory</li></ul>You may want to confirm that each seat maps to a distinct selling entity and that inventory is not divided across duplicates. One approach is to list every active seat, the entity it represents, and the inventory under it, then consolidate any seats that point to the same entity into one.",
+        "site_type_overlays": {
+          "publishing": "A media company that runs several titles or domains may have spun up a separate seat per title over time. You may want to confirm whether those titles are distinct selling entities that each warrant their own seat, or whether they are one entity whose inventory could roll up under a single seat for cleaner reporting and a single sellers.json identity.",
+          "ecommerce": "A commerce-content business that monetizes both editorial pages and on-site retail media may have set up seats separately for each as the programs launched. You may want to confirm whether the split reflects two distinct selling entities or whether it is a fragmentation that splits reporting on what is really one publisher's inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Supply Chain Object for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/schain.html"
+          }
+        ],
+        "learn_more_note": "Microsoft Monetize's detailed configuration documentation for seller account and seat structure is in the Microsoft Advertising partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the list of active seats, the entity each one represents, and the inventory grouped under it, then check the published sellers.json record for seller IDs that map to the same entity.",
+        "tools": {
+          "free": {
+            "monetize_ui": {
+              "label": "Microsoft Monetize console",
+              "steps": [
+                "Open the seller account or seat list in the Microsoft Monetize console and record every active seat with the legal entity it represents.",
+                "For each seat, note the inventory grouped under it, such as the sites, domains, or ad units it carries.",
+                "Flag any two seats that represent the same selling entity, and record what inventory each holds and why the split exists.",
+                "Ask the publisher whether any seat was created for a one-off integration, test, or ended partner deal that no longer needs its own account."
+              ]
+            },
+            "sellers_json_check": {
+              "label": "Published sellers.json review",
+              "steps": [
+                "Open the SSP's published sellers.json file and locate the seller entries that belong to this publisher.",
+                "Record each seller_id, the name and domain it maps to, and its seller_type, such as 'PUBLISHER' or 'INTERMEDIARY'.",
+                "Note any case where more than one seller_id maps to the same selling entity, which signals a duplicate seat rather than one ID per entity."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records every active seat, the entity it represents, the inventory under it, and the matching sellers.json seller IDs. A structure where each seat maps to a distinct selling entity, with one seller_id per entity and inventory grouped cleanly, passes. A structure where two or more seats represent the same entity, where reporting has to be stitched across accounts for one publisher's inventory, or where the sellers.json record carries duplicate IDs for one entity, is a fail recorded with the seats and IDs affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each active seat, the entity it represents, and the matching sellers.json seller IDs above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has inventory split across fragmented or duplicate seats in Microsoft Monetize, with more than one seat representing the same selling entity. Fragmentation splits reporting and payments across accounts, so revenue and fill for one publisher's inventory get read in pieces, and duplicate seats can publish more than one seller_id for the same entity, which works against the sellers.json record buyers use to verify the supply chain. {{voice_recommend}} listing every active seat with the entity it represents and the inventory under it, then consolidating any seats that map to the same entity into one so reporting rolls up cleanly and each entity carries a single seller identity. After consolidating, confirm the published sellers.json shows one seller_id per entity."
+      }
+    },
+    {
+      "id": "xandr-monetize-seat-account-structure-inactive-orphaned-seats",
+      "title": "Inactive or orphaned seats and integrations are not closed",
+      "category": "governance",
+      "subcategory": "seat_account_structure",
+      "impact_score": 2,
+      "impact_rationale": "Seats and integrations left open after a test, a launch, or an ended partner deal keep publishing a seller identity and may still accept bid requests, which leaves a live path that no one is monitoring. A seller_id that no longer maps to an active, accountable entity weakens the sellers.json record and gives invalid traffic a route that is easy to miss.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "Seats and integrations in Microsoft Monetize (formerly Xandr Monetize) can outlive the reason they were created. A seat spun up for a single campaign, a demand integration added for a partner who has since moved on, or a test account that was never torn down can sit open long after it stopped serving a purpose. Each one still carries a seller identity that the SSP publishes in sellers.json, and an open integration can still pass bid requests, so a path that no one is watching stays live.<br><br>An orphaned seat is one whose owning entity or business reason has gone away, yet the seat remains. It differs from a duplicate seat, which represents an entity that is still active under another seat. The orphaned seat has no current home at all. The IAB Tech Lab sellers.json specification is built on each seller_id mapping to a real entity that is paid for the inventory, so a seller_id left behind after its entity is gone is a record that no longer reflects an accountable seller.<br><br>The cost is a path that is easy to abuse and easy to overlook. Invalid traffic looks for routes that nobody is monitoring, and an orphaned seat or a stale demand integration is exactly that. A buyer reading the supply chain encounters a seller identity that maps to nothing current, which lowers confidence in the path. And the publisher's own reporting carries accounts that add noise without adding revenue.<br><br>A few signs point to inactive or orphaned seats and integrations:<ul><li>A seat shows little or no delivery over a long window yet remains active</li><li>A demand integration was added for a partner or test that has ended, yet is still enabled</li><li>The sellers.json record lists a seller_id whose owning entity or business reason can no longer be identified</li><li>No one on the team can say why a given seat or integration exists or who owns it</li></ul>You may want to confirm that every active seat and integration maps to a current, accountable owner and a live business reason. One approach is to review delivery and ownership for each seat and integration on a regular schedule, then close the ones that no longer serve a purpose and remove their entries from the published sellers.json.",
+        "site_type_overlays": {
+          "publishing": "A media company that has launched and sunset several monetization experiments may carry seats or integrations from programs that ended. You may want to review each seat for recent delivery and a current owner, then close the ones tied to titles, sections, or tests that are no longer running.",
+          "ecommerce": "A commerce-content business that has trialled retail media or seasonal partner integrations may have left those seats or demand paths open after the trial. You may want to confirm whether each one still serves a live program, and close the seats and integrations tied to deals that have ended."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Optimize header bidding setup",
+            "source_url": "https://docs.prebid.org/overview/how-many-bidders-for-header-bidding.html"
+          }
+        ],
+        "learn_more_note": "Microsoft Monetize's detailed steps for deactivating seats and removing demand integrations are in the Microsoft Advertising partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each active seat and demand integration for recent delivery and a current owner, and check the published sellers.json for seller IDs whose entity can no longer be identified.",
+        "tools": {
+          "free": {
+            "monetize_ui": {
+              "label": "Microsoft Monetize console",
+              "steps": [
+                "Open the seat and integration list in the Microsoft Monetize console and record each active seat and demand integration with its status.",
+                "Pull delivery for each seat over a long window, such as the trailing 90 days, and flag any seat with little or no delivery.",
+                "For each flagged seat or integration, ask the publisher who owns it and what live business reason it serves, and record the answer or its absence.",
+                "Note any seat or integration tied to a test, a campaign, or a partner deal that has ended."
+              ]
+            },
+            "sellers_json_check": {
+              "label": "Published sellers.json review",
+              "steps": [
+                "Open the SSP's published sellers.json file and list the seller IDs that belong to this publisher.",
+                "For each seller_id, confirm whether the name, domain, and seller_type still map to a current, accountable entity.",
+                "Flag any seller_id whose owning entity or business reason can no longer be identified, which points to an orphaned seat that should be closed and removed from the record."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each active seat and demand integration with its recent delivery, its owner, and its matching sellers.json entry. A structure where every active seat and integration has a current owner, a live business reason, and a sellers.json record that maps to an accountable entity passes. A structure that carries seats or integrations with no delivery and no identifiable owner, or sellers.json IDs that map to nothing current, is a fail recorded with the seats, integrations, and IDs that should be closed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each active seat and integration with its recent delivery, owner, and sellers.json entry above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} carries inactive or orphaned seats and integrations in Microsoft Monetize that were left open after a test, a launch, or an ended partner deal. An open seat keeps publishing a seller identity and an open integration can still pass bid requests, so a path that no one is monitoring stays live, which gives invalid traffic an easy route and leaves a seller_id in sellers.json that maps to nothing accountable. {{voice_recommend}} reviewing delivery and ownership for each seat and integration, then closing the ones with no current owner or live business reason and removing their entries from the published sellers.json. After the cleanup, set a recurring review so seats and integrations do not accumulate again."
+      }
+    }
+  ]
+}

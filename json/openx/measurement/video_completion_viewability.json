@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Video Through Rate (VTR), the quartile completion events behind it, and viewability are the metrics a buyer reads to decide what a video impression is worth, so they are the numbers a publisher uses to defend its rates. When the player, the SSP, and any third-party measurement disagree on those metrics, the discrepancy reads to a buyer as a supply-quality problem and can pull spend toward sources that reconcile cleanly. This check is a review of how the player is wired to OpenX and whether the completion and viewability signals line up across the parties that report them, so it costs reading time rather than a player rebuild, and the finding points at a specific wiring gap the publisher can close.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Video completion and viewability are the signals that tell a buyer whether a video impression was watched and whether it was seen, and they are the same signals OpenX and the publisher use to price the inventory. This subcategory is about the integrity of those metrics, whether the player fires the quartile events that produce VTR, whether VTR reconciles across the player and the SSP, and whether viewability is measured by a standard method a buyer will trust. These checks confirm the completion and viewability numbers a publisher reports are produced by a real measurement path rather than estimated or left to a single party's count.",
+  "audit_checks": [
+    {
+      "id": "openx-video-completion-viewability-quartile-events-not-reconciled",
+      "title": "Quartile completion events do not reconcile across player and SSP",
+      "category": "measurement",
+      "subcategory": "video_completion_viewability",
+      "impact_score": 3,
+      "impact_rationale": "Video Through Rate (VTR) is built from the quartile completion events the player fires, so if the player drops or mistimes those events, or the SSP counts them differently, VTR is wrong at the source. A VTR that disagrees between the player and the SSP gives a buyer two numbers for the same impression, which reads as a measurement problem and can move spend toward supply that reconciles cleanly.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "performance"],
+      "educate": {
+        "base": "A video ad reports its progress by firing tracking events at fixed points in playback. The Video Ad Serving Template (VAST) from IAB Tech Lab defines those points as the quartiles, which are start, first quartile at 25 percent, midpoint at 50 percent, third quartile at 75 percent, and complete at 100 percent. The player reads the VAST response, plays the ad, and fires each tracking URL as playback crosses each mark. VTR is then the share of impressions that reach the complete event, so VTR is only as accurate as the quartile events the player actually fires.<br><br>Several things break that chain. A player that does not implement the full VAST event set may fire start and complete but skip the intermediate quartiles, which leaves the curve between them blank. A player that fires complete on its own internal timer rather than on the VAST event can count completions the SSP never receives. Autoplay, muting, and early abandonment each change which events fire and when, so a player and an SSP that handle those cases differently produce different VTR for the same stream of impressions.<br><br>OpenX runs a Prebid-compatible header bidding path, so the player that renders the winning bid is wired to OpenX through the Prebid video integration, and the events that player fires are what flow back as the quartile signal. Reconciliation means reading the same metric from both ends, the player or its analytics on one side and the OpenX reporting on the other, and confirming the quartile counts and the resulting VTR agree within a tolerance the publisher can explain.<br><br>A few signs point to quartile events that do not reconcile:<ul><li>VTR reported by the player or its analytics differs from VTR in the OpenX reporting by a margin no one can account for</li><li>The player fires start and complete but not the 25, 50, and 75 percent quartile events, so the SSP cannot see the playback curve</li><li>Completions appear in one system at volumes the other never recorded, which points to a complete event fired on an internal timer rather than the VAST event</li></ul>You may want to confirm the player fires the full VAST quartile set and that VTR reconciles across the player and OpenX. One approach is to read VTR from both ends over the same window and inventory, then trace any gap back to a missing or mistimed quartile event.",
+        "site_type_overlays": {
+          "publishing": "On a media site, instream video in editorial content and long-form players each carry their own abandonment pattern, so VTR can differ widely by placement before any measurement issue is involved. You may want to reconcile quartile events placement by placement rather than on a blended VTR, so a genuine content difference is not mistaken for a measurement gap and a real measurement gap is not hidden inside the average.",
+          "ecommerce": "On a commerce-content site, product video and outstream units in shopping content tend to autoplay muted and get abandoned early, which concentrates impressions in the start and first-quartile events. You may want to confirm the player fires the early quartile events reliably under autoplay since that is where most of the completion curve for this inventory lives and a missed first-quartile event distorts VTR the most."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Video Module (media and player events)",
+            "source_url": "https://docs.prebid.org/prebid-video/video-module.html"
+          }
+        ],
+        "learn_more_note": "OpenX's detailed configuration documentation for its video reporting and player integration is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read Video Through Rate (VTR) and the quartile event counts from both the player or its analytics and the OpenX reporting over the same window and inventory, and trace any gap back to a missing or mistimed event.",
+        "tools": {
+          "free": {
+            "player_analytics": {
+              "label": "Video player analytics or event log",
+              "steps": [
+                "In the player's analytics or event log, pull the counts for start, first quartile, midpoint, third quartile, and complete over a fixed window for the inventory in scope.",
+                "Confirm all five events are present since a player that fires only start and complete cannot produce a reliable playback curve.",
+                "Calculate VTR from the player side as complete divided by start, and record the value alongside the window and inventory used."
+              ]
+            },
+            "openx_reporting": {
+              "label": "OpenX reporting",
+              "steps": [
+                "Build an OpenX report covering the same window and the same inventory, with video starts, completions, and VTR.",
+                "Compare the OpenX VTR and completion counts against the player-side numbers, and record the size of any gap.",
+                "Where the two disagree, note whether the player is missing a quartile event, firing complete on an internal timer, or handling autoplay and abandonment differently from how OpenX counts it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records VTR and the quartile event counts from both the player side and the OpenX reporting over the same window and inventory. A setup where all five quartile events fire and VTR reconciles across the player and OpenX within a tolerance the publisher can explain passes. A setup where intermediate quartile events are missing, or where VTR differs between the two systems by an unexplained margin, is a fail recorded with the events affected and the size of the gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record VTR and the quartile event counts from the player and from OpenX over the same window above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that video completion on {{site_name}} does not reconcile across the player and OpenX, so Video Through Rate (VTR) carries two values for the same impressions. VTR is built from the quartile completion events the player fires, defined by the Video Ad Serving Template (VAST), and a player that drops the intermediate quartiles or fires complete on its own timer produces a completion count OpenX never receives, which reads to a buyer as a measurement problem. {{voice_recommend}} reading VTR and the quartile counts from both the player and OpenX over the same window and inventory, then closing any gap by confirming the player fires the full VAST quartile set on the VAST events rather than an internal timer. After the fix, recheck that VTR reconciles across both systems within a tolerance that can be explained."
+      }
+    },
+    {
+      "id": "openx-video-completion-viewability-not-measured-by-standard-method",
+      "title": "Viewability is not measured by a standard, verifiable method",
+      "category": "measurement",
+      "subcategory": "video_completion_viewability",
+      "impact_score": 3,
+      "impact_rationale": "Viewability is the signal a buyer reads to decide whether a video impression was actually on screen, and a buyer values that signal only when it comes from a measurement method it trusts. When viewability is self-reported by the player with no standard measurement path, a buyer discounts the inventory or relies on its own number, so the publisher loses the ability to defend its rates with a viewability figure both sides accept.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "performance"],
+      "educate": {
+        "base": "Viewability measures whether an ad was actually on screen long enough to be seen, and for video the Media Rating Council (MRC) standard counts an impression as viewable when at least half of the player pixels are in view for at least two continuous seconds of play. That is a different question from completion. A video can play to 100 percent in a player that sits below the fold the whole time, which would record a completion but not a viewable impression, so completion and viewability have to be measured separately.<br><br>The method matters as much as the number. A viewability figure the player reports about itself is hard for a buyer to verify because the same party that serves the ad is also grading whether it was seen. The IAB Tech Lab Open Measurement SDK (OM SDK) exists to remove that conflict by exposing a standard measurement interface, the Open Measurement Interface Definition (OMID), that lets an independent measurement provider read on-screen percentage, time in view, and friendly obstructions through one consistent method across players. When viewability is measured through OMID or a comparable third-party path, both the buyer and the publisher are reading the same standard, so the number is defensible.<br><br>For a publisher monetizing video through OpenX, the audit question is which method produces the viewability number attached to the inventory. A player-reported figure with no third-party measurement is a number a buyer cannot check. A figure produced through OM SDK or a third-party verification vendor integrated with the player is a number that reconciles to a recognized standard, which is what lets the publisher hold its rates on a viewability basis.<br><br>A few signs point to viewability that is not measured by a standard method:<ul><li>The viewability percentage attached to the video inventory comes from the player alone, with no third-party or Open Measurement integration behind it</li><li>No measurement vendor or OM SDK is wired into the player, so on-screen percentage and time in view are estimated rather than measured to the MRC definition</li><li>Buyer-side viewability and publisher-side viewability differ sharply, with no shared measurement method to explain the gap</li></ul>You may want to confirm viewability is measured through a standard, verifiable method rather than self-reported. One approach is to check whether the player exposes measurement through OM SDK or a third-party vendor, and to compare the resulting viewability against what buyers report for the same inventory.",
+        "site_type_overlays": {
+          "publishing": "On a media site, instream players inside articles and sticky or floating players each present a different amount of the video on screen as the reader scrolls, so a single self-reported viewability number hides real differences between them. You may want to confirm a standard measurement method is wired into each player type, so the viewability attached to a sticky unit and an in-article unit are both produced the same defensible way.",
+          "ecommerce": "On a commerce-content site, outstream video that expands inside product or category content can scroll partly out of view while it plays, which is exactly the case the MRC two-second, fifty-percent definition is meant to catch. You may want to confirm the outstream player measures viewability through a standard method rather than reporting it from the player, so a unit that plays half off screen is not counted as fully viewable."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Open Measurement SDK (OMID)",
+            "source_url": "https://iabtechlab.com/standards/open-measurement-sdk/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          }
+        ],
+        "learn_more_note": "OpenX's detailed configuration documentation for viewability reporting and supported measurement vendors is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Check which method produces the viewability number attached to the video inventory, whether a standard measurement path such as the Open Measurement SDK or a third-party vendor is wired into the player, and how the resulting viewability compares with what buyers report.",
+        "tools": {
+          "free": {
+            "player_config": {
+              "label": "Video player configuration",
+              "steps": [
+                "In the player setup, check whether the Open Measurement SDK (OM SDK) or a third-party viewability vendor is integrated, or whether viewability is reported by the player alone.",
+                "Confirm the measurement applies the Media Rating Council (MRC) video definition, which is at least 50 percent of pixels in view for at least two continuous seconds.",
+                "Record the measurement method in place for each player type the publisher runs."
+              ]
+            },
+            "openx_reporting": {
+              "label": "OpenX reporting",
+              "steps": [
+                "Pull the viewability figures OpenX reports for the video inventory over a fixed window.",
+                "Compare those figures against any buyer-side or third-party viewability available for the same inventory, and record the size of any gap.",
+                "Note whether a shared, standard measurement method exists that both sides read, or whether each side is measuring viewability its own way."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the viewability measurement method in place for each player type and how the resulting figure compares with buyer-side viewability for the same inventory. A setup where viewability is measured through a standard, verifiable path such as the Open Measurement SDK or a third-party vendor applying the MRC definition, and reconciles with buyer-side numbers, passes. A setup where viewability is self-reported by the player with no standard measurement method, or differs sharply from buyer-side figures with no shared method to explain it, is a fail recorded with the inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the viewability measurement method for each player type and how it compares with buyer-side viewability above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that viewability on {{site_name}} is not measured by a standard, verifiable method for the video inventory, so the number attached to the inventory is one a buyer cannot check. Viewability counts an impression as seen under the Media Rating Council (MRC) video definition of at least 50 percent of pixels in view for two continuous seconds, and a player that reports that figure about itself, with no Open Measurement SDK or third-party vendor behind it, gives a buyer no shared method to trust. {{voice_recommend}} wiring a standard measurement path such as the Open Measurement Interface Definition (OMID) or a third-party verification vendor into the player, then comparing the measured viewability against what buyers report for the same inventory. After the change, confirm the publisher and buyer figures reconcile on a shared standard."
+      }
+    }
+  ]
+}

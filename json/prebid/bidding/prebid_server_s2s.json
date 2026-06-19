@@ -1,0 +1,167 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://docs.prebid.org/dev-docs/modules/prebidServer.html",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Prebid Server moves named bidders off the browser and into a server-to-server (s2s) auction, which can cut client-side latency and script weight, but it also adds a cookie-sync hop that lowers match rates for the bidders it carries. A split made without measuring the trade can either leave latency on the table or drop revenue from bidders whose match rate fell server-side. The check is a review of the s2sConfig a publisher already has in Prebid.js plus a read of how the server-side bidders perform against their client-side baseline, so it costs reading and reporting time rather than a rebuild, and the finding points to a concrete routing decision the publisher can test per bidder.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Prebid Server lets a publisher run part of the header-bidding auction server-to-server (s2s) instead of in the browser, which can reduce page latency and script weight by moving heavy or slow bidders off the client. This subcategory is about the routing decision and the s2sConfig that carries it, not the wider Prebid.js setup or the ad server wiring. These checks confirm that the client-side versus server-side split is a deliberate, measured choice rather than a default, and that the s2sConfig pointing Prebid.js at the server is complete and correct.",
+  "audit_checks": [
+    {
+      "id": "prebid-prebid-server-s2s-split-not-deliberate",
+      "title": "The client-side versus server-side bidder split is not a measured choice",
+      "category": "bidding",
+      "subcategory": "prebid_server_s2s",
+      "impact_score": 3,
+      "impact_rationale": "Moving a bidder server-side trades client-side latency for a lower cookie-sync match rate, and the balance differs by bidder. A split set by default or copied from a template, with no per-bidder comparison against a client-side baseline, can leave latency uncut where it would help or drop revenue from a bidder whose match rate fell once it went server-side, and neither effect shows without measuring it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "performance",
+        "yield"
+      ],
+      "educate": {
+        "base": "Prebid.js runs the header-bidding auction in the browser by default, calling each bidder from the user's device. Prebid Server changes that for the bidders a publisher names in the server-to-server (s2s) config. Those bidders are called once from Prebid Server rather than separately from each browser, so the page sends one request to the server instead of many requests to many bidder endpoints. The browser stays responsible for the client-side bidders, and the server handles the s2s bidders, then Prebid.js merges both sets of bids into a single auction.<br><br>Moving a bidder server-side helps in two ways. It cuts the number of network calls the page makes, which reduces latency and script weight, and it lets the server fan out to bidders in parallel without the browser's connection limits. The cost sits on the user-matching side. A client-side bidder reads its own cookie on its own domain, so its match rate stays high. A server-side bidder depends on Prebid Server's cookie sync to carry the user ID, and that sync does not always complete, so the bidder may not recognize the user and bids lower or not at all. The right home for a bidder depends on which effect is larger for that bidder on that inventory.<br><br>Prebid offers a way to measure the trade rather than guess at it. The s2sTesting module routes a set share of requests for a bidder through the server and the rest through the client, and it writes an 'hb_source' value so the ad server report can split server bids from client bids. That turns the split into a measured result, comparing revenue, bid rate, and timeout rate for the same bidder in both homes before settling on one.<br><br>A few signs point to a split that was set rather than measured:<ul><li>The s2sConfig bidder list was copied from a template or a vendor default with no record of why each bidder sits where it does</li><li>No A/B test or before-and-after read compares a server-side bidder against its client-side performance on bid rate, revenue, and match rate</li><li>Bidders known to depend on third-party cookies were moved server-side without checking whether their match rate held</li></ul>You may want to confirm that each bidder's home was chosen on evidence. One approach is to run the s2sTesting module on a bidder whose placement is in question, split its traffic between server and client for a measurement window, and keep whichever home the report supports.",
+        "site_type_overlays": {
+          "publishing": "On a media site, long article pages carry several ad slots and the page weight from many client-side bidder calls is felt directly in load time. You may want to move the heaviest or slowest bidders server-side to cut that weight, while measuring whether their match rate holds, so the latency win does not come at the cost of bids from a bidder that stopped recognizing the audience.",
+          "ecommerce": "On a commerce-content site, product and category pages reach a higher-intent audience whose impressions clear at a higher price, so a drop in match rate on those pages costs more per lost bid. You may want to test the server-side move on the commercial inventory specifically rather than judging it on a blended average. The editorial pages can absorb a match-rate dip that the commercial pages cannot."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Prebid Server Adapter module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/prebidServer.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Server-to-Server Testing module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/s2sTesting.html"
+          },
+          {
+            "source_type": "Prebid Server Documentation",
+            "source_title": "Prebid Server User ID Sync",
+            "source_url": "https://docs.prebid.org/prebid-server/developers/pbs-cookie-sync.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which bidders are routed server-side in the s2sConfig versus called client-side, then look for any test result or before-and-after read that compares a server-side bidder against its client-side performance.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console (pbjs)",
+              "steps": [
+                "Open a page that runs Prebid.js, open the browser developer tools, and switch to the Console tab.",
+                "Run 'pbjs.getConfig('s2sConfig')' and record the bidders array, so you have the list of bidders routed server-to-server.",
+                "Run 'pbjs.getEvents()' or load the page with the Prebid debug parameter to watch which bidders are called from the server versus the browser during a live auction.",
+                "Compare the s2sConfig bidder list against the full bidder list in the ad units to record which bidders sit server-side and which sit client-side."
+              ]
+            },
+            "ad_server_reporting": {
+              "label": "Ad server reporting",
+              "steps": [
+                "If the s2sTesting module is in use, build a report broken out by the 'hb_source' key value, which separates server bids from client bids.",
+                "For a bidder running in both homes, compare revenue, bid rate, win rate, and timeout rate between the server-side and client-side sources.",
+                "Note whether any comparison data exists at all, or whether the split is in place with no measurement to support where each bidder sits."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per bidder, whether it runs server-side or client-side and whether any comparison against the other home exists with a result on record. A split where each bidder's home is deliberate and backed by a measurement, for example an s2sTesting read on bid rate, revenue, and match rate, passes. A split applied from a template or default with no per-bidder comparison and no stated reason is a fail recorded with the bidders affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each bidder's home and whether a server-versus-client comparison exists above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} routes bidders through Prebid Server without a per-bidder comparison against their client-side performance, so the server-to-server (s2s) split has not been measured. Moving a bidder server-side cuts client-side latency but depends on Prebid Server cookie sync for the user match, so a bidder's match rate can fall once it leaves the browser, and without a baseline that effect goes unseen. {{voice_recommend}} running the s2sTesting module on the bidders whose placement is in question, splitting their traffic between server and client for a measurement window, and comparing revenue, bid rate, and timeout rate across both before settling on a home for each. After the comparison, keep whichever home the data supports per bidder."
+      }
+    },
+    {
+      "id": "prebid-prebid-server-s2s-config-incorrect",
+      "title": "The s2sConfig pointing Prebid.js at Prebid Server is incomplete or incorrect",
+      "category": "bidding",
+      "subcategory": "prebid_server_s2s",
+      "impact_score": 3,
+      "impact_rationale": "The s2sConfig tells Prebid.js where the server is, which account to bill against, which bidders to route, and how to sync cookies. A missing accountId, a syncEndpoint left undefined, or a server timeout set wrong stops the server-side bidders from being called or from recognizing the user, so the bids the publisher meant to gain from the server never arrive and the routing change loses rather than adds revenue.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "performance",
+        "yield"
+      ],
+      "educate": {
+        "base": "The s2sConfig object in Prebid.js is the wiring between the page and Prebid Server. Set through 'pbjs.setConfig', it names the server endpoint, the account the server bills the auction against, the bidders to run server-side, the cookie-sync endpoint, and the time the server is given to return bids. Each field carries weight. A field left out or set wrong does not raise an obvious error on the page, so the server-side bidders can fall silent while the rest of the auction looks healthy.<br><br>A few fields fail quietly when they are wrong. The 'accountId' is required even when a 'defaultVendor' shortcut is used, and a server-side auction without it does not run. The 'syncEndpoint' governs cookie sync, and Prebid's documentation notes that if the endpoint or syncEndpoint object config is used and either property is left undefined, Prebid Server requests for that type of user are not made, so a half-filled config drops user matching and the server bidders bid as if every user were new. The server 'timeout' has to fit inside the overall auction timeout with room to spare, and a value set too tight cuts the server's bids off before they return while one set too loose lets a slow server hold up the page.<br><br>The pieces also have to agree across systems. The bidders listed in the s2sConfig need to be configured on the Prebid Server account the 'accountId' points to, and the endpoint has to match the server instance that account lives on. A publisher running a hosted Prebid Server, a self-hosted instance, or more than one server through named configs has more places for the account, endpoint, and bidder list to drift out of alignment.<br><br>A few signs point to an s2sConfig that is incomplete or incorrect:<ul><li>The 'accountId' is missing or does not match the bidders configured on the Prebid Server account</li><li>The 'syncEndpoint' is undefined or half-filled, so cookie sync does not run and server-side bidders see unmatched users</li><li>The server 'timeout' is set close to or above the overall auction timeout, leaving the server no room to return bids</li><li>Bidders named in the s2sConfig are not set up on the server account the config points to</li></ul>You may want to read the live s2sConfig from the page and confirm each field against the Prebid Server account it targets. One approach is to check 'accountId', the endpoint, the bidder list, the syncEndpoint, and the timeout together, then watch a live auction to confirm the server-side bidders are called and return bids.",
+        "site_type_overlays": {
+          "publishing": "On a media site with many templates and page types, the s2sConfig is often set once in a shared header and assumed correct everywhere. You may want to confirm the config loads and the server-side bidders are called across the different page types. A template that misses the shared setup can leave whole sections running without the server-side bidders.",
+          "ecommerce": "On a commerce-content site, the higher-value product and category pages are where a silent server-side failure costs the most per impression. You may want to verify the s2sConfig is active and the server bidders return bids on the commercial pages specifically, so a config that works on editorial pages but breaks on the templates that matter most is caught."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Prebid Server Adapter module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/prebidServer.html"
+          },
+          {
+            "source_type": "Prebid Server Documentation",
+            "source_title": "Prebid Server User ID Sync",
+            "source_url": "https://docs.prebid.org/prebid-server/developers/pbs-cookie-sync.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the live s2sConfig from the page and check each field against the Prebid Server account it points at, then confirm the server-side bidders are actually called and return bids in a live auction.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console (pbjs)",
+              "steps": [
+                "Open a page that runs Prebid.js, open the developer tools, and switch to the Console tab.",
+                "Run 'pbjs.getConfig('s2sConfig')' and record the endpoint, accountId, bidders, syncEndpoint, and timeout values.",
+                "Confirm 'accountId' is present, the endpoint matches the intended Prebid Server instance, and the syncEndpoint is fully defined rather than half-filled.",
+                "Run 'pbjs.getEvents()' or reload with the Prebid debug parameter and watch a live auction to confirm the server-side bidders are called through the server and return bids within the timeout."
+              ]
+            },
+            "network_panel": {
+              "label": "Browser network panel",
+              "steps": [
+                "With the developer tools open, switch to the Network tab and reload the page.",
+                "Find the request to the Prebid Server auction endpoint and confirm it fires and returns a response rather than failing or timing out.",
+                "Look for the cookie-sync request to confirm the syncEndpoint is reached, and note whether the server returns user-sync pixels for the server-side bidders.",
+                "Record any field that does not match the intended Prebid Server account or any server-side bidder that is named in the config but never called."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the s2sConfig fields read from the page, the endpoint, accountId, bidders, syncEndpoint, and timeout, and confirms each against the Prebid Server account it targets. A config where every required field is present and correct, the bidders are set up on the named account, and the server-side bidders are called and return bids passes. A config missing accountId, with an undefined or half-filled syncEndpoint, a timeout that crowds the auction timeout, or bidders not configured on the account is a fail recorded with the fields at fault.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the s2sConfig fields and whether the server-side bidders are called and return bids above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the s2sConfig wiring Prebid.js to Prebid Server on {{site_name}} is incomplete or incorrect, so the server-side bidders are not being called or matched as intended. The s2sConfig names the server endpoint, the account, the bidders, the cookie-sync endpoint, and the server timeout, and a missing accountId, an undefined syncEndpoint, or a timeout set too tight fails quietly while the rest of the auction looks healthy. {{voice_recommend}} reading the live s2sConfig from the page, checking each field against the Prebid Server account it points at, and confirming in a live auction that the server-side bidders are called and return bids within the timeout. After the fix, recheck revenue and bid rate from the server-side bidders to confirm the wiring holds."
+      }
+    }
+  ]
+}

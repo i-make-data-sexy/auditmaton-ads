@@ -1,0 +1,161 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://docs.prebid.org/overview/how-many-bidders-for-header-bidding.html",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Every bid adapter a publisher enables sends a network request on each auction, so the set of bidders directly shapes both the demand competing for an impression and the latency the page carries. A bidder that wins little but adds a request taxes every auction without paying for itself, and an adapter left with stale params or no maintenance can fail silently. This check reads the Prebid.js configuration the publisher already runs, so it costs reading time rather than rebuild time, and the finding points to a concrete list of adapters to keep, fix, or drop.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "The set of bid adapters a publisher enables in Prebid.js decides which demand sources compete for each impression and how much latency the auction adds to the page. Prebid.js is the open-source header-bidding library the publisher runs on their own pages, so the bidder list is a configuration the publisher controls directly rather than something a partner manages for them. These checks confirm that each enabled bidder earns its place by adding demand worth the request it sends, and that the adapter params are correct and maintained rather than left to drift after the initial setup.",
+  "audit_checks": [
+    {
+      "id": "prebid-bidder-management-bidders-not-justified-by-incremental-demand",
+      "title": "Enabled bidders are not justified by incremental demand",
+      "category": "bidding",
+      "subcategory": "bidder_management",
+      "impact_score": 3,
+      "impact_rationale": "Each enabled client-side adapter fires a bid request on every auction, so a bidder that wins little still adds latency and operational cost to every impression. A list grown by accretion, where partners were added but rarely removed, spends the auction's time budget on demand that does not pay for itself, which can suppress the bids that would have won within the timeout.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "yield",
+        "performance"
+      ],
+      "educate": {
+        "base": "Prebid.js sends a bid request to every enabled adapter when an auction runs, and it collects the responses that arrive before the auction timeout. Each adapter the publisher turns on therefore adds one more outbound request to every auction. The demand from a strong bidder pays for that request by raising the price competition, but a bidder that rarely wins still sends its request, still consumes part of the timeout budget, and still carries the operational cost of being maintained.<br><br>Prebid's own guidance treats the number of bidders as a tradeoff rather than a target to maximize. The team's analysis found that more bidders raise revenue only when the auction timeout is long enough to collect their bids, and that revenue can fall when the page waits too long because a slow auction pushes the ad render past the point where it would have been seen. The Prebid FAQ suggests aiming for roughly one to five demand partners in a client-side setup and moving additional partners to a server-to-server path, where the requests run off the page rather than from the browser.<br><br>The audit question is whether each enabled bidder earns its place. A bidder earns its place when it wins enough auctions, at prices high enough, to justify the request it adds. A bidder that has been enabled for months and contributes a negligible share of revenue or wins is a candidate for removal or for a move to server-side, where its cost no longer lands on the page.<br><br>A few signs point to bidders that may not be justified:<ul><li>The client-side adapter list has grown over time with partners added but rarely reviewed or removed</li><li>Reporting or analytics show a subset of bidders contributing a negligible share of wins or revenue while still sending requests on every auction</li><li>The publisher cannot say what each enabled bidder contributes, or why it was added</li></ul>You may want to confirm that each enabled bidder contributes demand worth the request it adds. One approach is to read win rate and revenue per bidder over a representative period, then decide which low-contribution adapters to drop or move to a server-to-server path.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the auction competes with editorial content for the reader's attention, so the latency a long bidder list adds can push the ad render past the point where the reader has scrolled away. You may want to weigh each bidder's win contribution against that latency cost, keeping the adapters that win on the publisher's audience and moving thinner partners to a server-to-server path.",
+          "ecommerce": "On a commerce-content site, the higher-intent product and category pages tend to carry more demand than editorial pages, so a bidder that contributes little overall may still win on the commercial inventory. You may want to read win contribution by page type before dropping an adapter, so a bidder that earns its place on the high-value pages is not removed on the strength of a blended average."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.org Documentation",
+            "source_title": "Optimize header bidding setup",
+            "source_url": "https://docs.prebid.org/overview/how-many-bidders-for-header-bidding.html"
+          },
+          {
+            "source_type": "Prebid.org Documentation",
+            "source_title": "Prebid.js FAQ: How many bid adapters should I have?",
+            "source_url": "https://docs.prebid.org/dev-docs/faq.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the list of enabled bid adapters in the Prebid.js configuration, then read win rate and revenue per bidder to see which adapters contribute demand worth the request they add.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console",
+              "steps": [
+                "Open the page in a browser, open the developer console, and run 'pbjs.getConfig()' to confirm the basic Prebid setup, including the auction timeout.",
+                "Run 'pbjs.adUnits' or inspect the ad unit definitions to list the bidder codes enabled across the page's ad units.",
+                "Append '?pbjs_debug=true' to the page URL, reload, and run 'pbjs.getBidResponses()' and 'pbjs.getAllWinningBids()' to see which bidders responded and which won on this load.",
+                "Record the full list of enabled bidders and note any that responded with no bid or did not respond within the timeout."
+              ]
+            },
+            "analytics_reporting": {
+              "label": "Prebid analytics or ad server reporting",
+              "steps": [
+                "Pull win rate, bid rate, and revenue broken out by bidder over a representative period from the publisher's Prebid analytics adapter or ad server reporting.",
+                "Rank the bidders by their share of wins and revenue, and flag any that contribute a negligible share while still sending a request on every auction.",
+                "Note whether the low-contribution bidders could be dropped or moved to a server-to-server path so their request no longer runs from the page."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the list of enabled client-side bidders alongside each one's win rate and revenue share over a representative period. A list where each enabled bidder contributes demand worth the request it adds, with low-contribution partners either removed or moved server-side, passes. A list carrying bidders that contribute a negligible share of wins or revenue while still requesting on every auction is a fail recorded with the specific adapters that do not earn their place.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the enabled bidder list and each bidder's win and revenue share above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs client-side bid adapters that contribute a negligible share of wins and revenue while still sending a request on every auction. Each enabled bidder in Prebid.js adds an outbound request that consumes part of the auction timeout, so a bidder that rarely wins taxes every impression without paying for itself, and Prebid's own guidance frames the bidder count as a tradeoff rather than a number to maximize. {{voice_recommend}} reading win rate and revenue per bidder over a representative period, then dropping the low-contribution adapters or moving them to a server-to-server path so their request no longer runs from the page. After the change, recheck fill rate and average bid latency to confirm the trimmed list holds revenue while lowering the request load."
+      }
+    },
+    {
+      "id": "prebid-bidder-management-params-incorrect-or-adapters-stale",
+      "title": "Bidder params are incorrect or adapters are left stale",
+      "category": "bidding",
+      "subcategory": "bidder_management",
+      "impact_score": 3,
+      "impact_rationale": "Each Prebid.js adapter reads its own params, e.g., a placement or unit identifier, and a wrong or stale value makes the bidder fail validation or return no bid while still firing a request. A duplicate adapter left from a migration, or a params value pointing at retired inventory, sends the cost of a request with none of the demand, so the auction carries weight that returns nothing.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "yield",
+        "performance"
+      ],
+      "educate": {
+        "base": "Every Prebid.js bid adapter reads its own set of params, and the values differ by bidder. One adapter needs a placement identifier, another a site or unit identifier, another a publisher account string. The adapter validates those params before it sends a request, so a param that is missing, malformed, or pointing at inventory the bidder no longer recognizes makes the bidder respond with no bid, or fail validation and not bid at all, while the auction still spent time waiting for it.<br><br>Params drift for ordinary reasons. A placement is retired on the partner's side but its identifier stays in the Prebid config. A site is restructured and the unit identifiers change, but the adapter keeps the old ones. A partner migration leaves the new adapter live alongside the old one, so two adapters now request for the same demand and one of them returns nothing. None of these announce themselves. The request still fires, the page still carries the latency, and only the absence of wins from that bidder hints that something is wrong.<br><br>Prebid.js exposes the configuration and the auction results to the browser, so a publisher can read the live state rather than trust the documentation of how it was set up. The page's developer console can show the enabled adapters, the params attached to each ad unit, the bid responses, and any bidder that responded with no bid or did not respond. Reading that live state against the partner's current placement setup is how a stale or duplicative adapter surfaces.<br><br>A few signs point to params that need attention:<ul><li>An adapter that fires on every auction but consistently returns no bid, which can indicate a param pointing at retired or wrong inventory</li><li>Two adapters present for what should be a single demand partner, e.g., a leftover from a partner or product migration</li><li>Param values, such as placement or unit identifiers, that no longer match the partner's current setup</li></ul>You may want to confirm that each adapter's params are correct against the partner's current placement setup, and that no duplicate or retired adapter is left firing. One approach is to read the live bid responses in the console, flag any adapter that returns no bid, and reconcile its params with the partner before deciding whether to fix or remove it.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a section restructure or a template change can move ad units without the Prebid params following, so an adapter keeps requesting against a placement that no longer exists. You may want to reconcile each adapter's unit identifiers against the site's current ad unit structure whenever the templates change, so the params track the inventory rather than the original setup.",
+          "ecommerce": "On a commerce-content site, product catalog and page changes can retire the placements an adapter was configured against, leaving params pointing at inventory that is gone. You may want to recheck the adapter params after any change to the page templates or the product pages, so a retired placement does not leave an adapter firing for demand it can no longer fill."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.org Documentation",
+            "source_title": "Prebid.js Bidder Params for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/bidders.html"
+          },
+          {
+            "source_type": "Prebid.org Documentation",
+            "source_title": "Prebid.js Troubleshooting Guide for Header Bidding",
+            "source_url": "https://docs.prebid.org/troubleshooting/troubleshooting-guide.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the params attached to each enabled adapter and the live bid responses to find adapters that return no bid, duplicate another partner, or carry params pointing at retired inventory.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console",
+              "steps": [
+                "Open the page in a browser, open the developer console, and inspect the ad unit definitions, e.g., 'pbjs.adUnits', to read the bidder code and params attached to each ad unit.",
+                "Append '?pbjs_debug=true' to the page URL, reload, and run 'pbjs.getBidResponses()' to see which adapters returned a bid and which returned no bid or did not respond.",
+                "Run 'pbjs.getEvents()' to review the bid request and response events for the load, and flag any adapter that requested but never returned a usable bid.",
+                "Record each adapter that consistently returns no bid, any duplicate adapter present for a single partner, and any param value that needs reconciling against the partner's current setup."
+              ]
+            },
+            "partner_setup": {
+              "label": "Partner placement setup",
+              "steps": [
+                "For each adapter that returns no bid, compare its params, e.g., placement or unit identifiers, against the partner's current placement or unit setup.",
+                "Confirm whether the placement still exists on the partner's side and whether the identifier in the Prebid config still matches it.",
+                "Note any adapter whose params point at retired or wrong inventory, and any duplicate adapter that should be removed after a migration."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per adapter, whether its params validate and return bids, whether a duplicate adapter exists for the same partner, and whether the params match the partner's current placement setup. A setup where each adapter's params are correct and maintained, with no duplicate or retired adapter firing, passes. A setup where adapters return no bid on stale or wrong params, or where duplicate adapters remain from a migration, is a fail recorded with the specific adapters and params affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each adapter's params, its bid responses, and any duplicate adapter above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs Prebid.js adapters whose params no longer match the partner setup, so the adapters fire a request on every auction but return no bid. A Prebid adapter validates its params, e.g., a placement or unit identifier, before it requests, and a stale or duplicative value makes the bidder respond with no bid while the auction still spent time waiting for it. {{voice_recommend}} reading the live bid responses in the browser console, flagging each adapter that returns no bid, and reconciling its params against the partner's current placement setup before deciding whether to fix the value or remove the adapter. After the change, recheck the bid responses to confirm each remaining adapter returns usable bids rather than empty requests."
+      }
+    }
+  ]
+}

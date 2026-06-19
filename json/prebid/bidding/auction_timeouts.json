@@ -1,0 +1,213 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://docs.prebid.org/features/timeouts.html",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The auction timeout sets how long the page waits for header-bidding responses before it calls the ad server, so it is the single dial that trades bid participation against page speed. A timeout set too short drops bids that would have cleared, and one set too long holds the ad server call and slows the page. The check is a review of the timeout values a publisher already has in their Prebid.js configuration, so it costs reading time rather than rebuild time, and the finding points to concrete millisecond values the publisher can test against their own timeout-rate reporting.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "The auction timeout in Prebid.js (the open-source header-bidding library a publisher runs on their own pages) decides how long the page waits for bidder responses before it stops the auction and calls the ad server. This subcategory is about the timeout values themselves, the global bidder timeout, any per-auction override, the failsafe timeout that protects the page, and the server timeout when Prebid Server is in the mix, rather than the bidder adapters or pricing that the auction carries. These checks confirm that the timeouts are tuned against the publisher's own timeout-rate and latency data rather than left at a copied-in default, and that the page can never hang waiting on a slow bidder.",
+  "audit_checks": [
+    {
+      "id": "prebid-auction-timeouts-not-tuned-to-bid-arrival",
+      "title": "The auction timeout is not tuned against actual bid-arrival data",
+      "category": "bidding",
+      "subcategory": "auction_timeouts",
+      "impact_score": 3,
+      "impact_rationale": "The auction timeout sets the window in which a bid must arrive to enter the auction, so a window set too short drops bids that would have cleared and leaves revenue uncollected, while a window set too long holds the ad server call and slows the page. A timeout left at a copied-in default rather than tuned against the bidders' own response times sits at the wrong value for the publisher's specific bidder set and audience, so the trade between fill and speed is being made without the data that should inform it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "performance",
+        "yield"
+      ],
+      "educate": {
+        "base": "Prebid.js (the open-source header-bidding library a publisher runs on their own pages) sets the auction timeout through the global 'bidderTimeout' value in 'pbjs.setConfig', and a publisher can override it for a single auction by passing a 'timeout' on the 'pbjs.requestBids' call. Whichever value applies, it defines the window in which a bidder must respond for its bid to enter the auction. When the window closes, Prebid stops waiting and hands control to the ad server, and bids that arrive after the window are ignored.<br><br>The value is a trade rather than a setting with one right answer. Set the window too short and bidders that would have cleared do not respond in time, so their bids never enter the auction and the revenue they represent is left uncollected. Set it too long and the page holds the ad server call while it waits, so the ad renders later and the page feels slower. Prebid's own guidance frames the auction timeout as a balance between giving header bidding enough time to take place and not delaying the ad server call, and it points publishers toward 1000 milliseconds or less as a starting point rather than a fixed answer.<br><br>The value that fits one publisher rarely fits another because it depends on which bidders are in the configuration and how fast their endpoints respond for the publisher's audience. A timeout copied from a template or another site sits at the right value only by chance. The way to find the right value is to read how bids actually arrive over time, which Prebid exposes through its auction events, and to set the window where a meaningful share of bids have come in without holding the page longer than the latency budget allows.<br><br>A real wrinkle is that the timeout is not exact. Because it runs on a JavaScript 'setTimeout', the callback is queued in the event loop rather than fired at the precise millisecond, so on a busy page load a bid can still be included even when its response time is slightly past the configured timeout. That means the configured value is a target rather than a hard cut, which is another reason to read the arrival data rather than trust the number alone.<br><br>A few signs point to a timeout that has not been tuned against bid-arrival data:<ul><li>The 'bidderTimeout' sits at a round default value with no record of why that number was chosen for this bidder set</li><li>No reading of bid-response times or timeout rates exists to show how many bids the current window is catching or missing</li><li>The same timeout was carried over from a template or another property without re-checking it against the bidders running here</li></ul>You may want to confirm that the auction timeout reflects how the configured bidders actually respond. One approach is to read bid-arrival times and per-bidder timeout rates from Prebid's auction events, then set the window where most bids land while staying inside the page's latency budget.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a returning audience on fast connections may let bids arrive quickly, so a tighter window can hold most of the revenue while keeping article pages fast. You may want to read bid-arrival times for the audience specifically rather than assume a default fits because a window tuned for a slow mobile audience will sit longer than a fast desktop audience needs.",
+          "ecommerce": "On a commerce-content site, product and category pages where the shopper is close to a purchase carry a tighter page-speed budget because latency on those pages can cost conversions. You may want to weigh the auction timeout against that budget on the commercial pages specifically, so the window catches bids without slowing the pages where speed matters most to the sale."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Timeouts in Prebid.js",
+            "source_url": "https://docs.prebid.org/features/timeouts.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "pbjs.setConfig(options)",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/setConfig.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "pbjs.requestBids(requestObj)",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/requestBids.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the configured auction timeout from the live Prebid configuration, then look for any reading of bid-arrival times or per-bidder timeout rates that shows whether the window fits the bidders running on the page.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console and Prebid debug tools",
+              "steps": [
+                "Open the page that runs Prebid.js and open the browser developer console.",
+                "Run 'pbjs.getConfig()' and read the 'bidderTimeout' value, and check whether any 'pbjs.requestBids' call passes a per-auction 'timeout' that overrides it.",
+                "Run 'pbjs.getEvents()' and read the auction events to see when each bidder responded relative to the auction start, noting which bidders landed inside the window and which timed out.",
+                "Add '?pbjs_debug=true' to the page URL to surface Prebid's debug logging, and watch the auction in the console across a few reloads to see how consistently bids arrive before the timeout.",
+                "Record the configured timeout, the spread of bid-arrival times, and the per-bidder timeout rate so the window can be judged against the data."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the configured auction timeout, any per-auction override, and the bid-arrival times and per-bidder timeout rates read from Prebid's auction events. A timeout set where a meaningful share of bids arrive in time, backed by a reading of arrival data and within the page's latency budget, passes. A timeout left at a copied-in default with no arrival data on record, or one where the data shows many bids arriving just after the window or the window sitting far longer than bids need, is a fail recorded with the configured value and the arrival pattern that contradicts it.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the configured auction timeout and the bid-arrival times and timeout rates from Prebid's auction events above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs an auction timeout that has not been tuned against how the configured bidders actually respond, so the window sits at a value chosen without arrival data. In Prebid.js the timeout sets the window in which a bid must arrive to enter the auction, and a window too short drops bids that would have cleared while a window too long holds the ad server call and slows the page. {{voice_recommend}} reading bid-arrival times and per-bidder timeout rates from Prebid's auction events, then setting the 'bidderTimeout' where a meaningful share of bids land in time while staying inside the page's latency budget. After the change, recheck the timeout rate and page latency to confirm the window fits the bidders running here."
+      }
+    },
+    {
+      "id": "prebid-auction-timeouts-no-failsafe-timeout",
+      "title": "No failsafe timeout protects the page from a stalled auction",
+      "category": "bidding",
+      "subcategory": "auction_timeouts",
+      "impact_score": 4,
+      "impact_rationale": "The failsafe timeout is the safety net that calls the ad server if the Prebid auction never returns, for example when the library fails to load or a bidder hangs the callback. Without it, a stalled auction can leave ad slots blank and, on some setups, hold page content that waits on the ad server call, so a single failure point turns into lost revenue across every impression in that session rather than a slow one.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "performance",
+        "yield"
+      ],
+      "educate": {
+        "base": "The auction timeout inside Prebid.js controls a healthy auction, but it does nothing if the auction never starts or never returns. If the Prebid library fails to load, or a bidder hangs the callback, or a script error stops the flow, the code path that would call the ad server may never run. The failsafe timeout exists for exactly that case. It is a timeout set entirely outside Prebid.js, a plain JavaScript 'setTimeout' the publisher places after the Prebid tag, that calls the ad server on its own after a fixed delay no matter what Prebid did or did not do.<br><br>In a normal auction the failsafe never fires because Prebid finishes and calls the ad server well before the failsafe delay elapses. The failsafe only does its job on the bad day, when the auction stalls and the page would otherwise sit waiting. On that day it is the difference between the ad server still getting called, so the slot fills, and the slot rendering blank or the page hanging on a call that never comes.<br><br>Because the failsafe is meant to fire only after a normal auction would have finished, its delay sits well above the auction timeout rather than near it. Prebid's guidance points publishers toward an auction timeout of 1000 milliseconds or less and a failsafe of 3000 milliseconds or less, with the failsafe set much larger than the auction timeout so it does not cut a healthy auction short. A failsafe set too close to the auction timeout can fire during a slow but recoverable auction and call the ad server before the bids land, which throws away the header-bidding revenue the auction was about to deliver.<br><br>A few signs point to a missing or misconfigured failsafe:<ul><li>No JavaScript timeout wraps the ad server call, so a Prebid failure leaves nothing to invoke the ad server</li><li>A failsafe exists but sits at or near the auction timeout, so it can fire during a slow auction and cut it short</li><li>Ad slots render blank on sessions where Prebid failed to load, which points to no failsafe catching the failure</li></ul>You may want to confirm that a failsafe timeout wraps the ad server call and sits comfortably above the auction timeout. One approach is to read the page's Prebid integration code for the 'setTimeout' that calls the ad server, then check that its delay leaves room for a normal auction to finish first.",
+        "site_type_overlays": {
+          "publishing": "On a media site with many ad slots per page, a stalled auction with no failsafe can leave every slot on the page blank for that session, so the failsafe protects fill across the whole page rather than one unit. You may want to confirm the failsafe wraps the ad server call for all slots, not only the ones above the fold.",
+          "ecommerce": "On a commerce-content site, a page that holds content while it waits on the ad server call can stall the path to a purchase if Prebid hangs, so the failsafe protects the shopping experience as well as fill. You may want to set the failsafe delay tight enough that a stalled auction does not leave a product or category page waiting noticeably long."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Timeouts in Prebid.js",
+            "source_url": "https://docs.prebid.org/features/timeouts.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the page's Prebid integration code for a JavaScript failsafe timeout that calls the ad server, and check its delay against the configured auction timeout.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console and page source",
+              "steps": [
+                "Open the page that runs Prebid.js and view the page source or the developer console 'Sources' panel to find the Prebid integration code.",
+                "Look for a JavaScript 'setTimeout' placed after the Prebid tag that calls the ad server, which is the failsafe, and record its delay in milliseconds.",
+                "Run 'pbjs.getConfig()' and read the 'bidderTimeout' so the failsafe delay can be compared against the auction timeout.",
+                "Confirm the failsafe delay sits well above the auction timeout rather than at or near it, and note whether any failsafe exists at all.",
+                "If possible, simulate a Prebid load failure, for example by blocking the Prebid script in the network panel, and confirm the failsafe still calls the ad server so the slots fill."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a JavaScript failsafe timeout wraps the ad server call and what its delay is relative to the auction timeout. A failsafe present, calling the ad server independently of Prebid, and set well above the auction timeout passes. A missing failsafe, or one set at or near the auction timeout so it can cut a healthy auction short, is a fail recorded with the failsafe delay and the auction timeout it is being compared against.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a failsafe timeout wraps the ad server call and its delay relative to the auction timeout above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has no failsafe timeout wrapping the ad server call, so a stalled Prebid auction can leave ad slots blank or hold the page. The failsafe is a JavaScript timeout set outside Prebid.js that calls the ad server on its own if the auction never returns, for example when the library fails to load or a bidder hangs the callback. {{voice_recommend}} adding a 'setTimeout' after the Prebid tag that calls the ad server, set well above the auction timeout so it does not cut a healthy auction short while still catching a stall. After the change, simulate a Prebid load failure to confirm the failsafe fills the slots when the auction does not return."
+      }
+    },
+    {
+      "id": "prebid-auction-timeouts-server-timeout-not-below-auction",
+      "title": "The Prebid Server timeout is not set below the auction timeout",
+      "category": "bidding",
+      "subcategory": "auction_timeouts",
+      "impact_score": 3,
+      "impact_rationale": "When a publisher routes demand through Prebid Server, the server call runs inside the same auction window the client timeout governs, so the server timeout must finish and return its bids before the client auction closes. A server timeout set equal to or above the auction timeout lets the auction close before the server bids arrive, so server-side demand is dropped from every auction it runs in and the revenue it represents goes uncollected.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "performance",
+        "yield"
+      ],
+      "educate": {
+        "base": "A publisher running server-side demand through Prebid Server configures it in Prebid.js with an 's2sConfig' block that carries its own timeout, the 'tmax' the client sends to the server. That server timeout is not separate from the auction. The server call happens inside the same auction window the client 'bidderTimeout' governs, so the server has to receive the request, run its own auction across the server-side bidders, and return its bids all before the client auction closes.<br><br>That ordering is the whole point. If the server timeout is set equal to or above the auction timeout, the client auction can close before the server has returned, so the server-side bids arrive too late to enter the auction and are ignored. The server-side demand then contributes nothing even though the server did the work, and the reason is that its bids missed the window. The fix is to set the server timeout below the auction timeout by a margin large enough to cover the network round trip to the server and back.<br><br>Prebid's guidance points publishers toward setting the Prebid Server timeout lower than the auction timeout, on the order of 50 to 75 percent of it, so the server bids return with room to spare. Prebid Server also helps here by shaving a safety buffer off the 'tmax' it received and responding before that value is fully up, which gives the network leg a little more cushion, but that buffer does not replace setting the server timeout below the client auction timeout in the first place.<br><br>A few signs point to a server timeout that is not set below the auction timeout:<ul><li>The 's2sConfig' timeout is equal to or larger than the 'bidderTimeout', so the server can return after the auction has closed</li><li>Server-side bidders show high timeout rates in the auction events while the same bidders run fine client-side</li><li>The server timeout was set without reference to the client auction timeout, so the relationship between the two was never checked</li></ul>You may want to confirm that the Prebid Server timeout sits below the auction timeout with room for the network round trip. One approach is to read both values from the live configuration and check the server timeout against per-bidder server-side timeout rates from the auction events.",
+        "site_type_overlays": {
+          "publishing": "On a media site that leans on server-side demand to add bidders without adding client-side weight, a server timeout set too high removes that demand from the auction, undercutting the reason for running server-side at all. You may want to confirm the server timeout sits below the auction timeout so the server-side bidders the site added actually enter the auction.",
+          "ecommerce": "On a commerce-content site where the page-speed budget is tight, server-side demand can add bidders without loading more client-side script, but only if the server timeout returns inside the auction window. You may want to set the server timeout below the auction timeout with enough margin for the round trip so the server-side bids contribute without pushing the page past its latency budget."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Timeouts in Prebid.js",
+            "source_url": "https://docs.prebid.org/features/timeouts.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Prebid Server Adapter (s2sConfig)",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/prebidServer.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the Prebid Server timeout from the 's2sConfig' block and the auction timeout from the live configuration, then compare them and check the server-side timeout rates in the auction events.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console and Prebid debug tools",
+              "steps": [
+                "Open the page that runs Prebid.js and open the browser developer console.",
+                "Run 'pbjs.getConfig()' and read the 's2sConfig' block, recording its timeout, and read the global 'bidderTimeout' for the auction timeout.",
+                "Confirm the server timeout sits below the auction timeout, and note the margin between them against the network round trip to the server.",
+                "Run 'pbjs.getEvents()' and read the auction events for the server-side bidders, recording how often they time out compared with client-side bidders.",
+                "Record both timeout values and the server-side timeout rate so the relationship between the two timeouts can be judged."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the Prebid Server timeout from the 's2sConfig' block, the auction timeout, and the server-side bidder timeout rates from the auction events. A server timeout set below the auction timeout with enough margin for the round trip, and server-side timeout rates that show the server returns in time, passes. A server timeout set equal to or above the auction timeout, or one paired with high server-side timeout rates, is a fail recorded with both timeout values and the server-side timeout rate.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the Prebid Server timeout, the auction timeout, and the server-side bidder timeout rates above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs a Prebid Server timeout that is not set below the auction timeout, so the server can return its bids after the client auction has already closed. Because the Prebid Server call runs inside the same auction window, a server timeout set equal to or above the auction timeout drops the server-side demand from the auction even though the server did the work. {{voice_recommend}} setting the 's2sConfig' timeout below the 'bidderTimeout', on the order of 50 to 75 percent of it, with enough margin for the network round trip to the server and back. After the change, recheck the server-side timeout rate in Prebid's auction events to confirm the server bids now return in time to enter the auction."
+      }
+    }
+  ]
+}

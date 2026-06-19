@@ -1,0 +1,154 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://docs.prebid.org/dev-docs/adunit-reference.html",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Ad unit definitions are the spine of a Prebid.js setup. Every auction is requested against an ad unit, so a code that does not match the ad server slot, a sizes array that diverges from the Google Publisher Tag (GPT) slot, or an ad unit left on a page after its slot was removed all degrade revenue or break rendering without throwing an obvious error. The check reads configuration the publisher already has in their page source and in the live pbjs object, so it costs inspection time rather than rebuild time, and each finding points to a concrete ad unit the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Prebid.js requests demand against ad unit objects, each carrying a code, the media types it supports, and the sizes it can accept. Those definitions have to line up with two other things on the page, the GPT slot the unit targets and the physical ad slot it renders into. This subcategory checks that alignment. When the ad unit code, media types, and sizes match the ad server slot and the page, demand flows to inventory that exists and renders at a size the slot can hold. When they drift apart, the publisher requests demand for inventory that is not there or accepts bids at sizes the slot cannot serve.",
+  "audit_checks": [
+    {
+      "id": "prebid-ad-unit-config-code-sizes-mismatch",
+      "title": "Ad unit code or sizes do not match the GPT slot definition",
+      "category": "inventory",
+      "subcategory": "ad_unit_config",
+      "impact_score": 3,
+      "impact_rationale": "The ad unit code links the Prebid auction to the ad server slot, and Prebid recommends the auctioned sizes match the GPT sizes so the winning bid renders at a size the slot can hold. When the code does not match or the sizes diverge, targeting does not attach to the right slot or a winning bid clears at a size the slot rejects, so demand is requested but the impression does not render or renders wrong.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "inventory",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "In Prebid.js, an ad unit's 'code' is the identifier that links a Prebid auction to a specific ad server slot. Prebid's documentation describes the code as generally set to the ad slot name or the div element id, and 'setTargetingForGPTAsync()' uses it to attach the auction's targeting key-values to the matching Google Publisher Tag (GPT) slot. When that code does not match the slot the publisher means to target, the targeting either attaches to the wrong slot or does not attach at all, so a bid Prebid won never reaches the ad server in a usable form.<br><br>Sizes have to line up the same way. The banner mediaType carries a 'sizes' array listing every size the ad unit can accept, and Prebid recommends that the sizes auctioned by Prebid match the GPT sizes so the inventory offered in the auction matches the inventory the ad server can serve. If the Prebid ad unit offers a size the GPT slot does not hold, a bid can win at a size the slot rejects, and the impression renders wrong or not at all. If the GPT slot holds a size the Prebid ad unit never offers, that size collects no header-bidding demand.<br><br>Video and native units align on different dimensions. A video ad unit uses 'playerSize' rather than a banner 'sizes' array to state the width and height of the player, so the audit question for video is whether the player dimensions match the slot the video renders into. Native units do not carry ad unit sizes at all and size through individual asset requirements, so for native the match is between the asset definitions and what the rendering template expects.<br><br>A few signs point to a code or size mismatch:<ul><li>An ad unit 'code' does not match any ad server slot name or div id on the page</li><li>The Prebid ad unit 'sizes' array and the GPT slot's size list differ, so one offers a size the other cannot serve</li><li>Targeting key-values from a won bid never appear on the slot the publisher expected, which points to a code that does not link the two</li></ul>You may want to confirm that each ad unit's code and sizes match the GPT slot it targets. One approach is to read the live 'pbjs.adUnits' against the GPT slot definitions and reconcile the code and the size list for each unit.",
+        "site_type_overlays": {
+          "publishing": "On a media site, templated layouts often reuse the same ad unit definitions across many article pages, so a single code or size mismatch can repeat on every page that shares the template. You may want to check the templated ad units first because correcting one definition fixes the mismatch wherever the template renders.",
+          "ecommerce": "On a commerce-content site, product and category pages can carry different slot layouts than editorial pages, so an ad unit code or size list that fits the editorial template may not fit the commercial pages. You may want to confirm the code and sizes match the GPT slots on each page type rather than assuming one definition serves all of them."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Ad Unit Reference",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Troubleshooting Prebid.js",
+            "source_url": "https://docs.prebid.org/troubleshooting/troubleshooting-guide.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read each Prebid ad unit's code and sizes against the GPT slot it targets, using the live pbjs object on the page and the page's GPT slot definitions.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console and pbjs",
+              "steps": [
+                "Open the page in a browser, open DevTools, and enter 'pbjs.adUnits' in the console to list the configured ad units with their code, mediaTypes, and sizes.",
+                "Enter 'pbjs.getConfig()' to confirm the overall Prebid configuration loaded as expected, including timeout and price granularity.",
+                "Find the GPT slot definitions in the page source or by entering 'googletag.pubads().getSlots()' in the console, and record each slot's name, div id, and size list.",
+                "For each ad unit, match its code to a GPT slot name or div id, and compare its sizes array to that slot's size list, recording any code that matches no slot and any size present in one but not the other.",
+                "Enter 'pbjs.getAdserverTargeting()' after an auction to confirm the won-bid targeting attaches to the slot the code points to."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad unit, whether the code matches a GPT slot and whether the sizes array matches that slot's size list. Ad units whose code links to a real slot and whose sizes match the slot's sizes pass. An ad unit whose code matches no slot, or whose sizes offer a size the slot cannot serve or omit a size the slot holds, is a fail recorded with the ad unit code and the specific mismatch.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each ad unit's code and sizes against the matching GPT slot above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more Prebid.js ad units on {{site_name}} carry a code or a sizes array that does not match the Google Publisher Tag (GPT) slot they target. The ad unit code links the auction to the ad server slot, and Prebid recommends that the auctioned sizes match the GPT sizes, so a mismatch means a won bid either fails to attach to the right slot or clears at a size the slot cannot serve. {{voice_recommend}} reconciling each ad unit's code and sizes against the GPT slot it targets, reading the live 'pbjs.adUnits' against the slot definitions, so every unit requests demand for inventory that exists and renders at a size the slot holds. After the fix, recheck the targeting on each slot to confirm the won bid reaches it."
+      }
+    },
+    {
+      "id": "prebid-ad-unit-config-orphaned-units",
+      "title": "Orphaned ad units request demand for slots that no longer render",
+      "category": "inventory",
+      "subcategory": "ad_unit_config",
+      "impact_score": 2,
+      "impact_rationale": "An ad unit left in the Prebid configuration after its slot was removed from the page still enters the auction, so it requests demand for inventory that cannot render. The bids it draws are wasted, the auction carries extra requests that add latency, and the discrepancy between bids requested and impressions served clouds the reporting a publisher uses to judge the setup.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "inventory",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "An orphaned ad unit is one that still exists in the Prebid.js configuration but no longer corresponds to a slot that renders on the page. It usually arrives through ordinary site change. A placement is retired, a template is rewritten, or a page layout drops a unit, and the ad server slot goes away while the Prebid ad unit definition stays behind. Prebid does not know the slot is gone, so it keeps requesting demand for it.<br><br>The cost is quiet rather than loud. The orphaned unit enters each auction and draws bid requests from every bidder attached to it, but no impression renders because no slot is there to hold it. Those bids are wasted, the extra requests add to the auction's work and can push against the bid timeout that bounds how long Prebid waits, and the reporting shows bids requested for a unit that never serves. A publisher reading fill rate or bid density per unit sees a gap that traces back to a definition that should have been removed, not to a demand problem.<br><br>Prebid exposes the live configuration that makes orphaned units visible. The 'pbjs.adUnits' array lists every ad unit currently configured, and 'pbjs.getEvents()' returns the auction events since page load, including which units requested bids. Reading those against the slots that actually render on the page surfaces any unit that requests demand with no slot to fill.<br><br>A few signs point to orphaned ad units:<ul><li>An ad unit appears in 'pbjs.adUnits' but no matching ad server slot or div renders on the page</li><li>Reporting shows bid requests for an ad unit that records no impressions over a meaningful period</li><li>A placement was retired or a template rewritten without a matching removal of the Prebid ad unit definition</li></ul>You may want to confirm that every configured ad unit maps to a slot that renders. One approach is to compare 'pbjs.adUnits' against the slots present on each page type and remove any unit that no longer has a slot to fill.",
+        "site_type_overlays": {
+          "publishing": "On a media site, frequent template and section redesigns retire placements over time, and the Prebid ad unit definitions can outlast the slots they served. You may want to compare the configured units against the slots on the current templates after any layout change, so retired placements do not keep requesting demand.",
+          "ecommerce": "On a commerce-content site, seasonal pages and retired product categories can remove slots while leaving their ad unit definitions in place. You may want to check that ad units tied to time-limited or removed pages are cleared from the configuration once those pages stop rendering their slots."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "Ad Unit Reference",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "pbjs.getEvents()",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/getEvents.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Compare the configured Prebid ad units against the ad server slots that render on each page type, and look for units that request demand without a slot to fill.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console and pbjs",
+              "steps": [
+                "Open each page type in a browser, open DevTools, and enter 'pbjs.adUnits' to list every configured ad unit with its code.",
+                "Enter 'googletag.pubads().getSlots()' to list the ad server slots that actually render on the page, and record their names and div ids.",
+                "Match each configured ad unit code to a rendered slot, and record any ad unit that has no matching slot on any page type.",
+                "Enter 'pbjs.getEvents()' to see which units requested bids during the auction, and confirm whether a suspected orphaned unit still draws bid requests."
+              ]
+            },
+            "reporting": {
+              "label": "Prebid analytics or ad server reporting",
+              "steps": [
+                "Build a report broken out by ad unit with bid requests and impressions served over a meaningful period.",
+                "Find any ad unit that records bid requests but no impressions, which points to a unit requesting demand with no slot to fill.",
+                "Record each such unit with the period observed so the publisher can confirm the slot is gone before removing the definition."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad unit, whether a matching ad server slot renders on the page and whether the unit serves impressions against the bids it requests. Ad units that map to a rendering slot and serve impressions pass. An ad unit that appears in the configuration with no matching slot on any page type, or that requests bids while serving no impressions over a meaningful period, is a fail recorded with the ad unit code and the evidence that no slot fills it.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each configured ad unit against the slots that render and the impressions it serves above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} keeps one or more orphaned Prebid.js ad units, configured units that no longer match a slot rendering on the page. Each orphaned unit still enters the auction and draws bid requests, so it wastes demand, adds to the auction's work against the bid timeout, and leaves a gap between bids requested and impressions served in the reporting. {{voice_recommend}} comparing the live 'pbjs.adUnits' against the ad server slots that render on each page type and removing any unit that no longer has a slot to fill. After the cleanup, recheck the per-unit reporting to confirm every configured unit now serves impressions against the bids it requests."
+      }
+    }
+  ]
+}

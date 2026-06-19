@@ -1,0 +1,161 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://docs.prebid.org/features/pbAdSlot.html",
+  "worth_it": "Yes",
+  "worth_it_explanation": "A Global Placement ID (GPID) gives each ad slot a stable, unique label that survives refreshes, infinite scroll, and the way ad server paths get reused across pages. Without it, two different placements that share an ad unit name look identical to buyers and analytics, so reporting blurs together and deal targeting lands on the wrong inventory. The check is a review of the Prebid.js configuration the publisher already runs, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration change that makes every downstream report and deal more precise.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "A GPID is a stable, unique label for each ad slot on a page, set in the Prebid.js ad unit configuration so a slot keeps the same identifier across refreshes and across the ad server paths it maps to. This subcategory is about whether each slot carries a durable GPID rather than a name that shifts or collides with other placements. These checks confirm that the publisher sets GPID deliberately, that the identifier stays stable on pages where slots repeat, and that buyers and analytics can attribute performance to a specific slot rather than a moving target.",
+  "audit_checks": [
+    {
+      "id": "prebid-gpid-ad-slot-not-set",
+      "title": "Ad units do not set a GPID",
+      "category": "inventory",
+      "subcategory": "gpid_ad_slot",
+      "impact_score": 3,
+      "impact_rationale": "Without a Global Placement ID (GPID), buyers and analytics fall back to the ad unit code, which publishers reuse across placements, so two different slots can look like the same inventory. That collapses reporting and weakens deal targeting, which can hold down the bids a slot attracts, but the inventory still transacts, so the loss is in precision and price rather than a hard outage.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "inventory",
+        "transparency"
+      ],
+      "educate": {
+        "base": "A GPID is a stable, unique label a publisher attaches to each ad slot in the Prebid.js ad unit configuration. It lives at 'ortb2Imp.ext.gpid' on the ad unit and travels with the bid request to every bidder, so a buyer sees exactly which placement the request came from. The format pairs a slot name with a uniquifier, for example '/1111/homepage#div-id', which lets a publisher tell apart two slots that would otherwise share a name.<br><br>Without a GPID, bidders and analytics fall back to the ad unit code, and ad unit codes get reused. A publisher running the same '300x250' unit in the sidebar of every article hands every one of those impressions the same identifier, so a buyer cannot tell the high-value homepage slot from a footer slot far down a thin page. The reporting that comes back blends them, and a deal meant for one placement can serve across all of them.<br><br>The GPID standard was initiated by The Trade Desk in 2021 and adopted across Prebid as the durable way to identify inventory. Prebid's earlier Prebid Ad Slot (pbadslot) convention, set at 'ortb2Imp.ext.data.pbadslot', served a similar purpose but did not reach the same industry adoption, and Prebid's documentation points publishers toward GPID as the more standard field. A publisher can set GPID directly on each ad unit, or generate it from ad server slot paths using the GPT Pre-Auction module.<br><br>A few signs point to ad units that do not set a GPID:<ul><li>The ad unit configuration has no 'ortb2Imp.ext.gpid' field on its placements</li><li>The GPT Pre-Auction module is not in the Prebid.js build and no GPID is set by hand</li><li>Buyers or analytics report inventory only by ad unit code, with no stable per-slot identifier behind it</li></ul>You may want to confirm that each ad slot carries a GPID. One approach is to read the live Prebid configuration in the browser and check whether the ad units include 'ortb2Imp.ext.gpid'.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the same ad unit size often repeats across articles, sections, and the homepage, so an ad unit code alone cannot tell a premium section-front slot from a footer slot on a thin page. You may want to set a GPID per placement so reporting and deals can distinguish the high-value inventory from the rest.",
+          "ecommerce": "On a commerce-content site, product and category pages reach an audience closer to a purchase and carry different value than editorial pages, yet they often share ad unit sizes. You may want to set a GPID that identifies the commercial placements separately so buyers can target and value them apart from the editorial inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Ad Slot and GPID",
+            "source_url": "https://docs.prebid.org/features/pbAdSlot.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "GPT Pre-Auction Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/gpt-pre-auction.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the live Prebid.js ad units set a GPID, and check whether GPID is set by hand on each ad unit or generated by the GPT Pre-Auction module.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console and Prebid debugging",
+              "steps": [
+                "Open the page in a browser, open DevTools, and switch to the Console tab.",
+                "Run 'pbjs.adUnits' to list the ad units, and inspect each one's 'ortb2Imp.ext.gpid' to see whether a GPID is set.",
+                "Run 'pbjs.getConfig()' and look for the 'gptPreAuction' settings to see whether the GPT Pre-Auction module is enabled and deriving GPID automatically.",
+                "Record which placements carry a GPID, which fall back to the ad unit code, and whether the value looks stable and unique per slot."
+              ]
+            },
+            "prebid_debug": {
+              "label": "Prebid debug tools",
+              "steps": [
+                "Load the page with the Prebid debugging query parameter or the Prebid debug browser extension to surface the auction objects.",
+                "Inspect the bid requests and confirm whether 'imp[].ext.gpid' carries a value for each slot.",
+                "Note any placement where the GPID is missing or where the same value appears on slots that should be distinct."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad slot, whether 'ortb2Imp.ext.gpid' is set and whether the value is unique to that placement. A configuration where every ad unit carries a GPID, set by hand or by the GPT Pre-Auction module, passes. A configuration where placements have no GPID and fall back to the ad unit code is a fail recorded with the ad units affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether each ad slot sets a GPID above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the ad units on {{site_name}} do not set a Global Placement ID (GPID), so buyers and analytics fall back to the ad unit code to identify inventory. Because ad unit codes get reused across placements, two different slots can look like the same inventory, which blends reporting and lets a deal meant for one placement serve across many. {{voice_recommend}} setting 'ortb2Imp.ext.gpid' on each ad unit, either by hand or through the GPT Pre-Auction module, so every slot carries a stable, unique identifier. After the change, confirm in the browser that each placement reports a distinct GPID in its bid requests."
+      }
+    },
+    {
+      "id": "prebid-gpid-ad-slot-not-stable-on-refresh",
+      "title": "GPID is not stable across refreshes and infinite scroll",
+      "category": "inventory",
+      "subcategory": "gpid_ad_slot",
+      "impact_score": 3,
+      "impact_rationale": "A Global Placement ID (GPID) that changes on each refresh, or that collides across the repeated slots of an infinite-scroll page, breaks the link between a slot and its history. Buyers cannot recognize the placement they bid on before, and analytics cannot attribute performance to a durable slot, so frequency control and deal targeting drift. The inventory still serves, so the cost is in muddied measurement and weaker demand rather than lost fill.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "inventory",
+        "transparency"
+      ],
+      "educate": {
+        "base": "A GPID earns its value from staying the same. The point of the identifier is that a buyer who bid on a slot can recognize the same slot next time, and analytics can roll up a placement's performance over time. When the GPID shifts between page loads or refreshes, that link breaks, and the slot looks like new inventory on every request.<br><br>Infinite scroll is where stability gets tested. As a reader scrolls, the page can create the same-sized ad unit again and again, and each instance needs its own identifier so the fifth in-content slot is not confused with the first. Prebid's GPID format handles this with a uniquifier appended to the slot name, for example '/home/med-rect#5', which keeps each instance distinct while the base slot name stays consistent. A configuration that reuses one GPID across every scrolled instance collapses them into a single ambiguous placement, and one that generates a fresh random GPID per instance loses the stable base entirely.<br><br>Refresh behavior matters for the same reason. When a slot refreshes, the GPID needs to stay the same so the demand and the reporting carry across the refresh rather than resetting. The GPT Pre-Auction module derives GPID from the ad server slot path, which gives a stable base, and the publisher controls the uniquifier so repeated slots stay distinct without becoming unrecognizable.<br><br>A few signs point to a GPID that is not stable:<ul><li>The GPID changes value between page loads or across a refresh of the same slot</li><li>Infinite-scroll instances of one ad unit all share an identical GPID, or each gets a random, non-repeating one</li><li>Reporting shows a placement appearing as many short-lived identifiers rather than one durable slot</li></ul>You may want to confirm that the GPID stays stable across refreshes and that repeated slots stay distinct. One approach is to scroll an infinite-scroll page, trigger a refresh, and read the GPID on each auction to see whether the base stays consistent while the uniquifier separates the instances.",
+        "site_type_overlays": {
+          "publishing": "On a media site, long-form articles and feed pages often load the same ad unit repeatedly as the reader scrolls, and many sites refresh slots on a timer. You may want to confirm that each scrolled instance gets a distinct uniquifier on a stable base GPID, so the placements stay separable while the slot keeps its identity across refreshes.",
+          "ecommerce": "On a commerce-content site, category and search-results pages can render a long, paginated or infinite-scrolling grid with repeated ad slots between rows of products. You may want to confirm those repeated slots carry distinct, stable GPIDs so buyers can recognize the placement and value it across the session rather than treating each instance as new inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Ad Slot and GPID",
+            "source_url": "https://docs.prebid.org/features/pbAdSlot.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "GPT Pre-Auction Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/gpt-pre-auction.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the GPID stays stable across refreshes and whether repeated slots on infinite-scroll pages get distinct identifiers on a consistent base.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console and Prebid debugging",
+              "steps": [
+                "Open an infinite-scroll page in a browser with DevTools open and the Console tab active.",
+                "Run 'pbjs.getEvents()' and read the 'auctionInit' and bid request entries, noting the GPID on each ad unit as you scroll and as slots refresh.",
+                "Scroll to create repeated instances of the same ad unit and compare their GPIDs, checking that the base stays consistent while the uniquifier separates the instances.",
+                "Trigger or wait for a slot refresh and confirm the GPID does not change for the refreshed slot."
+              ]
+            },
+            "prebid_debug": {
+              "label": "Prebid debug tools",
+              "steps": [
+                "Load the page with the Prebid debug extension and watch successive auctions as you scroll and refresh.",
+                "Confirm that 'imp[].ext.gpid' holds a stable base across refreshes and a distinct uniquifier per scrolled instance.",
+                "Note any case where the GPID resets on refresh, collides across instances, or changes randomly between loads."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the GPID stays the same across a refresh of a slot and whether repeated instances on an infinite-scroll page get distinct uniquifiers on a consistent base. A configuration where the base GPID is stable and each instance is separable passes. A configuration where the GPID resets on refresh, collides across scrolled instances, or changes randomly is a fail recorded with the pages and slots affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the GPID stays stable across refreshes and infinite-scroll instances above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Global Placement ID (GPID) on {{site_name}} is not stable across refreshes and infinite-scroll instances, so a single placement appears as many short-lived identifiers rather than one durable slot. When the GPID resets or collides, buyers cannot recognize the slot they bid on before and analytics cannot attribute performance to a durable placement, which weakens frequency control and deal targeting. {{voice_recommend}} setting a stable base GPID with a per-instance uniquifier, for example '/home/med-rect#5', so the slot keeps its identity across refreshes while repeated instances stay distinct. After the change, scroll and refresh the page and confirm the base GPID holds while each instance reports a separate uniquifier."
+      }
+    }
+  ]
+}

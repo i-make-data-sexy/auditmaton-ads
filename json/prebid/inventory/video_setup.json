@@ -1,0 +1,165 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://docs.prebid.org/prebid-video/video-overview.html",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Video demand pays more than display, so a misconfigured video ad unit blocks the highest-value inventory a publisher has. The settings that decide whether video demand can bid and render live in the page's Prebid.js configuration, which a practitioner can read in the browser without touching the ad server. The check costs reading time rather than rebuild time, and the finding points to a concrete field in the ad unit a publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Prebid.js carries video demand through a video mediaType on the ad unit, and the fields in that mediaType tell every bidder what kind of video slot this is and how the creative will play. A context that does not match the placement, a missing player size, or an outstream unit with no renderer attached can stop video demand from bidding or leave a winning bid unable to render. This subcategory reviews the video mediaType configuration in the running Prebid.js setup, the placement signals it sends and the rendering path it provides, so that video inventory can actually transact.",
+  "audit_checks": [
+    {
+      "id": "prebid-video-setup-mediatype-placement-signals-incomplete",
+      "title": "The video mediaType omits accurate context, player size, or placement signals",
+      "category": "inventory",
+      "subcategory": "video_setup",
+      "impact_score": 3,
+      "impact_rationale": "Bidders read the video mediaType to decide whether and how much to bid. A missing or inaccurate context, player size, or placement signal gives demand partners an incomplete picture of the slot, so some decline to bid and others bid lower than they would on a fully described unit. The video inventory still serves, but at a thinner clearing price than the placement could support.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "inventory",
+        "creative"
+      ],
+      "educate": {
+        "base": "Every video ad unit in Prebid.js declares a video mediaType, and the fields inside it are how the publisher tells each bidder what the slot is. The 'context' field names the placement model, either 'instream' for video that plays inside streaming content as a pre-roll, mid-roll, or post-roll, or 'outstream' for a standalone video player that sits inside an article or feed. The 'playerSize' field gives the player dimensions as a width and height pair, e.g., [640, 480]. These two fields shape what a bidder expects to fill and how it values the impression.<br><br>Beyond context and size, the video mediaType carries signals that demand partners use to qualify and price the bid. The 'plcmt' field describes the placement in the Interactive Advertising Bureau (IAB) video taxonomy, and Prebid documents it as highly recommended for compliance with the IAB Digital Video Guidelines. The 'placement' field is also highly recommended for bidders that need detail beyond the context. The 'mimes' and 'protocols' fields, which list the video formats and Open Real-Time Bidding (OpenRTB) protocol versions the player supports, are required when bids route through Prebid Server, and 'api' values such as 7 signal Open Measurement (OMID) support.<br><br>The risk is a video mediaType that under-describes the slot. A unit with no 'context' falls back to a default that may not match the real placement, an outstream player declared as instream invites demand that cannot render in that environment, and a missing 'playerSize' or 'plcmt' leaves bidders guessing. Each gap narrows the pool of demand willing to bid or pushes the bids that do arrive lower. A bidder prices conservatively when the slot is unclear.<br><br>A few signs point to placement signals that are incomplete:<ul><li>The video mediaType has no 'context', or a 'context' that contradicts how the player actually renders on the page</li><li>'playerSize' is missing, set to a placeholder, or does not match the real player dimensions</li><li>'plcmt' and 'placement' are absent, so the unit sends no IAB placement signal to demand partners</li><li>'mimes' or 'protocols' are missing on a setup that routes video through Prebid Server</li></ul>You may want to confirm that the video mediaType describes each slot accurately. One approach is to read the running configuration for every video unit, check that 'context', 'playerSize', and the placement fields match the real player, and fill any gap a bidder would otherwise have to guess at.",
+        "site_type_overlays": {
+          "publishing": "On a media site, video often spans both a true instream player inside editorial video content and an outstream player dropped into article bodies. You may want to confirm that each unit's 'context' matches its actual player. An instream-only article slot mislabeled as such will draw demand that has nowhere to render, and a standalone player labeled instream sends the wrong placement signal to bidders.",
+          "ecommerce": "On a commerce-content site, outstream video frequently sits inside buying guides and product roundups where there is no host video content. You may want to confirm those units declare 'context' as 'outstream' with a 'plcmt' that matches a standalone placement, so demand partners price the slot as the in-article unit it is rather than as instream inventory it cannot fill."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Video for Header Bidding",
+            "source_url": "https://docs.prebid.org/formats/video.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Setting up Prebid Video in GAM",
+            "source_url": "https://docs.prebid.org/dev-docs/show-video-with-a-dfp-video-tag.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the running Prebid.js configuration for each video ad unit and confirm that the video mediaType declares an accurate context, player size, and placement signals.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console and pbjs",
+              "steps": [
+                "Open the page with a video ad unit in a desktop browser, then open the developer console.",
+                "Run 'pbjs.adUnits' to list the ad units, and inspect the 'mediaTypes.video' object on each video unit.",
+                "For each video unit, record the 'context', 'playerSize', 'plcmt', 'placement', 'mimes', and 'protocols' values, and note any that are missing or set to a placeholder.",
+                "Compare the declared 'context' against how the player actually renders on the page, instream inside video content or outstream as a standalone player, and flag any mismatch."
+              ]
+            },
+            "prebid_debug": {
+              "label": "Prebid debugging",
+              "steps": [
+                "Reload the page with 'pbjs_debug=true' appended to the URL to surface Prebid's console messages and any suppressed errors.",
+                "Run 'pbjs.getConfig()' to review the active configuration and 'pbjs.getEvents()' to read the auction lifecycle for the video units.",
+                "Note any video unit that drew no bids or a 'noBid' from partners that bid on comparable inventory, which can point back to a placement signal the mediaType failed to send."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per video ad unit, the 'context', 'playerSize', 'plcmt', 'placement', 'mimes', and 'protocols' values from the running configuration, and whether the declared context matches the real player. A unit whose video mediaType declares an accurate context and player size and carries the recommended placement signals passes. A unit missing context or player size, declaring a context that contradicts the player, or omitting the placement signals bidders rely on is a fail recorded with the fields that are absent or wrong.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the context, player size, and placement signals for each video ad unit above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more video ad units on {{site_name}} carry a video mediaType that under-describes the slot, for example a missing or mismatched 'context', an absent 'playerSize', or no 'plcmt' and 'placement' signals. Bidders read these fields to decide whether and how much to bid, so an incomplete description narrows the demand willing to bid and pushes the bids that arrive lower than the placement could support. {{voice_recommend}} reading the running Prebid.js configuration for each video unit, setting 'context' and 'playerSize' to match the real player, and adding the 'plcmt' and 'placement' signals the Interactive Advertising Bureau (IAB) video guidelines recommend. After the change, recheck the auction events to confirm video demand bids on each corrected unit."
+      }
+    },
+    {
+      "id": "prebid-video-setup-outstream-no-renderer",
+      "title": "Outstream video units have no renderer attached",
+      "category": "inventory",
+      "subcategory": "video_setup",
+      "impact_score": 4,
+      "impact_rationale": "An outstream unit needs a renderer to turn a winning video creative response into a playing ad. When no renderer is attached and the winning demand partner returns none of its own, the bid wins but the ad cannot render, so the impression is lost after demand has already been spent on it. Across a site's outstream inventory that is revenue leakage at scale on the publisher's highest-value format.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "inventory",
+        "creative"
+      ],
+      "educate": {
+        "base": "Outstream video is a standalone player that Prebid.js places inside content rather than inside a host video stream. Because there is no existing player on the page, something has to build one and play the winning creative, and in Prebid that something is the renderer. The renderer is an object that points to a player script through its 'url' field and defines a 'render' function that displays the winning bid. It turns a Video Ad Serving Template (VAST) response into a video that actually plays in the slot.<br><br>Prebid lets a publisher attach a renderer at the mediaType level, the bid level, or the ad unit level, and it uses the first one it finds. If the publisher attaches no renderer at all, Prebid falls back to the renderer that came with the winning demand partner's bid. The catch is that not every demand partner returns a renderer with its video response, so relying on that fallback leaves outcomes to chance. When the winning bid has no renderer and the ad unit supplied none, the auction produces a winner that cannot be shown.<br><br>The consequence is sharper than a thin bid. The impression is sold, demand has been spent deciding the winner, and then the ad fails to render because there is no player to run it. The publisher loses the revenue from that impression and the demand partner records a win it could not deliver. On a single placement that is one lost ad. Across every outstream unit on a site it is steady leakage on the format that pays the most.<br><br>A few signs point to outstream units with no rendering path:<ul><li>An ad unit declares 'context' as 'outstream' but has no 'renderer' object on the mediaType, the bids, or the ad unit</li><li>The setup assumes demand partners will supply a renderer, with no publisher renderer as a backstop</li><li>Outstream slots show winning bids in the auction events but the ad space stays blank on the page</li></ul>You may want to confirm that every outstream unit has a renderer it controls. One approach is to attach a publisher renderer to each outstream ad unit so a winning VAST bid always has a player to run it, rather than depending on whichever demand partner happens to return one.",
+        "site_type_overlays": {
+          "publishing": "On a media site, outstream players are often dropped into article templates at scale, so a single missing renderer pattern can repeat across thousands of pages. You may want to confirm the renderer is attached in the shared ad unit definition the template uses, so every article slot inherits a working player rather than depending on per-partner fallbacks.",
+          "ecommerce": "On a commerce-content site, outstream video usually sits inside buying guides and category pages where there is no host video. You may want to confirm each of those standalone units carries a publisher renderer. These in-content slots cannot borrow a player from any surrounding video, and a winning bid with no renderer leaves the space blank."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Show Outstream Video Ads for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/show-outstream-video-ads.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the running configuration for each outstream video ad unit and confirm a renderer is attached at the mediaType, bid, or ad unit level.",
+        "tools": {
+          "free": {
+            "browser_console": {
+              "label": "Browser console and pbjs",
+              "steps": [
+                "Open a page with an outstream video unit in a desktop browser, then open the developer console.",
+                "Run 'pbjs.adUnits' and, for each unit whose 'mediaTypes.video.context' is 'outstream', check for a 'renderer' object on the mediaType, on the bids, or on the ad unit.",
+                "Record which outstream units carry a publisher renderer and which rely on a demand partner supplying one, noting any with no renderer at any level."
+              ]
+            },
+            "prebid_debug": {
+              "label": "Prebid debugging",
+              "steps": [
+                "Reload the page with 'pbjs_debug=true' appended to the URL, then run 'pbjs.getEvents()' to read the auction for the outstream units.",
+                "Identify any outstream unit that recorded a winning bid in the events while the ad space stayed blank on the page, which points to a winning VAST response with no renderer to run it.",
+                "Record each outstream unit where a win failed to render alongside its renderer configuration."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per outstream video ad unit, whether a renderer is attached at the mediaType, bid, or ad unit level, and whether any winning bid failed to render. An outstream unit with a publisher-controlled renderer passes. An outstream unit that depends entirely on demand partners returning a renderer, or that shows winning bids failing to render, is a fail recorded with the unit and the level at which the renderer is missing.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether each outstream video unit has a renderer attached above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more outstream video units on {{site_name}} have no renderer attached at the mediaType, bid, or ad unit level. An outstream unit needs a renderer to turn a winning Video Ad Serving Template (VAST) response into a playing ad, and when none is attached the setup depends on the winning demand partner returning one, which not every partner does. The result is a bid that wins but cannot render, so the impression is lost after demand has been spent on it. {{voice_recommend}} attaching a publisher-controlled renderer to each outstream ad unit so a winning VAST bid always has a player to run it. After the change, recheck the auction events to confirm winning outstream bids render in the slot."
+      }
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Consent signals decide whether a bid request can carry personal data and, in many cases, whether it can be sent to demand at all. If the Transparency and Consent Framework (TCF) or Global Privacy Platform (GPP) string is not captured on the page and forwarded through Equativ to demand partners, buyers either receive no legal basis and drop the request or receive a request they should not have been sent. Both outcomes cost a publisher money or expose the publisher to a compliance problem. The check reads the consent wiring a publisher already has rather than rebuilding it, so it costs inspection time, and the finding points to a concrete fix in the consent management platform (CMP) or the Equativ tag setup.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Consent signaling is the chain that carries a user's privacy choices from the CMP on the page, into Equativ, and onward to the demand partners that bid on the impression. Equativ reads the TCF string or the GPP string that the CMP produces, then passes the relevant signal to demand in the bid request. This subcategory is about whether that chain is intact end to end, not about which CMP a publisher chose or how the consent banner is worded. These checks confirm that the consent string is captured and forwarded, and that bid requests are held back or limited where consent is absent and a legal basis is required.",
+  "audit_checks": [
+    {
+      "id": "equativ-consent-signals-string-not-captured-or-forwarded",
+      "title": "The TCF or GPP consent string is not captured and forwarded to demand",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 4,
+      "impact_rationale": "When the consent string never reaches Equativ or is not forwarded onward, demand partners receive a bid request with no legal basis attached. Many buyers respond by declining to bid on a request they cannot verify, which suppresses demand and revenue, and the same gap can mean personal data moves without a recorded basis. A break in the capture-and-forward chain affects every impression that flows through it, which is why it sits above the routine hygiene checks.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "A consent signal only does its job if it travels the full chain. The consent management platform (CMP) on the page collects a user's choices and encodes them into a string. For users in the European Economic Area and the UK, that string follows the Transparency and Consent Framework (TCF), and the CMP exposes it through a standard JavaScript interface. In other regions, or where a publisher has adopted the newer transport layer, the string follows the Global Privacy Platform (GPP), which carries the TCF signal and several US state signals under one format. Equativ, as the sell-side platform and ad server, reads that string from the CMP and forwards the relevant signal to demand partners inside the bid request.<br><br>The break can happen at any link. The CMP may load too late, so Equativ's tag fires before the string is ready and sends a request with no consent attached. The Equativ integration may not be configured to read the CMP, so the string sits on the page unused. Or Equativ may read the string but not forward it onward, so the demand partner receives a bid request with nothing in the regulatory fields. Each of these looks like a working page to a casual glance because ads still render, but the legal basis that should ride along with the request is missing.<br><br>On the demand side, a missing signal is not neutral. Under OpenRTB, the consent string travels in the regulatory object of the bid request, and a buyer that requires a legal basis reads that object before deciding whether to bid. When the field is empty, many buyers decline the impression rather than risk processing personal data without a basis, which suppresses competition and lowers what the impression clears. So a broken consent chain can cost revenue even before it becomes a compliance concern.<br><br>A few signs point to a consent string that is not captured or not forwarded:<ul><li>Equativ ad calls fire before the CMP has finished loading, so the consent string is not yet available when the request goes out</li><li>The Equativ integration is not configured to read the CMP API, so the string is never picked up</li><li>Bid requests reaching demand partners carry no consent string in the OpenRTB regulatory fields, which the demand partner or a Prebid-compatible wrapper can confirm</li></ul>You may want to confirm the string is both captured on the page and present in the request that reaches demand. One approach is to inspect a live ad call, read the consent string out of the request, and decode it to check that it reflects the choice the user made.",
+        "site_type_overlays": {
+          "publishing": "On a media site serving an audience across regions, the same page may need to produce a TCF string for European visitors and a GPP string for others. You may want to confirm the CMP is configured for every region the audience spans and that Equativ reads and forwards the right signal for each, rather than wiring only the region that drives the most traffic.",
+          "ecommerce": "On a commerce-content site, the same visitor may move between editorial pages and product or checkout pages, and the consent string should ride along consistently across all of them. You may want to confirm the CMP and the Equativ integration behave the same way on the commercial pages as on the editorial pages, so a logged consent choice is not lost when the user crosses into the shopping flow."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Europe TCF Specification",
+            "source_title": "GDPR Transparency and Consent Framework technical specifications",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework"
+          },
+          {
+            "source_type": "IAB Tech Lab GPP Specification",
+            "source_title": "Global Privacy Platform implementation guidelines",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/main/implementation.md"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management TCF module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementTcf.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect a live Equativ ad call to confirm the consent string is captured from the CMP and is present in the request that reaches demand, and check the timing so the call does not fire before the string is ready.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the page in a browser, open developer tools, and switch to the 'Network' tab.",
+                "Filter for the Equativ ad call requests and reload the page to capture the requests as they fire.",
+                "Inspect a request and look for the consent string in the parameters or payload (e.g., a 'gdpr' flag and a 'gdpr_consent' or 'gpp' value), and confirm a string is present rather than empty.",
+                "Check the order of events in the timeline to confirm the consent management platform (CMP) finished loading before the Equativ call fired, rather than after."
+              ]
+            },
+            "cmp_console": {
+              "label": "CMP API in the browser console",
+              "steps": [
+                "Open the browser console on the page and call the CMP's standard interface to read the current consent state (e.g., the '__tcfapi' function for TCF or the '__gpp' function for GPP).",
+                "Record the consent string the CMP returns and confirm it reflects the choice made in the consent banner.",
+                "Decode the string with a public TCF or GPP decoder to read which purposes and vendors it covers, and confirm Equativ is included where it should be."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the consent string is captured on the page, whether the Equativ call fires only after the CMP is ready, and whether the string is present in the request that reaches demand. A setup where the string is captured, the timing is correct, and the signal is forwarded passes. A setup where the string is missing from the ad call, the call fires before the CMP loads, or the demand-side request carries no consent string is a fail recorded with the link in the chain where the signal is lost.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the consent string is captured, whether the Equativ call waits for the CMP, and whether the string reaches demand above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not reliably capture the consent string and forward it to demand through Equativ, so bid requests can reach demand partners with no legal basis attached. Under OpenRTB, the Transparency and Consent Framework (TCF) or Global Privacy Platform (GPP) string travels in the regulatory fields of the request, and a demand partner that requires a basis reads those fields before bidding, so a missing string both suppresses demand and risks processing personal data without a recorded basis. {{voice_recommend}} confirming the consent management platform (CMP) loads before the Equativ call fires, configuring the Equativ integration to read the CMP, and verifying the string is present in a live ad call by decoding it. After the fix, recheck a sample of ad calls to confirm the string is captured and forwarded for every region the audience spans."
+      }
+    },
+    {
+      "id": "equativ-consent-signals-bid-requests-not-suppressed-without-consent",
+      "title": "Bid requests are not suppressed or limited where consent is absent",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 4,
+      "impact_rationale": "When a user declines consent and a legal basis is required, the bid request should be held back or stripped of personal data before it goes to demand. A setup that forwards the request unchanged sends personal data, such as a device identifier or precise location, with no basis to process it, which is the kind of gap a regulator acts on. Because it touches the impressions of users who have actively withheld consent, the exposure is concentrated and the impact is high.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Capturing the consent string is only half the work. The other half is acting on it. When a user in a region that requires a legal basis declines consent, or grants it only in part, the bid request that goes to demand should reflect that choice. Depending on the framework and the purposes withheld, that can mean suppressing the request entirely, removing personal data such as a device identifier or precise location before forwarding, or limiting the request to the purposes the user did allow. The consent string records the choice. The pipeline has to honor it.<br><br>Equativ, sitting between the publisher's page and demand, is one of the places that choice is enforced. A correctly wired setup reads the Transparency and Consent Framework (TCF) or Global Privacy Platform (GPP) string, checks the purposes and vendor permissions it carries, and shapes the outgoing bid request to match. A setup that reads the string but forwards every request unchanged defeats the purpose since the demand partner then receives personal data on a user who declined to allow it. The Global Privacy Platform implementation guidance is explicit that vendors are expected to decode the signal and consume it before processing, not simply pass it along.<br><br>The failure is harder to spot than a missing string because the request still carries a consent value. What it does not do is change behavior when that value says no. A publisher reviewing only whether a string is present would see a string and move on. The audit question is narrower. When consent is withheld, does the request that reaches demand actually carry less, or does it carry the same personal data it would have carried with full consent.<br><br>A few signs point to consent that is captured but not enforced:<ul><li>Bid requests for users who declined consent still carry a device identifier, precise location, or other personal data in the same fields as requests for users who consented</li><li>The Equativ integration reads the consent string but has no rule that suppresses or strips requests when a required purpose is withheld</li><li>Demand partners report receiving requests with a 'no consent' signal alongside the personal data that signal should have removed</li></ul>You may want to confirm the pipeline changes its behavior when consent is withheld, not just that a string is present. One approach is to set a test consent choice that declines the relevant purposes, then inspect the outgoing request to see whether the personal data was removed or the request was held back.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a no-consent choice from a European visitor should leave the outgoing request stripped of personal data or held back, while a consented visitor's request flows in full. You may want to test both states from the same placement so the comparison shows the request actually changes when consent is withheld, rather than carrying the same data in both cases.",
+          "ecommerce": "On a commerce-content site, product and checkout pages often gather more personal context than editorial pages, so enforcing a declined consent choice matters most there. You may want to confirm that a no-consent choice strips personal data from requests on the commercial pages specifically, where the data that should be withheld is most likely to be present."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab GPP Specification",
+            "source_title": "Global Privacy Platform implementation guidelines",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/main/implementation.md"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management GPP module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          },
+          {
+            "source_type": "IAB Europe TCF Specification",
+            "source_title": "GDPR Transparency and Consent Framework technical specifications",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Set a test consent choice that declines the relevant purposes, then inspect the outgoing Equativ bid request to confirm personal data is removed or the request is suppressed, rather than forwarded unchanged.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the page, decline consent in the consent banner (or decline the specific purposes that require a legal basis), and reload.",
+                "Open developer tools, switch to the 'Network' tab, and capture the Equativ ad call requests as they fire.",
+                "Inspect a request and check whether personal data, such as a device identifier or precise location, is still present despite the declined consent, or whether it has been removed.",
+                "Repeat with consent granted and compare the two requests to confirm the request actually changes between the consented and declined states."
+              ]
+            },
+            "cmp_console": {
+              "label": "CMP API in the browser console",
+              "steps": [
+                "Use the CMP's standard interface in the browser console to read the consent string for the declined state and decode it with a public TCF or GPP decoder.",
+                "Confirm the decoded string shows the relevant purposes or vendor permissions as withheld.",
+                "Match the withheld purposes against the data still present in the outgoing request to identify any personal data that should have been removed."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner compares the outgoing bid request for a declined-consent state against the request for a granted-consent state. A setup where the declined-consent request is suppressed or stripped of the personal data the withheld purposes cover passes. A setup where the declined-consent request carries the same personal data as the granted-consent request is a fail recorded with the data fields that should have been removed and the purposes that were withheld.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the outgoing request for a declined-consent state and a granted-consent state above, and note whether the personal data differs between them, to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} captures the consent string but does not change the outgoing bid request when consent is withheld, so demand partners receive personal data on users who declined to allow it. The Global Privacy Platform guidance expects a vendor to decode the consent signal and act on it, which means suppressing or stripping a request when a required purpose is withheld rather than forwarding it unchanged. {{voice_recommend}} testing a declined-consent choice, comparing the outgoing request against a consented one, and configuring the Equativ integration to remove personal data or hold back the request when the consent string says a required purpose is not allowed. After the change, retest both consent states to confirm the request carries less when consent is withheld."
+      }
+    }
+  ]
+}

@@ -1,0 +1,163 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "When a US visitor opts out of the sale or sharing of their data, that choice has to reach the demand buying through Equativ, or the publisher keeps monetizing inventory it no longer has the right to monetize that way. The signal travels through the GPP string the consent management platform builds, and a missing section or a flag that never gets read breaks the chain. This check is a review of the GPP sections and the opt-out flags already flowing through the setup, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "US state privacy laws give residents the right to opt out of the sale or sharing of their personal data, and that choice has to travel with the impression so the demand buying through Equativ can honor it. The Global Privacy Platform (GPP) is the IAB Tech Lab string that carries those signals, with a US national section and per-state sections that each encode whether the visitor opted out. This subcategory covers whether the right GPP sections reach Equativ and whether the opt-out of sale and share inside them is read and acted on rather than passed along and ignored. These checks confirm the consent signal is wired end to end, from the consent management platform that builds the string to the demand that has to respect it.",
+  "audit_checks": [
+    {
+      "id": "equativ-us-state-privacy-gpp-sections-not-passed",
+      "title": "US national and state GPP sections are not passed to demand",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "If the GPP string carrying the US national and state privacy sections never reaches Equativ and its demand, opt-out choices never travel with the impression. The publisher then monetizes inventory under sale or share terms a resident has refused, which is a compliance exposure under state law rather than a pricing inefficiency.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "The Global Privacy Platform (GPP) is the IAB Tech Lab string that carries a visitor's privacy choices from the page to the ad tech that has to honor them. A consent management platform (CMP) builds the string, and it can hold more than one section at once. There is a US national section, registered with the client-side prefix 'usnat', and a set of per-state sections for states that have passed their own privacy laws, each with its own section ID and prefix such as 'usde' for Delaware or 'usnj' for New Jersey. The string is a header followed by the encoded sections joined with tildes, where the header lists which sections are present.<br><br>For a publisher selling through Equativ, the GPP string has to reach the demand for the opt-out signals inside it to matter. In a Prebid setup the consent management GPP module fetches the string from the CMP and makes it available to bid adapters, which carry it into the bid request so each demand partner receives the sections that apply to the visitor. Equativ is Prebid-compatible, so the same flow applies when Equativ sits in the header-bidding stack. If the module is missing, misconfigured, or the CMP never supplies the applicable sections, the string never travels and the opt-out never arrives.<br><br>There is also a legacy signal worth checking for. The older US Privacy string, the four-character 'USP' value built for the California Consumer Privacy Act (CCPA), predates GPP. Prebid still carries it through a separate module, but it is no longer recommended since the contractual framework behind it lapsed in early 2024. A setup leaning on the legacy USP string alone, with no GPP sections flowing, is carrying a signal that demand may no longer act on.<br><br>A few signs point to GPP sections not reaching demand:<ul><li>The consent management GPP module is absent from the Prebid build, or present but never configured</li><li>The bid request reaching Equativ carries no GPP string, or a string whose header lists none of the US national or state sections</li><li>The setup still relies on the legacy US Privacy string alone with no GPP US sections present</li></ul>You may want to confirm that the CMP builds the applicable US national and state GPP sections and that they reach Equativ in the bid request. One approach is to inspect a live bid request from a US visitor and read the GPP header to see which sections are present.",
+        "site_type_overlays": {
+          "publishing": "On a media site, US traffic often spans many states, so the CMP may need to build the US national section alongside whichever state section matches the visitor. You may want to confirm the GPP module passes the section that applies to each visitor rather than a single hardcoded section, so a New Jersey reader and a Delaware reader each carry the right signal to Equativ.",
+          "ecommerce": "On a commerce-content site, the same US visitors who see ads may also be customers, so the privacy choice they make can carry weight beyond advertising. You may want to confirm the GPP sections reaching Equativ match the opt-out the visitor recorded on the storefront, so the advertising side honors the same choice the commerce side captured."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "Global Privacy Platform: Consent String Specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/main/Core/Consent%20String%20Specification.md"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management: GPP for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "US Privacy Consent Management Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementUsp.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the consent management platform builds the applicable US national and state GPP sections and whether they reach Equativ in the bid request.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the site as a US visitor and open the browser developer tools, then watch the network requests as the page loads.",
+                "Find the consent management platform call and confirm it returns a GPP string, then read the header to see which section IDs are present (e.g., 'usnat' for the US national section, or a state prefix such as 'usnj').",
+                "Find the bid request that goes to Equativ and confirm the GPP string travels with it, rather than being built on the page but never forwarded to demand."
+              ]
+            },
+            "prebid_debug": {
+              "label": "Prebid debugging",
+              "steps": [
+                "If the site runs Prebid, confirm the consent management GPP module is in the build and configured to read from the IAB-compatible consent management platform.",
+                "Inspect the bidder request object and read 'gppConsent' to confirm the GPP string and applicable section IDs are present and reach the Equativ adapter.",
+                "Check whether the setup also carries the legacy US Privacy string alone, which is no longer recommended, and note whether GPP sections are flowing alongside or in its place."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the consent management platform builds the applicable US national and state GPP sections and whether those sections reach Equativ in the bid request. A setup where the GPP string carries the US national or matching state section and travels to the Equativ demand passes. A setup where no GPP US section reaches demand, or where only the deprecated legacy US Privacy string is present, is a fail recorded with the sections that are missing.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which GPP sections the consent management platform builds and whether they reach Equativ above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Global Privacy Platform (GPP) sections carrying US privacy choices do not reach the demand buying through Equativ for {{site_name}}, so opt-out signals never travel with the impression. The GPP string holds a US national section and per-state sections that encode whether a visitor opted out, and demand can only honor that choice if the string reaches it in the bid request. {{voice_recommend}} confirming the consent management platform builds the applicable US national and state sections, adding the consent management GPP module to the Prebid build if it is missing, and verifying a live bid request to Equativ carries the GPP string. After the change, inspect a request from a US visitor to confirm the sections are present end to end."
+      }
+    },
+    {
+      "id": "equativ-us-state-privacy-opt-out-not-honored",
+      "title": "Opt-out of sale or share is passed but not honored",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "A GPP string can reach demand intact yet still be ignored if the opt-out flags inside it are never read and acted on. When a sale or share opt-out is present but the setup keeps syncing users and transmitting identifiers anyway, the publisher honors the letter of passing the signal while breaking the choice it represents, which is the same compliance exposure as never sending it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Passing the Global Privacy Platform (GPP) string to demand is the first half of honoring a privacy choice. The second half is reading the opt-out flags inside it and changing behavior when they are set. The US national section, prefixed 'usnat' and built to unify state laws into one string under the IAB Multi-State Privacy Agreement (MSPA), carries flags for whether the visitor opted out of the sale of their data and whether they opted out of sharing it for cross-context behavioral advertising. A setup that forwards the string but never acts on those flags treats the opt-out as a formality.<br><br>In a Prebid setup the activity controls do the acting. The GPP control module for the USNat string reads the section and applies conservative restrictions when the opt-out flags are set, and the US states control module translates each state section into the equivalent national representation so the same restrictions apply across jurisdictions. When a sale or share opt-out is present, Prebid suppresses the activities that would otherwise leak the visitor's data. It blocks user syncs and restricts transmitting first-party data and identifiers, while leaving the auction itself to run on contextual signals. Prebid never rewrites the GPP string, so it acts on whatever the consent management platform encoded.<br><br>Equativ is Prebid-compatible, so where Equativ sits in a Prebid header-bidding stack these activity controls govern what reaches it. The audit question is whether those controls are switched on and reading the opt-out, or whether the string flows past them untouched while syncs and identifier passing continue for visitors who refused them.<br><br>A few signs point to an opt-out that is passed but not honored:<ul><li>The GPP control modules for the USNat and US state strings are absent from the Prebid build, so no activity restrictions read the opt-out flags</li><li>User syncs and identifier passing continue for US visitors whose GPP section shows a sale or share opt-out</li><li>No record exists of which activities are restricted when the opt-out flags are set, so the behavior is untested</li></ul>You may want to confirm the activity controls read the sale and share opt-out flags and restrict the matching behavior. One approach is to set an opt-out in a test session and confirm the syncs and identifier passing that should stop actually stop.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the demand stack often carries several identity and user-sync partners, so an opt-out that is read in one place but not another still leaks the visitor's data. You may want to confirm the activity restrictions apply across every partner that would sync or receive identifiers, not just the primary demand path.",
+          "ecommerce": "On a commerce-content site, first-party identifiers tied to a known customer raise the stakes of an unhonored opt-out because the data passed is more directly identifying. You may want to confirm that when a sale or share opt-out is set, the setup stops passing those first-party identifiers to demand rather than continuing to send them."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "GPP Control Module: USNat String",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/gppControl_usnat.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid US Compliance Support for Header Bidding",
+            "source_url": "https://docs.prebid.org/features/mspa-usnat.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "GPP Control Module: US State Strings",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/gppControl_usstates.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the activity controls read the sale and share opt-out flags in the GPP string and restrict syncing and identifier passing when they are set.",
+        "tools": {
+          "free": {
+            "prebid_debug": {
+              "label": "Prebid debugging",
+              "steps": [
+                "Confirm the GPP control modules for the USNat string and the US state strings are in the Prebid build because these are the modules that read the opt-out flags and apply restrictions.",
+                "Set a sale or share opt-out in a test session through the consent management platform so the GPP string carries the opt-out flags.",
+                "Watch the network requests and confirm user syncs stop and first-party data and identifiers are no longer transmitted to the Equativ demand for that session."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "With an opt-out set, open the browser developer tools and compare the requests against a session with no opt-out.",
+                "Confirm that the sync pixels and identifier-bearing parameters present in the no-opt-out session are absent in the opt-out session.",
+                "Note any partner that continues to receive identifiers despite the opt-out, which points to a restriction that is not applied across the full demand stack."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the activity controls read the sale and share opt-out flags and whether syncing and identifier passing stop when the flags are set. A setup where an opt-out in a test session suppresses syncs and identifier passing to Equativ demand passes. A setup where the opt-out flags are present but syncs and identifier passing continue is a fail recorded with the activities that were not restricted.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the opt-out flags are read and whether syncing and identifier passing stop when they are set above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes the Global Privacy Platform (GPP) string to demand but does not act on the sale or share opt-out flags inside it, so syncing and identifier passing continue for visitors who refused them. Forwarding the string is only half of honoring the choice. The opt-out flags have to be read and the matching behavior restricted, which in a Prebid setup is the job of the GPP control modules for the USNat and US state strings. {{voice_recommend}} adding those control modules if they are missing, then setting an opt-out in a test session and confirming user syncs and identifier passing to Equativ stop. After the change, compare an opt-out session against a normal session to confirm the restricted activities are absent."
+      }
+    }
+  ]
+}

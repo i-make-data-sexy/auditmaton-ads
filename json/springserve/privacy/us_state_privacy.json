@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "A privacy signal that never reaches the demand SpringServe routes to is worse than no signal at all because the impression still serves while the opt-out the consumer made fails to travel with it. This check reads the Global Privacy Platform (GPP) configuration a channel owner already has in SpringServe and confirms that the US national and state sections are present and that the opt-out of sale and share is carried in the string sent downstream. It costs reading and reporting time rather than rebuild time, and the finding points to a concrete signaling gap a publisher can close before it becomes a compliance exposure across the supply chain.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "SpringServe routes video and Connected TV (CTV) impressions to direct-sold and programmatic demand, and the privacy signal that travels with each impression decides whether the consumer's choice reaches the parties that act on it. This subcategory is about US state privacy under the GPP, the framework the IAB Tech Lab built to carry the Multi-State Privacy Agreement (MSPA) US National string and the individual state strings through the supply chain. These checks confirm that the US national and applicable state sections are present in the GPP string SpringServe passes, and that an opt-out of the sale or share of personal information is encoded so it reaches the demand that needs to honor it.",
+  "audit_checks": [
+    {
+      "id": "springserve-us-state-privacy-gpp-sections-not-passed",
+      "title": "US national and state GPP sections are not passed to demand",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "When the GPP string carries no US national or state section, or carries a section that does not match the consumer's jurisdiction, the demand SpringServe routes to receives no privacy signal it can act on. The impression still serves, so the gap is invisible in delivery reporting while the opt-out the consumer made never travels with the impression, which turns a configuration omission into a compliance exposure across every downstream party.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "The Global Privacy Platform (GPP) is the IAB Tech Lab transport layer that carries privacy and consent signals through the digital supply chain. A GPP string is built from a header that acts as a table of contents and one or more discrete sections joined on a tilde character, where each section is scoped to a single regulatory body so jurisdictions can evolve their rules independently. For United States privacy, the relevant sections are the Multi-State Privacy Agreement (MSPA) US National section, which carries the client-side prefix 'usnat', and the individual state sections such as California, Colorado, Connecticut, and the states added since, each with its own prefix and its own section identifier.<br><br>SpringServe sits between the streaming or video property and the demand it routes to, so the GPP string SpringServe receives and forwards is what the consumer's privacy choice rides on. In a programmatic request the string travels in the OpenRTB 'regs.gpp' field, and an accompanying 'regs.gpp_sid' array names which section is in force for that transaction, which tells the receiving party which part of the string to read. If SpringServe forwards an impression with no GPP string, or with a string whose sections do not include the consumer's jurisdiction, the demand on the other end has nothing to apply.<br><br>The audit question is whether the GPP string SpringServe passes actually carries the US national and state sections that apply to the audience being served. A consent management platform on the publisher side encodes the string, and SpringServe needs to be configured to receive it and pass it through to demand intact. A break anywhere along that path, a missing consent management platform integration, a section that was never enabled, or a section identifier that does not match the audience, leaves the impression serving without a usable signal.<br><br>A few signs point to GPP sections not reaching demand:<ul><li>Bid requests leaving SpringServe carry no 'regs.gpp' value, or carry one with no US national or state section identifier in 'regs.gpp_sid'</li><li>The consent management platform encodes a US national or state section but SpringServe is not configured to read and forward it</li><li>Audiences in states with active privacy laws receive impressions whose GPP string names no matching section</li></ul>You may want to confirm that the GPP string SpringServe forwards carries the US national and applicable state sections for the audiences being served. One approach is to inspect outgoing requests for the 'regs.gpp' value and the 'regs.gpp_sid' array, then trace any gap back to the consent management platform integration or the SpringServe pass-through configuration.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, the audience often spans many states, so the GPP string needs to carry whichever US national or state section applies to each viewer rather than a single section fixed for all traffic. You may want to confirm that the consent management platform encodes the section for the viewer's jurisdiction and that SpringServe forwards it, so a viewer in a state with an active privacy law is not served under a string that names no matching section.",
+          "ecommerce": "On a commerce-content video property, the audience reaching product or shopping segments may carry a higher expectation that an opt-out of sale or share is respected because the content sits closer to a transaction. You may want to confirm that the GPP string on those segments carries the applicable US national and state sections, so the privacy choice travels with the higher-intent inventory rather than dropping where it matters most."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "GPP Consent String Specification (Core)",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/main/Core/Consent%20String%20Specification.md"
+          },
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "OpenRTB 2.6 (regs.gpp and regs.gpp_sid)",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/openrtb2.x/blob/main/2.6.md"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect the GPP string SpringServe forwards to demand and confirm it carries the US national and state sections that apply to the audiences being served, tracing any gap back to the consent management platform integration.",
+        "tools": {
+          "free": {
+            "request_inspection": {
+              "label": "Outgoing request inspection",
+              "steps": [
+                "Capture a sample of programmatic requests leaving SpringServe for audiences in states with active privacy laws.",
+                "For each sampled request, read the 'regs.gpp' value and confirm a string is present rather than empty.",
+                "Read the 'regs.gpp_sid' array and confirm it names a US national section ('usnat') or the applicable state section identifier for that audience.",
+                "Record any request where the GPP string is missing, or where the section identifier does not match the consumer's jurisdiction."
+              ]
+            },
+            "cmp_review": {
+              "label": "Consent management platform review",
+              "steps": [
+                "Confirm with the publisher which consent management platform encodes the GPP string and which US national and state sections it is configured to produce.",
+                "Check that SpringServe is configured to receive that string from the property and pass it through to demand without dropping or rewriting it.",
+                "Record any section the consent management platform produces that does not reach the outgoing request, which points to a pass-through gap."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, across a sample of outgoing requests for audiences in states with active privacy laws, whether a GPP string is present and whether 'regs.gpp_sid' names the US national or applicable state section. A setup where the string is present and carries the section matching the audience's jurisdiction passes. A setup where requests carry no GPP string, or carry a section that does not match the consumer's jurisdiction, is a fail recorded with the audiences and the missing sections.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a GPP string is present and which section it names for each sampled audience above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that requests leaving {{site_name}} reach demand without a Global Privacy Platform (GPP) string that carries the US national or applicable state section for the audience being served. The impression still serves, so the gap does not appear in delivery reporting, but the consumer's privacy choice never travels with it and the receiving demand has no signal it can act on. {{voice_recommend}} confirming that the consent management platform encodes the US national section ('usnat') and the state sections for the jurisdictions the audience spans, and that SpringServe passes the string through to demand intact in the OpenRTB 'regs.gpp' field with the matching identifier in 'regs.gpp_sid'. After the change, recheck a sample of outgoing requests to confirm the section now matches the audience's jurisdiction."
+      }
+    },
+    {
+      "id": "springserve-us-state-privacy-opt-out-not-honored",
+      "title": "Opt-out of sale or share is not honored in the signal sent downstream",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "A consumer can opt out of the sale or share of personal information, and the GPP string encodes that choice in the SaleOptOut and SharingOptOut fields. If SpringServe forwards a string where those fields do not reflect the opt-out the consumer made, the demand routed to treats the impression as eligible for sale or share against the consumer's stated choice, which is the exact outcome the privacy law was written to prevent.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Passing a Global Privacy Platform (GPP) string is the first step. Carrying the right values inside it is the second. The Multi-State Privacy Agreement (MSPA) US National section, and the matching fields in the state sections, encode a consumer's opt-out choices as discrete values that the demand downstream reads and acts on. Two of those values carry the core opt-out: SaleOptOut records whether the consumer requested to opt out of the sale of personal information, and SharingOptOut records the same for the sharing of personal information.<br><br>Each of those fields is encoded as a small integer with three states. A value of 1 means the consumer opted out, a value of 2 means the consumer did not opt out, and a value of 0 means the field is not applicable because no notice was provided. The distinction matters because a string that always reports 'did not opt out', or that leaves the field at 'not applicable' when an opt-out was actually made, carries a signal that contradicts the choice the consumer registered on the property.<br><br>SpringServe forwards whatever string the consent management platform hands it, so an opt-out fails to travel for one of two reasons. The consent management platform may encode the choice incorrectly, so the string itself is wrong before SpringServe ever sees it. Or SpringServe may pass a stale or default string that does not reflect the live choice for that impression. Either way, the demand routed to receives a SaleOptOut or SharingOptOut value that does not match the consumer's request, and it has no way to know the value is wrong.<br><br>A few checks confirm whether the opt-out is honored in the forwarded signal:<ul><li>Decode the GPP string from a request made by a consumer who opted out, and read the SaleOptOut and SharingOptOut values</li><li>Confirm the decoded values report 'opted out' rather than 'did not opt out' or 'not applicable' for that consumer</li><li>Compare the encoded value against the choice recorded on the property, so the string is checked against the actual request rather than assumed correct</li></ul>You may want to confirm that an opt-out registered on the property is reflected as 'opted out' in the SaleOptOut and SharingOptOut fields of the string SpringServe forwards. One approach is to decode the GPP string from a known opt-out and read those two fields directly, then trace any mismatch back to the consent management platform encoding or the SpringServe pass-through.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, a viewer who opts out through the on-screen privacy control expects that choice to follow the impression to whatever demand SpringServe routes it to. You may want to decode the GPP string for a viewer who opted out and confirm the SaleOptOut and SharingOptOut fields read 'opted out', so the choice made on the device is the choice the demand receives.",
+          "ecommerce": "On a commerce-content video property, an opt-out of sale or share carries weight because the audience sits closer to a transaction and the data attached to the impression can be more sensitive. You may want to confirm the opt-out fields are encoded correctly on those higher-intent segments specifically, so the consumer's choice is honored where the data is most likely to be acted on."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "MSPA US National Technical Specification (SaleOptOut and SharingOptOut)",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/main/Sections/US-National/IAB%20Privacy%E2%80%99s%20Multi-State%20Privacy%20Agreement%20(MSPA)%20US%20National%20Technical%20Specification.md"
+          },
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "GPP Consent String Specification (Core)",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/main/Core/Consent%20String%20Specification.md"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Decode the GPP string SpringServe forwards for a consumer who opted out, read the SaleOptOut and SharingOptOut fields, and compare them against the choice recorded on the property.",
+        "tools": {
+          "free": {
+            "gpp_decode": {
+              "label": "GPP string decode",
+              "steps": [
+                "Capture a request that originated from a session where the consumer opted out of the sale or share of personal information.",
+                "Decode the 'regs.gpp' string using a GPP decoder and locate the US national or applicable state section.",
+                "Read the SaleOptOut and SharingOptOut values and confirm each reads 1 ('opted out') rather than 2 ('did not opt out') or 0 ('not applicable').",
+                "Record any field that does not reflect the opt-out the consumer made for that session."
+              ]
+            },
+            "cmp_verification": {
+              "label": "Consent management platform verification",
+              "steps": [
+                "Confirm with the publisher how the consent management platform encodes a sale and share opt-out into the GPP string.",
+                "Check that SpringServe forwards the live string for the impression rather than a stale or default value.",
+                "Record any case where the consent management platform encodes the opt-out correctly but SpringServe forwards a string that does not match, which points to a pass-through gap."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner decodes the GPP string from one or more known opt-out sessions and records the SaleOptOut and SharingOptOut values that SpringServe forwarded. A setup where those fields read 'opted out' for a consumer who opted out passes. A setup where the fields read 'did not opt out' or 'not applicable' against a recorded opt-out is a fail recorded with the field that mismatched and whether the gap sits in the consent management platform encoding or the SpringServe pass-through.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the decoded SaleOptOut and SharingOptOut values against a known opt-out session above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Global Privacy Platform (GPP) string {{site_name}} forwards does not reflect a consumer's opt-out of the sale or share of personal information, so the SaleOptOut and SharingOptOut fields read something other than 'opted out' for a session where the consumer opted out. The demand SpringServe routes to reads those fields and treats the impression as eligible for sale or share against the choice the consumer made, which is the outcome the privacy law was written to prevent. {{voice_recommend}} decoding the string from a known opt-out, confirming the consent management platform encodes the opt-out as the value 1 in both fields, and confirming SpringServe forwards that live string rather than a stale or default one. After the fix, decode a fresh opt-out session to confirm both fields now read 'opted out'."
+      }
+    }
+  ]
+}

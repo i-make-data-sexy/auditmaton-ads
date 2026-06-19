@@ -1,0 +1,147 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Child-directed treatment decides whether ads served against kids programming carry personalized targeting and whether data tied to that audience flows to third parties. COPPA makes that a legal line, not a preference, so a misconfiguration on streaming inventory that reaches children carries regulatory exposure rather than lost revenue alone. The check reviews how SpringServe is configured for the inventory likely to reach minors, so it costs review time against the ad server and the demand routed through it, and the finding points to a concrete flag or data-handling setting the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "SpringServe serves video and Connected TV (CTV) inventory for publishers and channel owners, and some of that inventory carries content made for children. The Children's Online Privacy Protection Act (COPPA) restricts the collection, use, and disclosure of personal information from children under 13, and the rule reaches both services directed at children and general-audience services that have actual knowledge they are reaching children. This subcategory is about how the ad server treats inventory likely to reach minors, whether that inventory is flagged so personalized advertising and certain data uses are suppressed, and whether restricted data processing is applied where it should be. These checks confirm that the child-directed treatment is a deliberate configuration matched to the content rather than a default left in place.",
+  "audit_checks": [
+    {
+      "id": "springserve-child-directed-inventory-not-flagged",
+      "title": "Child-directed inventory is not flagged to suppress personalized advertising",
+      "category": "privacy",
+      "subcategory": "child_directed",
+      "impact_score": 4,
+      "impact_rationale": "When inventory that reaches children is not flagged as child-directed, the ad server can pass it into personalized advertising and let demand partners build on the data tied to it. The Children's Online Privacy Protection Act (COPPA) prohibits collecting and monetizing children's data without verifiable parental consent, so an unflagged kids channel is a regulatory exposure rather than a tuning problem, which is why this rates higher than a typical configuration check.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "SpringServe is a video and Connected TV (CTV) ad server, so the inventory it manages can include content made for children, for example a kids streaming channel or a family programming block. COPPA governs that content. It restricts the collection, use, and disclosure of personal information from children under 13, and it reaches both services directed at children and general-audience services that have actual knowledge they are reaching children. A publisher or channel owner running kids inventory through an ad server sits inside that rule.<br><br>The practical control is a child-directed flag on the inventory. When a request is marked as child-directed, the ad server and the demand it routes to are expected to treat it differently. Personalized advertising is suppressed, the identifiers and signals that feed targeting are withheld, and the impression is handled in a non-personalized way. When the flag is missing, the request looks like any other, so it can flow into personalized advertising and the demand partners receiving it can build audience and frequency data on an audience the law protects.<br><br>This is why the flag matters more than a typical pricing or targeting setting. The Federal Trade Commission's 2025 changes to the COPPA Rule require parents to opt in before a child's personal information is shared with third parties for targeted advertising, which makes personalized ads against unconsented child-directed inventory a direct compliance problem rather than a revenue trade. The audit question is whether the inventory that reaches children is identified and flagged, not whether it monetizes well.<br><br>A few signs point to child-directed inventory that is not flagged:<ul><li>A kids channel, family programming block, or app surface aimed at children carries no child-directed marking in SpringServe</li><li>Reporting shows personalized demand and audience-based line items filling impressions on inventory whose content is made for children</li><li>No record exists of which surfaces were reviewed for child-directed status or who confirmed it</li></ul>You may want to confirm that every surface carrying child-directed content is flagged so the ad server suppresses personalized advertising on it. One approach is to inventory the channels and apps by audience, mark each one that is child-directed or that reaches a known child audience, and confirm the demand routed to those surfaces honors the flag.",
+        "site_type_overlays": {
+          "publishing": "For a streaming publisher or broadcaster, a kids channel or a family programming block is the inventory most likely to fall under COPPA. You may want to flag those channels as child-directed in SpringServe and confirm that the personalized demand sources are excluded from them, so a children's audience is not handed to targeting that the rule prohibits without parental opt-in.",
+          "ecommerce": "For a commerce-content video service, product or how-to videos aimed at families or children, for example toy demonstrations or kids craft content, can reach a child audience even when the wider catalog does not. You may want to flag the child-directed segment of the catalog rather than the whole service, so the inventory that reaches children suppresses personalized advertising while the general-audience commercial inventory keeps its targeting."
+        },
+        "learn_more": [
+          {
+            "source_type": "FTC Business Guidance",
+            "source_title": "Children's Privacy",
+            "source_url": "https://www.ftc.gov/business-guidance/privacy-security/childrens-privacy"
+          },
+          {
+            "source_type": "FTC Business Guidance",
+            "source_title": "Complying with COPPA: Frequently Asked Questions",
+            "source_url": "https://www.ftc.gov/business-guidance/resources/complying-coppa-frequently-asked-questions"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which channels, programming blocks, and app surfaces carry content made for children, then check whether each is flagged as child-directed in SpringServe and whether personalized demand is suppressed on it.",
+        "tools": {
+          "free": {
+            "manual_inspection": {
+              "label": "SpringServe console and content review",
+              "steps": [
+                "List the channels, programming blocks, and app surfaces SpringServe serves, and note which carry content made for children or that reach a known child audience.",
+                "For each child-directed surface, open its setup in SpringServe and record whether a child-directed flag or equivalent restriction is set on the inventory.",
+                "Trace the demand routed to those surfaces and note whether personalized or audience-based demand sources are still eligible to fill them.",
+                "Record any child-directed surface that carries no flag, and any flagged surface that still shows personalized demand eligible, with the surface named."
+              ]
+            },
+            "springserve_reporting": {
+              "label": "SpringServe reporting",
+              "steps": [
+                "Build a report broken out by channel or supply tag for the surfaces identified as child-directed, with the demand sources and line items that filled them.",
+                "Note whether personalized or audience-based demand filled impressions on any child-directed surface, which points to the flag being absent or not honored.",
+                "Record the surfaces where the served demand does not match the child-directed treatment the content requires."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per surface that carries child-directed content, whether a child-directed flag is set in SpringServe and whether personalized demand is suppressed on it. A setup where every child-directed surface is flagged and serves only non-personalized demand passes. A setup where a child-directed surface carries no flag, or carries a flag but still fills with personalized demand, is a fail recorded with the surface and the demand affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which surfaces carry child-directed content and whether each is flagged and suppressing personalized demand above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} serves inventory carrying content made for children without flagging it as child-directed in SpringServe, so personalized advertising can fill those impressions. The Children's Online Privacy Protection Act (COPPA) restricts collecting and monetizing children's data, and the Federal Trade Commission's 2025 changes require parental opt-in before a child's information is shared with third parties for targeted advertising, so personalized demand against unflagged child-directed inventory is a compliance exposure rather than a revenue choice. {{voice_recommend}} flagging every surface that carries child-directed content, confirming the ad server suppresses personalized demand on it, and recording who reviewed each surface and when. After the change, recheck reporting to confirm only non-personalized demand fills the child-directed inventory."
+      }
+    },
+    {
+      "id": "springserve-child-directed-restricted-data-processing-not-applied",
+      "title": "Restricted data processing is not applied to inventory likely to reach minors",
+      "category": "privacy",
+      "subcategory": "child_directed",
+      "impact_score": 3,
+      "impact_rationale": "A child-directed flag suppresses personalized advertising, but the data tied to the request can still flow to demand partners unless processing is restricted as well. When restricted data processing is not applied to inventory likely to reach minors, identifiers and signals can be passed downstream even on flagged surfaces, which widens the audience whose data is handled beyond what the child-directed treatment intends.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Flagging inventory as child-directed and restricting how data is processed on it are two separate controls, and a publisher needs both. The flag tells the ad server and its demand to suppress personalized advertising. Restricted data processing governs what happens to the data attached to the request, the identifiers and signals that travel with an impression even when the ad shown is non-personalized. A surface can be flagged child-directed and still pass data downstream if processing is not restricted on it.<br><br>Inventory likely to reach minors is the scope here, and it is wider than the surfaces a publisher has formally classified as child-directed. A general-audience streaming service that carries a popular kids title, a family channel that mixes child and adult programming, or an app whose audience skews young can reach children even where the whole service is not directed at them. The Children's Online Privacy Protection Act (COPPA) reaches a general-audience service once it has actual knowledge it is collecting information from children under 13, so the data handling on that inventory matters, not only the formal classification.<br><br>Restricted data processing on this inventory means the request is handled so that the data tied to it is not used to build profiles, target on identifiers, or pass audience signals to third parties. SpringServe routes demand from multiple partners, so the restriction has to hold across the routing, not only at the point of the impression. The audit question is whether the data processing on inventory likely to reach minors is restricted to match the child-directed intent, or whether the flag is the only control and data still flows.<br><br>A few signs point to restricted data processing not being applied:<ul><li>Inventory is flagged child-directed but the demand routing still passes identifiers or audience signals to partners on those requests</li><li>General-audience surfaces that reach a known child audience carry no data-processing restriction because they were never formally classified as child-directed</li><li>No record exists of which surfaces have restricted data processing applied or how the restriction was confirmed across the demand partners</li></ul>You may want to confirm that restricted data processing is applied to every surface likely to reach minors, not only the formally child-directed ones, and that the restriction holds across the demand SpringServe routes. One approach is to identify the inventory with a known or likely child audience, apply the data-processing restriction to it, and confirm with each demand partner that the restriction is honored downstream.",
+        "site_type_overlays": {
+          "publishing": "For a streaming publisher or broadcaster, a general-audience service can still carry a kids title or a family block that reaches children, which brings actual knowledge into play under COPPA. You may want to apply restricted data processing to those segments specifically, so the identifiers and signals tied to a child audience are not passed to demand partners even where the wider service is general-audience.",
+          "ecommerce": "For a commerce-content video service, family-oriented or kids-oriented product content can reach a child audience inside an otherwise general-audience catalog. You may want to apply restricted data processing to that content segment, so the data attached to those impressions is not used to build profiles or passed to third parties, while the general-audience commercial inventory keeps its normal processing."
+        },
+        "learn_more": [
+          {
+            "source_type": "FTC Business Guidance",
+            "source_title": "Complying with COPPA: Frequently Asked Questions",
+            "source_url": "https://www.ftc.gov/business-guidance/resources/complying-coppa-frequently-asked-questions"
+          },
+          {
+            "source_type": "IAB Tech Lab Standards",
+            "source_title": "IAB Tech Lab Content Taxonomy",
+            "source_url": "https://iabtechlab.com/standards/content-taxonomy/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which surfaces are likely to reach minors, including general-audience inventory with a known child audience, then check whether restricted data processing is applied to them and whether the restriction holds across the demand SpringServe routes.",
+        "tools": {
+          "free": {
+            "manual_inspection": {
+              "label": "SpringServe console and demand review",
+              "steps": [
+                "List the surfaces likely to reach minors, including formally child-directed inventory and general-audience inventory with a known or likely child audience.",
+                "For each surface, open its setup in SpringServe and record whether restricted data processing or an equivalent data-handling restriction is applied.",
+                "Review the demand partners routed to those surfaces and record whether the restriction is configured to hold downstream for each partner.",
+                "Record any surface likely to reach minors that has no data-processing restriction, and any restriction that does not extend across all demand partners, with the surface and partner named."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per surface likely to reach minors, whether restricted data processing is applied and whether the restriction holds across the demand partners SpringServe routes to. A setup where every such surface has the restriction applied and confirmed across its demand passes. A setup where a surface likely to reach minors has no restriction, or has a restriction that does not extend to all demand partners, is a fail recorded with the surface and the partners affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which surfaces are likely to reach minors and whether restricted data processing is applied and honored across demand above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not apply restricted data processing to inventory likely to reach minors, so identifiers and audience signals can still flow to demand partners on those requests even where personalized advertising is suppressed. The Children's Online Privacy Protection Act (COPPA) reaches general-audience inventory once there is actual knowledge it reaches children under 13, so the data handling on that inventory matters as much as the child-directed flag. {{voice_recommend}} identifying every surface with a known or likely child audience, applying restricted data processing to it, and confirming with each demand partner that the restriction holds downstream. After the change, review the demand routing to confirm no identifiers or audience signals pass on the restricted inventory."
+      }
+    }
+  ]
+}

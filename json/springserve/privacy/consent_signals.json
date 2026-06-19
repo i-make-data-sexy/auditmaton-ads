@@ -1,0 +1,161 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "A consent signal that never reaches demand cannot protect the publisher or the buyer, and a bid request sent without a required legal basis exposes both. This check reads how SpringServe captures and forwards privacy signals and whether it holds back requests where consent is absent, so it costs reading and configuration time rather than rebuild time. The finding points to a concrete routing or gating decision the publisher can change inside the ad server.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "SpringServe sits between a publisher's video or Connected TV (CTV) inventory and the demand routed to it, which makes it the place where a user's privacy choice either reaches a buyer or stops short. This subcategory covers the privacy signals SpringServe receives from the page, app, or device and what it does with them, both forwarding the signal to demand and limiting requests where a legal basis is required and missing. These checks confirm that the consent a user gave, or withheld, travels with the request rather than getting dropped at the ad server.",
+  "audit_checks": [
+    {
+      "id": "springserve-consent-signals-not-forwarded-to-demand",
+      "title": "Consent signals are not captured and forwarded to demand",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 4,
+      "impact_rationale": "When a consent signal reaches SpringServe but does not pass through to the demand routed below it, every downstream buyer receives a request with no record of the user's choice. The buyer then processes personal data without the legal basis the publisher actually collected, which is a compliance exposure for both parties and a reason a buyer may refuse or under-bid the request.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "A privacy signal is only useful where it is carried. On the web, the Transparency and Consent Framework (TCF) string and the Global Privacy Platform (GPP) string encode whether a user consented to data processing and which jurisdiction applies. On Connected TV (CTV) and in apps, the equivalent signals arrive as device and app privacy values rather than a browser cookie. SpringServe receives one of these as part of the incoming ad request, and the question this check asks is whether SpringServe then carries that signal forward to the demand it routes the request to.<br><br>The forwarding step is where signals get lost. SpringServe serves both direct-sold and programmatic demand, and a programmatic request leaves the ad server as an OpenRTB bid request. The consent string belongs in that request, in the regs object that OpenRTB defines for privacy signals, so a buyer reading the request can see the user's choice and the applicable jurisdiction. If SpringServe drops the signal, the bid request still goes out, but it goes out silent. The buyer cannot tell whether consent was given, withheld, or never collected, so the buyer either treats the request as no-consent and under-bids it or processes it without a basis the publisher can stand behind.<br><br>For CTV and app inventory the same logic holds with different fields. The device-level privacy signal the streaming app or device passes in needs to map onto the privacy fields SpringServe forwards downstream, rather than being read at the front door and discarded before the request leaves.<br><br>A few signs point to consent signals not being forwarded:<ul><li>Incoming requests carry a TCF or GPP string, e.g., a 'gdpr' flag and a consent string, but outgoing bid requests show no privacy signal in the regs object</li><li>CTV or app requests arrive with a device privacy signal that does not appear in the request SpringServe routes to demand</li><li>Demand partners report receiving no-consent or unknown-consent traffic from this seller despite the publisher's consent management platform collecting choices</li></ul>You may want to confirm that the consent string a user's request arrives with is the same signal SpringServe forwards to every demand path below it. One approach is to capture a sample incoming request and the matching outgoing request and compare the privacy fields across both.",
+        "site_type_overlays": {
+          "publishing": "For a streaming service or broadcaster, the consent or device privacy signal usually originates in the app or the CTV environment rather than a browser, so the forwarding path runs from the player into SpringServe and on to demand. You may want to trace a CTV request end to end and confirm the device privacy value the app collected reaches the OpenRTB regs object SpringServe sends downstream, rather than stopping at the ad server.",
+          "ecommerce": "For a commerce-content video property, such as product or how-to video that runs alongside a storefront, the web consent string from the site's consent management platform is the signal SpringServe receives. You may want to confirm that the TCF or GPP string the site collects on the page hosting the video player is the same string SpringServe forwards to the demand routed against that inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform: Explained",
+            "source_url": "https://iabtechlab.com/global-privacy-platform-explained/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB (Real-Time Bidding)",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          },
+          {
+            "source_type": "IAB Europe",
+            "source_title": "The Transparency & Consent Framework (TCF)",
+            "source_url": "https://iabeurope.eu/tcf/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for forwarding privacy signals to demand is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Capture a sample of incoming ad requests and the matching outgoing requests SpringServe routes to demand, then compare the privacy fields across both to see whether the consent signal survives the hop.",
+        "tools": {
+          "free": {
+            "request_capture": {
+              "label": "Request and response inspection",
+              "steps": [
+                "On a web property, load a page with the video player and use the browser developer tools 'Network' tab to capture the ad request SpringServe receives, noting the TCF or GPP consent string and any 'gdpr' flag it carries.",
+                "On CTV or app inventory, use a proxy or the device's network logging to capture the request reaching SpringServe and note the device privacy signal it carries.",
+                "Capture the outgoing bid request SpringServe sends to a programmatic demand partner for the same impression, and read the regs object for the consent string and jurisdiction flag.",
+                "Compare the incoming signal against the outgoing signal and record whether the consent string and jurisdiction flag are present, absent, or altered in the request SpringServe forwards."
+              ]
+            },
+            "demand_partner_feedback": {
+              "label": "Demand partner reporting",
+              "steps": [
+                "Ask each programmatic demand partner whether the requests they receive from this SpringServe seller carry a consent signal, and record what they report.",
+                "Note any partner reporting no-consent or unknown-consent traffic despite the publisher's consent management platform collecting choices, which points to a signal dropped before the request left the ad server."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per demand path, whether the consent signal present on the incoming request also appears in the outgoing request SpringServe forwards. A setup where the TCF or GPP string and jurisdiction flag, or the device privacy signal for CTV and app, carry through to every demand path passes. A setup where a signal present on the incoming request is missing or altered on the outgoing request is a fail recorded with the demand paths affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the incoming and outgoing privacy signals for each demand path above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} receives a consent signal on incoming ad requests but does not forward it to the demand SpringServe routes those requests to, so downstream buyers receive bid requests with no record of the user's choice. The Transparency and Consent Framework (TCF) string and the Global Privacy Platform (GPP) string belong in the OpenRTB regs object, and when SpringServe drops them the buyer cannot tell whether consent was given or withheld. {{voice_recommend}} mapping the consent string and jurisdiction flag from the incoming request onto the privacy fields SpringServe forwards downstream, including the device privacy signal for Connected TV (CTV) and app inventory, so the signal survives every demand hop. After the change, capture a sample incoming and outgoing request and confirm the privacy fields match across both."
+      }
+    },
+    {
+      "id": "springserve-consent-signals-requests-not-gated-without-consent",
+      "title": "Requests are not limited where consent is absent and a legal basis is required",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 3,
+      "impact_rationale": "Forwarding the signal is only half the obligation. Where a jurisdiction requires consent before personal data is processed and that consent is absent, sending a personalized or data-carrying request anyway processes data without a basis. A setup that forwards a no-consent signal but takes no action on it leaves the publisher relying on every downstream party to honor a signal the ad server itself ignored.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Carrying a consent signal forward and acting on it are two different obligations. The first check confirms the signal reaches demand. This check asks what SpringServe does when the signal says consent was not given in a jurisdiction that requires it before personal data is processed. Forwarding a no-consent signal is correct, but forwarding it while sending the same data-carrying request as a consented user does means the ad server has read the user's choice and then ignored it.<br><br>Under the EU's General Data Protection Regulation (GDPR), signaled through the Transparency and Consent Framework (TCF), and under the US state signals carried in the Global Privacy Platform (GPP) string, a missing or negative consent does not always mean no ad can serve. It means the request cannot rely on consent as the legal basis for processing personal data. The practical response inside the ad server is to limit what the request carries and where it goes, for example by withholding personal identifiers, restricting the request to demand that does not depend on consent, or declining to route the request to partners that require a consented basis. The aim is to keep the request inside the basis that actually applies rather than treat every impression as fully consented.<br><br>On Connected TV (CTV) and in apps the same gating applies to the device privacy signal. A device signaling that the user opted out of data processing should not produce a downstream request built as though the user opted in.<br><br>A few signs point to requests not being limited where consent is absent:<ul><li>Requests carrying a no-consent or opt-out signal leave SpringServe identical to fully consented requests, with the same identifiers and the same demand routing</li><li>No rule or setting limits which demand a no-consent request is offered to, so it goes to partners that require a consented basis</li><li>The publisher cannot describe what changes about a request when the consent signal is negative</li></ul>You may want to confirm that a no-consent request behaves differently from a consented one inside SpringServe. One approach is to send a test request with a negative consent signal and read what identifiers and demand routing the resulting downstream request carries compared with a consented test request.",
+        "site_type_overlays": {
+          "publishing": "For a streaming service or broadcaster, a CTV device signaling an opt-out should reduce what the downstream request carries rather than route the same identifiers as a consented session. You may want to compare a test CTV request built from an opted-out device against one from a consented device and confirm SpringServe limits the identifiers and demand routing on the opted-out request.",
+          "ecommerce": "For a commerce-content video property, a visitor who declined consent through the site's consent management platform should not feed a downstream request built for personalized demand. You may want to confirm that a no-consent web session restricts SpringServe to demand that does not depend on a consented basis rather than offering the impression to every partner."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Europe",
+            "source_title": "The Transparency & Consent Framework (TCF)",
+            "source_url": "https://iabeurope.eu/tcf/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Protocol",
+            "source_url": "https://iabtechlab.com/gpp/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for gating requests on consent is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Send matched test requests, one carrying a consented signal and one carrying a no-consent or opt-out signal, and compare what identifiers and demand routing each produces downstream.",
+        "tools": {
+          "free": {
+            "matched_request_test": {
+              "label": "Matched consent test",
+              "steps": [
+                "Build a test request for a web property that carries a valid consented TCF or GPP string and capture the downstream request SpringServe produces, noting the identifiers and the demand it is routed to.",
+                "Build a matching test request that carries a no-consent or opt-out signal for the same inventory and capture the downstream request the same way.",
+                "On CTV or app inventory, repeat the comparison using a device privacy signal set to opted-in and then to opted-out.",
+                "Compare the two downstream requests and record whether the no-consent request limited its identifiers and demand routing or left them identical to the consented request."
+              ]
+            },
+            "rule_review": {
+              "label": "Ad server rule review",
+              "steps": [
+                "Review the SpringServe settings or rules that govern how requests are routed to demand, and note whether any rule reads the consent signal to limit routing.",
+                "Record whether a no-consent request is restricted to demand that does not require a consented basis or whether it is offered to the same partners as a consented request.",
+                "Ask the publisher to describe what changes about a request when the consent signal is negative, and record the answer against what the test requests showed."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records what a no-consent or opt-out request carries downstream compared with a consented request for the same inventory. A setup where the no-consent request limits its identifiers, its demand routing, or both, in line with the jurisdiction the signal names, passes. A setup where a no-consent request leaves SpringServe identical to a consented request, with the same identifiers and the same demand partners, is a fail recorded with the inventory and jurisdictions affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the downstream identifiers and demand routing for a consented and a no-consent request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} routes a no-consent request through SpringServe the same way it routes a consented one, with the same identifiers and the same demand partners, in jurisdictions that require consent before personal data is processed. Forwarding the signal is necessary, but sending an identical data-carrying request regardless of the signal means the ad server reads the user's choice and then ignores it. {{voice_recommend}} adding a rule in SpringServe that limits a no-consent request, for example by withholding personal identifiers or restricting it to demand that does not require a consented basis, and applying the same gating to the device privacy signal on Connected TV (CTV) and app inventory. After the change, send a matched consented and no-consent test request and confirm the no-consent request carries less downstream."
+      }
+    }
+  ]
+}

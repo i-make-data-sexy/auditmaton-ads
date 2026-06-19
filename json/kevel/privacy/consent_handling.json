@@ -1,0 +1,159 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://dev.kevel.com/docs/gdpr-compliance-and-consent-settings",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Consent handling decides whether a publisher running a Kevel-powered ad server processes EU user data lawfully, so a gap here is a compliance exposure rather than a yield question. The GDPR consent state is set per UserKey and defaults to false unless recorded, and Kevel suppresses personalized features when consent is absent. The check is a review of how consent reaches Kevel and whether it is honored on live Decision requests, so it costs reading and request-inspection time rather than rebuild time, and the finding points to a concrete fix in the consent flow.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Consent handling covers how a publisher captures user consent and passes it to Kevel so the ad server honors it on every Decision request. Kevel records General Data Protection Regulation (GDPR) consent per UserKey, defaults it to false unless it is explicitly set, and suppresses personalized targeting, frequency capping, and UserDB use when consent is absent for regulated traffic. This subcategory is about the consent flow itself, whether consent is recorded and read rather than left at the default, and whether requests from a consent region with no recorded consent are handled so user data is not used. These checks confirm that consent is a deliberate, verified part of the ad request rather than an assumption.",
+  "audit_checks": [
+    {
+      "id": "kevel-consent-handling-not-recorded-or-honored",
+      "title": "GDPR consent is not recorded per user and honored on Decision requests",
+      "category": "privacy",
+      "subcategory": "consent_handling",
+      "impact_score": 3,
+      "impact_rationale": "Kevel defaults General Data Protection Regulation (GDPR) consent to false unless it is set, and it honors that value when the UserKey is used, so an ad server that never records consent runs every regulated user as non-consenting or, worse, processes data it has no consent for if the default is misunderstood. Without a recorded consent state read on each Decision request, the publisher cannot show that lawful processing is tied to an actual consent signal.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
+      "educate": {
+        "base": "Kevel records a user's GDPR consent state per UserKey, the identifier carried in the 'azk' cookie that ties a request to that user's UserDB record. Consent can reach Kevel three ways: as a 'consent' object on the Decision API request, through a JavaScript call when the ads are served with ados.js, or as a stored value on the UserDB record set through the consent endpoint. When consent is stored on the record, it travels with the UserKey and does not need to be sent on every request.<br><br>The value defaults to false for regulated traffic unless it is explicitly set, and Kevel honors whatever is recorded when the UserKey is used. That default matters. An ad server that never captures consent and never sets it leaves every regulated user at false, so personalized features stay off even for users who did consent, and the consent management platform (CMP) the publisher already runs has no effect on serving. The opposite failure is more serious. A publisher who assumes consent is granted by default, and who does not realize the platform's actual default is false, may build a flow that sends true without a real signal behind it, which records consent that the user never gave.<br><br>The audit question is whether a real consent signal is captured and passed to Kevel, and whether the recorded value is read on live Decision requests rather than assumed. A few signs point to consent that is not recorded or honored:<ul><li>No consent reaches Kevel on Decision requests, and no consent value is stored on UserDB records, so regulated users run at the default of false</li><li>The publisher's CMP collects a choice but that choice is never mapped to a Kevel consent signal, so the two systems are disconnected</li><li>A consent value is sent as a fixed true on every request with no tie to the user's actual CMP choice</li></ul>You may want to confirm that the consent recorded in Kevel reflects a real user choice from the CMP, and that the value is present on the Decision request or the UserDB record for regulated users. One approach is to trace a known consenting user and a known non-consenting user through to a live Decision response and confirm each is treated according to the choice they made.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, the consent signal usually originates in the publisher's CMP banner. You may want to confirm that the banner's accept-or-reject choice is mapped to a Kevel consent value, either on each Decision request or stored on the UserDB record, so a reader who rejects is recorded as non-consenting and a reader who accepts is recorded as consenting rather than both running at the default of false.",
+          "ecommerce": "For a retailer running sponsored-product ads on its own site or app through Kevel, the consent choice often lives in the same CMP that governs the rest of the storefront. You may want to confirm that the storefront's consent state is passed to Kevel for the ad server specifically, so a shopper's choice on the retail-media ads matches the choice they made for the site, rather than the ad server defaulting every regulated shopper to non-consenting."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "GDPR Compliance and Consent Settings",
+            "source_url": "https://dev.kevel.com/docs/gdpr-compliance-and-consent-settings"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "GDPR Consent Endpoint",
+            "source_url": "https://dev.kevel.com/reference/gdpr-consent"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether a consent value reaches Kevel for regulated users, where it is set, and whether the recorded value is honored on a live Decision request.",
+        "tools": {
+          "free": {
+            "kevel_decision_api": {
+              "label": "Kevel Decision API",
+              "steps": [
+                "Capture a Decision API request from a regulated user and check whether it carries a 'consent' object with a 'gdpr' value, or whether consent is expected to come from a stored UserDB record instead.",
+                "For a known consenting user, confirm the Decision response returns personalized treatment, and for a known non-consenting user, confirm it does not.",
+                "Note whether the consent value on the request, or on the UserDB record the request resolves to, reflects a real CMP choice rather than a fixed value or the default."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "Use the consent endpoint and UserDB read for a sample UserKey to check whether a consent value is stored on the user record.",
+                "Confirm whether stored consent values exist for regulated users or whether records carry no consent value, which leaves those users at the default of false.",
+                "Record which path the publisher relies on, request-level consent or stored UserDB consent, and whether it is populated."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a consent value reaches Kevel for regulated users, where it is set (on the Decision request or on the UserDB record), whether that value maps to a real CMP choice, and whether a live Decision response honors it. A setup where a real consent signal is captured, passed to Kevel, and reflected in the Decision response passes. A setup where no consent reaches Kevel and regulated users run at the default, or where a fixed value is sent with no tie to the user's choice, is a fail recorded with the path and the users affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a consent value reaches Kevel, where it is set, and whether a Decision response honors it above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not record General Data Protection Regulation (GDPR) consent per user in Kevel or honor it on Decision requests, so regulated users run at the platform's default consent value of false rather than a value tied to a real choice. Kevel records consent per UserKey and honors whatever is set when that UserKey is used, so a disconnected consent flow either suppresses personalization for users who did consent or, if a fixed value is sent, records consent the user never gave. {{voice_recommend}} mapping the consent management platform choice to a Kevel consent signal, passing it on the Decision request or storing it on the UserDB record, and confirming a live Decision response treats a consenting and a non-consenting user according to the choice each made."
+      }
+    },
+    {
+      "id": "kevel-consent-handling-no-consent-region-not-suppressed",
+      "title": "Requests from a consent region with no recorded consent do not suppress personalization and UserDB use",
+      "category": "privacy",
+      "subcategory": "consent_handling",
+      "impact_score": 3,
+      "impact_rationale": "When a request comes from a General Data Protection Regulation (GDPR) consent region and no consent is recorded, personalized targeting, frequency capping, and UserDB reads and writes should be suppressed. If the ad server still treats these users as consenting, it processes and stores personal data without a lawful basis, which is the exposure the consent default exists to prevent.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
+      "educate": {
+        "base": "A user in a GDPR consent region who has not recorded consent should be served without their personal data being used. Kevel's behavior for these users, when consent is absent, is to withhold personalization: it does not store data in the user's UserDB record, it does not set Kevel-related cookies, and it disables frequency capping and real-time bidding (RTB) user matching. Personally identifying information (PII) such as the internet protocol (IP) address, user-agent string, and latitude and longitude is stripped from RTB requests for non-consenting EU traffic.<br><br>That suppression only holds if the request is correctly identified as regulated and as lacking consent. Two things can break it. First, the request may not be flagged as GDPR-subject. Kevel will treat a request as regulated based on the consent settings in play, and a publisher can also declare a user as GDPR-subject regardless of the IP geolocation. If neither the geolocation nor an explicit flag marks the user as regulated, the suppression Kevel applies to non-consenting EU traffic does not engage. Second, the request may carry a consent value that is set to true without a real signal behind it, which tells Kevel the user consented and turns the personalization back on.<br><br>The result either way is a regulated user whose data is used despite no consent: a UserDB record written, a cookie set, frequency capping and RTB matching active, and PII passed downstream. The audit question is whether requests from a consent region with no recorded consent actually fall into Kevel's suppressed path. A few signs point to suppression not engaging:<ul><li>Regulated users with no consent still have UserDB records written or Kevel cookies set, which means the no-consent path is not taken</li><li>Requests from consent regions are not flagged as GDPR-subject, so Kevel does not apply the regulated treatment</li><li>A default or fixed consent of true is applied to traffic that should be running without consent, which re-enables personalization</li></ul>You may want to confirm that a regulated user with no recorded consent is served without UserDB writes, without Kevel cookies, and without personalized targeting. One approach is to send a test Decision request that represents a consent-region user with no consent and inspect the response and the resulting user record to confirm nothing personal was stored or used.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app, an EU reader who closes the consent banner without accepting should be served contextually, with no UserDB record written and no personalized targeting. You may want to confirm that a Decision request representing this reader is flagged as GDPR-subject and that the response shows no frequency-capped or user-matched targeting, so a reader who never consented is not profiled.",
+          "ecommerce": "For a retailer running sponsored-product ads through Kevel, an EU shopper who declines consent should still see sponsored products, but chosen by context such as the category page rather than by stored shopper data. You may want to confirm that a declining shopper's Decision request suppresses UserDB reads and writes, so the sponsored-product slots fill without using personal data the shopper did not agree to share."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "GDPR for Kevel",
+            "source_url": "https://dev.kevel.com/docs/gdpr-kevel"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "GDPR Compliance and Consent Settings",
+            "source_url": "https://dev.kevel.com/docs/gdpr-compliance-and-consent-settings"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review how Kevel treats a request from a consent region with no recorded consent, and confirm that personalization and UserDB use are suppressed for that traffic.",
+        "tools": {
+          "free": {
+            "kevel_decision_api": {
+              "label": "Kevel Decision API",
+              "steps": [
+                "Send a Decision API request that represents a consent-region user with no recorded consent, flagged as GDPR-subject, and inspect the response for any personalized, frequency-capped, or user-matched targeting.",
+                "Confirm the response does not return targeting that depends on stored user data, which would indicate the no-consent suppression did not engage.",
+                "Repeat for a request that is not explicitly flagged as regulated to check whether geolocation alone marks the user as GDPR-subject or whether suppression is skipped."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "Read the UserDB record for the test UserKey after the non-consenting request and confirm no data was written for that user.",
+                "Check whether a Kevel-related cookie was set on the non-consenting request, which should not happen when consent is absent in a regulated region.",
+                "Record whether the no-consent request resulted in any stored data, which points to suppression not taking effect."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner sends a Decision request that represents a consent-region user with no recorded consent and records whether personalized targeting, frequency capping, and real-time bidding (RTB) matching are suppressed, whether a UserDB record was written, and whether a Kevel cookie was set. A setup where the non-consenting regulated request returns contextual treatment with no UserDB write and no cookie passes. A setup where personalization stays active, a record is written, or a cookie is set for that request is a fail recorded with the evidence from the response and the user record.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the Decision response and the resulting user record for a non-consenting consent-region request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that requests from a General Data Protection Regulation (GDPR) consent region with no recorded consent are not suppressed on {{site_name}}, so personalized targeting, frequency capping, and UserDB reads and writes stay active for users who have not consented. When consent is absent for regulated traffic, Kevel withholds personalization, skips UserDB writes, sets no Kevel cookies, and strips personally identifying information from real-time bidding requests, but that path only engages when the request is flagged as regulated and carries no consent value. {{voice_recommend}} sending a test Decision request for a consent-region user with no consent, confirming the response returns contextual treatment with no UserDB record written and no cookie set, and flagging regulated traffic as GDPR-subject where geolocation alone does not."
+      }
+    }
+  ]
+}

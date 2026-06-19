@@ -1,0 +1,164 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://www.ftc.gov/business-guidance/resources/complying-coppa-frequently-asked-questions",
+  "worth_it": "Yes",
+  "worth_it_explanation": "When inventory reaches children, COPPA sets hard limits on collecting and using their data, and a headless ad server pushes the responsibility for honoring those limits onto the operator who builds on it. This check is a review of how the Kevel setup treats child-directed traffic, so it costs reading time against the configuration rather than a rebuild, and a gap here carries regulatory exposure that a publisher or retail-media operator may want to close before it serves another impression.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "This subcategory covers how a Kevel setup handles inventory directed at children. Kevel is a headless, Application Programming Interface (API) first ad server, so the operator builds the targeting and data logic on top of the Decision API and UserDB rather than configuring a packaged product. That design means the Children's Online Privacy Protection Act (COPPA) obligations for child-directed inventory fall to the operator, not to a setting a vendor toggled for them. These checks confirm that traffic known to reach children suppresses UserDB profiling and personalized targeting, and that personal data is not collected through UserDB for users known to be children.",
+  "audit_checks": [
+    {
+      "id": "kevel-child-directed-profiling-not-suppressed",
+      "title": "Child-directed inventory does not suppress UserDB profiling and personalized targeting",
+      "category": "privacy",
+      "subcategory": "child_directed",
+      "impact_score": 3,
+      "impact_rationale": "Inventory directed at children that still runs behavioral targeting relies on profiling data the Children's Online Privacy Protection Act (COPPA) restricts. Because Kevel is headless, the operator alone decides whether a child-directed request passes interest and behavioral data into the decision, so a request that carries a profiling UserKey into a child-directed placement targets on data that should not have been used, which is a compliance gap the operator owns end to end.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
+      "educate": {
+        "base": "Kevel is a headless, Application Programming Interface (API) first ad server. The operator who builds on it constructs each ad request through the Decision API and decides what user data rides along with it. UserDB is Kevel's user-level store, holding interests, custom properties, and behavioral history keyed to a UserKey, and the decision can read that record to serve interest-based, demographic, or retargeted ads. For most inventory that is the point of UserDB. For inventory directed at children, COPPA treats behavioral advertising built on that kind of profiling data as a use that needs verifiable parental consent, so the safer pattern is to serve child-directed placements without it.<br><br>Because Kevel is headless, nothing suppresses profiling on a child-directed request unless the operator builds that suppression in. A request can pass a populated UserKey into a placement aimed at children, and Kevel will read the UserDB record and target on it as instructed because the platform follows the request it is given. The audit question is whether the operator has a deliberate rule that strips behavioral and interest targeting from child-directed traffic, or whether those requests run the same profiling path as the rest of the inventory.<br><br>A few patterns suppress profiling on a child-directed request:<ul><li>Omits the UserKey, or sends a request that carries no UserDB lookup, so no interest or behavioral data enters the decision</li><li>Routes child-directed placements to flights and ad types that target on context, such as the page or app section, rather than on user-level data</li><li>Sets a flag in the operator's own request layer that marks the traffic as child-directed and removes interest, retargeting, and behavioral targeting before the call reaches the Decision API</li></ul>You may want to confirm that a known-child-directed request runs without behavioral or interest targeting. One approach is to send a Decision API request that mirrors a child-directed placement and inspect the returned decision to see whether it was matched on user-level data or on context alone.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, sections aimed at younger audiences, such as a kids' games area or a children's video hub, are the child-directed inventory. You may want to confirm that requests from those sections suppress the UserKey or route to context-targeted flights, so the same profiling that personalizes the general site does not reach the placements built for children.",
+          "ecommerce": "For a retailer running sponsored-product ads on its own site or app through Kevel, child-directed inventory shows up in toy, kids' apparel, or children's media categories where the shopper or viewer may be a child. You may want to confirm that sponsored-product requests in those categories drop interest and behavioral targeting and match on the category context instead, rather than profiling a user who may be a child."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "UserDB",
+            "source_url": "https://dev.kevel.com/docs/userdb-1"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "GDPR Compliance and Consent Settings",
+            "source_url": "https://dev.kevel.com/docs/gdpr-compliance-and-consent-settings"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review how child-directed placements build their Decision API requests and confirm whether those requests carry UserDB profiling data or suppress it.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open the Kevel dashboard and list the flights and ad types serving the placements you have identified as child-directed.",
+                "For each, note whether targeting is set on interests, custom properties, or retargeting segments, or only on contextual signals such as site, zone, or keyword.",
+                "Record which child-directed placements rely on user-level targeting that would draw on a UserDB profile."
+              ]
+            },
+            "kevel_decision_api": {
+              "label": "Kevel Decision API",
+              "steps": [
+                "Send a Decision API request that mirrors a child-directed placement, including a UserKey that has a populated UserDB record, to reproduce how the live integration calls Kevel.",
+                "Inspect the returned decision and note whether the matched ad was selected on interest, behavioral, or retargeting data rather than on context alone.",
+                "Repeat with the UserKey removed and compare the decisions, then record whether the operator's request layer strips profiling for child-directed traffic or passes it through unchanged."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per child-directed placement, whether its Decision API request suppresses UserDB profiling, by omitting the UserKey or routing to context-targeted flights, or whether it passes interest, behavioral, or retargeting data into the decision. A setup where child-directed traffic runs on context alone passes. A setup where a child-directed placement targets on user-level profiling data is a fail recorded with the placement and the targeting it used.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether each child-directed placement suppresses UserDB profiling or passes it into the decision above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} serves child-directed inventory on Kevel without suppressing UserDB profiling, so requests from those placements still pass interest, behavioral, or retargeting data into the decision. Kevel is headless, so the Decision API serves whatever user data the request carries, which means a child-directed placement targets on profiling data the Children's Online Privacy Protection Act (COPPA) restricts unless the operator strips it first. {{voice_recommend}} adding a rule in the request layer that marks child-directed traffic and removes interest, behavioral, and retargeting targeting before the call reaches Kevel, then routing those placements to context-targeted flights. After the change, replay a child-directed request and confirm the returned decision matched on context rather than on a UserDB profile."
+      }
+    },
+    {
+      "id": "kevel-child-directed-personal-data-collected",
+      "title": "Personal data is collected through UserDB for users known to be children",
+      "category": "privacy",
+      "subcategory": "child_directed",
+      "impact_score": 4,
+      "impact_rationale": "Collecting personal data through UserDB from users known to be children, without verifiable parental consent, is the core practice the Children's Online Privacy Protection Act (COPPA) prohibits, so it is a catastrophic gap rather than a hygiene issue. Because the operator controls what each Decision API request writes to UserDB on a headless platform, a child-directed request that records demographics, interests, or identifiers builds a profile that should not exist, and the operator carries the regulatory exposure for it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
+      "educate": {
+        "base": "UserDB writes as well as reads. A Decision API request can record interests against a UserKey as a user interacts with ad categories, and the operator can push custom properties, such as age, gender, or location, and identifiers into the record directly through the API. Those writes build the profile that later requests target against. For users known to be children, COPPA treats that collection of personal information, which includes persistent identifiers used to recognize a user over time, as something that needs verifiable parental consent before it happens.<br><br>On a headless ad server the writes are the operator's to control. Kevel records what the request tells it to record, so a child-directed request that carries an identifier or a custom property writes that data to UserDB the same way any other request would. Kevel's own Privacy Notice states that the platform does not knowingly collect personal information from children and does not target its services toward them, which places the obligation to keep child data out of UserDB on the operator building the integration. Personally identifiable information such as an Internet Protocol (IP) address or a user agent is retained only briefly while a decision is served, but a UserKey and the properties written against it persist as a profile, which is the data COPPA is concerned with.<br><br>The audit question is whether any child-directed request writes personal data to UserDB. A few patterns keep child data out of UserDB:<ul><li>Sends no UserKey on child-directed requests, so there is no record to write interests or properties against</li><li>Uses a non-persistent or anonymized key for child-directed traffic that is not tied to an identifiable user and is not reused to recognize them later</li><li>Blocks custom-property and identifier writes for placements flagged as child-directed in the operator's request layer</li></ul>You may want to confirm that no personal data is written to UserDB for known-child-directed traffic. One approach is to send a child-directed Decision API request, then retrieve the UserDB record for that key and check whether interests, custom properties, or identifiers were recorded.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, a children's section that asks a young visitor for an age or signs them into a profile is the point where personal data could reach UserDB. You may want to confirm that those sections do not write a persistent UserKey or custom properties for child visitors, so no profile is collected from a user known to be a child.",
+          "ecommerce": "For a retailer running sponsored-product ads through Kevel, a child-directed category combined with a logged-in account or a saved identifier is where personal data could enter UserDB for a child. You may want to confirm that sponsored-product requests in children's categories do not write demographics or persistent identifiers to UserDB for shoppers who may be children."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "UserDB",
+            "source_url": "https://dev.kevel.com/docs/userdb-1"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "GDPR Consent endpoint",
+            "source_url": "https://dev.kevel.com/reference/gdpr-consent"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Privacy Notice",
+            "source_url": "https://dev.kevel.com/docs/privacy-policy-customers"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether any child-directed request writes personal data to UserDB by checking the request payloads and the resulting user records.",
+        "tools": {
+          "free": {
+            "kevel_decision_api": {
+              "label": "Kevel Decision API",
+              "steps": [
+                "Identify a placement you have flagged as child-directed and capture the Decision API request the integration sends for it, including the UserKey and any custom properties.",
+                "Note whether the request carries a persistent UserKey or pushes demographics, interests, or identifiers that would be written to UserDB.",
+                "Send a mirror of that request to reproduce the write, then move to the Management API to read back the record."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "Retrieve the UserDB record for the UserKey used by the child-directed request to see what was stored.",
+                "Check whether interests, custom properties such as age or gender, or persistent identifiers were recorded against the key.",
+                "Record any case where personal data was written to UserDB for traffic known to be child-directed, along with the placement and the data captured."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per child-directed placement, whether its request writes personal data to UserDB, meaning a persistent UserKey, custom properties such as age or gender, or identifiers, or whether the request avoids those writes entirely. A setup where child-directed traffic records no personal data to UserDB passes. A setup where a child-directed request writes a persistent profile or custom properties is a fail recorded with the placement and the data captured.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether each child-directed placement writes personal data to UserDB or avoids those writes above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} writes personal data to UserDB for traffic known to be child-directed, so requests from those placements record a persistent profile, custom properties, or identifiers against a user who may be a child. The Children's Online Privacy Protection Act (COPPA) prohibits collecting personal information from children without verifiable parental consent, and because Kevel is headless, the operator controls what each request writes, so this collection is the operator's to prevent. {{voice_recommend}} blocking UserKey, custom-property, and identifier writes for placements flagged as child-directed, using a non-persistent key or no key for that traffic instead. After the change, replay a child-directed request and read the UserDB record back to confirm no interests, properties, or identifiers were recorded."
+      }
+    }
+  ]
+}

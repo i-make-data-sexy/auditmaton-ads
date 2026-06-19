@@ -1,0 +1,162 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Alternative identifiers such as RampID and Unified ID 2.0 are how a publisher keeps an addressable signal in the bidstream as third-party cookies fall away, so a misconfigured or unconsented ID removes the publisher from addressable demand without any error showing in the console. The check is a review of identity modules a publisher already runs in Microsoft Monetize and its header-bidding stack, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Alternative identifiers are the people-based and probabilistic IDs a publisher passes in the bidstream so buyers can recognize an audience without a third-party cookie. On Microsoft Monetize, formerly Xandr Monetize and built on AppNexus, these include LiveRamp RampID, Unified ID 2.0 (UID2), the European Unified ID (EUID), and others, often delivered through a Prebid user ID module since Microsoft Monetize is Prebid-compatible. This subcategory is about whether those identifiers are configured correctly, passing into the auction, and carrying the consent each one requires. These checks confirm that the IDs a publisher relies on for addressability are actually reaching buyers and that running several at once has not created conflicts or consent gaps.",
+  "audit_checks": [
+    {
+      "id": "xandr-monetize-rampid-alternative-ids-not-passing",
+      "title": "RampID and other alternative IDs are configured but not passing into the bidstream",
+      "category": "identity",
+      "subcategory": "rampid_alternative_ids",
+      "impact_score": 3,
+      "impact_rationale": "An alternative ID that is enabled but not reaching buyers removes the publisher from the addressable demand that ID was meant to attract, while the console still shows the module as active. The revenue loss is silent because nothing errors, so a publisher can run the ID for months under the belief it is working when no buyer ever receives it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "Alternative identifiers exist to keep a publisher's audience addressable once third-party cookies are gone. LiveRamp RampID is a people-based identifier built from a hashed, consented email or phone number. Unified ID 2.0 (UID2) and the European Unified ID (EUID) are open identifiers built the same way, from a hashed login or registration signal. A buyer who recognizes one of these IDs in the bidstream can target and measure the impression, which is what lets the publisher charge an addressable rate rather than fall back to an anonymous one.<br><br>On Microsoft Monetize, formerly Xandr Monetize and built on AppNexus, these identifiers reach the auction in more than one way. A publisher running header bidding through Prebid usually configures each ID as a Prebid user ID submodule, which collects the ID on the page and passes it to demand partners as a standardized extended identifier (EID). Microsoft Monetize is Prebid-compatible, so this is the common path, and the platform also supports identity natively for inventory transacted through it directly. Either way, the chain has several links, and a break in any of them means the ID never reaches a buyer.<br><br>The failure that matters here is the silent one. A module can be enabled in the configuration yet pass nothing because the ID was never generated, the storage key is wrong, the refresh stopped, or the consent gate blocked the call. The console shows the module as active, so nothing looks broken, but the bidstream carries no ID and the publisher sits outside the addressable demand the ID was supposed to attract.<br><br>A few signs point to an alternative ID that is configured but not passing:<ul><li>The Prebid user ID module is enabled, but a check of the live bid request shows no extended identifier for that ID</li><li>The storage key does not match what the ID vendor requires, for example a RampID envelope not stored under 'idl_env'</li><li>The refresh interval is missing or too long, so the stored ID has expired and is no longer sent</li><li>Match rates or addressable revenue reported by the ID vendor are far below what the traffic and login rate would predict</li></ul>You may want to confirm that each alternative ID the publisher relies on is reaching buyers rather than only enabled. One approach is to inspect a live bid request for the extended identifier and to compare the ID vendor's reported match rate against the share of traffic that should carry the ID.",
+        "site_type_overlays": {
+          "publishing": "A media site with a registration wall or a newsletter login has a direct identifier to build RampID, UID2, or EUID from, so a low match rate usually points to a configuration break rather than a lack of logged-in users. You may want to compare the share of traffic that is logged in against the match rate the ID vendor reports because a wide gap suggests the ID is being collected but not passed.",
+          "ecommerce": "A commerce-content site collects emails at checkout and account creation, which is strong input for a people-based ID, so the addressable opportunity is real if the ID actually passes. You may want to confirm that the email captured at purchase flows into the ID module and that the resulting identifier appears in the bid request because the commercial inventory is where an addressable rate matters most."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "LiveRamp RampID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/ramp.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "User ID Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userId.html"
+          },
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "UID2 Prebid Client-Side Integration Guide",
+            "source_url": "https://unifiedid.com/docs/guides/integration-prebid-client-side"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which alternative IDs are enabled, then inspect a live bid request to confirm each one is actually passing an extended identifier rather than only showing as active in the configuration.",
+        "tools": {
+          "free": {
+            "prebid_debug": {
+              "label": "Prebid debugging in the browser console",
+              "steps": [
+                "Load a page that serves Microsoft Monetize demand and open the browser developer tools console.",
+                "Run 'pbjs.getUserIds()' and 'pbjs.getUserIdsAsync()' to list the user IDs Prebid has collected, and note which alternative IDs return a value versus which return nothing.",
+                "Run 'pbjs.getUserIdsAsEids()' to see the extended identifiers in the format sent to demand partners, and confirm RampID, UID2, EUID, and any other relied-on ID appear.",
+                "Record any ID that is enabled in the configuration but absent from the collected IDs or the extended identifiers."
+              ]
+            },
+            "network_inspection": {
+              "label": "Bid request inspection in the Network tab",
+              "steps": [
+                "With developer tools open, reload the page and filter the Network tab for the bid request sent to Microsoft Monetize or to Prebid Server.",
+                "Inspect the request payload for the 'user.ext.eids' array and confirm each alternative ID the publisher relies on is present with a value.",
+                "Check the storage used by each ID, for example confirming a RampID envelope is stored under 'idl_env', and note any storage key that does not match the vendor requirement.",
+                "Record which IDs reach the request and which are missing despite being enabled."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per alternative ID the publisher relies on, whether the module is enabled and whether the ID appears as an extended identifier in a live bid request. An ID that is enabled and confirmed present in the bidstream passes. An ID that is enabled but absent from the collected IDs or the bid request is a fail recorded with the ID, the likely break point such as a wrong storage key or an expired refresh, and the inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each enabled alternative ID and whether it appears in a live bid request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has one or more alternative identifiers enabled in Microsoft Monetize and its Prebid stack that are not passing into the bidstream, so the inventory sits outside the addressable demand those IDs were meant to attract. The module shows as active, which is why the gap goes unnoticed, but a live bid request carries no extended identifier for the affected ID. {{voice_recommend}} inspecting a live bid request for each relied-on ID, confirming the storage key and refresh match the vendor requirement, for example a RampID envelope under 'idl_env' with a 30-minute refresh, and correcting any module that is enabled but silent. After the fix, recheck the bid request and the vendor's match rate to confirm the ID now reaches buyers."
+      }
+    },
+    {
+      "id": "xandr-monetize-rampid-alternative-ids-conflicting-or-unconsented",
+      "title": "Multiple ID solutions conflict or carry inconsistent consent",
+      "category": "identity",
+      "subcategory": "rampid_alternative_ids",
+      "impact_score": 3,
+      "impact_rationale": "Running several identity solutions at once raises addressability, but without coordination they can duplicate signals, contradict each other, or send an ID for a user who never consented to it. An ID passed without the consent it requires is a privacy exposure rather than a revenue gain, and conflicting IDs can confuse buyers about which signal to trust.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "A publisher chasing addressability often runs more than one identity solution at the same time, for example LiveRamp RampID alongside Unified ID 2.0 (UID2) and a probabilistic or seller-defined identifier. Each one widens the share of impressions a buyer can recognize, so stacking them is a reasonable strategy. The risk is that the IDs are governed separately, and without coordination they can work against each other.<br><br>The first problem is consent. Each people-based identifier is built from a consented email or phone number, and each one depends on the consent signal a publisher's consent management platform produces, expressed through the Transparency and Consent Framework (TCF) in Europe or the Global Privacy Platform (GPP) more broadly. Prebid's user ID system gates each module on that signal, so if no consent string is available, or the user has not consented to storing an identifier, the call to the ID vendor is not supposed to be made. When the gate is wired to one ID but not another, the stack can pass an identifier for a user who never agreed to it, which is a privacy exposure rather than a revenue gain.<br><br>The second problem is conflict and duplication. Two modules built from the same email can send overlapping signals, and a probabilistic ID running next to a deterministic one can contradict it, leaving a buyer unsure which identifier to trust for the same user. Microsoft Monetize, formerly Xandr Monetize and built on AppNexus, passes whatever the configuration emits, so the platform does not resolve a conflict the publisher has created upstream.<br><br>A few signs point to identity solutions that conflict or carry inconsistent consent:<ul><li>Several ID modules are enabled, but only some are gated on the consent management platform's signal, so consent enforcement is uneven across them</li><li>The same direct identifier feeds two or more modules with no record of why both are needed</li><li>A bid request shows extended identifiers present for a user whose consent string withholds permission to store an ID</li><li>No single owner can explain which IDs run, why each is needed, and how consent is enforced for each</li></ul>You may want to confirm that every identity solution is gated on the same consent signal and that the set running together is deliberate rather than accumulated. One approach is to list each enabled ID with its consent gate and its purpose, then test a no-consent and a consented session to confirm the IDs appear only when permission allows.",
+        "site_type_overlays": {
+          "publishing": "A media site with European readership leans on the Transparency and Consent Framework string from its consent management platform, so every identity module needs to honor that same signal. You may want to test a session where consent is withheld and confirm no alternative ID appears in the bid request because a media audience spans consent states and an uneven gate exposes the publisher on the non-consenting share.",
+          "ecommerce": "A commerce-content site collects emails across checkout and account flows that may feed more than one ID solution, so it is worth confirming the same email is not powering duplicate identifiers without reason. You may want to map each ID to the consent the shopper actually gave because a purchase consent is not automatically consent to build and pass an advertising identifier."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "User ID Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userId.html"
+          },
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Publishers Overview",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-publishers"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review every identity solution that is enabled, map each to its consent gate and its purpose, then test a consented and a non-consenting session to confirm the IDs appear only when permission allows and do not duplicate or contradict each other.",
+        "tools": {
+          "free": {
+            "config_review": {
+              "label": "Identity configuration review",
+              "steps": [
+                "List every alternative ID enabled in the Prebid user ID configuration and in Microsoft Monetize's native identity settings.",
+                "For each ID, record the direct identifier it is built from, its consent gate, and the stated reason it is run, and flag any two IDs built from the same input with no distinct purpose.",
+                "Confirm each module is gated on the consent management platform's Transparency and Consent Framework (TCF) or Global Privacy Platform (GPP) signal rather than left ungated.",
+                "Record any ID that lacks a consent gate or a clear purpose."
+              ]
+            },
+            "consent_testing": {
+              "label": "Consent-state testing in the browser",
+              "steps": [
+                "Open developer tools, set the consent management platform to withhold consent for storing an identifier, reload, and inspect the bid request's 'user.ext.eids' array.",
+                "Confirm no alternative ID appears in the bid request when consent is withheld, and record any ID that still passes.",
+                "Repeat with consent granted and confirm the expected IDs appear without duplicate or contradictory entries for the same user.",
+                "Record any ID that ignores the consent signal or any pair of IDs that send overlapping or conflicting signals."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each enabled identity solution with its consent gate, its purpose, and its behavior across a consented and a non-consenting test session. A set where every ID is gated on the same consent signal, each has a distinct purpose, and no ID passes when consent is withheld passes. A setup where an ID is ungated, passes without consent, or duplicates another ID with no stated reason is a fail recorded with the IDs and the consent or conflict gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each enabled ID with its consent gate, purpose, and behavior across consent states above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs several identity solutions in Microsoft Monetize and its Prebid stack with uneven consent enforcement or overlapping signals, so an identifier can pass for a user who did not consent to it or two IDs can contradict each other for the same user. An ID sent without the consent it requires is a privacy exposure rather than an addressability gain. {{voice_recommend}} listing each enabled ID with its consent gate and its purpose, gating every module on the same Transparency and Consent Framework (TCF) or Global Privacy Platform (GPP) signal, and removing any duplicate ID that adds no distinct value. After the change, test a consented and a non-consenting session to confirm the IDs appear only when permission allows."
+      }
+    }
+  ]
+}

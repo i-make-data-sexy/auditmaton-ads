@@ -1,0 +1,166 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "As third-party cookies thin out, the first-party signal a publisher passes from Microsoft Monetize into the bid stream becomes the thing that lets curated demand find and value the audience. A PPID or a seller-defined audience segment that is missing, malformed, or passed without regard for the consent the reader granted either leaves curated deals unable to target or exposes the publisher to a privacy complaint. The check reads configuration the publisher already has, so it costs review time rather than rebuild time, and the finding points to a concrete signaling or consent decision the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Microsoft Monetize (formerly Xandr Monetize) is a sell-side platform built on AppNexus and compatible with Prebid, so the first-party signals a publisher attaches to a bid request travel the same way they do across the Prebid header-bidding stack. This subcategory is about the audience signal itself, the Publisher Provided Identifier (PPID) and seller-defined audience attributes a publisher passes so curated demand can target without a third-party cookie, and whether those signals are scoped to the consent each reader granted. These checks confirm that the first-party signal is present and well-formed enough for buyers to act on, and that it is suppressed when the reader has not consented to the processing the signal enables.",
+  "audit_checks": [
+    {
+      "id": "xandr-monetize-ppid-audience-signal-not-passed",
+      "title": "First-party audience signals are not passed for cookieless demand to target",
+      "category": "identity",
+      "subcategory": "ppid_audience",
+      "impact_score": 3,
+      "impact_rationale": "Without a Publisher Provided Identifier (PPID) or a seller-defined audience segment in the bid request, curated and deal-based demand has nothing to target once a third-party cookie is absent, which is the case for Safari, Firefox, and any consent-suppressed Chrome session. The impression still clears in the open auction at a lower price, so the cost is uncollected curated revenue rather than an outage, which puts this at a 3.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "privacy"],
+      "educate": {
+        "base": "A buyer can only target an audience it can see. For most of the history of programmatic, that visibility came from the third-party cookie, which let a demand-side platform recognize a user across sites and apply its own segments. As Safari and Firefox block third-party cookies by default and consent suppresses them elsewhere, that signal disappears on a large share of impressions, and a curated deal that depends on it has nothing to act on. The first-party signal a publisher passes from its own relationship with the reader is what fills that gap.<br><br>Two first-party signals matter on a Prebid-compatible sell-side platform like Microsoft Monetize. A PPID is a stable, publisher-scoped identifier for a known or pseudonymous user, passed into the bid stream so a buyer can recognize the same user across that publisher's inventory without a third-party cookie. Prebid carries this through its PubProvided ID module, which places the identifier in the OpenRTB eids object so bid adapters receive it after consent is validated. A seller-defined audience is the second signal. Rather than an identifier, it is a standardized segment label, drawn from the IAB Tech Lab Audience Taxonomy, that describes the audience the publisher determined from its own first-party data, relayed in OpenRTB so buyers can target the segment without any cross-site identifier at all.<br><br>The audit question is whether either signal is actually reaching the bid request. A publisher can hold rich first-party data and still pass none of it. The PubProvided module may never have been configured, the audience segments may never have been mapped to the taxonomy, or the data may sit in a customer system that was never wired into the ad stack. When that happens, the curated demand the publisher negotiated cannot find the audience, and the impression falls back to the open auction at a lower clearing price.<br><br>A few signs point to first-party audience signals not being passed:<ul><li>The bid request carries no PPID and no seller-defined audience segment on a meaningful share of impressions, even for logged-in or known readers</li><li>Curated deals or private marketplace packages built on the publisher's audience underdeliver or go unfilled because buyers report they cannot match the audience</li><li>The publisher has first-party audience data in a customer or consent system but no mapping from it to a PPID or to IAB Audience Taxonomy segments in the ad stack</li></ul>You may want to confirm that at least one first-party signal reaches the bid request for the audiences curated demand was sold against. One approach is to inspect a sample of live bid requests for the presence of a PPID in the eids object or a seller-defined audience in the user data, then trace any gap back to the configuration step that dropped it.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the strongest first-party signal usually comes from registered readers, newsletter subscribers, or a metered paywall, where the publisher knows the reader and can derive interest segments from what they read. You may want to confirm that the PPID and the seller-defined audience segments cover that known-reader inventory specifically. That is the inventory most likely to anchor a curated deal, and the inventory where a missing signal costs the most.",
+          "ecommerce": "On a commerce-content site, first-party signals can carry purchase-intent value because the audience is closer to a transaction, and that intent is exactly what a curated buyer pays to reach. You may want to confirm that the audience segments passed reflect on-site shopping behavior mapped to IAB purchase-intent taxonomy nodes, rather than only broad editorial-interest segments that undersell the commercial audience."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "PubProvided ID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/pubprovided.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Audience Taxonomy and Seller Defined Audiences",
+            "source_url": "https://iabtechlab.com/standards/audience-taxonomy/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js First Party Data for Header Bidding",
+            "source_url": "https://docs.prebid.org/features/firstPartyData.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether a Publisher Provided Identifier (PPID) or a seller-defined audience segment reaches the bid request, and trace any gap back to the configuration that should have placed it there.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load a page that should carry a first-party signal, such as a logged-in or known-reader session, and open the Network panel.",
+                "Filter for the Prebid auction or the Microsoft Monetize bid request and inspect the OpenRTB payload.",
+                "Check the eids object for a PPID entry and the user data object for seller-defined audience segments mapped to IAB Audience Taxonomy IDs.",
+                "Record whether either signal is present, malformed, or absent, and on which inventory or session type the gap appears."
+              ]
+            },
+            "prebid_config": {
+              "label": "Prebid configuration review",
+              "steps": [
+                "Review the Prebid setup for the PubProvided ID module and confirm it is enabled and supplied with an identifier source.",
+                "Review the first-party data configuration for user-segment data and confirm audience segments are mapped to IAB Audience Taxonomy nodes.",
+                "Trace where the publisher's first-party audience data originates and confirm a path exists from that source into the bid request, noting any step where the data stops short of the ad stack."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, across a sample of bid requests, whether a PPID, a seller-defined audience segment, or both reach the request, and which inventory or session type each gap affects. A setup where at least one first-party signal reaches the bid request for the audiences curated demand was sold against passes. A setup where neither signal is present on inventory that curated deals depend on is a fail recorded with the affected inventory and the configuration step that dropped the signal.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a PPID or a seller-defined audience segment reaches the bid request, and on which inventory the gap appears, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes no Publisher Provided Identifier (PPID) and no seller-defined audience segment on inventory that curated demand was sold against, so buyers have nothing to target once a third-party cookie is absent. On a Prebid-compatible platform like Microsoft Monetize, the PPID rides in the OpenRTB eids object and the audience segment rides in the user data, and either one lets curated demand recognize the audience without a cross-site cookie. {{voice_recommend}} enabling the PubProvided ID module with a stable first-party identifier and mapping the audience segments to IAB Audience Taxonomy nodes so they reach the bid request, then inspecting live requests to confirm the signal arrives. After the change, recheck curated deal fill and clearing price on the affected inventory to confirm buyers can now match the audience."
+      }
+    },
+    {
+      "id": "xandr-monetize-ppid-audience-consent-scope",
+      "title": "Audience data is passed without scoping it to the consent the reader granted",
+      "category": "identity",
+      "subcategory": "ppid_audience",
+      "impact_score": 4,
+      "impact_rationale": "Passing a Publisher Provided Identifier (PPID) or an audience segment for a reader who did not consent to that processing sends personal data into the bid stream without a legal basis, which is a direct GDPR and state-privacy exposure rather than a missed-revenue issue. The publisher is the party that built and released the signal, so the liability lands on the publisher, which puts this at a 4.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "A first-party audience signal is useful only when the publisher had the right to collect it and the right to share it for the purpose the buyer will use it for. A PPID is personal data, and a seller-defined audience segment describes a real person's interests or intent. Releasing either into the bid stream for a reader who declined the relevant processing is a disclosure without a legal basis, which is what privacy regulators act on. The signal that earns curated revenue when consent is present becomes a liability when it is sent regardless of consent.<br><br>Consent reaches the ad stack through a standardized string. The IAB Tech Lab Global Privacy Platform (GPP) consolidates the consent signals from multiple jurisdictions, including the IAB Europe Transparency and Consent Framework (TCF) and the US state strings, into one encoded string that travels the supply chain. The GPP communicates the reader's permissions rather than the reader's data, so the ad stack is meant to read that permission and decide, per signal, whether passing it is allowed. Prebid's PubProvided ID module is built to release the identifier to bid adapters only after consent is validated, and Prebid's first-party data handling lets a publisher gate which attributes flow and to which bidders.<br><br>The audit question is whether the consent string actually governs what gets passed. Two failures show up. The first is a signal that fires before the consent management platform resolves, so the PPID or the segment goes out on a reader who is still mid-decision or who declined. The second is a signal scoped to the wrong purpose, where the reader consented to one use, such as audience measurement, but the publisher passes data enabling another, such as cross-site targeting, that the reader never agreed to. Both put data into the bid stream that the reader's choice should have held back.<br><br>A few signs point to audience data passed without consent scoping:<ul><li>A PPID or an audience segment appears in the bid request for a session where the consent string records a refusal of the relevant purpose</li><li>The first-party signal fires before the consent management platform has resolved the reader's choice, so the timing lets unconsented data through</li><li>No mapping exists between the consent purposes the reader can grant and the specific signals the ad stack is allowed to pass, so the same data goes out regardless of what was consented</li></ul>You may want to confirm that the consent string gates each first-party signal before it reaches the bid request. One approach is to test a refused-consent session and a granted-consent session side by side, then confirm the PPID and the audience segments are present only in the session where the matching purpose was granted.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a registered reader may have agreed to receive a newsletter without agreeing to have their reading interests sold for cross-site targeting, and those are separate consents. You may want to confirm that the audience segments derived from reading behavior are passed only when the reader granted the targeting purpose specifically, rather than treating any logged-in state as blanket permission to release the segment.",
+          "ecommerce": "On a commerce-content site, purchase-intent segments are among the most sensitive first-party signals because they describe what a person intends to buy, and a shopper who consented to order processing has not necessarily consented to that intent being sold to advertisers. You may want to confirm that purchase-intent segments are gated on a targeting or sale-of-data consent rather than passed on the back of a transactional consent the shopper gave for a different purpose."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform: Explained",
+            "source_url": "https://iabtechlab.com/global-privacy-platform-explained/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "PubProvided ID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/pubprovided.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js First Party Data for Header Bidding",
+            "source_url": "https://docs.prebid.org/features/firstPartyData.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the consent string gates each first-party signal, by comparing what reaches the bid request in a granted-consent session against a refused-consent session.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the Network panel and load a page after granting the relevant consent purposes in the consent management platform.",
+                "Inspect the bid request for the PPID in the eids object and the seller-defined audience segments in the user data, and record what is present.",
+                "Clear the consent state, reload, and decline the targeting or sale-of-data purpose, then inspect the same bid request again.",
+                "Record whether the PPID and the audience segments are absent in the refused session, and flag any signal that still appears despite the refusal.",
+                "Check the firing order to confirm the consent management platform resolves before the first-party signal is attached, noting any signal that fires first."
+              ]
+            },
+            "consent_mapping_review": {
+              "label": "Consent-to-signal mapping review",
+              "steps": [
+                "Review the consent management platform configuration and list the purposes a reader can grant or refuse.",
+                "Review the ad-stack configuration that releases the PPID and the audience segments, and confirm each signal is tied to a specific consent purpose.",
+                "Record any signal that is released without being mapped to a matching purpose. Without a mapping, that signal will go out regardless of the reader's choice."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a granted-consent session and a refused-consent session, which first-party signals reach the bid request and whether each signal is mapped to a matching consent purpose. A setup where the PPID and the audience segments appear only when the relevant purpose was granted, and where each signal is tied to a purpose, passes. A setup where any signal appears in a refused session, or fires before the consent management platform resolves, or is released with no purpose mapping, is a fail recorded with the signal and the purpose it ignored.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which first-party signals reach the bid request in a granted-consent session versus a refused-consent session above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes a Publisher Provided Identifier (PPID) or an audience segment into the bid stream for readers who did not consent to that processing, which sends personal data downstream without a legal basis. The Global Privacy Platform (GPP) string carries the reader's permissions through the supply chain, and the ad stack is meant to read that string and release each signal only when the matching purpose was granted. {{voice_recommend}} mapping each first-party signal to a specific consent purpose, gating the PPID release through Prebid's consent validation, and confirming the consent management platform resolves before any signal fires. After the change, test a refused-consent session to confirm the signal is held back and a granted-consent session to confirm it still reaches buyers."
+      }
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Unified ID 2.0 (UID2) and European Unified ID (EUID) let a publisher attach a privacy-conscious, consent-based identifier to authenticated audience so addressable demand can keep bidding once third-party cookies are gone. The check is a review of how that identity integration runs on Microsoft Monetize, whether tokens reach the bid stream where a legal basis exists and stay out of it where one does not, so it costs reading and configuration-review time rather than rebuild time. The finding points to concrete settings the publisher controls, either restoring addressable value that is being left on the table or closing a consent gap that carries regulatory exposure.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "UID2 and its European counterpart, EUID, give a publisher a way to turn authenticated email or phone-number sign-ins into an encrypted token that travels in the bid stream, so demand-side platforms can target and frequency-cap the audience without a third-party cookie. This subcategory is about how that identity layer runs on Microsoft Monetize, formerly Xandr Monetize. These checks confirm that the token integration is actually generating and passing identifiers where the publisher has a legal basis, and that the same integration is gated by consent so no token is built for a user who has not provided one.",
+  "audit_checks": [
+    {
+      "id": "xandr-monetize-uid2-euid-tokens-not-in-bidstream",
+      "title": "UID2 or EUID tokens are not generated or passed in the bid stream",
+      "category": "identity",
+      "subcategory": "uid2_euid",
+      "impact_score": 3,
+      "impact_rationale": "When a publisher has authenticated audience and a legal basis but no UID2 or EUID token reaches the bid stream, the impression looks anonymous to demand that relies on those identifiers. That demand either bids lower or skips the impression, so the publisher collects less for addressable inventory it could have priced higher.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "privacy"],
+      "educate": {
+        "base": "Unified ID 2.0 (UID2) is an open identity framework that turns a user's hashed email or phone number into an encrypted token, which a publisher can pass into the bid stream so demand-side platforms recognize the user without a third-party cookie. European Unified ID (EUID) is the same framework built for European markets, with the privacy controls those markets ask for. On Microsoft Monetize, formerly Xandr Monetize, the platform supports these identifiers alongside other alternative IDs, so the audit question is whether the integration is actually producing tokens and carrying them through to demand.<br><br>The value of the integration is realized only when a token reaches the buyer. The flow has several stages. The publisher captures an authenticated email or phone number, sends it to a UID2 or EUID operator, receives back a token, and then passes that token into the bid request so the demand-side platform can read it. If any stage is missing, the impression travels as if the user were anonymous, and demand that depends on the identifier bids lower or does not bid at all. A token generated but never attached to the bid request, or a Prebid identity module configured but not returning a value, produces the same outcome as no integration.<br><br>Microsoft Monetize is compatible with Prebid, so a publisher running header bidding will often supply the token through the Prebid UID2 or EUID user-ID submodule, which then carries it into the Monetize bid stream. The token can also reach Monetize through a server-side path. Either way, the test is the same. Does a token appear in the bid request for authenticated users, and does it carry through to the buyers Monetize routes the impression to.<br><br>A few signs point to tokens not reaching the bid stream:<ul><li>Authenticated users generate a UID2 or EUID token in the browser or on the server, but the bid request shows no identifier attached</li><li>The Prebid UID2 or EUID submodule is present in the configuration but returns an empty value, so the bid stream carries nothing</li><li>Addressable demand that depends on these identifiers bids at a noticeably lower rate on authenticated inventory than the audience would suggest</li></ul>You may want to confirm that a token is present in the bid request for authenticated users and that it carries through to demand. One approach is to inspect a live bid request for an authenticated session and trace whether the identifier appears and reaches the buyer.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the authenticated audience is usually the registered or subscribed readers who sign in, and that audience is the inventory most worth making addressable. You may want to confirm that a UID2 or EUID token is generated and passed for signed-in readers specifically since anonymous visitors will not produce one and should not be expected to.",
+          "ecommerce": "On a commerce-content site, the authenticated audience is often account holders and repeat shoppers, who carry higher value to demand because they are closer to a purchase. You may want to confirm that the token reaches the bid stream for logged-in shoppers, so the addressable signal follows the audience that buyers most want to reach."
+        },
+        "learn_more": [
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "UID2 overview for publishers",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-publishers"
+          },
+          {
+            "source_type": "European Unified ID Documentation",
+            "source_title": "EUID overview for publishers",
+            "source_url": "https://euid.eu/docs/overviews/overview-publishers"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Unified ID 2.0 for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/unified2.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether a UID2 or EUID token is generated for authenticated users and whether it appears in the bid request that Microsoft Monetize sends to demand.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Sign in to the site as an authenticated user, then open DevTools and watch the network requests.",
+                "Find where the UID2 or EUID token is set, e.g., a first-party cookie or a stored value, and confirm a token is present for the signed-in session.",
+                "Inspect the outgoing bid request and check whether the identifier is attached, e.g., in the user ID array Prebid builds or the equivalent field in the server-side path.",
+                "Record whether the token is generated, whether it reaches the bid request, and where the chain breaks if it does not."
+              ]
+            },
+            "prebid_config_review": {
+              "label": "Prebid configuration review",
+              "steps": [
+                "Open the Prebid configuration and locate the user-ID submodule entries for 'uid2' and 'euid'.",
+                "Confirm the submodule is configured with a valid token source, e.g., a cookie or token parameter, rather than present but empty.",
+                "Trigger a session as an authenticated user and confirm the submodule returns a value into the bid stream rather than nothing."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for an authenticated session, whether a UID2 or EUID token is generated and whether it appears in the bid request Microsoft Monetize sends to demand. A setup where the token is generated for authenticated users and carries through to the bid stream passes. A setup where authenticated users produce no token, or produce one that never reaches the bid request, is a fail recorded with the stage where the chain breaks.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a token is generated for authenticated users and whether it reaches the bid request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} is not passing a Unified ID 2.0 (UID2) or European Unified ID (EUID) token in the bid stream for authenticated users, so addressable inventory reaches demand looking anonymous. Demand that depends on those identifiers bids lower or skips the impression, which leaves revenue uncollected on inventory the audience would otherwise make valuable. {{voice_recommend}} tracing the token flow for an authenticated session, from capture of the email or phone number through token generation to the bid request Microsoft Monetize sends, and fixing the stage where the identifier drops out, e.g., a Prebid UID2 or EUID submodule that returns an empty value. After the fix, confirm the token appears in a live bid request and carries through to the buyer."
+      }
+    },
+    {
+      "id": "xandr-monetize-uid2-euid-not-consent-gated",
+      "title": "Token generation is not gated by consent or a legal basis",
+      "category": "identity",
+      "subcategory": "uid2_euid",
+      "impact_score": 4,
+      "impact_rationale": "Generating a UID2 or EUID token from a user's email or phone number is processing of personal data, so it needs a legal basis before it happens. An integration that builds tokens for every authenticated user regardless of consent processes data without permission, which carries direct regulatory exposure under GDPR and similar regimes, and that exposure rises in the European markets EUID is built for.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "A Unified ID 2.0 (UID2) or European Unified ID (EUID) token starts from a real user's email address or phone number, which the integration hashes and sends to an operator to convert into the token. That email or phone number is personal data, so generating the token is processing of personal data, and processing of personal data needs a legal basis, e.g., the user's consent, before it happens. The token integration and the consent layer are two separate systems, and the audit question is whether they are wired together so one gates the other.<br><br>The failure case is a token integration that runs for every authenticated user without checking whether a legal basis exists. The integration sees a signed-in user, takes the stored email, and builds a token, regardless of whether that user agreed to have their identifier used for advertising. EUID's own publisher guidance frames transparency and a request for the user's consent to use the email or phone number for EUID as foundational steps, which sets the expectation that the integration should not generate a token in the absence of one. In European markets, where EUID is built to operate, the exposure from skipping that step is highest.<br><br>Wiring the gate correctly means the consent signal is read before the token is generated, not after. On a Microsoft Monetize setup, formerly Xandr Monetize, that signal usually comes from the consent management platform through a framework such as the Transparency and Consent Framework (TCF) or the Global Privacy Platform (GPP), and the token-generation step checks it. Where the user has provided a basis, the token is built and passed. Where the user has not, no token is built, and the impression travels without the identifier.<br><br>A few signs point to token generation that is not consent-gated:<ul><li>Tokens are generated for authenticated users without any check of the consent signal first</li><li>The consent management platform records a refusal for advertising identifiers, yet a UID2 or EUID token is still built for that user</li><li>The integration reads the consent string after the token is generated, or not at all, rather than before</li></ul>You may want to confirm that no token is generated unless a legal basis exists for that user. One approach is to set a test session to refuse consent and confirm that no UID2 or EUID token is built or passed for it.",
+        "site_type_overlays": {
+          "publishing": "On a media site serving European readers, the consent prompt that gates advertising identifiers is the same gate that should gate token generation. You may want to confirm that a reader who declines consent in the prompt produces no UID2 or EUID token, so the identity layer follows the choice the reader already made.",
+          "ecommerce": "On a commerce-content site, an account holder's email is captured for the account itself, which is a separate purpose from advertising. You may want to confirm that having an email on file for an account does not by itself trigger token generation, and that a separate advertising consent is read before any UID2 or EUID token is built."
+        },
+        "learn_more": [
+          {
+            "source_type": "European Unified ID Documentation",
+            "source_title": "EUID overview for publishers",
+            "source_url": "https://euid.eu/docs/overviews/overview-publishers"
+          },
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "UID2 tokens and refresh tokens",
+            "source_url": "https://unifiedid.com/docs/ref-info/ref-tokens"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the consent signal is read before a UID2 or EUID token is generated, and confirm that a user without a legal basis produces no token.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open a test session and set the consent management platform to refuse consent for advertising identifiers.",
+                "Sign in as an authenticated user under that refused-consent state and watch the network requests in DevTools.",
+                "Confirm that no UID2 or EUID token is generated or stored, e.g., no token cookie is set and no token endpoint is called, for the refused session.",
+                "Repeat with consent granted and confirm a token is generated in that case, which shows the gate responds to the signal."
+              ]
+            },
+            "cmp_config_review": {
+              "label": "Consent management platform review",
+              "steps": [
+                "Open the consent management platform configuration and find where the consent signal, e.g., the TCF or GPP string, is exposed to the page.",
+                "Trace whether the token-generation step reads that signal before it runs, rather than after or not at all.",
+                "Record whether token generation is conditioned on the consent signal, and note any path where a token can be built without the signal being checked."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the consent signal is read before token generation and whether a refused-consent session produces no token. A setup where the consent signal gates generation, so a user without a legal basis produces no UID2 or EUID token, passes. A setup where tokens are generated regardless of the consent signal, or where the signal is read only after generation, is a fail recorded with the regulatory exposure it carries.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the consent signal gates token generation and whether a refused-consent session produces a token above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} generates Unified ID 2.0 (UID2) or European Unified ID (EUID) tokens without first checking whether a legal basis exists for the user. Building a token from a user's email or phone number is processing of personal data, so doing it without consent processes data without permission and carries direct regulatory exposure, which is highest in the European markets EUID is built for. {{voice_recommend}} wiring the consent signal from the consent management platform, e.g., the Transparency and Consent Framework (TCF) or the Global Privacy Platform (GPP) string, into the token-generation step so the signal is read before any token is built, and confirming that a refused-consent session produces no token. After the change, test both a granted-consent and a refused-consent session to confirm the gate responds to each."
+      }
+    }
+  ]
+}

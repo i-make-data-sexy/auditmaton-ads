@@ -16,8 +16,13 @@ from services.audit_engine import get_check_data, get_category_metadata, AVAILAB
 from services.email_service import send_inaccuracy_report_email, send_bug_report_email
 from blueprints.audit.routes import get_mock_active_audit
 
-# Pattern for validating route slugs (letters, digits, hyphens, underscores)
-SLUG_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
+# Pattern for validating route slugs (letters, digits, hyphens, underscores).
+# No length cap: the character class (lowercase, digits, hyphen, underscore,
+# must start alphanumeric) is what keeps this safe; a too-long URL simply
+# matches no check and 404s naturally. Check-id columns are String(100), and
+# long platform prefixes (e.g., amazon-publisher-services-) plus descriptive
+# suffixes routinely exceed 64 chars, which a cap would wrongly reject.
+SLUG_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 
 
 # ========================================================================

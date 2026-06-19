@@ -1,0 +1,150 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Competitive separation and creative dedup decide what a viewer sees inside a single ad break, and a gap in either one shows up as two rival brands back to back or the same spot repeated until the viewer tunes out. Both problems are governed by rules a publisher already holds in SpringServe, so the check is a review of existing configuration rather than a rebuild, and the finding points to a concrete rule the publisher can adjust. The cost is reading time across the pod and session settings, and the payoff is an ad experience that advertisers will renew against and viewers will sit through.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Competitive separation keeps a rival advertiser out of the same ad pod, and creative dedup keeps the same spot from repeating across a viewing session. In a video and Connected TV (CTV) ad server like SpringServe, a single ad pod stitches several ads into one break the way a television commercial break runs back to back, so the rules that decide which ads may share that pod, and which creatives a viewer has already seen, shape the whole experience. This subcategory reviews the competitive-separation and session-level dedup rules a publisher has configured, confirming they reflect a deliberate quality standard rather than defaults left untouched.",
+  "audit_checks": [
+    {
+      "id": "springserve-competitive-separation-no-pod-rules",
+      "title": "Competitive separation rules do not keep rival advertisers out of the same pod",
+      "category": "delivery",
+      "subcategory": "competitive_separation",
+      "impact_score": 3,
+      "impact_rationale": "Without competitive-separation rules, two ads from rival brands in the same industry can land in one ad pod, which weakens the value of each spot and gives advertisers a reason to pull spend or demand make-goods. The damage is bounded to the breaks where rivals happen to collide rather than the whole account, so it is a quality and revenue-retention problem rather than a catastrophic one.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["ad-experience", "brand-safety"],
+      "educate": {
+        "base": "Competitive separation is the rule that two ads from rival advertisers in the same industry will not run together in the same ad pod. A viewer who sees a Ford spot followed immediately by a Toyota spot has watched two car ads cancel each other out, and the advertiser who paid for that break expected the moment to itself. In a video and Connected TV (CTV) ad server, an ad pod assembles several ads into one break from more than one demand source, so without a rule that reads who each advertiser is, nothing stops rivals from sharing the pod.<br><br>SpringServe enforces separation by reading two fields that travel with each ad. The advertiser domain, carried as the adomain value in a programmatic bid response, identifies the brand, for example 'ford.com'. The IAB content category, carried as the cat value, identifies the industry. A separation rule can block a second automotive ad once an automotive ad has won a slot in the pod, or block a specific competing domain when a named advertiser is present. Direct-sold ads carry the same identifying information through the advertiser and category fields a publisher sets when trafficking the campaign.<br><br>The rules apply at the level where the pod is built rather than per individual ad, so the audit question is whether separation is configured at all and whether it covers both the category dimension and the domain dimension. A few gaps point to separation that is not doing its job:<ul><li>No competitive-separation rule exists, so any two advertisers may share a pod</li><li>Separation is set on advertiser category but not on advertiser domain, or the reverse, so one class of collision still slips through</li><li>Programmatic demand fills pod slots without the adomain or cat fields populated, so the rule has nothing to read and cannot separate the ads</li></ul>You may want to confirm that a separation rule is active and that it reads both the advertiser domain and the IAB category. One approach is to request a few test pods across the demand sources in use and check whether any pod returns two ads from the same industry or two competing brands.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, an ad pod sits inside long-form content the way a television commercial break does, so a viewer who sees rival brands back to back notices it the same way they would on linear television. You may want separation rules tuned to the categories that buy your inventory most heavily, for example automotive, telecom, or quick-service restaurants, so the breaks in your premium content hold their value.",
+          "ecommerce": "On a commerce-content video property, where the surrounding content reviews or demonstrates products, a competitor's ad landing in the same break as a featured product undercuts both the editorial and the advertiser. You may want separation rules that read the IAB category closely so a pod inside a product-category video does not pair two rival sellers from that same category."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Content Taxonomy",
+            "source_url": "https://iabtechlab.com/standards/content-taxonomy/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for competitive-exclusion and pod-separation rules is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the competitive-separation rules in SpringServe to see whether one is active, which dimensions it reads, and whether incoming demand carries the fields the rule needs.",
+        "tools": {
+          "free": {
+            "springserve_console": {
+              "label": "SpringServe console",
+              "steps": [
+                "Open the competitive-separation or competitive-exclusion settings and record whether a rule is active for the supply or demand in question.",
+                "For each active rule, note whether it separates on advertiser category, advertiser domain, or both, and which pods or demand sources it applies to.",
+                "Check a sample of demand sources to confirm the advertiser domain and IAB category fields are populated on the ads they return, given that a rule cannot separate ads it cannot identify."
+              ]
+            },
+            "vast_response_inspection": {
+              "label": "VAST response inspection",
+              "steps": [
+                "Request a test ad pod for the placement under review and capture the returned VAST response.",
+                "Read the advertiser and category information on each ad in the pod, and check whether any two ads share an industry or come from competing brands.",
+                "Record any pod that returned a competitive collision, along with the demand sources the colliding ads came from."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a competitive-separation rule is active, whether it reads both advertiser domain and IAB category, and whether sampled demand carries those fields. A setup with an active rule covering both dimensions and demand that populates the fields passes. A setup with no rule, a rule that covers only one dimension, or demand that arrives without the fields the rule needs is a fail recorded with the gap and the demand sources affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a separation rule is active, which dimensions it reads, and whether demand carries the advertiser domain and category fields above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not enforce competitive separation across its ad pods, so two ads from rival advertisers in the same industry can land in one break. Separation in a video and Connected TV (CTV) ad server reads the advertiser domain and the IAB content category that travel with each ad, and without an active rule reading both, rival brands can share a pod and weaken the value of every spot in it. {{voice_recommend}} configuring a separation rule that blocks a second ad once an ad from the same category or a competing domain has won a slot, then requesting test pods across the demand sources in use to confirm no pod returns a competitive collision. After the rule is live, recheck a sample of pods so the separation holds across both direct-sold and programmatic demand."
+      }
+    },
+    {
+      "id": "springserve-competitive-separation-no-session-dedup",
+      "title": "Session-level frequency and dedup do not stop the same creative repeating across a viewing session",
+      "category": "delivery",
+      "subcategory": "competitive_separation",
+      "impact_score": 3,
+      "impact_rationale": "Without session-level frequency capping and creative dedup, a viewer can see the same spot in break after break across a single viewing session, which drives tune-out and complaints and reduces the value the repeated advertiser actually receives. The harm grows with session length and is concentrated in long-form streaming, so it is a real experience and retention problem rather than a total failure of delivery.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["ad-experience", "brand-safety"],
+      "educate": {
+        "base": "Session-level frequency capping limits how many times a single creative, advertiser, or campaign may serve to one viewer across a viewing session, and creative dedup keeps the identical spot out of more than one slot in the same break or across nearby breaks. The two work together. Frequency capping governs how often something repeats over time, and dedup governs whether duplicates appear close together. A viewer watching a long stream sits through several ad pods, and without these limits the same creative can return break after break until the repetition itself becomes the experience.<br><br>The mechanism rests on identifying the ad and the session. An ad server reads the creative identifier, the advertiser, and the campaign to know what has already served, and it tracks the viewing session to know it is the same person across multiple breaks. Frequency caps then express a limit, for example no more than two impressions of one creative per session, and dedup logic prevents the same creative from filling two slots in one pod. In a Connected TV (CTV) context the session can run for an hour or more, so a cap that holds across the whole session matters more than it would in a short web video.<br><br>The audit question is whether these limits are set deliberately rather than left at a permissive default, and whether they cover the session rather than only a single request. A few signs point to dedup and frequency that are not protecting the session:<ul><li>No session-level frequency cap exists, so a creative can serve in every pod for the length of the stream</li><li>Frequency is capped per ad request but not across the session, so each break is clean on its own while the session as a whole repeats</li><li>Dedup is not configured at the pod level, so the same creative can fill two slots in one break</li></ul>You may want to confirm that frequency caps and dedup are set at the session level and tuned to your typical session length. One approach is to run a sample session through several consecutive pods and count how often any single creative or advertiser repeats.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, sessions run long and a viewer moves through many ad pods in one sitting, so a frequency cap that holds only within a single break leaves the session open to heavy repetition. You may want session caps tuned to the average watch time of your content, so a viewer in a multi-hour session is not served the same spot a dozen times.",
+          "ecommerce": "On a commerce-content video property, where viewers may watch several product videos in one visit, repetition of the same advertiser across that visit reads as clutter against the editorial. You may want frequency caps that span the visit rather than the individual video, so a viewer browsing a category does not meet the same creative in every break."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for session-level frequency capping and creative dedup is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the frequency-capping and dedup settings in SpringServe to see whether they operate at the session level and whether they cover the creative, advertiser, and campaign.",
+        "tools": {
+          "free": {
+            "springserve_console": {
+              "label": "SpringServe console",
+              "steps": [
+                "Open the frequency-capping settings and record the caps in place, noting whether each applies per request, per pod, or across the viewing session.",
+                "Record whether caps are set on the creative, the advertiser, and the campaign, given that a viewer can meet the same brand through more than one of these without a cap on each.",
+                "Check the pod configuration for dedup logic that prevents the same creative from filling more than one slot in a break, and note whether it is active."
+              ]
+            },
+            "session_simulation": {
+              "label": "Session simulation",
+              "steps": [
+                "Run a test viewing session through several consecutive ad pods that simulate a real watch, using a consistent session identifier.",
+                "Count how many times any single creative, advertiser, or campaign repeats across the session and within any single pod.",
+                "Record any case where a creative repeats beyond the intended cap or appears twice in one pod, along with the placement and demand source involved."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the frequency caps in place, the level each operates at, and whether pod-level dedup is active, alongside the repetition observed in a sample session. A setup with session-level caps on creative, advertiser, and campaign plus active pod dedup, where the sample session shows repetition within the intended limits, passes. A setup with no session cap, caps that hold only per request, or no pod dedup, where the sample session shows a creative or advertiser repeating beyond the limit, is a fail recorded with the gap and the repetition count.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the frequency caps, the level each operates at, whether pod dedup is active, and the repetition seen in a sample session above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not enforce session-level frequency capping and creative dedup, so the same spot can repeat across a viewing session and within a single ad pod. Session caps limit how often one creative, advertiser, or campaign serves to a viewer across a session, and dedup keeps a creative out of more than one slot in a break, and without both a long Connected TV (CTV) session can show the same ad break after break. {{voice_recommend}} setting frequency caps at the session level on the creative, advertiser, and campaign, tuned to typical session length, and turning on pod-level dedup, then running a sample session through several pods to count any repetition. After the limits are live, recheck a sample session so the caps hold across the full watch rather than only within a single break."
+      }
+    }
+  ]
+}

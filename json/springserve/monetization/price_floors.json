@@ -1,0 +1,151 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Floor pricing sets the price below which a video or Connected TV (CTV) impression goes unsold, so it controls the trade between fill rate and the value of each impression. A floor that leans on a single flat number across every supply tag, format, and geography, or one that accepts a dynamic floor without a fixed baseline to measure it against, can leave revenue uncollected without anyone seeing it. This check reviews the floor configuration a publisher already has in SpringServe, so it costs reading time rather than rebuild time, and the finding points to a concrete pricing decision the publisher can test.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Floor pricing in SpringServe decides the minimum price the ad server submits for a video or CTV impression, which sets where the line falls between filling more impressions and protecting the value of each one. A floor in SpringServe travels into the bid stream as the OpenRTB bidfloor on the impression, so the value a publisher chooses is the value demand partners see. These checks confirm that the floor configuration is a deliberate choice rather than a default carried across all inventory, and that the floors reflect the price differences across the publisher's supply tags, formats, and markets.",
+  "audit_checks": [
+    {
+      "id": "springserve-price-floors-single-flat-floor",
+      "title": "A single flat floor covers inventory that clears at different prices",
+      "category": "monetization",
+      "subcategory": "price_floors",
+      "impact_score": 3,
+      "impact_rationale": "Video and Connected TV (CTV) inventory clears at prices that vary by supply tag, format, device, and market, so a single flat floor either underprices the strong inventory and leaves revenue uncollected, or overprices the weak inventory and leaves impressions unsold. One number cannot fit inventory whose value differs along several lines at once.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "inventory"],
+      "educate": {
+        "base": "A floor price works best when it matches what the impression is worth, and in video and CTV serving the worth of an impression is not the same across a publisher's inventory. A pre-roll slot on a premium channel clears higher than a mid-roll slot on a long-tail channel. A full-episode player carries different demand than a short clip. CTV inventory on a living-room device clears differently than mobile or desktop web video. Demand from a high-spending market clears higher than demand from a thin one. A floor set as one flat number across all of this cannot fit inventory whose value varies along every one of those lines.<br><br>The cost of a flat floor cuts both ways. Set it to the average and it sits below the strong inventory, so impressions that could have cleared higher clear at the floor and the difference is left uncollected. Set it higher to protect the strong inventory and it sits above the weak inventory, so impressions that would have sold at a lower price go unsold instead. One number serves the middle and misprices the ends.<br><br>SpringServe lets a publisher set floors at the level of the supply tag and refine them with rules that target the dimensions that move clearing price, so floors can differ by format, device, and geography rather than applying one floor everywhere. Whatever floor a publisher sets becomes the OpenRTB bidfloor that demand partners read on the impression, so the value is the price signal the auction sees.<br><br>A few signs point to a flat floor doing work that several segmented floors should do:<ul><li>One floor value covers all supply tags with no breakout by format, device, or geography</li><li>Reporting shows average clearing prices that differ widely across channels, formats, or markets while the floor stays the same for all of them</li><li>Premium channels clear at or near the same floor as long-tail inventory, which suggests the floor is not protecting their value</li></ul>You may want to confirm that the floors reflect the price differences the inventory actually shows. One approach is to read the average clearing price by supply tag, format, device, and geography, then set floors that follow those differences rather than a single number across the board.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, a pre-roll on a flagship live channel or a premium video-on-demand title usually clears higher than a mid-roll on long-tail catalog content, and a living-room CTV device often clears higher than mobile web video. You may want to set floors by channel and device so the premium inventory holds its value while the lower-value inventory keeps a floor low enough to stay filled.",
+          "ecommerce": "On a commerce-content property running product or how-to video, the video that sits alongside high-intent shopping content can clear higher than general editorial video because the audience is closer to a purchase. You may want to set a higher floor on the commercial, higher-intent video inventory than on the general editorial video rather than sharing one number across both."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab OpenRTB Specification",
+            "source_title": "OpenRTB 2.6: Imp object and bidfloor",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/openrtb2.x/blob/main/2.6.md"
+          },
+          {
+            "source_type": "IAB Tech Lab Standards",
+            "source_title": "OpenRTB (Real-Time Bidding)",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for setting floors on supply tags and floor rules is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the floor values across supply tags, formats, devices, and geographies to see whether they are differentiated or whether one flat floor covers everything.",
+        "tools": {
+          "free": {
+            "springserve_ui": {
+              "label": "SpringServe console",
+              "steps": [
+                "Open the supply tags and list the active tags with their floor values.",
+                "For each tag, note its format, the devices and environments it serves, and any floor rules layered on top of the base floor.",
+                "Record whether the floors differ across supply tag, format, device, and geography, or whether a single floor applies across all inventory with no breakout."
+              ]
+            },
+            "springserve_reporting": {
+              "label": "SpringServe reporting",
+              "steps": [
+                "Build a report broken out by supply tag, then by format, then by device, then by country, with revenue, impressions, fill rate, and average CPM.",
+                "Compare the average clearing price across those dimensions to see how much it varies between strong and weak inventory.",
+                "Note any case where clearing prices differ widely but the floor stays the same, which points to inventory that a segmented floor could price more accurately."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the floor values across supply tags, formats, devices, and geographies alongside the average clearing price for each. Floors that follow the value differences the reporting shows, with higher floors on inventory that clears higher and lower floors on inventory that clears lower, pass. A single flat floor applied across inventory whose clearing prices differ widely is a fail recorded with the dimensions where the floor and the value diverge.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the floor values and the average clearing price by supply tag, format, device, and geography above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} applies a single flat floor across video inventory whose value differs by supply tag, format, device, and geography. A flat floor either underprices the strong inventory, leaving revenue uncollected, or overprices the weak inventory, leaving impressions unsold, so one number cannot fit inventory that clears at different prices. {{voice_recommend}} reading the average clearing price by supply tag, format, device, and geography in SpringServe, then setting floors and floor rules that carry higher values on the inventory that clears higher and lower values on the inventory that clears lower. After the change, recheck fill rate and average price across the segments to confirm the floors fit the value of each."
+      }
+    },
+    {
+      "id": "springserve-price-floors-dynamic-not-baselined",
+      "title": "Dynamic floors run without a fixed-floor baseline to measure against",
+      "category": "monetization",
+      "subcategory": "price_floors",
+      "impact_score": 3,
+      "impact_rationale": "Dynamic floor logic adjusts the submitted floor automatically, which can raise revenue, but it optimizes toward its own objective and does not always match a publisher's strategy, such as protecting a premium price point. Running it without a fixed-floor baseline on comparable inventory leaves the choice untested, so the publisher cannot tell whether the dynamic floor is helping or clearing inventory below the price they meant to protect.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "inventory"],
+      "educate": {
+        "base": "SpringServe gives a publisher more than one way to set the floor that travels into the bid stream. A fixed floor is a number the publisher chooses, and the ad server submits it as the OpenRTB bidfloor as written. A dynamic floor instead adjusts the submitted value automatically, for example by holding a margin above the supply tag's rate so the floor moves with the price of the underlying inventory rather than staying static. The dynamic approach can raise revenue by keeping the floor close to what demand will actually pay.<br><br>The risk is not that automation is wrong. The risk is running it without a comparison. A dynamic floor optimizes toward the objective it was built for, and that objective does not always match a publisher's own strategy. A publisher protecting a premium price point on a flagship channel, or holding a deliberate floor to keep a direct-sold rate intact, may find the dynamic floor submits a value below the price they meant to protect. Without a fixed baseline to measure against, the publisher has no way to see that happening.<br><br>The comparison is straightforward to run. A publisher can hold a fixed floor on a slice of comparable inventory, let the dynamic floor run on the rest, and read revenue, fill rate, and average clearing price across both. That turns the floor choice into a measured result rather than a default that was never questioned. It also surfaces the edge cases worth knowing, such as a supply tag on revenue-share or dynamic payment terms where a dynamic margin can collapse the submitted floor toward a token value rather than holding a real price.<br><br>A few signs point to a dynamic floor being accepted rather than evaluated:<ul><li>Dynamic floor logic runs across inventory with no fixed-floor comparison on record</li><li>No experiment or before-and-after read exists showing how the dynamic floor performed against a fixed baseline</li><li>The publisher cannot say why the dynamic option was chosen beyond it being the suggested setting</li></ul>You may want to confirm that the dynamic-versus-fixed choice was made on evidence rather than by default. One approach is to hold a fixed-floor baseline on part of the inventory long enough to compare it against the dynamic floor on the rest.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, a flagship live channel or a premium video-on-demand title often carries a price the publisher set on purpose to protect direct-sold value. You may want to keep a fixed-floor baseline on those channels while running dynamic floors elsewhere, so the comparison shows whether the dynamic floor respects the premium or submits below it.",
+          "ecommerce": "On a commerce-content property, video alongside high-intent shopping content can clear higher than general editorial video. You may want to compare the dynamic floor against a fixed floor on the commercial video specifically, rather than judging it on a blended average that the lower-value editorial video pulls down."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab OpenRTB Specification",
+            "source_title": "OpenRTB 2.6: Imp object and bidfloor",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/openrtb2.x/blob/main/2.6.md"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for fixed floors, dynamic margins, and floor rules on demand and supply tags is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which supply tags run a dynamic floor versus a fixed floor, and look for any test result or before-and-after read that compares them.",
+        "tools": {
+          "free": {
+            "springserve_ui": {
+              "label": "SpringServe console",
+              "steps": [
+                "Open the supply tags and, for each, note whether its floor is a fixed value or a dynamic floor such as a margin held above the tag rate.",
+                "Record which slices of inventory run on a dynamic floor and which, if any, run on a fixed floor that could serve as a comparison baseline.",
+                "Check any supply tag on revenue-share or dynamic payment terms for a dynamic margin that could collapse the submitted floor toward a token value.",
+                "Ask the publisher whether any experiment or before-and-after comparison was run, and record what the result showed and when it was measured."
+              ]
+            },
+            "springserve_reporting": {
+              "label": "SpringServe reporting",
+              "steps": [
+                "Build a report broken out by supply tag or the inventory it targets, with revenue, impressions, fill rate, and average CPM.",
+                "Compare a slice running a dynamic floor against a comparable slice on a fixed floor, if one exists, to see whether the dynamic floor raised revenue or cleared at a lower price.",
+                "Note whether the data supports the current floor choice or whether no fixed-floor slice exists to compare against."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per supply tag, whether the floor is fixed or dynamic, and whether any comparison between a dynamic floor and a fixed baseline exists with a result on record. A setup where the dynamic-versus-fixed choice is deliberate and backed by a comparison passes. A setup where dynamic floors run across inventory with no fixed-floor comparison and no stated reason for the choice is a fail recorded with the tags and inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the floor type for each supply tag and whether a dynamic-versus-fixed comparison exists above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs dynamic floors without a fixed-floor comparison on record, so the choice between dynamic and fixed floors has not been tested. A dynamic floor in SpringServe adjusts the submitted value automatically toward its own objective, which can help, but that objective does not always match a publisher's own strategy, such as protecting a premium price point, and without a baseline the difference goes unmeasured. {{voice_recommend}} holding a fixed-floor baseline on a slice of comparable inventory, running the dynamic floor on the rest, and comparing revenue, fill rate, and average clearing price across both before settling on a floor strategy. After the comparison, keep whichever floor the data supports for each slice of inventory."
+      }
+    }
+  ]
+}

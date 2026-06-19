@@ -1,0 +1,161 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Programmatic demand connections decide how much real-time competition the video and CTV inventory sees, so the set of connections and the way they are tuned drives both fill and the price each impression clears at. A connection list that grew by accretion, with sources nobody can account for and timeouts left at a default that the streaming environment cannot honor, costs latency and yield without anyone noticing. The check reads the demand connections a publisher already runs in SpringServe, so it costs review time rather than rebuild time, and the finding points to a concrete routing decision the publisher can act on.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Programmatic demand in SpringServe is the set of real-time bidding (RTB) and exchange connections that compete for the video and Connected TV (CTV) inventory alongside any direct-sold demand. This subcategory is about the demand connections themselves, which sources are wired in, why each one is there, and how the timeouts are set for a streaming player rather than a web page. These checks confirm that the connected demand is a deliberate set a publisher can account for, tuned for the latency budget of video and CTV, rather than a list that grew over time and now carries sources that no longer earn their place.",
+  "audit_checks": [
+    {
+      "id": "springserve-programmatic-demand-sources-unjustified-or-timeouts-untuned",
+      "title": "Connected demand sources are not justified or their timeouts are not tuned for streaming",
+      "category": "monetization",
+      "subcategory": "programmatic_demand",
+      "impact_score": 3,
+      "impact_rationale": "A demand connection that no longer earns revenue adds auction overhead and supply-chain surface without paying for itself, and a timeout left at a default the streaming environment cannot meet drops bids that would have cleared. Both trim yield, and a CTV player that waits too long for a response shows a slate or skips the ad rather than filling the pod, so the cost lands on fill and viewer experience at once.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "SpringServe routes each ad request to the demand sources a publisher has connected, and programmatic demand is the slice of that routing that runs on real-time bidding (RTB). Each connected exchange or supply-side platform (SSP) responds with a bid, and the auction picks a winner from the responses that arrive in time. The connection list grows as a publisher adds partners over a season of deals, integrations, and tests, so the question this check asks is whether every source on the list still earns its place and whether the auction is tuned for the environment it runs in.<br><br>Two things drift over time. The first is justification. A source added for a campaign that ended, a duplicate path to the same demand through two intermediaries, or a partner that has stopped bidding all sit on the list without paying for themselves. Each connection a publisher cannot account for adds auction overhead and one more node in the supply chain that a buyer's sellers.json and SupplyChain Object lookups have to resolve, which the IAB Tech Lab supply-chain standards exist to make legible.<br><br>The second is the timeout. Video and CTV carry a tighter latency budget than a web page because the player has to receive the response, parse the Video Ad Serving Template (VAST) document, and begin playback inside the window before the content starts or the pod break opens. A timeout copied from a display setup, or left at a default, can sit longer than a CTV player will wait. When the response arrives late the player discards it and shows a slate or skips the slot, so a bid that would have cleared is lost to timing rather than price.<br><br>A few signs point to demand connections that are not justified or not tuned for streaming:<ul><li>The connection list includes sources the publisher cannot tie to a current reason, a live deal, or recent revenue</li><li>Two or more connections reach the same underlying demand through different intermediaries with no stated reason for keeping both</li><li>Timeouts are set to a single value across web video and CTV rather than reflecting the tighter window a CTV player allows</li><li>Reporting shows sources with a high request count but near-zero win rate or revenue, which points to a connection that adds overhead without returning bids</li></ul>You may want to confirm that each connected demand source has a current reason to be there and that the timeouts fit the streaming environment. One approach is to read request count, response rate, win rate, and revenue per source, then keep the sources that earn their place and set timeouts that match what the video and CTV players will actually wait for.",
+        "site_type_overlays": {
+          "publishing": "For a streaming service or broadcaster running long-form video and CTV apps, the latency budget is set by the pod break rather than a single mid-roll, so a timeout that fits a short web clip can be too long for a server-side ad insertion (SSAI) pod that must be assembled before the break. You may want to tune timeouts against the actual pod-assembly window and prune any demand source that does not return bids fast enough to make the pod.",
+          "ecommerce": "For a commerce-content site running product videos and shoppable streams, the video player often sits inside a page where the surrounding content is already competing for load time, so a long demand timeout adds to a latency budget the page is also spending. You may want to keep the video demand timeout short enough that a late bid does not delay playback, and prune sources that consistently respond after the player has moved on."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "OpenRTB (Real-Time Bidding)",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for connecting and tuning programmatic demand sources is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the connected programmatic demand sources alongside their recent performance and their timeout settings, and look for sources that no longer earn their place or timeouts that do not fit the streaming environment.",
+        "tools": {
+          "free": {
+            "springserve_console": {
+              "label": "SpringServe console",
+              "steps": [
+                "Open the demand area of the console and list the active programmatic demand connections, including the RTB exchange and supply-side platform (SSP) connections feeding the video and Connected TV (CTV) inventory.",
+                "For each connection, note the timeout it runs at and whether that value is set separately for web video and CTV or applied as one number across both.",
+                "Ask the publisher to tie each connection to a current reason, a live deal, or recent revenue, and record any source that cannot be accounted for.",
+                "Record any two connections that reach the same underlying demand through different intermediaries, along with whether there is a stated reason to keep both."
+              ]
+            },
+            "springserve_reporting": {
+              "label": "SpringServe reporting",
+              "steps": [
+                "Build a report broken out by demand source, with request count, response rate, win rate, revenue, and average timeout or response latency.",
+                "Flag any source with a high request count but near-zero win rate or revenue, which points to a connection that adds overhead without returning bids.",
+                "Compare response latency against the timeout for the video and CTV inventory to see whether bids are arriving inside the window or being discarded as late."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each connected programmatic demand source with its current justification, its recent request count, win rate, and revenue, and its timeout for video and CTV. A connection set where every source has a current reason and timeouts that fit the streaming latency budget passes. A set that carries sources the publisher cannot account for, or timeouts applied as one value across web video and CTV without regard for the tighter CTV window, is a fail recorded with the sources and timeouts affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each demand source with its justification, recent performance, and timeout above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs programmatic demand connections in SpringServe that are not fully accounted for, with sources that cannot be tied to a current reason or revenue and timeouts applied as a single value rather than tuned for the tighter latency window a Connected TV (CTV) player allows. An unjustified connection adds auction overhead and supply-chain surface without paying for itself, and a timeout the streaming player cannot honor discards bids that would have cleared, so both trim yield and fill at once. {{voice_recommend}} reading request count, win rate, and revenue per source, keeping the connections that earn their place, and setting timeouts that match what the video and CTV players will actually wait for. After the change, recheck win rate and fill across the kept sources to confirm the routing fits the streaming environment."
+      }
+    },
+    {
+      "id": "springserve-programmatic-demand-duplicate-or-dormant-connections",
+      "title": "Duplicate or dormant demand connections are left in place",
+      "category": "monetization",
+      "subcategory": "programmatic_demand",
+      "impact_score": 2,
+      "impact_rationale": "A dormant connection that no longer returns bids and a duplicate path to the same demand both add auction calls and supply-chain nodes without adding competition, so they raise overhead and latency while returning nothing. They also widen the surface a buyer has to resolve through sellers.json and SupplyChain Object lookups, which can make the inventory read as less clean than it is.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Over time a programmatic demand list collects connections that no longer do anything useful. A partner integrated for a test that ended keeps its connection but stops returning bids. A migration to a new supply-side platform (SSP) leaves the old path live alongside the new one. A reseller and a direct connection both reach the same underlying demand, so the inventory is offered to the same buyer twice through different intermediaries. None of these add real competition to the auction, yet each one stays on the list and gets called on every request.<br><br>The cost is overhead rather than a visible failure. Each dormant or duplicate connection is one more auction call SpringServe makes and waits on, which adds to the latency the video and Connected TV (CTV) player has to absorb before playback. Each is also one more node a buyer encounters when resolving the supply chain through sellers.json and the OpenRTB SupplyChain Object, and a chain that resolves to duplicate or inactive paths reads as messier than the inventory actually is. The IAB Tech Lab built those standards so buyers can see every party paid for a bid request, so a clean, accountable connection list is part of how the inventory presents to demand.<br><br>Distinguishing dormant from duplicate matters because the fix differs. A dormant connection has simply gone quiet and can be removed once the reporting confirms it has stopped returning bids or revenue over a meaningful window. A duplicate connection is still active on both paths, so the decision is which path to keep, usually the one with the cleaner supply chain or the better terms, before retiring the other.<br><br>Two patterns separate the cases:<ul><li>Dormant: a connection with requests still being sent but responses, wins, and revenue at or near zero across a recent reporting window</li><li>Duplicate: two connections that both return bids but resolve to the same underlying demand through different intermediaries, with no stated reason to keep both</li></ul>You may want to confirm that every connection on the list is either returning bids or there for a stated reason. One approach is to read response and revenue per connection over a recent window, retire the connections that have gone dormant, and consolidate any duplicate path down to the single connection with the cleaner supply chain.",
+        "site_type_overlays": {
+          "publishing": "For a streaming service or broadcaster, a back catalog of demand connections built up across launches and partner changes can leave several dormant or duplicate paths feeding the CTV apps. You may want to audit the connection list against recent revenue per source and retire the paths that have gone quiet since each one called on a pod request adds latency the break has to absorb.",
+          "ecommerce": "For a commerce-content site, demand connections added for seasonal campaigns or one-off product launches can outlive the campaign and sit dormant on the video inventory. You may want to check each connection against recent activity and remove the ones tied to ended campaigns, keeping the list to the sources that bid on the current inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "OpenRTB (Real-Time Bidding)",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for managing and retiring demand connections is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each programmatic demand connection against its recent response and revenue activity to separate the connections still earning bids from those that have gone dormant or duplicate the same demand.",
+        "tools": {
+          "free": {
+            "springserve_console": {
+              "label": "SpringServe console",
+              "steps": [
+                "Open the demand area of the console and list every active programmatic demand connection on the video and Connected TV (CTV) inventory.",
+                "For each connection, record the intermediary or exchange it routes through, so paths that reach the same underlying demand can be compared.",
+                "Flag any pair of connections that resolve to the same demand through different intermediaries as a candidate for consolidation."
+              ]
+            },
+            "springserve_reporting": {
+              "label": "SpringServe reporting",
+              "steps": [
+                "Build a report broken out by demand connection over a recent window, with request count, response rate, win rate, and revenue.",
+                "Mark any connection sending requests but returning responses, wins, and revenue at or near zero as dormant.",
+                "For each duplicate pair, compare revenue and supply-chain cleanliness across the two paths to identify which one to keep."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each demand connection with its recent response rate, win rate, and revenue, and notes any pair that resolves to the same underlying demand. A connection list where every source returns bids or has a stated reason to remain, with no duplicate paths, passes. A list carrying connections that send requests but return no bids or revenue over the window, or duplicate paths to the same demand with no reason to keep both, is a fail recorded with the dormant and duplicate connections identified.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each connection with its recent response and revenue activity above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} leaves duplicate or dormant programmatic demand connections in place in SpringServe, where some connections send requests but return no bids or revenue and others reach the same underlying demand through different intermediaries. These connections add auction calls and supply-chain nodes without adding competition, so they raise overhead and latency on the video and Connected TV (CTV) inventory while returning nothing, and they widen the surface a buyer resolves through sellers.json and SupplyChain Object lookups. {{voice_recommend}} reading response and revenue per connection over a recent window, retiring the connections that have gone dormant, and consolidating each duplicate path down to the single connection with the cleaner supply chain. After the cleanup, recheck latency and fill to confirm the leaner list still serves the inventory."
+      }
+    }
+  ]
+}

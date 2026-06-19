@@ -1,0 +1,157 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Yield settings decide how SpringServe orders demand and how much value each video impression returns, so they control the trade between fill, latency, and revenue per impression. Auto-optimization that runs on a default metric, or a waterfall that protects direct-sold demand so tightly that programmatic value goes uncaptured, can leave revenue uncollected without anyone noticing. This check is a review of the routing and pricing decisions a publisher already holds in SpringServe, so it costs reading time rather than rebuild time, and the finding points to a concrete yield decision the publisher can test.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Yield optimization in SpringServe decides how demand is ordered in the waterfall and how the auction clears, which sets where the line falls between filling more impressions, holding latency down, and protecting the value of each impression. This subcategory is about the yield decisions themselves, the optimization metric chosen and the balance struck between direct-sold and programmatic demand, rather than the inventory structure that carries them. These checks confirm that the routing and pricing in place are deliberate, evidence-based choices rather than defaults accepted without a comparison.",
+  "audit_checks": [
+    {
+      "id": "springserve-yield-optimization-auto-optimization-metric-unreviewed",
+      "title": "Auto-optimization runs on a default metric without reviewing what it trades away",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "Auto-optimization reprioritizes the waterfall on the metric the publisher selects, and each metric optimizes toward a different objective, for example revenue per request, fill, or response time. A metric chosen by default can route demand toward fill or speed when the publisher meant to protect revenue, or toward revenue when latency on the device cannot absorb the slower tags, so the routing works against the goal without a comparison to surface it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "SpringServe reprioritizes the demand waterfall through auto-optimization, which reorders the demand tags on a schedule using a metric the publisher selects. The available metrics each optimize toward a different objective. A revenue metric such as Score or RPM orders demand by the value it returns. A fill metric such as Request Fill orders demand by how reliably it answers. A latency metric such as Response Time orders demand by how fast it answers. The optimization reorders the waterfall toward whichever objective the chosen metric names.<br><br>The risk is not that auto-optimization is wrong. The risk is selecting a metric without weighing what it trades away. A metric that maximizes fill can promote a demand source that answers reliably but clears at a lower price, so fill rises while revenue per impression falls. A metric that maximizes revenue can promote slower tags that clear higher but answer late, so on a Connected TV (CTV) device that cannot absorb the delay the ad break times out and the impression is lost. The optimization does exactly what the metric asks. Whether that matches the publisher's goal is the open question.<br><br>The lookback window the optimization reads is a second decision with the same shape. A short lookback makes the waterfall responsive to current market conditions but reactive to short swings. A long lookback steadies the order but lags a real shift in demand value. The window that fits a high-volume streaming property is not the window that fits a low-volume one, so a default window carried across properties may not suit any of them.<br><br>A few signs point to auto-optimization being accepted rather than reviewed:<ul><li>The optimization metric is the platform default with no record of why it was chosen over the alternatives</li><li>No before-and-after read exists showing how revenue, fill, and response time moved after the metric or lookback window was set</li><li>One metric and one lookback window are applied across properties whose volume and device mix differ</li></ul>You may want to confirm that the optimization metric and lookback window were chosen on evidence rather than by default. One approach is to read revenue, fill rate, and response time together for a period, then test whether a different metric or window moves the balance toward the publisher's actual goal.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, an ad break that times out on a living-room device loses the whole break rather than a single slot, so latency carries more weight than it does on the open web. You may want to weigh a revenue metric against a latency metric on the CTV inventory specifically, so the optimization does not promote slow high-clearing tags into breaks the device cannot wait on.",
+          "ecommerce": "On a commerce-content video property, pre-roll on a product or how-to video reaches an audience closer to a purchase and can clear higher than general editorial video. You may want to confirm the optimization metric protects the value of that higher-intent inventory rather than ordering it by a blended fill metric that the lower-value editorial video pulls down."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB (Real-Time Bidding) specification",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for auto-optimization metrics and lookback windows is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which auto-optimization metric and lookback window are set, at which level they apply, and whether any before-and-after read exists showing how revenue, fill, and response time moved after the choice.",
+        "tools": {
+          "free": {
+            "springserve_ui": {
+              "label": "SpringServe console",
+              "steps": [
+                "Open the supply settings and note the auto-optimization metric and lookback window set at the account level.",
+                "Check whether any supply partner or supply tag overrides the account-level metric or window, and record where the overrides apply.",
+                "Confirm whether the optimization type is the platform-managed order or a custom order that respects manually set waterfall tiers.",
+                "Ask the publisher why the current metric and window were chosen, and record whether the answer points to evidence or to the default."
+              ]
+            },
+            "springserve_reporting": {
+              "label": "SpringServe reporting",
+              "steps": [
+                "Build a report broken out by demand tag with revenue per request, request fill, and response time for a recent period.",
+                "Read the three metrics together to see whether the current waterfall order favors revenue, fill, or speed, and whether that matches the publisher's stated goal.",
+                "Note any case where a high-fill or fast tag sits above a higher-clearing tag, or the reverse, which points to a metric that may be trading against the goal."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the auto-optimization metric and lookback window in force, the level at which they apply, and whether a before-and-after read exists comparing revenue, fill, and response time across metric choices. A setup where the metric and window are deliberate and backed by a read of the three metrics together passes. A setup where the platform default is applied across properties with no comparison and no stated reason is a fail recorded with the metric, window, and inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the auto-optimization metric, the lookback window, and whether a revenue-versus-fill-versus-latency comparison exists above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs SpringServe auto-optimization on a default metric without a read of what the chosen metric trades away. Each optimization metric orders the waterfall toward a different objective, so a fill metric can promote lower-clearing demand while a revenue metric can promote slower tags that time out on a Connected TV (CTV) device, and without a comparison the difference goes unmeasured. {{voice_recommend}} reading revenue per request, request fill, and response time together for a period, then testing whether a different metric or lookback window moves the balance toward the goal {{site_name}} actually holds. After the comparison, keep whichever metric and window the data supports for each property."
+      }
+    },
+    {
+      "id": "springserve-yield-optimization-direct-sold-programmatic-balance-undefined",
+      "title": "The balance between direct-sold protection and programmatic yield is not set deliberately",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "Direct-sold demand and programmatic demand compete for the same impressions, and the priority and floors a publisher sets decide which one wins. A waterfall that protects direct-sold demand so tightly that no programmatic tag can clear above it leaves programmatic value uncaptured, while one that lets programmatic undercut a committed direct-sold rate puts a contracted delivery at risk, so the balance needs a deliberate decision rather than a default order.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "inventory"],
+      "educate": {
+        "base": "A publisher serving both direct-sold and programmatic demand through SpringServe holds two objectives that pull against each other. Direct-sold demand carries a committed rate and a delivery obligation, so it needs protection to meet what was sold. Programmatic demand carries no commitment but can clear above the direct-sold rate on inventory the direct campaigns do not need, so it needs room to compete for the impressions left over. The waterfall priority and the floors decide how those two objectives share the inventory.<br><br>The balance can fall wrong in either direction. Set direct-sold priority so high that it absorbs every eligible impression and the programmatic demand never gets a turn, even on inventory the direct campaigns were overdelivering on, so value that programmatic would have paid goes uncollected. Set the floor so low that programmatic clears below the committed direct-sold rate and the higher-value direct delivery can slip, which risks the contract the direct sale was built on. Neither extreme is a setting a publisher would choose on purpose. Each is what a default order produces when the balance was never decided.<br><br>SpringServe lets a publisher order demand into tiers and set floors so direct-sold and programmatic demand each compete on the terms the publisher intends. A first-look or priority position can protect a committed direct-sold rate, while a floor on the programmatic tags below it can let programmatic capture the impressions direct does not need at a price that does not undercut the commitment. The audit question is whether that ordering reflects a deliberate decision about which demand wins which impression, or whether the demand simply sits in the order it was added.<br><br>A few signs point to a balance that was not set deliberately:<ul><li>Direct-sold and programmatic demand sit in the order they were added rather than in tiers that reflect their priority</li><li>No floor separates the programmatic demand from the committed direct-sold rate, so programmatic can clear below it</li><li>Direct-sold campaigns overdeliver while programmatic fill stays low, which suggests direct is absorbing impressions programmatic would have paid more for</li></ul>You may want to confirm that the direct-sold and programmatic ordering reflects a deliberate decision rather than the order demand was added. One approach is to read direct-sold delivery against its commitment alongside programmatic fill and clearing price, then set tiers and floors that protect the commitment while letting programmatic compete for what is left.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, sponsorship and direct-sold breaks often carry a committed rate the publisher must deliver in full, so those breaks need priority protection. You may want to confirm a first-look or priority tier holds the committed direct-sold demand while a floor lets programmatic compete for the remaining breaks at a price that does not undercut the sponsorship rate.",
+          "ecommerce": "On a commerce-content video property, a brand may buy pre-roll on a specific product category at a committed rate while programmatic fills the general catalog video. You may want to set the priority and floor so the committed category demand delivers in full while programmatic captures the higher-intent inventory it can clear above the floor on."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB (Real-Time Bidding) specification",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          },
+          {
+            "source_type": "IAB",
+            "source_title": "Video Multiple Ad Playlist (VMAP)",
+            "source_url": "https://www.iab.com/guidelines/vmap/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for waterfall tiers, demand priority, and floors is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review how direct-sold and programmatic demand are ordered and floored in the waterfall, and read direct-sold delivery against its commitment alongside programmatic fill and clearing price.",
+        "tools": {
+          "free": {
+            "springserve_ui": {
+              "label": "SpringServe console",
+              "steps": [
+                "Open the demand setup and list the direct-sold and programmatic tags with their priority or tier position in the waterfall.",
+                "Note the floor set on each programmatic tag and whether any floor separates programmatic demand from the committed direct-sold rate.",
+                "Record whether a first-look or priority tier protects the direct-sold demand, or whether direct and programmatic sit in the order they were added.",
+                "Ask the publisher what each direct-sold campaign committed to deliver, and record the rate and the delivery obligation."
+              ]
+            },
+            "springserve_reporting": {
+              "label": "SpringServe reporting",
+              "steps": [
+                "Build a report comparing direct-sold delivery against its committed goal alongside programmatic fill rate and average clearing price for the same inventory.",
+                "Look for direct-sold campaigns overdelivering while programmatic fill stays low, which points to direct absorbing impressions programmatic would have paid for.",
+                "Look for programmatic clearing below the committed direct-sold rate, which points to a missing floor that puts the direct commitment at risk."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the waterfall ordering and floors for direct-sold and programmatic demand alongside direct-sold delivery against commitment and programmatic fill and clearing price. A setup where tiers protect the committed direct-sold rate and a floor lets programmatic compete for the remaining impressions without undercutting it passes. A setup where direct and programmatic sit in the order they were added, or where programmatic can clear below the committed rate, is a fail recorded with the tags and floors affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the direct-sold and programmatic ordering, the floors, and direct delivery against commitment above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has not set the balance between direct-sold protection and programmatic yield deliberately, so direct-sold and programmatic demand share inventory in the order they were added rather than by a decided priority. Direct-sold demand carries a committed rate that needs protection, while programmatic can clear above it on inventory direct does not need, and without tiers and a floor the waterfall either starves programmatic of impressions it would pay for or lets it undercut the committed rate. {{voice_recommend}} reading direct-sold delivery against its commitment alongside programmatic fill and clearing price, then setting a priority tier that protects the committed demand and a floor that lets programmatic compete for what is left. After the change, recheck that direct delivers in full and programmatic captures the remaining inventory above the floor."
+      }
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Consent signals decide whether a TripleLift bid request can carry the legal basis demand partners need to bid, so a missing or unforwarded string can shrink demand on regulated traffic while looking like a fill problem rather than a consent problem. The check is a review of how the consent string moves from the consent management platform (CMP) into TripleLift and onward to demand, so it costs reading time rather than rebuild time, and the finding points to a concrete wiring decision the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "TripleLift sits between a publisher's inventory and the demand that buys it, so the consent a user gives has to reach TripleLift and then travel onward to the demand partners that act on it. This subcategory is about the signal itself, the Transparency and Consent Framework (TCF) string and the Global Privacy Platform (GPP) string, and whether the publisher's setup captures it and passes it through rather than dropping it at the handoff. These checks confirm that the consent string is present in the bid request to TripleLift and forwarded to demand, and that bidding is held back where consent is absent and a legal basis is required.",
+  "audit_checks": [
+    {
+      "id": "triplelift-consent-signals-not-captured-or-forwarded",
+      "title": "The consent string is not captured and passed to TripleLift",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 4,
+      "impact_rationale": "A bid request that reaches TripleLift without the TCF or GPP consent string strips demand partners of the legal basis they read before bidding, so many of them respond with no bid or a reduced bid on regulated traffic. The lost demand shows up as weak fill or low clearing prices rather than an obvious error, which is why a broken consent handoff can persist while the publisher looks elsewhere for the cause.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "A consent signal only does its job if it travels the full path from the user to the demand that acts on it. In a header-bidding setup, a consent management platform (CMP) collects the user's choices and encodes them into a string. The Transparency and Consent Framework (TCF) string carries those choices in the European Economic Area and the United Kingdom, and the Global Privacy Platform (GPP) string carries them across the United States state regimes and increasingly wraps the TCF signal as well. TripleLift, reached through its Prebid adapter, needs that string in the bid request so it can pass the legal basis on to the demand partners that bid.<br><br>The handoff breaks in more than one place. The CMP may be present but not wired to Prebid, so the string is collected and then never read into the auction. The consent module may be missing from the Prebid build, so Prebid has no way to fetch the string from the CMP. The string may be fetched but arrive after the auction has already started, so the first requests go out empty. Any of these leaves TripleLift receiving a bid request with no consent string attached, and a demand partner that cannot see a legal basis treats the impression as one it should not bid on.<br><br>Prebid provides the wiring for this. The consent management module fetches the encoded string from a CMP that follows the IAB TCF or GPP specification and makes it available to every adapter, TripleLift included, so the string rides along with the bid request rather than being dropped at the boundary. Google's own demand and most major buyers read the TCF and GPP signals, so a publisher who collects consent but fails to forward it gives up demand it had every right to receive.<br><br>A few signs point to a consent string that is collected but not passed through:<ul><li>A CMP is live on the page, but the Prebid build has no consent management module loaded</li><li>Bid requests to TripleLift and other adapters go out with the consent string field empty, which a network trace or Prebid debug log shows</li><li>The CMP returns the string later than the auction's start, so the earliest requests carry no consent at all</li></ul>You may want to confirm that the consent string the CMP produces actually reaches the TripleLift bid request. One approach is to read a sample of outgoing bid requests in a Prebid debug session and check that the TCF or GPP string is present and populated, not blank.",
+        "site_type_overlays": {
+          "publishing": "On a media site with readers across regulated regions, the consent string is the difference between a regulated impression that demand will bid on and one it skips. A setup that forwards the TCF string may still drop the GPP string, or the reverse, so you may want to trace the consent path on traffic from the European Economic Area and from United States state regimes separately.",
+          "ecommerce": "On a commerce-content site, regulated shopping traffic is often the higher-value inventory, so a dropped consent string costs demand precisely where the impressions clear highest. You may want to confirm the consent string reaches TripleLift on the product and category pages specifically, rather than assuming a single sitewide CMP wiring covers every template."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - TCF for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementTcf.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - GPP for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          },
+          {
+            "source_type": "IAB Europe",
+            "source_title": "The Transparency & Consent Framework (TCF)",
+            "source_url": "https://iabeurope.eu/tcf/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the CMP is wired into Prebid and whether the consent string actually reaches the TripleLift bid request, by reading outgoing requests in a debug session.",
+        "tools": {
+          "free": {
+            "prebid_debug": {
+              "label": "Prebid debug session",
+              "steps": [
+                "Load a page that runs the header-bidding stack with Prebid debugging enabled, for example by appending the Prebid debug query parameter or enabling debug in the console.",
+                "Open the browser developer tools, then the Network tab, and filter for the bid request sent to TripleLift through its Prebid adapter.",
+                "Inspect the request and confirm whether the TCF consent string field and, where applicable, the GPP string field are present and populated rather than empty.",
+                "Check the Prebid configuration in the console for a loaded consent management module and confirm it names a CMP that follows the IAB TCF or GPP specification.",
+                "Repeat on traffic that should trigger consent, for example a session simulating the European Economic Area, to confirm the string is captured before the auction starts rather than after."
+              ]
+            },
+            "cmp_validator": {
+              "label": "CMP and consent string inspection",
+              "steps": [
+                "Use a browser extension or the CMP's own diagnostic view to read the TCF or GPP string the CMP produces for the current session.",
+                "Compare the string the CMP produces against the string that appears in the TripleLift bid request to confirm they match and nothing is lost at the handoff.",
+                "Record any case where the CMP holds a valid string but the bid request to TripleLift carries none."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a CMP following the IAB TCF or GPP specification is live, whether Prebid loads a consent management module, and whether a sampled bid request to TripleLift carries a populated consent string. A setup where the CMP, the Prebid module, and a populated string in the TripleLift request all line up passes. A setup where a CMP is present but the string never reaches the TripleLift bid request is a fail recorded with the point in the path where the string is lost.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the CMP is wired into Prebid and whether the consent string reaches the TripleLift bid request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} collects consent through a consent management platform (CMP) but does not pass the consent string into the TripleLift bid request, so demand partners receive requests with no legal basis attached. A Transparency and Consent Framework (TCF) or Global Privacy Platform (GPP) string that never reaches the bid request leaves many demand partners with no choice but to skip or reduce their bid on regulated traffic, which shows up as weak fill rather than an obvious consent error. {{voice_recommend}} loading the Prebid consent management module so the string the CMP produces is fetched before the auction starts and rides along with the request to TripleLift, then confirming in a debug session that a sampled bid request carries a populated consent string. After the fix, recheck fill rate and clearing price on regulated traffic to confirm the recovered demand."
+      }
+    },
+    {
+      "id": "triplelift-consent-signals-bidding-not-suppressed-without-consent",
+      "title": "Bidding is not held back where consent is absent and a legal basis is required",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 3,
+      "impact_rationale": "When a user declines consent and no other legal basis applies, sending the bid request onward anyway places processing on TripleLift and its demand partners that the consent signal says should not happen. The exposure is a compliance one rather than a revenue one because the affected impressions would draw little consented demand regardless, so the cost of getting it wrong is regulatory rather than a fill loss.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Passing the consent string is half the job. The other half is acting on what the string says. When a user declines consent under the Transparency and Consent Framework (TCF) and no other legal basis covers the processing, the bid request for that user should be held back rather than sent to demand partners that would process the data anyway. Forwarding it regardless turns a captured consent choice into a signal that the setup reads but ignores.<br><br>Enforcement can live in more than one layer, and a publisher needs to know which layer owns it. Prebid offers a control module that reads the consent string and restricts activities at the Prebid level, so it can block an adapter such as TripleLift from receiving a bid request when the consent signal does not permit it. TripleLift and its downstream demand also apply their own enforcement on the string they receive. The gap a publisher most often carries is assuming the downstream layer handles everything while the Prebid layer forwards every request unconditionally, which means the first stop in the chain ignores the very signal the publisher worked to collect.<br><br>The point is not to suppress all bidding in regulated regions. Consent given is consent to proceed, and a legitimate-interest basis may cover some purposes even when consent is declined. The audit question is narrower. Where consent is declined and no legal basis applies, does the setup stop the request, or does it pass it to TripleLift and demand as if nothing were declined.<br><br>A few signs point to enforcement that is not applied at the publisher's own layer:<ul><li>The Prebid build forwards the consent string but loads no control module to act on it, so every adapter receives the request regardless of the signal</li><li>A session that declines all consent still produces a populated bid request to TripleLift in a debug trace</li><li>The publisher cannot say which layer, Prebid, TripleLift, or downstream demand, is responsible for holding back a no-consent request</li></ul>You may want to confirm that a declined-consent session is handled the way the publisher intends. One approach is to simulate a session that declines consent, then check in a debug trace whether the request to TripleLift is suppressed or restricted rather than sent unchanged.",
+        "site_type_overlays": {
+          "publishing": "On a media site that draws a broad audience across regulated regions, a share of sessions will decline consent, so the enforcement layer is exercised regularly rather than as an edge case. You may want to confirm which layer holds back a no-consent request and document it, so a future change to the Prebid build does not remove enforcement the publisher assumed was downstream.",
+          "ecommerce": "On a commerce-content site, declined-consent sessions still browse products, so the question is whether those sessions generate suppressed requests or full ones. A checkout or account flow may load a different stack than the editorial pages and carry different consent wiring, so you may want to verify the enforcement behavior on the commercial templates."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "TCF Control Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/tcfControl.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform",
+            "source_url": "https://iabtechlab.com/gpp/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether a declined-consent session results in a held-back or restricted request to TripleLift, and identify which layer owns the enforcement.",
+        "tools": {
+          "free": {
+            "prebid_debug": {
+              "label": "Prebid debug session",
+              "steps": [
+                "Open the CMP and decline all consent for the current session, or use a test mode that simulates a declined-consent user in the European Economic Area.",
+                "Reload the page with Prebid debugging enabled and open the Network tab in the browser developer tools.",
+                "Check whether a bid request is still sent to the TripleLift adapter, and if so whether it is restricted or carries the full request as if consent were granted.",
+                "Inspect the Prebid configuration in the console for a loaded TCF control module and note which activities, if any, it is set to enforce.",
+                "Record which layer is intended to hold back the no-consent request, whether Prebid, TripleLift, or downstream demand, and whether the observed behavior matches that intent."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records what happens to a TripleLift bid request in a declined-consent session and which layer is responsible for holding it back. A setup where a no-consent request is suppressed or restricted at a known layer, with the responsibility documented, passes. A setup where a declined-consent session still produces a full, unrestricted request to TripleLift and no layer is clearly accountable is a fail recorded with the observed behavior and the missing enforcement point.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record what happens to a TripleLift bid request in a declined-consent session and which layer holds it back above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} forwards bid requests to TripleLift in declined-consent sessions where no legal basis applies, so a captured consent choice is read and then ignored at the publisher's own layer. The Transparency and Consent Framework (TCF) signal says the processing should not proceed, yet the request is sent onward as if consent were granted, which leaves the enforcement responsibility unclear and the publisher exposed. {{voice_recommend}} loading the Prebid control module to restrict the affected activities at the Prebid level, or documenting which downstream layer holds back the request, so a declined-consent session produces a suppressed or restricted request rather than a full one. After the change, simulate a declined-consent session and confirm in a debug trace that the request to TripleLift is held back as intended."
+      }
+    }
+  ]
+}

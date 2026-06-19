@@ -1,0 +1,154 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Child-directed treatment decides whether inventory likely to reach minors carries personalized ads and the data uses that come with them. The Children's Online Privacy Protection Act (COPPA) reaches the ad networks and exchanges that monetize that inventory, not the publisher alone, so a TripleLift integration that fails to signal child-directed inventory exposes both sides to the same rule. The check reads the signals a publisher already passes to TripleLift rather than rebuilding the integration, so it costs review time, and the finding points to a concrete signal the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "TripleLift is a supply-side platform (SSP) that monetizes native, branded-content, and connected TV (CTV) inventory, and it is compatible with Prebid through the TripleLift bid adapter. When a publisher's inventory is directed to children or is likely to reach an audience under 13, COPPA restricts how personal information may be collected and used to target ads. This subcategory is about the signals the publisher passes to TripleLift for that inventory, the child-directed flag and the data-use restrictions that should follow it, rather than the publisher's broader consent setup. These checks confirm that child-directed inventory is flagged so personalized ads and the data collection behind them are suppressed, and that restricted data processing reaches the inventory likely to draw a younger audience.",
+  "audit_checks": [
+    {
+      "id": "triplelift-child-directed-inventory-not-flagged",
+      "title": "Child-directed inventory is not flagged to suppress personalized ads",
+      "category": "privacy",
+      "subcategory": "child_directed",
+      "impact_score": 4,
+      "impact_rationale": "If inventory directed to children is not flagged as child-directed, TripleLift and the bidders behind it receive the request as ordinary inventory and may collect identifiers and serve personalized ads. That is the data use COPPA restricts, and because the rule reaches the ad network as well as the publisher, an unflagged request leaves both sides serving targeted ads on inventory where the law does not allow it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "The Children's Online Privacy Protection Act (COPPA) restricts how personal information is collected from users under 13 on sites and services directed to children, and the rule reaches more than the publisher. The Federal Trade Commission (FTC) is explicit that an ad network or other third-party service used by a child-directed site carries its own COPPA obligation when it collects personal information from those users. A supply-side platform (SSP) such as TripleLift, and the bidders it connects to, sit squarely in that position when a publisher sends them inventory that is directed to children.<br><br>The mechanism that keeps both sides inside the rule is a signal on the request. In a Prebid integration, with which TripleLift is compatible through its bid adapter, the publisher sets a child-directed flag with 'pbjs.setConfig({coppa: true})'. That flag passes to supporting adapters and, on the OpenRTB request, sets the 'regs.coppa' field that bidders read. When it is set, the personal identifiers that drive personalized advertising are stripped from the request before it reaches the adapters. Without the flag, the same request goes out as ordinary inventory, identifiers attached, and a personalized ad can clear against an audience the law protects.<br><br>The signal has to follow the inventory rather than the whole site. A publisher whose site is directed to children flags it across the board. A general-audience publisher with a section, app, or CTV property directed to children flags that inventory specifically, so the child-directed treatment reaches the requests it should and the rest of the inventory continues to monetize normally.<br><br>A few signs point to child-directed inventory that is not flagged:<ul><li>Inventory aimed at a child audience runs through TripleLift with no child-directed flag set on the Prebid configuration or the request</li><li>The 'regs.coppa' field is absent or set to '0' on requests from inventory the publisher treats as child-directed elsewhere, such as in its privacy policy</li><li>Personalized ads and identifier-based targeting clear on inventory the publisher describes as directed to children</li></ul>You may want to confirm that every slice of inventory directed to children carries the child-directed flag before it reaches TripleLift. One approach is to inspect the outgoing request on a child-directed page and check that 'regs.coppa' is set, then trace it back to where the flag is configured.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a kids' section, a family-content vertical, or a CTV channel aimed at children can sit alongside general-audience inventory. You may want to flag the child-directed inventory specifically so its requests carry the child-directed signal while the rest of the site keeps monetizing normally, rather than treating the whole property as one or the other.",
+          "ecommerce": "On a commerce-content site, a toys or kids' product category and the editorial pages that support it can draw a younger audience even when the storefront overall is general-audience. You may want to confirm whether that inventory is directed to children and, if it is, flag it so personalized ads are suppressed on those requests to TripleLift."
+        },
+        "learn_more": [
+          {
+            "source_type": "FTC Business Guidance",
+            "source_title": "Children's Online Privacy Protection Rule: Not Just for Kids' Sites",
+            "source_url": "https://www.ftc.gov/business-guidance/resources/childrens-online-privacy-protection-rule-not-just-kids-sites"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "pbjs.setConfig: COPPA configuration",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/setConfig.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which inventory the publisher treats as directed to children and confirm that the child-directed flag is set on the requests that inventory sends to TripleLift.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open a page the publisher treats as child-directed and open the browser network panel.",
+                "Find the outgoing Prebid auction request and inspect the OpenRTB payload for the 'regs.coppa' field, noting whether it is set to '1', '0', or absent.",
+                "Repeat on a general-audience page to confirm the flag is scoped to the child-directed inventory rather than applied everywhere or nowhere.",
+                "Record, per inventory slice, whether the child-directed flag is present and matches how the publisher classifies that inventory."
+              ]
+            },
+            "prebid_config_review": {
+              "label": "Prebid configuration review",
+              "steps": [
+                "Read the Prebid setup and look for where 'pbjs.setConfig' sets the 'coppa' value, noting whether it is set true for the child-directed inventory.",
+                "Confirm the flag is wired to load only on the inventory directed to children, rather than hard-coded on or off across the whole site.",
+                "Ask the publisher how it determines which inventory is child-directed and record that classification against what the configuration actually sends."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per inventory slice the publisher classifies as child-directed, whether the request to TripleLift carries the child-directed flag with 'regs.coppa' set to '1'. Child-directed inventory that consistently sets the flag passes. Inventory the publisher treats as directed to children that sends requests with the flag absent or set to '0' is a fail recorded with the inventory affected and where the flag should be set.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record, per child-directed inventory slice, whether the request carries the child-directed flag above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sends inventory directed to children through TripleLift without the child-directed flag set, so the requests go out as ordinary inventory with identifiers attached. The Children's Online Privacy Protection Act (COPPA) restricts personalized advertising to users under 13 and reaches the ad network as well as the publisher, so an unflagged request leaves both sides serving targeted ads where the rule does not allow it. {{voice_recommend}} setting the child-directed flag on the Prebid configuration for that inventory so 'regs.coppa' is set on the request and the identifiers behind personalized ads are stripped before bidders see them. After the change, inspect the outgoing request on a child-directed page to confirm the flag is present."
+      }
+    },
+    {
+      "id": "triplelift-child-directed-restricted-processing-not-applied",
+      "title": "Restricted data processing is not applied to inventory likely to reach minors",
+      "category": "privacy",
+      "subcategory": "child_directed",
+      "impact_score": 3,
+      "impact_rationale": "Inventory that is not formally a kids' property but draws an audience likely to include children can still fall under COPPA when the publisher has actual knowledge of that audience. Leaving the inventory on ordinary processing, with identifiers and full request data flowing to TripleLift, applies personalized treatment to an audience the rule may protect, so the data use runs ahead of the publisher's own assessment of the inventory.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "The Children's Online Privacy Protection Act (COPPA) does not reach only sites built for children. The Federal Trade Commission (FTC) describes it as not just for kids' sites, and a general-audience operator falls under the rule when it has actual knowledge that it is collecting personal information from a user under 13. For a publisher monetizing through TripleLift, that means some inventory which is not a formal kids' property can still need child-directed treatment once the publisher knows the audience skews young.<br><br>Restricted data processing is the practical answer on that inventory. It is the same mechanism as the child-directed flag, applied on the basis of the audience the publisher actually sees rather than a formal kids' classification. When the flag is set, the supply chain strips the data that drives personalized advertising. On a Prebid integration, with which TripleLift is compatible, setting the child-directed flag sets 'regs.coppa' on the request, and Prebid Server removes the device identifiers, truncates the IP address, and clears the precise location and user fields before the request reaches bidders. That keeps the inventory monetizing through contextual demand while withholding the personal data the rule restricts.<br><br>The audit question is whether the publisher's own knowledge of its audience drives the processing decision. Inventory the publisher knows draws a younger audience, a family-oriented section, an app rated for children, a CTV channel with a kids' lineup, should carry restricted processing even when it is not labeled a kids' site. Inventory with no such signal continues on ordinary processing.<br><br>A few signs point to restricted processing that is not reaching inventory likely to draw minors:<ul><li>The publisher knows a section, app, or channel skews toward a younger audience, yet that inventory runs on ordinary processing with identifiers flowing to TripleLift</li><li>Restricted processing is applied only to formally labeled kids' properties, with no review of general-audience inventory the publisher knows reaches children</li><li>No record exists of which inventory the publisher has assessed for a likely-minor audience, so the processing decision rests on the property label alone</li></ul>You may want to confirm that the inventory carrying restricted processing matches the inventory the publisher actually knows reaches a younger audience. One approach is to list the sections, apps, and channels the publisher considers likely to draw minors, then check each against whether restricted processing is set on its requests to TripleLift.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a parenting vertical, an education section, or a CTV channel with family programming can draw an audience that includes children even though the site is general-audience overall. You may want to apply restricted processing to those areas based on what the publisher knows about the audience, rather than waiting for a formal kids' label that the inventory may never carry.",
+          "ecommerce": "On a commerce-content site, a kids' apparel or toys category and the gift-guide content around it can attract a younger or family audience. You may want to assess that inventory for a likely-minor audience and apply restricted processing where the publisher's own data supports it, so personalized treatment does not run on inventory the publisher knows reaches children."
+        },
+        "learn_more": [
+          {
+            "source_type": "FTC Business Guidance",
+            "source_title": "Children's Online Privacy Protection Rule: Not Just for Kids' Sites",
+            "source_url": "https://www.ftc.gov/business-guidance/resources/childrens-online-privacy-protection-rule-not-just-kids-sites"
+          },
+          {
+            "source_type": "Prebid Server Documentation",
+            "source_title": "Privacy for Header Bidding: COPPA",
+            "source_url": "https://docs.prebid.org/prebid-server/features/pbs-privacy.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which inventory the publisher knows is likely to reach a younger audience and confirm that restricted processing is applied to that inventory before it reaches TripleLift.",
+        "tools": {
+          "free": {
+            "audience_review": {
+              "label": "Audience and inventory review",
+              "steps": [
+                "Ask the publisher to list the sections, apps, and channels it considers likely to reach a younger audience, with the evidence behind each, such as audience data or content type.",
+                "For each, record whether the inventory is formally classified as a kids' property or treated as general-audience.",
+                "Note any inventory the publisher knows skews young that is not on the list, so the assessment reflects what the publisher actually knows rather than the labels alone."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open a page or app screen the publisher considers likely to reach minors and inspect the outgoing TripleLift or Prebid request.",
+                "Check whether the child-directed flag is set so restricted processing applies, looking for 'regs.coppa' set to '1' and the absence of device identifiers and precise location in the payload.",
+                "Record, per inventory slice the publisher flagged as likely to reach minors, whether restricted processing is actually applied on the request."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the inventory the publisher knows is likely to reach a younger audience alongside whether restricted processing is applied to each slice. Inventory the publisher has assessed, with restricted processing applied where the audience supports it, passes. Inventory the publisher knows skews toward minors that still runs on ordinary processing, or general-audience inventory with no assessment on record, is a fail noted with the inventory affected and the evidence of the younger audience.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the inventory likely to reach minors and whether restricted processing is applied above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs inventory likely to reach a younger audience on ordinary processing, with identifiers and full request data flowing to TripleLift, even where the publisher has reason to know the audience includes children. The Children's Online Privacy Protection Act (COPPA) reaches general-audience operators once they have actual knowledge of a child audience, so personalized treatment on that inventory runs ahead of the publisher's own assessment. {{voice_recommend}} listing the sections, apps, and channels known to draw a younger audience and applying restricted processing to each, which sets 'regs.coppa' on the request and strips the personal data behind personalized ads while contextual demand still fills the inventory. After the change, confirm on a sample request that restricted processing is applied where the audience supports it."
+      }
+    }
+  ]
+}

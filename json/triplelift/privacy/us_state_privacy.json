@@ -1,0 +1,242 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "US state privacy signals decide whether a reader's opt-out of the sale or sharing of their data travels from the consent screen all the way to TripleLift and the demand behind it. When the signal is missing or carries the wrong value, the opt-out stops at the page and the impression is sold as though consent were given, which is the exact gap a state regulator or a plaintiff looks for. The check reads the Global Privacy Platform (GPP) string a publisher already passes and confirms the opt-out it encodes, so it costs reading time rather than rebuild time and the finding points to a concrete configuration the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "US state privacy laws give residents the right to opt out of the sale or sharing of their personal information, and the advertising supply chain carries that choice in the GPP string. A publisher selling inventory through TripleLift signals the reader's choice through the GPP string the consent management platform builds, and TripleLift reads that string to decide whether the impression may be sold and what may be passed to demand. This subcategory checks that the right GPP sections are present in the signal TripleLift receives and that the opt-out a reader sets is honored in the value those sections carry. These checks confirm that the privacy signal reaches TripleLift intact rather than stopping at the consent screen.",
+  "audit_checks": [
+    {
+      "id": "triplelift-us-state-privacy-gpp-sections-not-passed",
+      "title": "US national and state GPP sections are not passed to TripleLift",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "If the GPP string TripleLift receives omits the US national section or the applicable US state sections, TripleLift has no signal that a state privacy law applies and no record of the reader's choice, so it processes the impression as though no opt-out exists. A missing signal in a regulated state is a compliance gap that a regulator or a plaintiff can point to, which is why this scores higher than a typical configuration finding.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "The Global Privacy Platform (GPP) is the IAB Tech Lab container that carries a reader's privacy choices from a consent management platform (CMP) to ad tech partners, and TripleLift reads it to decide how an impression may be sold. A GPP string is built from sections, each one a discrete signal for a jurisdiction. Section 7 is the US national string that the Multi-State Privacy Agreement (MSPA) defines, and sections 8 through 12 and beyond carry the individual US state strings, beginning with California. When a reader in a state with a privacy law loads a page, the CMP is meant to encode the section that applies and place it in the GPP string TripleLift receives.<br><br>The failure this check looks for is a GPP string that reaches TripleLift without the section the reader's state needs. The CMP may build a TCF string for European visitors but never add a US section, or it may pass the US national section to TripleLift while leaving out the state sections, or it may pass nothing at all to the bid request. In each case TripleLift sees no signal that a state law applies and processes the impression as though the reader made no choice because an absent section is not the same as a section that says consent was given.<br><br>The publisher controls which sections the CMP encodes and which signals reach the bid stream. In a header bidding setup, the GPP consent management module reads the string from an IAB-compatible CMP and makes it available to the TripleLift adapter, so the section coverage the CMP produces is what TripleLift ends up seeing. A reader-facing opt-out that the CMP records but never encodes into a GPP section is a choice that travels no further than the consent screen.<br><br>A few signs point to GPP sections that are not reaching TripleLift:<ul><li>The CMP passes a TCF string for European visitors but adds no US national or US state GPP section for domestic visitors</li><li>The GPP string carried in the bid request omits the section for a state where the publisher has measurable traffic and an active privacy law</li><li>The publisher cannot confirm which GPP section IDs are encoded for visitors in regulated states</li></ul>You may want to confirm that the GPP string TripleLift receives carries the US national section and the state sections for the states where the publisher has traffic. One approach is to load a page as a visitor in a regulated state, read the GPP string the CMP produces, and check that the expected section IDs are present.",
+        "site_type_overlays": {
+          "publishing": "A media site usually draws readers from many states at once, so the CMP needs to encode whichever US state section matches each reader rather than a single fixed section. You may want to confirm that the CMP detects the reader's state and adds the matching GPP section to the string TripleLift receives, rather than passing only the US national section or only the California section to everyone.",
+          "ecommerce": "A commerce-content site often ties a reader to an account or a shipping address, which can make the applicable state clearer than on an anonymous media site. You may want to confirm that the state signal the CMP encodes into the GPP string matches the state the rest of the site already associates with the reader, so the privacy section TripleLift receives lines up with the jurisdiction that applies."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "Global Privacy Platform: Section Information (section IDs)",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/main/Sections/Section%20Information.md"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management: GPP for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform (GPP) overview",
+            "source_url": "https://iabtechlab.com/gpp/"
+          }
+        ],
+        "learn_more_note": "TripleLift's detailed configuration documentation for the GPP sections it reads is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which GPP sections the consent management platform encodes and confirm the string that reaches TripleLift carries the US national and applicable US state sections for the publisher's traffic.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the site in a browser, open developer tools, and switch to the Console tab.",
+                "Call the CMP through the GPP API (e.g., '__gpp(\"getGPPData\", callback)') and read the returned object for the GPP string and the 'applicableSections' list.",
+                "Note which section IDs are present, and confirm whether the US national section (7) and the relevant US state sections (8 and above) appear for a visitor in a regulated state.",
+                "Switch to the Network tab, find the bid request that goes to TripleLift, and confirm the GPP string and the section list are attached to it rather than dropped before the request leaves the page."
+              ]
+            },
+            "gpp_decoder": {
+              "label": "IAB GPP string decoder",
+              "steps": [
+                "Copy the GPP string the CMP produced for a visitor in a regulated state.",
+                "Decode it with an IAB-compatible GPP decoder to read which sections it contains and the values they carry.",
+                "Record whether the US national section and the expected US state section are present, and flag any regulated state with traffic whose section is missing."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for visitors in the regulated states where the publisher has traffic, which GPP sections the CMP encodes and whether those sections reach the TripleLift bid request. A setup where the US national section and the applicable US state sections are present in the string TripleLift receives passes. A setup where a regulated state with traffic has no matching GPP section in the signal, or where the GPP string never reaches the bid request, is a fail recorded with the states and sections affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which GPP sections the CMP encodes and whether they reach the TripleLift bid request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Global Privacy Platform (GPP) string reaching TripleLift on {{site_name}} omits the US national or applicable US state sections for visitors in regulated states. TripleLift reads the GPP string to decide how an impression may be sold, so a missing section means it sees no signal that a state privacy law applies and processes the impression as though the reader made no choice. {{voice_recommend}} confirming which states carry measurable traffic, checking that the consent management platform encodes the US national section and the matching state section for those visitors, and verifying the string reaches the TripleLift bid request rather than stopping at the page. After the change, recheck the bid request for a visitor in each regulated state to confirm the expected section IDs are present."
+      }
+    },
+    {
+      "id": "triplelift-us-state-privacy-opt-out-not-honored",
+      "title": "Opt-out of sale or sharing is not honored in the signal sent to TripleLift",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "A GPP section can be present and still carry the wrong value, so a reader who opted out of the sale or sharing of their data has a signal that tells TripleLift the opposite. When the opt-out is recorded at the consent screen but not reflected in the section value TripleLift reads, the impression is sold against the reader's stated choice, which is the substantive harm a state privacy law is written to prevent.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Carrying the right Global Privacy Platform (GPP) section is the first half of honoring a privacy choice. The second half is the value inside that section. US state privacy laws give residents the right to opt out of the sale or sharing of their personal information, and the GPP section encodes that choice as a set of fields, including whether the reader opted out of sale and whether they opted out of targeted advertising. TripleLift reads those field values, not the reader's intent, so the signal has to match what the reader actually chose.<br><br>The gap this check looks for sits between the consent screen and the encoded value. A reader sets an opt-out, the consent management platform (CMP) shows it as recorded, and yet the GPP section that reaches TripleLift still carries an opt-out field set to the value that means consent was given or no choice was made. That can happen when the CMP fails to write the choice into the string, when a default value overrides the reader's selection, or when a global control such as the browser's Global Privacy Control signal is ignored rather than mapped into the section. In each case TripleLift receives a signal that contradicts the reader, and it acts on the signal.<br><br>In a header bidding setup, the publisher's GPP control modules translate the section values into the activity restrictions that apply to the auction, so the opt-out a reader sets is meant to flow through the string and into how TripleLift and the rest of demand may use the data. When the value is wrong, the restriction never applies. The audit question is whether the opt-out a reader records is the opt-out TripleLift reads, for both the sale-of-data field and the sharing-for-targeted-advertising field that US state laws treat as distinct choices.<br><br>A few signs point to an opt-out that is not honored in the signal:<ul><li>A reader who selects opt-out of sale still produces a GPP section whose sale field reads as opt-in or as no choice made</li><li>The browser's Global Privacy Control signal is present but the CMP does not map it into the GPP section's opt-out fields</li><li>The opt-out of sharing for targeted advertising is treated as the same field as opt-out of sale, so one choice is dropped</li></ul>You may want to confirm that the opt-out a reader sets is reflected in the GPP section value TripleLift receives, for both the sale field and the sharing field. One approach is to set an opt-out as a visitor in a regulated state, decode the resulting GPP string, and read the section fields to confirm they carry the opt-out.",
+        "site_type_overlays": {
+          "publishing": "A media site often presents the privacy choice through a consent banner that a reader interacts with quickly, so the path from a click to an encoded opt-out value matters. You may want to set an opt-out through the banner as a visitor in a regulated state and decode the GPP string to confirm the section's sale and sharing fields carry the opt-out, rather than assuming the banner click reached the string.",
+          "ecommerce": "A commerce-content site may collect more identifiable data and run retargeting that depends on the sharing-for-targeted-advertising signal, so the sharing field deserves a separate check from the sale field. You may want to confirm that an opt-out of sharing for targeted advertising is encoded as its own field value in the GPP section TripleLift receives, so the retargeting demand sees the restriction the reader set."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "GPP Control Module: USNat string",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/gppControl_usnat.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "GPP Control Module: US state strings",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/gppControl_usstates.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid US Compliance Support (MSPA and USNat)",
+            "source_url": "https://docs.prebid.org/features/mspa-usnat.html"
+          }
+        ],
+        "learn_more_note": "TripleLift's detailed documentation for how it applies opt-out field values is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether an opt-out a reader sets in a regulated state is reflected in the GPP section field values that reach TripleLift, for both the sale field and the sharing-for-targeted-advertising field.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the site as a visitor in a regulated state, open the consent management platform, and set an opt-out of the sale and sharing of data.",
+                "Open developer tools, switch to the Console, and call the CMP through the GPP API to read the updated GPP string.",
+                "Switch to the Network tab and confirm the updated GPP string, carrying the opt-out, is attached to the bid request that goes to TripleLift."
+              ]
+            },
+            "gpp_decoder": {
+              "label": "IAB GPP string decoder",
+              "steps": [
+                "Copy the GPP string produced after setting the opt-out.",
+                "Decode it with an IAB-compatible GPP decoder and read the section fields for sale and for sharing or targeted advertising.",
+                "Confirm both fields carry the opt-out value, and record any case where the field still reads as consent given or no choice made despite the reader's opt-out.",
+                "Repeat with the browser's Global Privacy Control signal enabled to confirm the CMP maps it into the section's opt-out fields."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner sets an opt-out as a visitor in a regulated state, then records the GPP section field values that reach TripleLift for sale and for sharing or targeted advertising. A setup where both fields carry the opt-out the reader set, including when the Global Privacy Control signal is the source, passes. A setup where a recorded opt-out produces a section field that still reads as consent given or no choice made is a fail recorded with the field and the state affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the GPP section field values for sale and sharing after setting an opt-out above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that an opt-out a reader sets in a regulated state is not reflected in the Global Privacy Platform (GPP) section value reaching TripleLift on {{site_name}}, so the sale or sharing field still reads as consent given. TripleLift acts on the field value rather than the reader's intent, which means the impression can be sold against a choice the reader recorded at the consent screen. {{voice_recommend}} setting an opt-out as a visitor in a regulated state, decoding the resulting GPP string, and confirming both the sale field and the sharing-for-targeted-advertising field carry the opt-out, including when the choice comes from the browser's Global Privacy Control signal. After the fix, recheck the decoded section values to confirm the opt-out travels into the signal TripleLift reads."
+      }
+    },
+    {
+      "id": "triplelift-us-state-privacy-legacy-string-not-aligned",
+      "title": "Legacy US Privacy string is passed but does not align with the GPP signal",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 2,
+      "impact_rationale": "A setup can still pass the legacy US Privacy string alongside GPP for partners that have not fully migrated. When the two signals disagree, a partner reading one sees a different choice than a partner reading the other, which produces inconsistent handling of the same reader. The impact is moderate because GPP is the forward path and the misalignment is a transition-period hygiene gap rather than an absent opt-out.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Before the Global Privacy Platform (GPP), the US signal was the US Privacy (USP) string, a short value built for the California Consumer Privacy Act (CCPA) and its update under the California Privacy Rights Act (CPRA). The USP string encodes whether notice was given and whether the reader opted out of sale, and TripleLift and other partners read it where GPP has not yet replaced it. A publisher can pass both signals at once during the transition, so a partner that reads USP and a partner that reads GPP each find a value to act on.<br><br>Passing both is a reasonable transition choice, and the failure this check looks for is not the presence of the legacy string. The failure is the two signals carrying different choices for the same reader. A reader who opts out of sale should produce a USP string whose opt-out character is set and a GPP section whose sale field is set to opt-out, and those two should agree. When the consent management platform (CMP) updates one but not the other, a partner reading USP can sell the impression while a partner reading GPP restricts it, or the reverse, and the same reader is handled two different ways depending on which signal a partner happens to consume.<br><br>The publisher controls both strings through the CMP, so keeping them aligned is a configuration the publisher owns rather than a partner behavior. The audit question is whether the legacy USP string and the GPP US national or state section encode the same opt-out for the same reader, so that a partner reading either signal reaches the same outcome.<br><br>A few signs point to a legacy string that is not aligned with GPP:<ul><li>The USP string shows an opt-out of sale while the GPP US national section reads as no opt-out, or the reverse</li><li>The CMP updates the GPP section when a reader changes a choice but leaves the USP string at its earlier value</li><li>Some partners report honoring an opt-out while others on the same inventory do not, which can trace back to the two signals disagreeing</li></ul>You may want to confirm that the legacy USP string and the GPP signal carry the same opt-out for the same reader. One approach is to decode both strings for a visitor in California, the state the USP string was built for, and confirm the opt-out matches across the two.",
+        "site_type_overlays": {
+          "publishing": "A media site that has run programmatic demand for several years is more likely to still carry the legacy USP string for older partner integrations. You may want to confirm that the USP string and the GPP section agree for a California visitor. A long-standing integration reading the legacy string should reach the same opt-out as a newer partner reading GPP.",
+          "ecommerce": "A commerce-content site that retargets across partners can have some partners on the legacy USP string and others on GPP at the same time. You may want to confirm the two signals align so that a reader's opt-out of sale or sharing is honored the same way regardless of which signal a given retargeting partner reads."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "US Privacy (USP / CCPA) Consent Management Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementUsp.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management: GPP for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          },
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "Global Privacy Platform: Section Information (section IDs)",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/main/Sections/Section%20Information.md"
+          }
+        ],
+        "learn_more_note": "TripleLift's documentation for which US signals it reads during the GPP transition is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the legacy US Privacy (USP) string and the GPP US national or California section encode the same opt-out for the same reader.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the site as a visitor in California, open the consent management platform, and set an opt-out of sale.",
+                "Open developer tools, switch to the Console, and read both signals: the legacy USP string through the US Privacy API (e.g., '__uspapi') and the GPP string through the GPP API.",
+                "Record both values, then check the Network tab to confirm which of the two each TripleLift-bound bid request carries."
+              ]
+            },
+            "gpp_decoder": {
+              "label": "IAB GPP string decoder",
+              "steps": [
+                "Read the legacy USP string and confirm whether its opt-out-of-sale character is set.",
+                "Decode the GPP string and read the US national or California section sale field.",
+                "Compare the two and record any case where the legacy string and the GPP section disagree on the reader's opt-out."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner sets an opt-out as a California visitor, then records the legacy USP string value alongside the GPP US national or California section sale field. A setup where both signals carry the same opt-out for the same reader passes. A setup where the legacy string and the GPP section disagree on the opt-out is a fail recorded with the signals and the choice that diverges.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the legacy USP string value and the GPP section sale field after setting an opt-out above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the legacy US Privacy (USP) string and the Global Privacy Platform (GPP) signal carry different opt-out values for the same reader on {{site_name}}, so a partner reading the legacy string and a partner reading GPP can handle the reader two different ways. The USP string predates GPP and a setup can pass both during the transition, but the consent management platform has to keep them in step or the same opt-out is honored by one partner and ignored by another. {{voice_recommend}} setting an opt-out as a California visitor, decoding both the USP string and the GPP section, and confirming the sale opt-out matches across the two. After aligning them, recheck both signals so that any partner reading either one reaches the same outcome for the reader."
+      }
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Floor strategy sets the price below which an impression goes unsold, so it controls the trade between fill rate and the value of each impression. A floor that leans entirely on automation, or one flat number applied across every tag, country, and device, can leave revenue uncollected without anyone noticing. The check is a review of the floor configuration a publisher already runs through PubMatic OpenWrap, so it costs reading time rather than rebuild time, and the finding points to a concrete pricing decision the publisher can test.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Floor pricing decides the minimum cost per mille (CPM) a bid has to meet to win an impression in the header-bidding auction, which sets where the line falls between filling more impressions and protecting the value of each one. PubMatic OpenWrap is built on Prebid, so the floors run through the Prebid Price Floors module and PubMatic's own dynamic floor data feeds into it. This subcategory is about the floor strategy itself, the values chosen and how they are applied, rather than the wrapper plumbing that carries them. These checks confirm that the floor strategy is a deliberate, evidence-based choice rather than automation accepted by default, and that the floors reflect the price differences across the publisher's inventory.",
+  "audit_checks": [
+    {
+      "id": "pubmatic-price-floors-dynamic-vs-fixed-not-evaluated",
+      "title": "Dynamic floors are accepted without evaluating them against a fixed-floor baseline",
+      "category": "monetization",
+      "subcategory": "price_floors",
+      "impact_score": 3,
+      "impact_rationale": "Dynamic floors let an algorithm set the floor automatically, which often raises revenue, but the objective the model optimizes toward does not always match a publisher's strategy, for example protecting a premium price point. Accepting dynamic floors without comparing them to a fixed-floor baseline leaves the choice untested, so a publisher cannot tell whether the automated floor is helping or trading away inventory value on a slice of inventory.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "inventory"],
+      "educate": {
+        "base": "PubMatic OpenWrap gives a publisher more than one way to set a floor. A fixed floor is a number the publisher chooses, written into the Prebid Price Floors module as a rule that the wrapper applies as configured. A dynamic floor instead hands the floor to PubMatic's real-time data (RTD) model, which fetches a floor value per auction and adjusts it to balance fill and value. OpenWrap is built on Prebid, so the dynamic floors arrive through the PubMatic RTD provider and feed the same Price Floors module that a fixed floor would use. The automated option often raises revenue, and the documentation frames it as a way to find the price that fills the impression without giving the inventory away.<br><br>The risk is not that automation is wrong. The risk is accepting it without a comparison. A dynamic floor optimizes toward the objective the model was built for, which is yield, and that objective does not always match a publisher's own strategy. A publisher protecting a premium price point on a sponsorship-adjacent placement, or holding a deliberate floor to keep a direct-sold rate intact, may find the automated floor clears impressions below the price they meant to protect. Without a baseline to measure against, the publisher has no way to see that happening.<br><br>The Prebid Price Floors module supports running this comparison through its Schema 2 format, which holds more than one floor model and assigns a weight to each so the wrapper can split traffic between them. A publisher can run a dynamic floor on one share of traffic, hold a fixed floor on another comparable share, and read the revenue, fill rate, and average price across both. That turns the floor choice into a measured result rather than a default that was never questioned.<br><br>A few signs point to dynamic floors being accepted rather than evaluated:<ul><li>The PubMatic RTD provider drives floors across all inventory with no fixed-floor comparison on record</li><li>No experiment or before-and-after read exists showing how the dynamic floor performed against a fixed baseline</li><li>The publisher cannot say why the dynamic option was chosen beyond it being the recommended setup</li></ul>You may want to confirm that the dynamic-versus-fixed choice was made on evidence rather than by default. One approach is to hold a fixed-floor baseline on part of the traffic long enough to compare it against the dynamic floor on the rest.",
+        "site_type_overlays": {
+          "publishing": "On a media site, premium placements such as a homepage takeover slot or a sponsorship-adjacent unit often carry a price the publisher set on purpose to protect direct-sold value. You may want to keep a fixed-floor baseline on those tags while testing the dynamic floor elsewhere, so the comparison shows whether automation respects the premium or clears below it.",
+          "ecommerce": "On a commerce-content site, product and category pages can command higher prices than editorial pages because the audience is closer to a purchase. You may want to compare the dynamic floor against a fixed floor on the commercial pages specifically, rather than judging it on a blended average that the lower-value editorial inventory pulls down."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Module - Price Floors for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/floors.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "PubMatic RTD Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/pubmaticRtdProvider.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether floors are driven by the PubMatic real-time data (RTD) provider or set as fixed values in the Price Floors module, and look for any test result or before-and-after read that compares the two.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "OpenWrap wrapper configuration",
+              "steps": [
+                "Open the page source or the Prebid configuration and find the 'floors' object passed to the Price Floors module along with the 'realTimeData' providers list.",
+                "Note whether the PubMatic RTD provider ('pubmatic') appears in the data providers, which signals dynamic floors, and whether a fixed 'floors.data' rule set is configured as well.",
+                "Record which inventory runs on the dynamic floor and which, if any, runs on a fixed floor that could serve as a comparison baseline.",
+                "Ask the publisher whether any experiment or before-and-after comparison was run, and record what the result showed and when it was measured."
+              ]
+            },
+            "reporting": {
+              "label": "PubMatic and ad server reporting",
+              "steps": [
+                "Build a report broken out by the inventory or floor model in use, with revenue, impressions, fill rate, and average eCPM.",
+                "Compare a slice running the dynamic floor against a comparable slice on a fixed floor, if one exists, to see whether the dynamic floor raised revenue or cleared at a lower price.",
+                "Note whether the data supports the current floor choice or whether no fixed-floor slice exists to compare against."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether floors are driven by the PubMatic RTD provider, set as fixed rules, or split between the two, and whether any comparison between a dynamic floor and a fixed baseline exists with a result on record. A setup where the dynamic-versus-fixed choice is deliberate and backed by a comparison passes. A setup where dynamic floors are applied across inventory with no fixed-floor comparison and no stated reason for the choice is a fail recorded with the inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the floor source for each slice of inventory and whether a dynamic-versus-fixed comparison exists above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs dynamic floors through the PubMatic real-time data (RTD) provider without a fixed-floor comparison on record, so the choice between automated and fixed floors has not been tested. A dynamic floor sets the price to maximize yield, which often helps, but that objective does not always match a publisher's own strategy, such as protecting a premium price point, and without a baseline the difference goes unmeasured. {{voice_recommend}} holding a fixed-floor baseline on a slice of comparable traffic through the Prebid Price Floors module, running the dynamic floor on the rest, and comparing revenue, fill rate, and average price across both before settling on a floor strategy. After the comparison, keep whichever floor the data supports for each slice of inventory."
+      }
+    },
+    {
+      "id": "pubmatic-price-floors-not-segmented",
+      "title": "Floors are not segmented by inventory, format, geography, or device",
+      "category": "monetization",
+      "subcategory": "price_floors",
+      "impact_score": 2,
+      "impact_rationale": "A single flat floor across all inventory ignores that some placements, formats, countries, and devices clear at higher prices than others. A flat floor either underprices the strong inventory, leaving revenue uncollected, or overprices the weak inventory, leaving impressions unsold, so one number cannot serve inventory whose value varies.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "inventory"],
+      "educate": {
+        "base": "A floor price works best when it matches what the impression is worth, and impressions are not worth the same across a publisher's inventory. An above-the-fold unit on a high-engagement page clears higher than a unit far down a thin page. A video slot clears higher than a small banner. Traffic from a high-spending country clears higher than traffic from a market where advertiser demand is thin. Desktop, mobile web, and in-app inventory each carry their own demand and their own typical clearing price. A floor set as one flat number across all of this cannot fit inventory whose value varies along every one of those lines.<br><br>The cost of a flat floor cuts both ways. Set it to the average and it sits below the strong inventory, so impressions that could have cleared higher clear at the floor and the difference is left uncollected. Set it higher to protect the strong inventory and it sits above the weak inventory, so impressions that would have sold at a lower price go unsold instead. Either way, one number serves the middle and misprices the ends.<br><br>PubMatic OpenWrap runs on Prebid, and the Prebid Price Floors module lets floor rules match on the dimensions that move clearing price. The module's rules can key on the ad unit code, the media type, the ad size, and the domain out of the box, and a publisher can extend that with custom dimensions such as geography or device through the module's schema. That means a publisher can set different floors for different placements, formats, geographies, and devices rather than one floor for everything. The audit question is whether the floor rules in place reflect those value differences or whether a single flat floor is doing work that several segmented rules should do.<br><br>A few signs point to floors that are not segmented:<ul><li>The Price Floors configuration holds a single default floor with no rules that break out by ad unit, media type, geography, or device</li><li>Reporting shows average clearing prices that differ widely across placements, formats, countries, or devices while the floor stays the same for all of them</li><li>Premium placements clear at or near the same floor as filler inventory, which suggests the floor is not protecting their value</li></ul>You may want to confirm that the floors reflect the price differences the inventory actually shows. One approach is to read average clearing price by ad unit, format, geography, and device, then write floor rules that follow those differences rather than a single number across the board.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a homepage or section-front placement usually clears higher than an article-footer unit, video clears higher than a small banner, and audience from high-demand markets clears higher than audience from thin ones. You may want to set floor rules by placement, format, and geography so the premium inventory holds its value while the lower-value inventory keeps a floor low enough to stay filled.",
+          "ecommerce": "On a commerce-content site, product and category pages reach an audience closer to a purchase and clear higher than editorial pages, and device matters because mobile shoppers and desktop shoppers carry different demand. You may want to segment floor rules so the commercial, higher-intent inventory carries a higher floor than the editorial inventory rather than sharing one number."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Module - Price Floors for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/floors.html"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed floor configuration documentation for OpenWrap is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the floor rules across ad units, formats, geographies, and device categories to see whether they are differentiated or whether one flat floor covers everything.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "OpenWrap wrapper configuration",
+              "steps": [
+                "Open the Prebid configuration and find the 'floors' object passed to the Price Floors module, then read its 'schema' fields and 'values' rules.",
+                "Note which dimensions the rules key on, for example ad unit code, media type, size, domain, or a custom geography or device field, and record the floor each rule sets.",
+                "Record whether the floors differ across ad unit, format, geography, and device, or whether a single default floor applies across all inventory with no breakout."
+              ]
+            },
+            "reporting": {
+              "label": "PubMatic and ad server reporting",
+              "steps": [
+                "Build a report broken out by ad unit, then by media type, then by country, then by device category, with average eCPM and fill rate.",
+                "Compare the average clearing price across those dimensions to see how much it varies between strong and weak inventory.",
+                "Note any case where clearing prices differ widely but the floor stays the same, which points to inventory that a segmented floor rule could price more accurately."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the floor values across ad units, formats, geographies, and device categories alongside the average clearing price for each. Floors that follow the value differences the reporting shows, with higher floors on inventory that clears higher and lower floors on inventory that clears lower, pass. A single flat floor applied across inventory whose clearing prices differ widely is a fail recorded with the dimensions where the floor and the value diverge.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the floor values and the average clearing price by ad unit, format, geography, and device above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} applies a single flat floor across inventory whose value differs by ad unit, format, geography, and device. A flat floor either underprices the strong inventory, leaving revenue uncollected, or overprices the weak inventory, leaving impressions unsold, so one number cannot fit inventory that clears at different prices. {{voice_recommend}} reading the average clearing price by ad unit, format, geography, and device, then writing rules in the Prebid Price Floors module that carry higher floors on the inventory that clears higher and lower floors on the inventory that clears lower. After the change, recheck fill rate and average price across the segments to confirm the floors fit the value of each."
+      }
+    }
+  ]
+}

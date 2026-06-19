@@ -1,0 +1,157 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Yield settings decide how much demand reaches the auction and at what price the publisher will sell, so they sit directly on top of revenue. Auction dynamics that throttle or shape traffic, floors that ignore how inventory clears, and ad refresh that chases impression count rather than viewable value can each erode revenue without showing up as an obvious error. This check is a review of the auction and refresh configuration a publisher already runs through PubMatic and its OpenWrap wrapper, so it costs reading time rather than rebuild time, and each finding points to a concrete setting the publisher can test.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Yield optimization on PubMatic covers the auction settings that decide how much demand competes for an impression and the price at which the publisher is willing to sell it. PubMatic runs a first-price auction, and its OpenWrap wrapper, which is built on Prebid, carries the floor logic and the refresh logic that shape what the auction sees. These checks look at whether auction dynamics and any traffic shaping leave demand intact, and whether floors and ad refresh protect the value of each impression rather than inflating a count of low-value ones.",
+  "audit_checks": [
+    {
+      "id": "pubmatic-yield-optimization-first-price-and-traffic-shaping-unreviewed",
+      "title": "First-price auction dynamics and traffic shaping are accepted without review",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "In a first-price auction the floor and the bid landscape set what the publisher actually collects, so a floor that is left at a default or a traffic-shaping setting that throttles bid requests can quietly reduce competition. Demand that never reaches the auction cannot raise the clearing price, so unreviewed auction and shaping settings can hold revenue below what the inventory would otherwise earn.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "PubMatic sells inventory through a first-price auction, where the winning buyer pays the price they bid rather than one cent above the runner-up. That changes what the floor does. In a first-price auction the floor is not just a reserve that protects against a low sale, it is part of the signal buyers use to decide how much to bid, so a floor set too low can leave money on the table and a floor set too high can push demand away. The publisher's floor strategy and the bid landscape together decide the clearing price, which makes both worth a deliberate look rather than a default left in place.<br><br>PubMatic's OpenWrap wrapper, the publisher-side header-bidding layer, is built on Prebid and carries the floor logic that reaches the auction. Prebid's price floors framework lets a publisher set floors per ad unit, size, media type, or domain, and lets those floors update dynamically from a floor-pricing service so they track changing demand rather than sitting at one static number. Whether the floors in place use that flexibility, or rest on a single default, is a core part of the auction picture.<br><br>Traffic shaping is the other side of the same question. Supply-side platforms and wrappers can throttle or filter which bid requests go out, to control costs or to send buyers only the requests they are likely to bid on. Done well, shaping trims waste without touching revenue. Done without review, it can suppress requests to bidders who would have competed, which thins the auction and lowers the clearing price. The audit question is whether any shaping in place was a measured decision or an inherited default.<br><br>A few signs point to auction dynamics that were accepted rather than reviewed:<ul><li>Floors in the OpenWrap or Prebid configuration sit at a single static default with no breakout by ad unit, size, or media type</li><li>No record exists of how the current floor strategy was chosen or tested against an alternative</li><li>Traffic-shaping or bid-throttling settings are enabled with no measurement of their effect on bid density or revenue</li></ul>You may want to confirm that the floor strategy and any traffic shaping were set on evidence rather than left at a default. One approach is to read bid density and clearing price across a slice of inventory, adjust the floor or relax the shaping on a comparable slice, and compare the revenue and fill rate across both.",
+        "site_type_overlays": {
+          "publishing": "On a media site, premium placements such as a homepage unit or a sponsorship-adjacent slot carry a price the publisher means to protect, so the floor on those units should reflect that value rather than a blanket default. You may want to confirm that traffic shaping is not trimming demand on the high-value placements specifically. A thinner auction there costs more than the same thinning on filler inventory.",
+          "ecommerce": "On a commerce-content site, product and category pages reach an audience closer to a purchase and tend to clear higher than editorial pages. You may want to set floors that follow that difference and confirm that any traffic shaping is not suppressing demand on the commercial, higher-intent inventory, where each lost bid is worth more than one lost on editorial pages."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Price Floors for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/floors.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Server Price Floors for Header Bidding",
+            "source_url": "https://docs.prebid.org/prebid-server/features/pbs-floors.html"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed OpenWrap and traffic-shaping configuration documentation is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the floor configuration in the OpenWrap or Prebid setup and any traffic-shaping settings, then read bid density and clearing price to see whether the auction is receiving the demand it should.",
+        "tools": {
+          "free": {
+            "openwrap_config": {
+              "label": "OpenWrap or Prebid configuration",
+              "steps": [
+                "Open the OpenWrap or Prebid floor configuration and note whether floors are set as a single static value or broken out by ad unit, size, media type, or domain.",
+                "Record whether floors update dynamically from a floor-pricing service or sit at a fixed default.",
+                "List any traffic-shaping, bid-throttling, or request-filtering settings that are enabled, and note what each one is set to do.",
+                "Ask the publisher how the current floor strategy and any shaping were chosen, and record whether a test or comparison backs the choice."
+              ]
+            },
+            "pubmatic_reporting": {
+              "label": "PubMatic reporting",
+              "steps": [
+                "Build a report broken out by ad unit, with revenue, impressions, fill rate, average eCPM, and bid density (bids per auction) where available.",
+                "Compare bid density and clearing price across placements to see whether some inventory is receiving fewer competing bids than its value would suggest.",
+                "Note any case where the floor or a shaping setting appears to be holding demand or clearing price below what comparable inventory shows."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the floor configuration (static default or segmented and dynamic), any traffic-shaping settings, and the bid density and clearing price across inventory. A setup where the floor strategy is deliberate and any shaping is backed by a measured effect on revenue passes. A setup where floors rest on a single default with no record of the choice, or shaping is enabled with no measurement of its effect on bid density and revenue, is a fail recorded with the settings and inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the floor configuration, any traffic-shaping settings, and the bid density by inventory above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} accepts its first-price auction floor strategy and traffic-shaping settings without a record of how they were chosen or tested. In a first-price auction the floor is part of the signal buyers use to bid, and traffic shaping decides which bid requests reach the auction, so a default floor or unmeasured shaping can thin the competition and hold the clearing price below what the inventory would earn. {{voice_recommend}} reading bid density and clearing price across the inventory, then setting segmented floors in the OpenWrap or Prebid configuration and confirming that any traffic shaping leaves demand on the higher-value placements intact. After the change, recheck revenue, fill rate, and bid density to confirm the auction is receiving the demand it should."
+      }
+    },
+    {
+      "id": "pubmatic-yield-optimization-ad-refresh-not-protecting-yield",
+      "title": "Ad refresh and auction settings inflate low-value impressions rather than protecting yield",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "Ad refresh that fires on a timer alone, without a viewability or engagement condition, can produce impressions that are never seen, which buyers discount and which can pull down the inventory's measured viewability and value. A refresh built to raise impression count rather than viewable, sold value can trade a higher count for a lower price per impression and weaker buyer trust.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Ad refresh asks the auction to run again on the same slot so a new ad can serve, which can raise revenue when each refresh produces an impression a real person sees. The value depends entirely on the conditions attached to it. A refresh that fires on a timer alone, with no check on whether the unit is in view or the user is still on the page, can serve ads into space no one is looking at. Those impressions count toward the publisher's totals but carry little value, and buyers who measure viewability discount them, which can lower the average price across the placement and weaken the publisher's standing with demand.<br><br>The mechanics of refresh also matter. When a refresh is triggered without clearing the prior header-bidding targeting, the same winning bid can be re-sent and re-rendered rather than a fresh auction running, so the publisher pays the cost of a refresh without the benefit of new competition. Prebid's documentation on ad unit refresh sets out the correct sequence, which is to run a new Prebid auction and reapply targeting before asking the ad server to refresh, so each refresh reflects a genuine new auction rather than a repeat of the last one.<br><br>Viewability is the condition that keeps refresh honest. Prebid's bid viewability modules fire an event when a rendered bid is actually viewable, which a publisher can use to gate a refresh so it runs only after the current ad has been seen, or to feed viewability data back to buyers. A refresh tied to viewability and a sensible minimum display time protects the value of each impression. A refresh tied to a timer alone inflates the count of low-value ones.<br><br>A few signs point to refresh and auction settings working against yield:<ul><li>Ad refresh fires on a fixed timer with no viewability or in-view condition attached</li><li>The refresh re-renders the same header-bidding bid rather than running a fresh auction, which points to targeting that is not cleared between refreshes</li><li>Reporting shows rising impression counts on refreshed units alongside falling viewability or average price, which suggests the refresh is adding impressions that buyers value less</li></ul>You may want to confirm that ad refresh is gated on viewability and runs a genuine new auction each time. One approach is to compare viewability and average price on refreshed units against non-refreshed units, and to attach a viewability condition to any refresh that fires on a timer alone.",
+        "site_type_overlays": {
+          "publishing": "On a media site, long article pages and infinite-scroll feeds are where timer-based refresh accumulates impressions in space the reader has scrolled past. You may want to gate refresh on viewability so it fires only on units still in view, which keeps the impression count tied to ads people actually see rather than to time on the page.",
+          "ecommerce": "On a commerce-content site, product and category pages carry higher-value inventory, so a refresh that serves unseen impressions there dilutes the placements that matter most. You may want to confirm that refresh on the commercial pages is gated on viewability and a minimum display time, so the higher-intent inventory keeps its measured value rather than trading it for a higher count."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Individual Ad Unit Refresh and Infinite Scroll for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/examples/adunit-refresh.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Bid Viewability for GAM for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/bidViewable.html"
+          }
+        ],
+        "learn_more_note": "PubMatic's OpenWrap refresh-configuration settings are documented in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review how ad refresh is configured across units, whether it is gated on viewability, and whether each refresh runs a fresh auction, then read viewability and average price on refreshed versus non-refreshed inventory.",
+        "tools": {
+          "free": {
+            "openwrap_config": {
+              "label": "OpenWrap or Prebid configuration",
+              "steps": [
+                "List the ad units that refresh and note the trigger for each, whether a fixed timer, a viewability condition, or a user action.",
+                "For each refreshing unit, record whether a viewability or in-view condition is attached and what minimum display time, if any, is set.",
+                "Confirm whether the refresh runs a new Prebid auction and reapplies targeting before the ad server refreshes, or whether it re-renders the prior bid.",
+                "Record which units refresh on a timer alone with no viewability condition."
+              ]
+            },
+            "pubmatic_reporting": {
+              "label": "PubMatic reporting",
+              "steps": [
+                "Build a report broken out by ad unit, with impressions, viewability rate, average eCPM, and revenue, separating refreshed units from non-refreshed units where possible.",
+                "Compare viewability and average price on refreshed units against comparable non-refreshed units to see whether the refresh is adding viewable, valued impressions or low-value ones.",
+                "Note any unit where impression count rises while viewability or average price falls, which points to a refresh inflating count rather than protecting yield."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per refreshing unit, the refresh trigger, whether a viewability condition is attached, whether each refresh runs a fresh auction, and the viewability and average price against non-refreshed inventory. A refresh gated on viewability and a minimum display time that runs a genuine new auction and holds viewability and average price steady passes. A refresh that fires on a timer alone, re-renders the prior bid, or shows rising impressions alongside falling viewability or average price is a fail recorded with the units affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the refresh trigger, viewability condition, and the viewability and average price by unit above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs ad refresh on settings that raise impression count rather than protecting the value of each impression. Refresh that fires on a timer alone, with no viewability condition, can serve ads no one sees, and a refresh that re-renders the prior header-bidding bid rather than running a fresh auction pays the cost of a refresh without new competition, both of which buyers discount and which can pull down the inventory's measured value. {{voice_recommend}} gating refresh on viewability and a minimum display time, confirming that each refresh runs a genuine new auction with targeting reapplied, and comparing viewability and average price on refreshed units against non-refreshed ones. After the change, recheck that the refreshed inventory holds its viewability and price rather than trading them for a higher count."
+      }
+    }
+  ]
+}

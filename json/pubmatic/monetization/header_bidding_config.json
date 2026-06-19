@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The wrapper configuration sits at the center of header-bidding revenue since the timeout decides how many bids reach the auction and the adapter list decides which demand competes. A timeout tuned too tight starves the auction of bids, while one tuned too loose delays the ad server and slows the page. An adapter list that grew by accretion adds latency and sync calls for partners that rarely win. This check reviews settings the publisher already controls in OpenWrap, so it costs reading time rather than rebuild time, and each finding points to a concrete configuration the publisher can test.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "OpenWrap is PubMatic's header-bidding wrapper, built on Prebid, so the wrapper governs how a publisher's page collects bids from demand partners and hands the result to the ad server. Two settings carry most of the weight. The auction timeout sets how long the wrapper waits for bids before it calls the ad server, which trades fill against latency and page speed. The enabled adapters and where each one runs, client-side in the browser or server-side, decide which demand competes and how much that competition costs in load time. These checks confirm that both settings are deliberate choices backed by data rather than defaults that were never revisited.",
+  "audit_checks": [
+    {
+      "id": "pubmatic-header-bidding-config-timeout-not-tuned",
+      "title": "The wrapper timeout is left at a default rather than tuned against bid response data",
+      "category": "monetization",
+      "subcategory": "header_bidding_config",
+      "impact_score": 3,
+      "impact_rationale": "The auction timeout sets how long the wrapper waits for bids before calling the ad server, so it trades bid density against latency. A timeout set too short closes the auction before slower demand responds, which leaves revenue uncollected. A timeout set too long delays the ad server on every page view, which slows the page and can cost more in user drop-off than the late bids return. A default carried over without a data check leaves both ends untested.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "OpenWrap runs a header-bidding auction in the browser before the ad server is called, and the auction timeout decides how long the wrapper waits for demand partners to respond. When the timeout elapses, the wrapper closes the auction and sends whatever bids arrived to the ad server. Because OpenWrap is built on Prebid, the timeout works the way Prebid's auction timeout does, and Prebid's own guidance frames it as a balance. Set it too short and header bidding does not have enough time to collect bids. Set it too long and the delayed ad server call can cost more in lost attention than the late bids return.<br><br>The right value is not a fixed number a publisher can copy from elsewhere. It depends on the response times of the specific demand partners enabled, the network conditions of the audience, and how long the page can wait before the ad server call starts to hurt the user. A timeout that fits one publisher's partner mix and audience can be wrong for another. That is why the audit question is not whether the timeout matches a recommended figure, but whether it was set against the publisher's own bid response data rather than carried over as a default.<br><br>The evidence lives in the auction timing itself. Bid response times across the enabled partners show how many bids arrive before the current timeout and how many are cut off by it. A timeout that closes the auction before a meaningful share of bids respond is leaving demand out. A timeout that sits far beyond the point where almost all bids have already arrived is adding delay that buys nothing. Reading the distribution of response times against the current timeout shows which case applies.<br><br>A few signs point to a timeout that was set by default rather than tuned:<ul><li>The timeout matches a generic starting value with no record of why that number fits this partner mix and audience</li><li>Bid response timing has not been read against the timeout to see how many bids the timeout cuts off</li><li>Page-speed measurements do not account for the delay the wrapper adds before the ad server call</li></ul>You may want to confirm that the timeout reflects the publisher's own bid response data rather than a default. One approach is to read the distribution of bid response times across the enabled partners, then set the timeout at the point where most bids have arrived without adding delay that returns no extra demand.",
+        "site_type_overlays": {
+          "publishing": "On a media site, readers often arrive from social or search on mobile connections, where bid responses run slower than on desktop. You may want to read bid response timing split by device and connection so the timeout fits the slower mobile audience rather than an average that the faster desktop sessions pull down.",
+          "ecommerce": "On a commerce-content site, page speed feeds directly into the shopping experience, so the delay the wrapper adds before the ad server call carries a cost beyond the ad slot. You may want to weigh the late-bid revenue against the page-speed effect on commercial pages specifically since a slower page there can reduce the purchase behavior the site depends on."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js Timeouts",
+            "source_url": "https://docs.prebid.org/features/timeouts.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "pbjs.setConfig(options)",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/setConfig.html"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed OpenWrap configuration documentation for the auction timeout is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the current wrapper timeout against the bid response times of the enabled demand partners, and check whether the page-speed effect of the timeout has been measured.",
+        "tools": {
+          "free": {
+            "openwrap_console": {
+              "label": "PubMatic OpenWrap console",
+              "steps": [
+                "Open the OpenWrap profile for the site and record the configured auction timeout value.",
+                "List the demand partners enabled in the profile since their response times set the range the timeout has to cover.",
+                "Note whether any record exists of why the current timeout value was chosen, or whether it appears to be a carried-over default."
+              ]
+            },
+            "prebid_debug": {
+              "label": "Prebid auction debugging",
+              "steps": [
+                "With the wrapper's debug output, capture bid response times across the enabled partners over a sample of page loads.",
+                "Compare the response-time distribution against the configured timeout to see how many bids arrive before it and how many are cut off.",
+                "Measure the delay the wrapper adds before the ad server call, and note whether the timeout sits where most bids have arrived or beyond that point."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the configured timeout alongside the distribution of bid response times across the enabled partners and the page-speed effect of the delay. A timeout set where most bids have arrived, backed by the response-time data and weighed against the page-speed cost, passes. A timeout that closes the auction before a meaningful share of bids respond, or one that sits far beyond the point where bids stop arriving, is a fail recorded with the response-time evidence.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the configured timeout and the bid response-time distribution above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs its OpenWrap auction timeout at a default value without tuning it against the site's own bid response data. The timeout decides how long the wrapper waits for demand before calling the ad server, so a value set too short cuts off bids that would have competed, while one set too long delays the ad server on every page view and slows the page. {{voice_recommend}} reading the distribution of bid response times across the enabled partners, then setting the timeout at the point where most bids have arrived without adding delay that returns no extra demand. After the change, recheck fill rate and page speed to confirm the timeout fits the partner mix and the audience."
+      }
+    },
+    {
+      "id": "pubmatic-header-bidding-config-adapters-not-justified",
+      "title": "Enabled adapters and their client-side or server-side placement are not justified by performance",
+      "category": "monetization",
+      "subcategory": "header_bidding_config",
+      "impact_score": 3,
+      "impact_rationale": "Every enabled adapter adds a bid request, a potential user-sync call, and load to the auction, whether or not it wins. Adapters that rarely win cost latency and page weight for little return. Where each adapter runs also matters since client-side placement adds browser work while server-side placement moves that work off the page but adds a server round trip. A list that grew by accretion, with placement chosen by default, leaves both the demand value and the load cost untested.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Each demand partner a publisher enables in OpenWrap adds an adapter to the auction, and every adapter carries a cost whether or not it wins. It sends a bid request, it may fire a user-sync call, and it adds to the work the wrapper does before the ad server is called. The return on that cost is the revenue the adapter brings through the bids it wins and the competition it adds to the auction. When the return is real, the cost is worth paying. When an adapter rarely wins and adds little competitive pressure, the cost buys almost nothing while still slowing the page.<br><br>Adapter lists tend to grow rather than shrink. A partner is added for a test, a relationship, or a one-time campaign, and the adapter stays after the reason for it has passed. Over time the list can hold partners that contribute little to revenue but still add a request and a sync to every auction. The audit question is whether each enabled adapter earns its place, measured by win rate, bid rate, and the revenue it brings, rather than whether it was ever switched on.<br><br>Where each adapter runs is a second deliberate choice. Because OpenWrap is built on Prebid, adapters can run client-side in the browser or server-side through Prebid Server. Client-side placement keeps the bid request in the browser, which can improve match rates for user syncs but adds browser work and competes for the timeout. Server-side placement moves the request off the page to a server, which reduces browser load and the number of calls the page makes but adds a server round trip and can reduce sync match rates. Prebid's own guidance describes the trade and supports A/B testing a partner across both placements. The placement of each adapter should follow that kind of evidence rather than a default.<br><br>A few signs point to an adapter list that is not justified by performance:<ul><li>Adapters are enabled that show a low bid rate or win rate and bring little revenue, with no record of why they remain</li><li>Every adapter runs in the same placement, client-side or server-side, with no test behind the choice</li><li>No periodic review compares each partner's revenue contribution against the latency and sync cost it adds</li></ul>You may want to confirm that each enabled adapter earns its place and runs in the placement its data supports. One approach is to read win rate, bid rate, and revenue per partner, retire the partners that contribute little, and A/B test placement for the partners worth keeping.",
+        "site_type_overlays": {
+          "publishing": "On a media site with high page-view volume, the per-auction cost of a redundant adapter multiplies across every impression, so a partner that rarely wins still adds latency and sync calls at scale. You may want to review the adapter list against per-partner revenue and prune the partners that contribute little since the saved load compounds across the site's traffic.",
+          "ecommerce": "On a commerce-content site, browser work competes with the page elements that drive the shopping experience, so client-side adapters that add latency carry a cost beyond the ad slot. You may want to weigh moving lower-value partners server-side to reduce the browser load on commercial pages, then confirm the move did not cut the revenue those partners brought."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Server Adapter (s2sConfig)",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/prebidServer.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Server-to-Server Testing Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/s2sTesting.html"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed OpenWrap documentation for managing partners and their placement is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the enabled adapters against their per-partner bid rate, win rate, and revenue, and check whether each adapter's client-side or server-side placement was chosen on evidence.",
+        "tools": {
+          "free": {
+            "openwrap_console": {
+              "label": "PubMatic OpenWrap console",
+              "steps": [
+                "Open the OpenWrap profile and list every enabled demand partner along with whether each runs client-side or server-side.",
+                "For each partner, note whether a stated reason or recent review exists for keeping it enabled and for the placement it uses.",
+                "Flag any partner that appears to have been added for a past test or campaign that has since ended."
+              ]
+            },
+            "openwrap_reporting": {
+              "label": "PubMatic OpenWrap reporting",
+              "steps": [
+                "Build a report broken out by demand partner with bid rate, win rate, and revenue over a representative period.",
+                "Identify partners with a low bid or win rate and little revenue, which contribute little against the latency and sync cost they add.",
+                "Compare partners that run client-side against those that run server-side to see whether placement aligns with the revenue and match-rate data, and note where it does not."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each enabled adapter with its bid rate, win rate, revenue, and placement, then checks whether the list and the placements are justified by that data. An adapter list where each partner earns its place and runs in the placement its data supports passes. A list holding partners with low bid or win rate and little revenue, or one where every adapter shares a placement with no test behind the choice, is a fail recorded with the partners and placements affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each enabled adapter with its bid rate, win rate, revenue, and placement above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} enables header-bidding adapters in OpenWrap without justifying each one against its performance, and the client-side or server-side placement of each adapter does not follow a test. Every enabled adapter adds a bid request, a possible user-sync call, and load to the auction whether or not it wins, so partners that rarely win cost latency for little return, and placement chosen by default leaves the browser-load trade untested. {{voice_recommend}} reading bid rate, win rate, and revenue per partner, retiring the partners that contribute little, and A/B testing placement for the partners worth keeping. After the change, recheck fill rate, revenue, and page speed to confirm the leaner list and the placements hold up."
+      }
+    }
+  ]
+}

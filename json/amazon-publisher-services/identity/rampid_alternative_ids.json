@@ -1,0 +1,164 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Alternative identifiers such as RampID and Unified ID 2.0 (UID2) are how a publisher carries addressability into the bidstream after third-party cookies, so the IDs a publisher passes through Amazon Publisher Services (APS) shape how much demand can recognize the audience and bid on it. An ID that is misconfigured, expired, or stripped by a missing consent signal lowers the price demand is willing to pay without any obvious error in the console. This check is a review of identity configuration the publisher already has in place, so it costs reading and testing time rather than a rebuild, and the finding points to a concrete configuration or consent fix the publisher can verify.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Alternative and people-based identifiers let demand recognize a publisher's audience in the bidstream once third-party cookies are gone, and APS supports passing identifiers such as RampID, UID2, and hashed first-party signals alongside its server-side header-bidding requests. This subcategory is about whether those identifiers are configured correctly and resolving, and whether multiple ID solutions running at once cooperate rather than conflict. These checks confirm that the IDs a publisher relies on are present and passing on real impressions, and that each one carries the consent it needs to be honored downstream.",
+  "audit_checks": [
+    {
+      "id": "amazon-publisher-services-rampid-alternative-ids-not-resolving",
+      "title": "RampID and other alternative IDs are not configured or are not resolving in the bidstream",
+      "category": "identity",
+      "subcategory": "rampid_alternative_ids",
+      "impact_score": 3,
+      "impact_rationale": "Alternative identifiers carry addressability into the bidstream where third-party cookies no longer reach, so an ID that is absent or failing to resolve removes a signal demand uses to recognize and value the audience. The impressions still serve, which is why the gap goes unnoticed, but they clear at a lower price because demand cannot match the user, and the loss concentrates on the cookieless inventory that needs the alternative ID most.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "privacy"],
+      "educate": {
+        "base": "An alternative identifier is a way to recognize a user in the bidstream that does not depend on a third-party cookie. RampID, provided by LiveRamp, is a person-based identifier that resolves a hashed email or other first-party signal into a pseudonymous ID demand partners can match. Unified ID 2.0 (UID2) works from a hashed email or phone number that an operator salts, hashes, and encrypts into a token the publisher passes into the bidstream. Amazon Publisher Services (APS) supports carrying identifiers of this kind alongside its server-side header-bidding requests, so demand can recognize the audience on inventory where a cookie would no longer be available.<br><br>Configuring an ID and having it resolve are two different things. RampID through the Prebid identityLink submodule needs a placement ID from LiveRamp registration and stores its encrypted envelope under a specific key, and LiveRamp recommends refreshing that envelope on a set interval so demand always receives an ID encrypted with the current key. UID2 needs a token that is generated from a hashed identifier and refreshed before it expires. If the placement ID is wrong, the envelope never populates, the token expires without a refresh, or the hashed input is never collected, the ID is configured on paper but absent on the impression. The auction proceeds, demand simply does not see the identifier, and the result looks like ordinary unmatched inventory rather than a broken integration.<br><br>The audit question is whether the identifiers the publisher relies on are present and resolving on real impressions, not merely enabled in a config. A few signs point to an alternative ID that is configured but not resolving:<ul><li>The ID submodule is enabled but the stored envelope or token is empty or stale when a live page is inspected</li><li>Bid requests leaving the page or the server do not carry the identifier in the expected extended-ID field</li><li>The hashed email or phone input the ID depends on is never collected, so there is nothing to resolve</li><li>An identifier was added during a launch and never rechecked after a site change, a consent-platform change, or a refresh-interval change</li></ul>You may want to confirm that each alternative ID the publisher depends on actually appears on outgoing bid requests. One approach is to load a real page, inspect the stored ID values and the bid request payload, and compare what resolves against what the config claims is enabled.",
+        "site_type_overlays": {
+          "publishing": "On a media site with logged-in readers or a newsletter audience, the hashed email behind RampID and UID2 is available on a real share of traffic, so a resolving ID can lift the price on that authenticated inventory. You may want to confirm the ID resolves specifically on logged-in or newsletter-sourced sessions, where the input exists, rather than judging it on anonymous traffic where no hashed identifier was ever collected.",
+          "ecommerce": "On a commerce-content site, account holders and repeat purchasers supply a hashed email that RampID and UID2 can resolve, and that audience is the inventory demand most wants to recognize. You may want to verify the ID resolves on the higher-intent, account-linked sessions rather than assuming a single check on editorial pages represents how the ID performs across the site."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "LiveRamp RampID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/ramp.html"
+          },
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Publishers overview",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-publishers"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "User ID Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userId.html"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's detailed configuration documentation for passing alternative identifiers through Transparent Ad Marketplace and Unified Ad Marketplace is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which alternative IDs the publisher has enabled, then confirm on a live page whether each one resolves to a value and reaches the outgoing bid request.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open a real page on the site in the browser and open the developer tools.",
+                "In 'Application', then 'Storage', inspect the stored ID values, e.g., the RampID envelope under 'idl_env' and any Unified ID 2.0 (UID2) token, and note whether each holds a current value or is empty or expired.",
+                "In 'Network', find the bid requests leaving the page and check whether the extended-ID fields carry the identifiers the config claims are enabled.",
+                "Record, per identifier, whether it resolved to a value and whether it appeared on the outgoing request, or whether it was absent."
+              ]
+            },
+            "config_review": {
+              "label": "Identity configuration review",
+              "steps": [
+                "List every alternative ID the publisher has enabled and the source signal each one depends on, e.g., a hashed email or phone number.",
+                "For RampID, confirm a valid LiveRamp placement ID is set and that a refresh interval is configured rather than left to expire.",
+                "For Unified ID 2.0 (UID2), confirm a token-refresh path exists so the token does not expire between generations.",
+                "Note any identifier whose required input is never collected on the site since that ID has nothing to resolve."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per alternative ID, whether it is configured, whether it resolves to a current value on a live page, and whether it reaches the outgoing bid request. An identifier that is configured, resolving, and present on the request passes. An identifier that is enabled in the config but empty, expired, or absent from the bid request is a fail recorded with the ID and the point where it dropped out.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record, for each alternative ID, whether it resolves on a live page and reaches the bid request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more alternative identifiers on {{site_name}}, such as RampID or Unified ID 2.0 (UID2), are enabled in the configuration but are not resolving on live impressions or are not reaching the outgoing bid request. The auction still serves, so the gap is easy to miss, but demand cannot recognize the audience without the identifier, so the affected impressions clear at a lower price than they would with the ID present. {{voice_recommend}} inspecting a real page to confirm each ID resolves to a current value, checking that the RampID envelope and any UID2 token refresh rather than expire, and verifying the identifiers appear in the extended-ID fields of the bid request. After the fix, recheck the resolution rate on the inventory that carries the source signal to confirm the IDs are passing."
+      }
+    },
+    {
+      "id": "amazon-publisher-services-rampid-alternative-ids-conflicting-consent",
+      "title": "Multiple ID solutions conflict or duplicate, and each does not carry the right consent",
+      "category": "identity",
+      "subcategory": "rampid_alternative_ids",
+      "impact_score": 3,
+      "impact_rationale": "Running several identifiers without a consent gate that governs each one risks passing an ID for a user who did not grant the consent it depends on, which is a privacy exposure rather than a yield gap. Duplicated or overlapping IDs also add weight and confusion to the bidstream without adding addressability, so the setup can carry regulatory risk on one side and waste on the other while appearing to work.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "A publisher rarely runs a single identifier. RampID, Unified ID 2.0 (UID2), and a hashed first-party signal can all run at once, each adding reach with a different set of demand partners. Running several is reasonable, but each identifier still depends on user consent, and that consent has to be enforced per identifier rather than assumed across all of them. The Prebid User ID framework that publishers commonly use with Amazon Publisher Services (APS) reads the consent management platform and, under the IAB Europe Transparency and Consent Framework (TCF), withholds an ID when the consent it needs, such as Purpose 1 for storing an identifier, is absent.<br><br>Two problems surface when several IDs run together. The first is consent that is applied unevenly. If one identifier is gated on the consent signal and another is wired to populate regardless, the ungated ID can pass for a user who declined, which is a privacy exposure that demand and a regulator both see. The consent obligation belongs to each identifier on its own, so a single global toggle that does not reach every ID leaves a gap. The second problem is duplication. Two identifiers built from the same hashed email, or the same ID configured twice through different paths, add payload weight and bidstream clutter without adding any new addressability, and they make it harder to tell which ID a given bid actually used.<br><br>The audit question is whether each running identifier is governed by the consent it requires and whether the set of IDs is deliberate rather than overlapping by accident. A few signs point to a conflicting or under-consented identity setup:<ul><li>One identifier honors the consent signal while another populates regardless of the user's choice</li><li>The same hashed input feeds two identifiers that serve the same demand, so the second adds clutter rather than reach</li><li>A consent management platform change or a new ID was added without rechecking that every identifier still reads the current consent state</li><li>No one can say, per identifier, which consent purpose gates it and what happens when that consent is withheld</li></ul>You may want to confirm that every identifier is gated on its required consent and that the running set does not duplicate the same signal. One approach is to simulate a declined-consent state and a granted-consent state, then verify which IDs populate in each, so the consent behavior is observed rather than assumed.",
+        "site_type_overlays": {
+          "publishing": "On a media site serving readers across the European Economic Area (EEA) and other consent regimes, the TCF signal governs whether an identifier may be stored and passed, and a reader who declines should see no identifier populate. You may want to test a declined-consent session and confirm that every ID, not just the primary one, withholds correctly for that reader.",
+          "ecommerce": "On a commerce-content site, account-linked sessions supply the same hashed email to more than one identifier, which makes accidental duplication likely. You may want to confirm that two IDs built from the same email are not both passed to the same demand path, and that each still respects the consent the account holder granted."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "User ID Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userId.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid User Identity for Header Bidding",
+            "source_url": "https://docs.prebid.org/identity/prebid-identity.html"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's documentation on how Transparent Ad Marketplace and Unified Ad Marketplace handle consent signals and identifier passing is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the full set of identifiers running at once, then test how each behaves under a granted-consent and a declined-consent state to confirm the consent gate reaches every ID and that no two IDs duplicate the same signal.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open a real page and, in the developer tools, simulate or set a declined-consent state in the consent management platform, then reload.",
+                "Inspect stored ID values and the outgoing bid request, and record which identifiers still populated despite the declined consent.",
+                "Repeat with a granted-consent state and record which identifiers populate, so the consent behavior of each ID is observed in both states.",
+                "Compare the source signal behind each populated ID and note any case where two identifiers resolve from the same hashed input to the same demand."
+              ]
+            },
+            "config_review": {
+              "label": "Identity configuration review",
+              "steps": [
+                "List every identifier the publisher runs and, for each, the consent purpose it depends on under the Transparency and Consent Framework (TCF) or other applicable regime.",
+                "Confirm the consent gate is wired to each identifier rather than applied to one and assumed for the rest.",
+                "Note any identifier built from the same input as another that targets overlapping demand, which points to duplication rather than added reach.",
+                "Record whether the publisher can state, per ID, what happens when its required consent is withheld."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per identifier, the consent purpose that gates it, whether it withholds correctly under a declined-consent state, and whether its source signal overlaps another running ID. A setup where every identifier honors its required consent and the running set adds reach without duplication passes. An identifier that populates despite declined consent, or two IDs that duplicate the same signal to the same demand, is a fail recorded with the identifier and the consent or duplication problem.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record, per identifier, its consent gate, its behavior under declined consent, and any overlap with another ID above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs more than one alternative identifier, e.g., RampID and Unified ID 2.0 (UID2), without a consent gate that governs each one and without confirming the IDs do not duplicate the same signal. An identifier that populates for a user who declined consent is a privacy exposure rather than a yield gap, and two IDs built from the same hashed input add bidstream clutter without adding reach. {{voice_recommend}} testing a declined-consent and a granted-consent state, confirming every identifier withholds correctly when its required consent is absent, and removing any ID that duplicates the source signal of another to the same demand. After the change, recheck both consent states to confirm each identifier behaves as the consent signal directs."
+      }
+    }
+  ]
+}

@@ -1,0 +1,157 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Unified ID 2.0 (UID2) and European Unified ID (EUID) carry a deterministic, consented identifier into the bid stream so buyers can value an impression even where third-party cookies are gone. On Amazon Publisher Services (APS), a missing or broken identity integration leaves those impressions anonymous, which thins demand and lowers the price they clear at, while an integration that generates tokens without a proper legal basis turns a revenue feature into a compliance liability. This check reads the existing APS identity setup and the consent that feeds it, so it costs review time rather than rebuild time, and the finding points to a concrete fix the publisher can make to the integration or the consent flow.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "UID2 and its European counterpart, EUID, convert a logged-in or consented user's email or phone number into an encrypted token that travels in the bid stream as a privacy-conscious alternative to the third-party cookie. APS supports passing these tokens through its server-side header-bidding suite alongside other identity signals. This subcategory looks at whether the UID2 and EUID integration is wired correctly so tokens reach buyers where they are allowed, and whether token generation is gated on a valid legal basis so no token is created for a user who has not consented or has opted out. The checks separate the two concerns because an integration can be technically live yet generate tokens it should not, and the audit needs to surface either failure on its own.",
+  "audit_checks": [
+    {
+      "id": "amazon-publisher-services-uid2-euid-token-not-passing-in-bidstream",
+      "title": "UID2 or EUID tokens are not generated or not reaching the bid stream",
+      "category": "identity",
+      "subcategory": "uid2_euid",
+      "impact_score": 3,
+      "impact_rationale": "When a consented user produces no UID2 or EUID token, or the token never reaches buyers through Amazon Publisher Services, the impression goes to auction without the deterministic identifier that lets cookieless demand value it. Buyers bid lower or skip the impression, so the publisher loses addressable revenue on inventory that could have carried a consented identifier. The gap is a revenue leak rather than a catastrophic failure because the impression still sells at a lower price, which places it in the middle of the scale.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "privacy"],
+      "educate": {
+        "base": "Unified ID 2.0 (UID2) and European Unified ID (EUID) give a publisher a way to carry a deterministic identifier into the bid stream after a user has logged in or otherwise provided an email or phone number with consent. The publisher sends that email or phone number to the UID2 or EUID operator, the operator returns an encrypted token plus a refresh token, and the token is what buyers see in the auction. Amazon Publisher Services (APS), through its server-side header-bidding suite, can pass that token to demand alongside other identity signals it supports, so the impression reaches buyers with a consented identifier rather than as anonymous inventory.<br><br>The token only helps if it is actually generated and actually reaches buyers. Two things have to work. First, generation: a logged-in or consented user has to produce a token, which means the operator integration is live, the API credentials are valid, and the email or phone number is normalized correctly before it is sent. Second, delivery: once generated, the token has to be attached to the APS request and forwarded to demand, rather than created and then dropped before it reaches the auction. A break in either step leaves the impression in the auction without the identifier, even though the user consented and a token could have been created.<br><br>UID2 supports both client-side and server-side token generation. Client-side integration through Prebid.js is documented as the fastest path, while server-side generation keeps the API key secret by generating tokens only after authentication on the publisher's own server. Either path can sit alongside APS. The audit does not prescribe which one a publisher uses. It checks that whichever path is in place produces tokens for consented users and that those tokens travel to buyers.<br><br>A few signs point to tokens that are not generated or not reaching the bid stream:<ul><li>Logged-in or consented users produce no UID2 or EUID token when the integration is inspected in the browser or in server logs</li><li>Tokens are generated but do not appear in the outgoing APS request to demand</li><li>Refresh is not running, so tokens expire and are never renewed, and addressable traffic decays over time</li><li>The integration was set up once and has not been rechecked since an APS, Prebid, or operator change that could have broken it</li></ul>You may want to confirm that consented users produce a token and that the token reaches buyers. One approach is to load a page as a logged-in user with consent granted, inspect the bid request for the UID2 or EUID token, and confirm it is present and current rather than missing or expired.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the addressable audience is usually the logged-in or registered readers, so the UID2 or EUID token depends on a working authentication or registration flow feeding the integration. You may want to confirm that a reader who logs in and consents produces a current token in the APS bid request, and that the token refreshes rather than expiring partway through a session.",
+          "ecommerce": "On a commerce-content site, shoppers often authenticate at checkout or account creation, which is the moment an email or phone number with consent becomes available for UID2 or EUID. You may want to confirm that an authenticated, consented shopper produces a token that reaches buyers through APS, and that the token is not lost between the authentication step and the ad request on later pages."
+        },
+        "learn_more": [
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Publisher Integration Guide, Server-Side",
+            "source_url": "https://unifiedid.com/docs/guides/integration-publisher-server-side"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Unified ID 2.0 for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/unified2.html"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's detailed configuration documentation for passing UID2 and EUID tokens through its server-side header-bidding suite is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect a consented, logged-in session to confirm a UID2 or EUID token is generated, then trace whether that token reaches buyers in the outgoing Amazon Publisher Services request, and check that refresh is keeping tokens current.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open a page as a logged-in user with consent granted, then open the browser developer tools and watch the network requests as the ad slots load.",
+                "Find the Amazon Publisher Services request and inspect its payload for a UID2 or EUID token, confirming the token is present rather than absent.",
+                "Reload after the token's lifetime would have elapsed and confirm a refreshed token appears, which shows refresh is running rather than letting tokens expire.",
+                "Repeat as a user with no consent or an opted-out user and confirm no token is generated, which separates a generation gap from a consent-gating issue handled in the next check."
+              ]
+            },
+            "server_logs": {
+              "label": "Server-side token generation logs",
+              "steps": [
+                "If tokens are generated server-side, review the publisher's logs for calls to the operator's token generate and token refresh endpoints.",
+                "Confirm that consented users produce successful token responses and that refresh calls run on schedule rather than failing or never firing.",
+                "Note any authentication or normalization errors in the responses, which point to an integration that is live but failing to produce tokens for users who should have them."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a consented, logged-in session produces a UID2 or EUID token, whether that token appears in the outgoing Amazon Publisher Services request to buyers, and whether refresh keeps tokens current. A setup where consented users produce current tokens that reach buyers passes. A setup where consented users produce no token, where tokens are generated but never reach the bid stream, or where tokens expire without refresh is a fail recorded with the step that breaks.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether consented users produce a token and whether it reaches the bid stream above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} is not delivering Unified ID 2.0 (UID2) or European Unified ID (EUID) tokens into the bid stream for consented users, so those impressions reach buyers through Amazon Publisher Services (APS) without the deterministic identifier that cookieless demand uses to value them. Buyers bid lower or skip the impression, which leaves addressable revenue uncollected on inventory that could have carried a consented token. {{voice_recommend}} tracing the integration end to end, confirming a consented session produces a token, that the token is attached to the outgoing APS request, and that refresh keeps tokens current rather than letting them expire. After the fix, recheck a live session to confirm the token is present and current in the bid request."
+      }
+    },
+    {
+      "id": "amazon-publisher-services-uid2-euid-tokens-generated-without-consent",
+      "title": "UID2 or EUID tokens are generated without a valid legal basis",
+      "category": "identity",
+      "subcategory": "uid2_euid",
+      "impact_score": 4,
+      "impact_rationale": "Generating a UID2 or EUID token converts a user's email or phone number into a cross-site advertising identifier, which the frameworks treat as requiring specific consent rather than a repurposed cookie or marketing consent. Creating tokens for users who have not consented or who have opted out exposes the publisher to regulatory action under GDPR and damages the trust that the consented-identity model depends on. The compliance and reputational exposure, not just lost revenue, places this above a routine hygiene gap.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "A Unified ID 2.0 (UID2) or European Unified ID (EUID) token is built from a user's email or phone number, which makes the consent question central rather than incidental. Under the EUID framework, the publisher and the operator are treated as joint controllers, and the framework's position is that consent has to be obtained specifically for converting the email or phone number into an advertising identifier. A prior cookie consent or an email-marketing opt-in does not cover this use because those consents were given for a different purpose and the user was not told their email would become a cross-site advertising token. The consent has to be freely given, specific, informed, and shown through a clear affirmative action.<br><br>The audit concern is that an integration can be technically working and still be generating tokens it has no legal basis to create. This happens when token generation runs ahead of the consent signal, when an existing consent is reused as if it covered identity resolution, or when an opt-out is recorded somewhere but never reaches the generation step. Each of these produces tokens for users who should have none, which is the failure mode that turns a revenue feature into a liability.<br><br>The frameworks build in an opt-out path. UID2's token generation checks opt-out status before creating a token and returns an opt-out result rather than a token when the user has opted out, and EUID gives users a transparency and control portal to opt out at any time. For these to protect the publisher, the consent and opt-out state has to actually gate generation, so a user who declines or withdraws produces no token. A publisher is also expected to keep proof of consent, including the identifier, a timestamp, the action taken, and a copy of the consent language.<br><br>A few signs point to tokens being generated without a valid legal basis:<ul><li>Tokens appear for users who have not granted consent for identity resolution, or before any consent prompt has been answered</li><li>An existing cookie consent or email-marketing consent is treated as covering UID2 or EUID, rather than a specific consent for converting the email or phone number</li><li>A user who opts out through the framework's portal or the consent tool still produces a token in the bid request</li><li>The publisher cannot show proof of consent, such as the timestamp and the consent language presented, for the tokens being generated</li></ul>You may want to confirm that token generation is gated on a specific, current consent and that opt-outs stop generation. One approach is to test a no-consent session, a consented session, and an opted-out session in turn, and confirm a token is created only in the consented case.",
+        "site_type_overlays": {
+          "publishing": "On a media site, registration and newsletter sign-ups collect emails for purposes that are not identity resolution, so reusing those consents for UID2 or EUID would not meet the specific-consent requirement. You may want to confirm the consent prompt that gates token generation names the conversion of the email or phone number into an advertising identifier, separate from any newsletter or account consent.",
+          "ecommerce": "On a commerce-content site, account and checkout flows capture emails for order and service purposes, which again is a different basis from identity resolution. You may want to confirm that a shopper's order-related consent is not being treated as consent for UID2 or EUID, and that token generation waits for a specific consent and stops when the shopper opts out."
+        },
+        "learn_more": [
+          {
+            "source_type": "European Unified ID Documentation",
+            "source_title": "Publisher Information (Legal)",
+            "source_url": "https://euid.eu/docs/legal/euid-participant-information-publishers"
+          },
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "POST /token/generate",
+            "source_url": "https://unifiedid.com/docs/endpoints/post-token-generate"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's detailed configuration documentation for wiring its identity support to a consent management platform is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Test how token generation responds to consent state by running a no-consent session, a consented session, and an opted-out session, and confirm a token is created only when a specific, current consent is present.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load a page in a fresh session before answering any consent prompt and inspect the network requests for a UID2 or EUID token, confirming none is generated.",
+                "Grant consent specifically for identity resolution, reload, and confirm a token is now generated and reaches the Amazon Publisher Services request.",
+                "Opt out through the consent tool or the framework's transparency and control portal, reload, and confirm no token is generated and any existing token is no longer passed.",
+                "Review the consent prompt's wording to confirm it asks specifically about converting the email or phone number into an advertising identifier rather than relying on a general cookie or marketing consent."
+              ]
+            },
+            "consent_records": {
+              "label": "Consent management platform records",
+              "steps": [
+                "Review the consent management platform configuration to confirm token generation is wired to a specific consent purpose rather than a general advertising or cookie consent.",
+                "Confirm the platform records proof of consent, including the identifier, a timestamp, the action taken, and a copy of the consent language presented.",
+                "Confirm that an opt-out recorded in the platform propagates to the token generation step so no token is created after withdrawal."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether token generation produces a token only when a specific, current consent for identity resolution is present, and whether a no-consent or opted-out session produces no token. A setup where tokens are generated only for consented users, opt-outs stop generation, and proof of consent is retained passes. A setup where tokens appear without consent, where a repurposed cookie or marketing consent is treated as sufficient, or where an opt-out still produces a token is a fail recorded with the case that breaks.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether tokens are generated only for consented users, and whether opt-outs stop generation, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} is generating Unified ID 2.0 (UID2) or European Unified ID (EUID) tokens without a valid legal basis, so a user's email or phone number is being converted into a cross-site advertising identifier without the specific consent the frameworks require. Reusing a cookie or marketing consent, or generating tokens before consent is answered or after an opt-out, exposes {{site_name}} to regulatory action under GDPR and erodes the trust the consented-identity model depends on. {{voice_recommend}} gating token generation on a specific consent for identity resolution, confirming a no-consent session and an opted-out session both produce no token, and retaining proof of consent for the tokens that are created. After the change, retest the no-consent, consented, and opted-out cases to confirm a token is created only when consent is present and current."
+      }
+    }
+  ]
+}

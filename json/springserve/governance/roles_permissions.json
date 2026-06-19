@@ -1,0 +1,136 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Access control in the SpringServe console decides who can change ad serving, demand routing, and pricing, and who can only read reports. A console where every operator holds an admin seat, or where a departed contractor still has a login, widens the surface for a costly mistake or an outside breach without anyone watching for it. This check is a read of the user list and the API credentials a publisher already has, so it costs review time rather than rebuild time, and the finding points to a specific account to scope down or an unused token to retire.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "SpringServe is a video and Connected TV (CTV) ad server, and the people who log into its console can reshape how a publisher serves ads, routes demand, and prices inventory. This subcategory looks at who holds which role in the console and how the publisher's API credentials are scoped and maintained. These checks confirm that access follows the principle of least privilege, that no one carries more reach than their work needs, and that the programmatic keys into the account are treated as the sensitive credentials they are.",
+  "audit_checks": [
+    {
+      "id": "springserve-roles-permissions-least-privilege-not-enforced",
+      "title": "Console roles are not scoped to the least privilege each user needs",
+      "category": "governance",
+      "subcategory": "roles_permissions",
+      "impact_score": 3,
+      "impact_rationale": "Admin and AdOps roles in SpringServe can reshape ad serving, demand routing, and account settings, so handing those seats to operators who only read reports widens the surface for an accidental change or a compromised login. A departed staffer or contractor whose account stays active is an open door that no current work depends on, and least privilege closes both gaps before they cause damage.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "SpringServe gives each console user a role, and the role decides how far that person can reach into the account. The platform's own documentation describes the available types. An Admin can add users, change settings, and run reports. An AdOps user can do most of what an Admin can but cannot create new users. An Analytics user has read-only access to reporting. A Supply Client or Demand Client sees reporting limited to the partners or labels assigned to them. The reach falls away sharply as you move down that list, which is the point of having the roles at all.<br><br>The principle that governs this is least privilege. Each person holds the smallest set of permissions their work actually requires, and no more. An analyst who only reads reports does not need a seat that can rewrite ad-serving rules or route demand. A demand partner who checks their own delivery does not need visibility into the whole account. When everyone is provisioned as an Admin because it was the quick way to get them working, a single mistaken edit or a single compromised password can reach the entire serving configuration rather than one corner of it.<br><br>The other half of the check is the user list itself. Accounts outlive the people who opened them. A contractor finishes an engagement, a staffer changes teams or leaves, and the login can sit active long after the work ends. Each of those accounts is a credential that still authenticates and still carries whatever role it was given, with no one currently relying on it. SpringServe sends a password-setup link to each new user, so the account exists from the moment it is created and persists until someone removes it.<br><br>A few signs point to access that has drifted from least privilege:<ul><li>More than a handful of users hold the Admin or AdOps role when only one or two people manage serving configuration</li><li>The user list includes accounts for people who have left the company or finished a contract</li><li>No one can say, per user, why that person holds the role they do</li><li>Reporting-only staff or external partners hold roles that can change settings rather than Analytics or Client roles</li></ul>You may want to walk the full user list against the current team and confirm that each active account maps to a person who still needs it, at the narrowest role that covers their work. One approach is to set a recurring review, for example each quarter, so the list is reconciled on a schedule rather than only after an incident.",
+        "site_type_overlays": {
+          "publishing": "For a streaming service or broadcaster running ad-supported video, the operations team that manages ad pods and demand routing is usually small, while analysts, sales staff, and outside demand partners are far more numerous. You may want to reserve Admin and AdOps for the operators who configure serving, and place everyone else on Analytics or the appropriate Client role so a reporting login cannot reach the serving rules behind the channel.",
+          "ecommerce": "For a commerce brand running shoppable or product video through SpringServe, marketing staff and external agency contacts may need to read delivery without touching configuration. You may want to keep agency and marketing accounts on Analytics or a scoped Client role, and remove agency logins promptly when an engagement ends so an external account does not outlive the contract that justified it."
+        },
+        "learn_more": [
+          {
+            "source_type": "SpringServe Documentation",
+            "source_title": "Users",
+            "source_url": "https://springserve.atlassian.net/wiki/spaces/SSD/pages/1620377812/Users"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the full list of console users with their assigned roles, then reconcile it against the current team to confirm each active account still maps to a person who needs it at the narrowest role that covers their work.",
+        "tools": {
+          "free": {
+            "springserve_ui": {
+              "label": "SpringServe console",
+              "steps": [
+                "Open the user management area of the SpringServe console and export or list every active user with the role assigned to each.",
+                "Mark which users hold Admin or AdOps, the roles that can change serving and settings, and count how many that is against the number of people who actually configure serving.",
+                "Compare the full user list against the current team roster and flag any account belonging to someone who has left the company or finished a contract.",
+                "For each remaining active user, record whether the role matches the work they do, noting any reporting-only or external user who holds a role that can change settings."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each active console user, the role assigned, and whether that person still needs access at that level. A user list where Admin and AdOps are limited to the operators who configure serving, every account maps to a current team member, and reporting-only or external users sit on Analytics or Client roles passes. A list with broad Admin provisioning, accounts for departed staff or finished contractors, or reporting-only users on settings-capable roles is a fail recorded with the specific accounts and roles affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each console user, the role assigned, and whether the person still needs that access above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that console access in {{site_name}}'s SpringServe account is not scoped to least privilege, with Admin or AdOps seats held more widely than the serving work requires and one or more accounts still active for people no longer on the team. Admin and AdOps roles can reshape ad serving, demand routing, and account settings, so each extra seat and each stale login widens the surface for an accidental change or a compromised account. {{voice_recommend}} reconciling the user list against the current team, removing accounts for anyone who has left or finished a contract, and lowering each remaining user to the narrowest role that covers their work, with reporting-only and external users on Analytics or Client roles. After the cleanup, set a recurring review so the list stays current rather than drifting until the next incident."
+      }
+    },
+    {
+      "id": "springserve-roles-permissions-api-credentials-not-scoped-rotated",
+      "title": "API credentials are shared or long-lived rather than scoped and rotated",
+      "category": "governance",
+      "subcategory": "roles_permissions",
+      "impact_score": 3,
+      "impact_rationale": "SpringServe's API authenticates with the same email and password a console user logs in with, so an API credential carries that user's full role into automated access. A shared service login, or one tied to a high-privilege human account, means a leaked or stale credential reaches as far as that account does, and a credential that no one rotates stays valid long after the person or script that needed it is gone.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "SpringServe exposes an Application Programming Interface (API) that lets a publisher script reporting and account tasks rather than clicking through the console. The way it authenticates matters for this check. A client posts an email and password to the authentication endpoint and receives a token in return, and that token is then sent with each request. The token expires after two hours, so it is short-lived by design, but the email and password that mint it are the same credentials a person uses to log into the console, and they carry the same role.<br><br>That detail sets the risk. An API credential is not a separate, weaker key. It is a console login wearing automation clothes. If the script authenticates as a human Admin, then anyone holding that script's stored email and password can do everything that Admin can, through the API or the console alike. If a single set of credentials is shared across several scripts or several people, a leak from any one of them exposes all of them, and no log can tell which person or process actually used it.<br><br>The safer pattern treats automated access as its own identity. A dedicated service account, scoped to the narrowest role the integration needs rather than full Admin, gives the script only the reach its task requires. Reporting automation that needs to read delivery can sit on an Analytics-level account rather than one that can rewrite serving rules. Credentials live in a secret store or environment variable, not pasted into a shared document or hard-coded in a repository, and they are rotated on a schedule and immediately when a person with access to them leaves.<br><br>A few patterns point to API credentials that need attention:<ul><li>Automated scripts authenticate as a human user's Admin login rather than a dedicated, scoped service account</li><li>One set of credentials is shared across multiple scripts, machines, or people</li><li>Credentials sit in a shared document, a wiki page, or hard-coded in a code repository rather than a secret store</li><li>No rotation schedule exists, and the credentials have not changed since the integration was first built</li></ul>You may want to confirm that every API integration authenticates as its own scoped account, that the credentials live somewhere access-controlled, and that a rotation schedule is in place. One approach is to inventory each script or integration touching the SpringServe API, map it to the account it uses, and replace any human or shared login with a dedicated service account at the least privilege the task needs.",
+        "site_type_overlays": {
+          "publishing": "For a streaming service or broadcaster, reporting and yield automation often pulls from the SpringServe API on a schedule, and those jobs can run for years untouched. You may want to give each scheduled job a dedicated service account scoped to reporting rather than letting it authenticate as an operator's Admin login, so a leaked credential from a long-running job cannot reach the serving configuration.",
+          "ecommerce": "For a commerce brand, an outside agency or a marketing tool may hold API access to pull video delivery data. You may want to issue any third party its own scoped service account rather than sharing an internal login, and rotate or revoke that credential the moment the relationship ends so an external integration cannot keep reading the account after the contract closes."
+        },
+        "learn_more": [
+          {
+            "source_type": "SpringServe Documentation",
+            "source_title": "API - Getting Started",
+            "source_url": "https://springserve.atlassian.net/wiki/spaces/SSD/pages/1573617663/API+-+Getting+Started"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inventory every script or integration that calls the SpringServe API, map each to the account and role it authenticates as, and review where those credentials are stored and how often they are rotated.",
+        "tools": {
+          "free": {
+            "springserve_ui": {
+              "label": "SpringServe console",
+              "steps": [
+                "List the accounts used for API access in the user management area and note the role each one holds.",
+                "For each account that authenticates the API, record whether it is a dedicated service account or a human user's login, and whether its role is scoped to the task or is full Admin.",
+                "Confirm with the team which scripts, machines, or partners use each set of credentials, and flag any credential shared across more than one of them."
+              ]
+            },
+            "internal_review": {
+              "label": "Internal credential review",
+              "steps": [
+                "Ask where the SpringServe API credentials are stored and confirm whether they sit in a secret store or environment variable rather than a shared document or a code repository.",
+                "Ask whether a rotation schedule exists and when the credentials were last changed.",
+                "Record whether credentials are revoked or rotated when a person with access to them leaves, and note any credential that has not changed since the integration was built."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each API integration, the account and role it authenticates as, where the credentials are stored, and the rotation practice. A setup where each integration uses a dedicated service account scoped to the least privilege its task needs, credentials live in an access-controlled store, and a rotation schedule is in place passes. A setup with API access tied to a human Admin login, credentials shared across scripts or people, secrets in a shared document or repository, or no rotation is a fail recorded with the integrations and credentials affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each API integration, the account it uses, where the credentials are stored, and the rotation practice above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s SpringServe API access relies on credentials that are not scoped or rotated as a dedicated, least-privilege identity. The SpringServe API authenticates with the same email and password a console user logs in with, so a credential tied to a human Admin or shared across scripts carries that account's full reach into automated access, and a credential no one rotates stays valid long after the script or person that needed it is gone. {{voice_recommend}} giving each integration its own service account scoped to the narrowest role its task requires, moving the credentials into an access-controlled secret store, and setting a rotation schedule that also revokes access when a person with the credentials leaves. After the change, keep an inventory of which integration uses which account so the access stays mapped and auditable."
+      }
+    }
+  ]
+}

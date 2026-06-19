@@ -1,0 +1,159 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://iabtechlab.com/sellers-json/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "A publisher's sellers.json entry at OpenX and the SupplyChain object passed through the bid stream are what let a buyer trace an impression back to the seller of record and decide whether to trust it. An entry that names the wrong seller ID, mislabels a DIRECT relationship as RESELLER, or hides a seller that should be disclosed makes the publisher's inventory harder to verify, which buyers increasingly treat as a reason to bid less or not at all. The check reads records the publisher can already see, so it costs reading time rather than rebuild time, and each finding points to a specific entry or a specific node in the chain to correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "When a publisher sells inventory through OpenX, two records tell a buyer who is selling the impression and how it reached them. OpenX's sellers.json file lists the publisher as a seller, with a seller ID, a seller type of DIRECT or RESELLER, and a flag for whether the relationship is disclosed or confidential. The SupplyChain object, carried in the bid request, records each hop the impression took from the publisher to the buyer. This subcategory checks that the OpenX sellers.json entry describes the publisher's relationship accurately and that the SupplyChain object is complete and passed end to end, so a buyer can verify the path rather than discount it.",
+  "audit_checks": [
+    {
+      "id": "openx-sellers-json-entry-accuracy",
+      "title": "The OpenX sellers.json entry does not match the publisher's seller ID and relationship",
+      "category": "supply-chain",
+      "subcategory": "sellers_json",
+      "impact_score": 3,
+      "impact_rationale": "A sellers.json entry that names the wrong seller ID, mislabels the seller type, or leaves a publisher confidential when it should be disclosed gives buyers a record they cannot reconcile against the bid stream. Buyers that cannot match the seller to a verified entity often bid down or filter the inventory, so an inaccurate entry reduces demand on inventory the publisher meant to make verifiable.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "OpenX publishes a sellers.json file that lists every account selling inventory through its platform. Each listing is a seller object, and the fields in that object are what a buyer reads to identify who is behind an impression. The Interactive Advertising Bureau Technology Laboratory (IAB Tech Lab) defines those fields in the sellers.json specification, and a publisher's entry has to describe the real relationship for the record to be useful.<br><br>Three fields carry most of the meaning. The 'seller_id' is the identifier OpenX assigns to the publisher's account, and it has to be the same value that appears as the publisher's node in the SupplyChain object so a buyer can match the two. The 'seller_type' is either 'DIRECT', meaning the publisher owns the inventory and has a direct account relationship with OpenX, or 'RESELLER', meaning the account is reselling inventory it does not own. The 'is_confidential' flag decides whether the publisher's name and domain are disclosed in the file or withheld. A confidential listing still verifies that a real seller exists, but it hides who they are, which gives buyers less to trust.<br><br>The audit question is whether the entry matches reality. A few mismatches are worth checking for:<ul><li>The seller_id in OpenX's sellers.json differs from the seller ID the publisher expects, or from the value passed in the SupplyChain object</li><li>The seller_type reads RESELLER for inventory the publisher owns directly, or DIRECT for inventory that is actually resold</li><li>The publisher is listed as confidential when the relationship could be disclosed, which leaves buyers with less to verify than they could have</li><li>The name or domain in a disclosed entry does not match the publisher's actual brand or site</li></ul>OpenX controls the contents of its own sellers.json, so correcting an entry is a request to OpenX rather than a file the publisher edits. You may want to confirm the entry first, then raise any mismatch with OpenX so the record describes the relationship accurately.",
+        "site_type_overlays": {
+          "publishing": "A media publisher selling its own inventory should appear as DIRECT in OpenX's sellers.json, with a seller ID that matches the SupplyChain node. If a network or holding company manages several titles through one OpenX account, you may want to confirm which entity is named in the entry so each property maps to a seller a buyer can verify.",
+          "ecommerce": "A commerce-content site running ads on its own pages should appear as DIRECT for the inventory it owns. If any inventory is sold on the site's behalf by a managed-service partner through OpenX, you may want to confirm whether that arrangement is reflected as a DIRECT publisher entry or a RESELLER hop so the record matches how the inventory is actually sold."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "learn_more_note": "OpenX's detailed configuration documentation for its seller listings is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read OpenX's sellers.json for the publisher's entry, then compare its seller_id, seller_type, and confidentiality against the publisher's actual relationship and the value passed in the SupplyChain object.",
+        "tools": {
+          "free": {
+            "openx_sellers_json": {
+              "label": "OpenX sellers.json file",
+              "steps": [
+                "Open the OpenX sellers.json file at the publisher-facing path OpenX publishes it from, and search for the publisher's seller ID or domain.",
+                "Record the entry's seller_id, seller_type (DIRECT or RESELLER), is_confidential flag, and the name and domain if disclosed.",
+                "Confirm the seller_id matches the identifier OpenX assigned to the publisher's account.",
+                "Confirm the seller_type matches whether the publisher owns the inventory directly or resells it.",
+                "Note any case where the publisher is listed confidential and could be disclosed, or where a disclosed name or domain does not match the publisher's brand."
+              ]
+            },
+            "bid_request_inspection": {
+              "label": "Bid request inspection",
+              "steps": [
+                "Capture a sample bid request from the publisher's pages using the browser developer tools or a debugging extension.",
+                "Locate the SupplyChain object and read the seller ID (sid) in the OpenX node.",
+                "Confirm that the sid in the SupplyChain node matches the seller_id in OpenX's sellers.json entry, so a buyer can reconcile the two."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the publisher's OpenX sellers.json entry, its seller_id, seller_type, and confidentiality, alongside the publisher's actual relationship and the SupplyChain seller ID. An entry whose seller_id matches the SupplyChain node, whose seller_type reflects the real ownership, and whose disclosure setting fits the relationship passes. An entry with a mismatched seller_id, a seller_type that contradicts the ownership, or an unwarranted confidential flag is a fail recorded with the field that diverges.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the OpenX sellers.json entry fields and the publisher's actual relationship above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the OpenX sellers.json entry for {{site_name}} does not match the publisher's seller ID and relationship, so a buyer reading the file cannot reconcile it against the bid stream. The seller_id, seller_type, and confidentiality flag in sellers.json are what a buyer uses to identify the seller of record, and a value that contradicts the real relationship leads buyers to bid down or filter the inventory. {{voice_recommend}} confirming the entry against the publisher's account and the SupplyChain seller ID, then requesting that OpenX correct any field that diverges because OpenX controls its own sellers.json. After the correction, recheck the entry to confirm the seller_id, seller_type, and disclosure setting describe the relationship accurately."
+      }
+    },
+    {
+      "id": "openx-sellers-json-schain-incomplete",
+      "title": "The SupplyChain object is incomplete or not passed end to end",
+      "category": "supply-chain",
+      "subcategory": "sellers_json",
+      "impact_score": 3,
+      "impact_rationale": "The SupplyChain object lets a buyer trace every hop an impression took from the publisher to the bid. A chain that is missing a node, carries an incomplete flag, or is dropped before it reaches the buyer leaves the path unverifiable, so buyers that require a complete chain reduce bids or filter the inventory, and the publisher loses demand on impressions that could have been traced.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "The SupplyChain object is the record of how an impression traveled from the publisher to the buyer. It rides along with the bid request, and it lists one node for each entity that handled the impression on its way through the chain. OpenX runs Prebid-compatible header bidding, so on a publisher's pages the chain usually begins in the Prebid wrapper and is carried through OpenX into the bid request a buyer receives.<br><br>Each node names a 'sid', which is the seller ID for that entity, and the same value has to appear in that entity's sellers.json so a buyer can match the node to a verified seller. The object also carries a 'complete' flag. A complete chain set to 1 tells the buyer that every hop from the original publisher onward is represented, with no entity left out. A chain marked incomplete, or one that is missing the publisher's own node, gives the buyer a partial path, and a partial path is harder to trust than no path at all because it suggests a hop is being hidden.<br><br>Two failure points are worth separating. The chain can be built wrong, with a missing node, a sid that does not match a sellers.json entry, or a complete flag set to 0 when the chain is in fact whole. The chain can also be built correctly and then dropped, where the wrapper assembles it but a downstream step does not forward it, so the buyer never sees it. The audit looks at both.<br><br>A few signs point to a SupplyChain object that is incomplete or not passed end to end:<ul><li>A captured bid request has no SupplyChain object, or one that omits the publisher's node</li><li>The complete flag reads 0 on a chain that should represent every hop</li><li>A node's sid does not match the seller_id in the corresponding sellers.json, including the publisher's own OpenX entry</li><li>The wrapper is configured with SupplyChain data but the object does not appear in the request that reaches the buyer</li></ul>You may want to confirm that the chain is both complete and forwarded by capturing a live bid request and reading the SupplyChain object, then comparing each node's sid against the matching sellers.json.",
+        "site_type_overlays": {
+          "publishing": "A media publisher selling through OpenX should see its own node at the start of the SupplyChain object, with a sid that matches its OpenX sellers.json entry and a complete flag of 1. If the site runs several header-bidding partners alongside OpenX, you may want to capture requests across partners to confirm each one carries a complete chain rather than only the path through OpenX.",
+          "ecommerce": "A commerce-content site monetizing its own pages should appear as the originating node in the SupplyChain object. If any inventory is sold through a managed-service partner, that partner adds a node, so you may want to confirm the chain shows every hop and stays marked complete rather than collapsing the partner's involvement into a single publisher node."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Documentation",
+            "source_title": "Sellers.json and SupplyChain Object Ready for Industry Adoption",
+            "source_url": "https://iabtechlab.com/sellers-json-and-supplychain-object-ready-for-industry-adoption/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Supply Chain Object Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/schain.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Capture a live bid request from the publisher's pages, read the SupplyChain object, and confirm that every node is present, the complete flag is set correctly, and each sid matches the corresponding sellers.json.",
+        "tools": {
+          "free": {
+            "bid_request_inspection": {
+              "label": "Bid request inspection",
+              "steps": [
+                "Load a page that serves OpenX inventory and open the browser developer tools network panel, or use a header-bidding debugging extension.",
+                "Capture a bid request and locate the SupplyChain object within it.",
+                "Record each node's sid and the complete flag, and confirm the publisher's own node appears at the start of the chain.",
+                "For each node, compare the sid against the seller_id in that entity's sellers.json, including the publisher's OpenX entry.",
+                "Note any case where the object is absent, the complete flag reads 0, a node is missing, or a sid does not match a sellers.json entry."
+              ]
+            },
+            "prebid_config_review": {
+              "label": "Prebid configuration review",
+              "steps": [
+                "Review the Prebid wrapper configuration for the SupplyChain (schain) module and the node values it sets.",
+                "Confirm the publisher's node is declared with the correct sid and that the configuration marks the chain complete where it should be.",
+                "Compare the configured chain against the chain that actually appears in a captured request to confirm the wrapper forwards it rather than dropping it downstream."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the SupplyChain object from a captured bid request, its nodes, the complete flag, and whether each sid matches the corresponding sellers.json. A chain that includes the publisher's node, reads complete where appropriate, matches every sid to a sellers.json entry, and reaches the buyer passes. A chain that is absent, missing a node, marked incomplete in error, carries a sid with no matching sellers.json entry, or is dropped before the buyer is a fail recorded with the node or step that breaks the path.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the SupplyChain object nodes, the complete flag, and the sid-to-sellers.json matches above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the SupplyChain object for {{site_name}} is incomplete or not passed end to end, so a buyer cannot trace the full path the impression took. The SupplyChain object records each hop from the publisher to the bid, and a missing node, an incomplete flag, or a chain dropped before the buyer leaves the path unverifiable, which leads buyers that require a complete chain to bid down or filter the inventory. {{voice_recommend}} capturing a live bid request, confirming the publisher's node appears with a sid that matches its OpenX sellers.json, and tracing the chain through the Prebid wrapper to confirm it stays complete and reaches the buyer. After any fix, recapture a request to confirm the SupplyChain object is whole and forwarded intact."
+      }
+    }
+  ]
+}

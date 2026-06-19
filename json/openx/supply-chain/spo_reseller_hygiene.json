@@ -1,0 +1,228 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Supply Path Optimization has moved buyer spend toward the cleanest, shortest paths to inventory, so a publisher selling through OpenX competes for that spend partly on how clean its supply path reads to a buyer. Redundant reseller hops, stale authorizations, and Made For Advertising adjacency all make a path look worse to a buyer running SPO, and a buyer who deprioritizes the path moves spend elsewhere. The check is a review of declarations and reseller relationships the publisher can read today, so it costs reading time rather than rebuild time, and each finding points to a concrete authorization or path the publisher can tighten.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Supply Path Optimization (SPO) is the practice buyers use to favor the shortest, most transparent route to a publisher's inventory and to drop routes that add hops or risk without adding value. For a publisher monetizing through OpenX, the way inventory is declared and resold shapes how every SPO-driven buyer reads the path. This subcategory covers reseller hygiene, the redundant paths and stale authorizations that make a clean path look noisy, and the Made For Advertising (MFA) and unauthorized-reseller exposure that pushes buyers to deprioritize a path. These checks confirm that the publisher's reseller relationships and supply-chain declarations present a path a buyer running SPO will keep rather than cut.",
+  "audit_checks": [
+    {
+      "id": "openx-spo-reseller-hygiene-redundant-paths",
+      "title": "Multiple reseller paths reach the same inventory, adding hops without adding demand",
+      "category": "supply-chain",
+      "subcategory": "spo_reseller_hygiene",
+      "impact_score": 3,
+      "impact_rationale": "When the same impression can be bought through several reseller paths, a buyer running Supply Path Optimization (SPO) sees a longer, noisier chain and often keeps only the cleanest path, which can be one that pays the publisher less. Redundant paths rarely add demand the publisher would not otherwise reach, so they trade transparency and yield for duplication that buyers increasingly discount.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["transparency", "fraud"],
+      "educate": {
+        "base": "A single ad slot can often be reached through more than one route. A publisher might sell the same inventory directly through OpenX and also let another exchange or a reseller resell that same inventory, so a buyer sees the impression offered through two or three chains at once. Each route is a path, and the set of intermediaries a path runs through is what the OpenRTB SupplyChain object, declared and validated through OpenX's sellers.json entry, exposes to the buyer.<br><br>Supply Path Optimization is how buyers respond to that duplication. A buyer running SPO compares the paths that reach the same inventory and favors the shortest, most transparent one, then deprioritizes or drops the rest. The path a buyer keeps is not always the one that pays the publisher best. A reseller path can carry an extra fee layer, so when a buyer consolidates onto it, the publisher can keep the impression but collect less of what the buyer paid. Redundant paths rarely bring demand a publisher could not reach more directly, so they add hops and fee layers without adding value the buyer recognizes.<br><br>The point of the check is not that every reseller relationship is wasteful. Some resellers reach demand a publisher genuinely cannot access alone. The point is to know which paths reach the same inventory, what each one adds, and whether a buyer comparing them would read the set as clean or noisy.<br><br>A few signs point to redundant reseller paths worth reviewing:<ul><li>The same inventory is sold both directly through OpenX and resold by one or more other intermediaries, with no record of what each reseller path adds</li><li>Reseller authorizations exist for partners the publisher cannot tie to specific demand</li><li>Buyers or OpenX have flagged duplicate or competing paths to the same impressions</li></ul>You may want to map which paths reach each slice of inventory and confirm each reseller path brings demand the direct path does not. One approach is to keep the paths that add reachable demand and retire the authorizations that only duplicate a route a buyer already has.",
+        "site_type_overlays": {
+          "publishing": "On a media site, premium placements such as a homepage or section-front unit are the inventory buyers most want a clean path to, so duplicate reseller routes to those units are the ones most likely to cost yield under SPO. You may want to map the paths to the premium placements first and keep the direct OpenX path clean on the inventory buyers value most.",
+          "ecommerce": "On a commerce-content site, product and category pages reach a higher-intent audience that buyers pay more to reach, so a buyer running SPO is especially likely to consolidate onto one path for that inventory. You may want to confirm the higher-value commercial inventory is not being resold through several competing paths that dilute how clean it looks to a buyer."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json and the SupplyChain object",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "IAB Europe",
+            "source_title": "Guide to Supply Path Optimisation (SPO), 2022 update",
+            "source_url": "https://iabeurope.eu/wp-content/uploads/Guide-to-Supply-Path-Optimsation-SPO-2022-update-FINAL-1.pdf"
+          },
+          {
+            "source_type": "Prebid",
+            "source_title": "Supply Chain (schain) module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/schain.html"
+          }
+        ],
+        "learn_more_note": "OpenX's detailed configuration documentation for reseller authorizations and supply-path settings is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Map which reseller paths reach each slice of inventory, then check what demand each path adds against the direct OpenX path.",
+        "tools": {
+          "free": {
+            "sellers_json": {
+              "label": "OpenX sellers.json and the SupplyChain object",
+              "steps": [
+                "Pull OpenX's public sellers.json and locate the publisher's seller entries to confirm how the publisher is declared and which seller IDs map to the inventory.",
+                "List every intermediary that can resell the publisher's inventory, including other exchanges and resellers beyond the direct OpenX relationship.",
+                "For each reseller path, note whether it reaches the same ad units the direct OpenX path already covers, which marks it as a candidate for duplication.",
+                "Record which paths reach the same inventory so the redundant set is visible in one place."
+              ]
+            },
+            "ssp_reporting": {
+              "label": "OpenX and partner reporting",
+              "steps": [
+                "Build a view of revenue and bid activity by reseller path or partner for the inventory that is sold more than one way.",
+                "Compare the demand each reseller path brings against the direct OpenX path to see whether the reseller adds buyers the direct path does not reach.",
+                "Note any reseller path that duplicates demand already available directly, which points to a path adding hops without adding value."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per slice of inventory sold more than one way, which reseller paths reach it and what demand each path adds beyond the direct OpenX path. A setup where each reseller path brings demand the direct path does not reach passes. A setup where one or more reseller paths only duplicate a route a buyer already has, with no added demand, is a fail recorded with the paths and inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which reseller paths reach each slice of inventory and what each one adds above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sells some inventory through several reseller paths that reach the same impressions without each path adding demand the direct OpenX path does not. A buyer running Supply Path Optimization (SPO) compares the paths to the same inventory and keeps the cleanest one, which is not always the path that pays the publisher best, so redundant paths add hops and fee layers a buyer discounts. {{voice_recommend}} mapping which reseller paths reach each slice of inventory, keeping the paths that bring demand the direct path cannot, and retiring the authorizations that only duplicate a route. After the cleanup, recheck the SupplyChain object so the path a buyer reads is as short and clean as the inventory allows."
+      }
+    },
+    {
+      "id": "openx-spo-reseller-hygiene-mfa-exposure",
+      "title": "Made For Advertising adjacency and unauthorized reselling are not monitored",
+      "category": "supply-chain",
+      "subcategory": "spo_reseller_hygiene",
+      "impact_score": 3,
+      "impact_rationale": "Buyers running Supply Path Optimization (SPO) cut paths that read as risky, and Made For Advertising (MFA) adjacency or unauthorized reselling of a publisher's inventory both make a path read that way. A publisher who does not monitor where its inventory is resold can find its clean inventory grouped with MFA supply or spoofed by an unauthorized seller, which pushes buyers to deprioritize the path and lowers what the legitimate inventory earns.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["fraud", "transparency"],
+      "educate": {
+        "base": "Made For Advertising sites are pages built mainly to carry ads rather than to serve readers, and buyers increasingly screen against them because spend on MFA inventory rarely returns value. A legitimate publisher is not MFA, but its inventory can still suffer from MFA in the supply chain. When the same reseller path that carries a publisher's inventory also carries MFA supply, a buyer running SPO that drops the path drops the legitimate publisher along with it.<br><br>Unauthorized reselling is the related risk. A seller the publisher never authorized can declare itself a reseller of the publisher's inventory, or spoof the publisher's domain, so a buyer sees the publisher's inventory offered through a path the publisher does not control. The ads.txt and app-ads.txt files, and the sellers.json entries that pair with them, exist so a buyer can check which sellers a publisher actually authorized. A path that does not reconcile against those declarations reads as unauthorized, and a careful buyer treats it as a fraud signal rather than as the publisher's real supply.<br><br>Monitoring is what turns these from invisible risks into findings. A publisher that reads where its inventory is resold, checks those paths against its own ads.txt and sellers.json declarations, and watches for MFA adjacency can act before a buyer's SPO logic quietly moves spend away. A publisher that does not monitor learns about the problem only when revenue on a path falls and the cause is hard to trace.<br><br>A few signs point to MFA and unauthorized-reseller exposure going unmonitored:<ul><li>No routine check reconciles where the inventory is resold against the publisher's own ads.txt, app-ads.txt, and sellers.json declarations</li><li>The publisher cannot say which resellers are carrying its inventory or whether any sit alongside MFA supply</li><li>Buyers or OpenX have raised an MFA or domain-spoofing concern that the publisher could not independently confirm</li></ul>You may want to set a routine that reconciles reseller paths against the publisher's authorized-seller declarations and flags MFA adjacency. One approach is to treat any path that does not match the declarations as an unauthorized seller to investigate, and to confirm authorized partners are not blending the inventory with MFA supply.",
+        "site_type_overlays": {
+          "publishing": "On a media site, an established brand and domain are exactly what a spoofer wants to borrow, so unauthorized sellers declaring the publisher's domain are a real risk to watch. You may want to reconcile reseller paths against the ads.txt and sellers.json declarations regularly so a path that borrows the brand without authorization surfaces quickly.",
+          "ecommerce": "On a commerce-content site, the higher-value commercial inventory is the inventory a spoofer or a Made For Advertising reseller would most want to ride alongside since it carries the prices buyers pay most for. You may want to monitor where the commercial inventory is resold and confirm it is not grouped with MFA supply that drags down how buyers read the path."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt and app-ads.txt specification and implementation",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json and the SupplyChain object",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "IAB Europe",
+            "source_title": "Guide to Supply Path Optimisation (SPO), 2022 update",
+            "source_url": "https://iabeurope.eu/wp-content/uploads/Guide-to-Supply-Path-Optimsation-SPO-2022-update-FINAL-1.pdf"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Reconcile where the publisher's inventory is resold against its own authorized-seller declarations, and look for paths that sit alongside Made For Advertising (MFA) supply.",
+        "tools": {
+          "free": {
+            "ads_txt_sellers_json": {
+              "label": "ads.txt, app-ads.txt, and sellers.json reconciliation",
+              "steps": [
+                "Open the publisher's own ads.txt and app-ads.txt files and list the sellers and seller IDs the publisher authorized, including the OpenX entries.",
+                "Pull OpenX's sellers.json and confirm the publisher's seller entries match what the ads.txt files declare.",
+                "List every path or reseller that currently carries the publisher's inventory and check each against the authorized set, marking any that does not reconcile.",
+                "Record any unauthorized or unexplained reseller as a path to investigate."
+              ]
+            },
+            "mfa_review": {
+              "label": "Reseller and MFA adjacency review",
+              "steps": [
+                "For each authorized reseller path, review the other supply it carries to see whether the publisher's inventory sits alongside Made For Advertising (MFA) sites.",
+                "Note any buyer or OpenX message that raised an MFA or domain-spoofing concern and whether the publisher could confirm it.",
+                "Record which paths read as clean and which carry MFA adjacency or unauthorized reselling that a buyer's Supply Path Optimization (SPO) would penalize."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a routine reconciles reseller paths against the publisher's ads.txt, app-ads.txt, and sellers.json declarations, and whether any path carries Made For Advertising (MFA) adjacency or unauthorized reselling. A setup where paths reconcile to the authorized declarations and no MFA adjacency is found passes. A setup with no reconciliation routine, or with unauthorized paths or MFA adjacency present, is a fail recorded with the paths and the gaps found.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether reseller paths reconcile against the authorized-seller declarations and whether any MFA adjacency was found above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not monitor where its inventory is resold against its own ads.txt, app-ads.txt, and sellers.json declarations, so Made For Advertising (MFA) adjacency and unauthorized reselling can go unnoticed. A buyer running Supply Path Optimization (SPO) cuts paths that read as risky, and inventory grouped with MFA supply or offered through an unauthorized seller reads that way, which moves spend off the legitimate path. {{voice_recommend}} setting a routine that reconciles every reseller path against the authorized-seller declarations, treats a path that does not match as an unauthorized seller to investigate, and confirms authorized partners are not blending the inventory with MFA supply. After the routine is in place, recheck the paths so the publisher can act before a buyer's SPO logic moves spend away."
+      }
+    },
+    {
+      "id": "openx-spo-reseller-hygiene-sellers-json-accuracy",
+      "title": "sellers.json and ads.txt declarations are stale or inconsistent",
+      "category": "supply-chain",
+      "subcategory": "spo_reseller_hygiene",
+      "impact_score": 2,
+      "impact_rationale": "Buyers use the publisher's ads.txt and OpenX's sellers.json entries to confirm a path is authorized, so when those declarations are stale or disagree with each other, a legitimate path can read as unauthorized to a buyer running Supply Path Optimization (SPO). The cost is a path that gets deprioritized not because the inventory is bad but because the paperwork that vouches for it is out of date.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["transparency", "fraud"],
+      "educate": {
+        "base": "A buyer cannot see a publisher's contracts, so the buyer relies on public declarations to confirm a path is real. The publisher's ads.txt and app-ads.txt files declare which sellers it authorized to sell its inventory and with what relationship, direct or reseller. OpenX's sellers.json declares the seller entries that correspond to that inventory on the OpenX side. The OpenRTB SupplyChain object then carries, on each bid request, the chain a buyer can check against both files. The three are meant to agree, and a buyer running SPO reads a path that agrees as authorized and a path that does not as suspect.<br><br>Declarations drift out of date for ordinary reasons. A publisher changes the account it sells through, takes on or drops a reseller, or restructures its domains, and the ads.txt entry that described the old arrangement stays in place. A seller ID in OpenX's sellers.json can stop matching what the ads.txt file lists, or a 'direct' relationship can be declared where the real relationship is now a reseller one. None of this means the inventory changed, but to a buyer checking the declarations, a path that does not reconcile looks like a path that should not be trusted.<br><br>Keeping the declarations accurate is low-effort hygiene with a direct yield consequence. When ads.txt, sellers.json, and the SupplyChain object agree, a buyer's SPO logic can confirm the path quickly and keep it. When they disagree, the buyer either spends effort to resolve the mismatch or, more often, deprioritizes the path and moves on.<br><br>A few signs point to stale or inconsistent declarations:<ul><li>The ads.txt or app-ads.txt entries for OpenX do not match the seller IDs in OpenX's sellers.json</li><li>A relationship is declared as 'direct' in ads.txt where the inventory is actually resold, or the reverse</li><li>Entries remain for sellers, accounts, or resellers the publisher no longer works with</li></ul>You may want to reconcile the publisher's ads.txt and app-ads.txt against OpenX's sellers.json and confirm the relationships and seller IDs still match the current arrangement. One approach is to review the declarations on a set schedule and after any change to how the inventory is sold.",
+        "site_type_overlays": {
+          "publishing": "On a media site that has run for years, ads.txt files tend to accumulate entries from past partners, so stale reseller lines are the most likely mismatch to find. You may want to clear the entries for sellers the publisher no longer works with so the declarations describe only the paths that are live today.",
+          "ecommerce": "On a commerce-content site, separate storefront and editorial domains can each carry their own ads.txt files, so an entry can be current on one domain and stale on another. You may want to reconcile the declarations across every domain the inventory sells under so a buyer reads a consistent authorized set wherever the impression appears."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt and app-ads.txt specification and implementation",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json and the SupplyChain object",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Reconcile the publisher's ads.txt and app-ads.txt entries against OpenX's sellers.json, checking that seller IDs and relationships still match the current arrangement.",
+        "tools": {
+          "free": {
+            "declarations_review": {
+              "label": "ads.txt and sellers.json declarations review",
+              "steps": [
+                "Open the publisher's ads.txt and app-ads.txt files and list the OpenX entries, noting each seller ID and whether it is declared 'direct' or 'reseller'.",
+                "Pull OpenX's sellers.json and find the matching seller entries, then confirm the seller IDs and the declared relationship agree with the ads.txt files.",
+                "Flag any seller ID that appears in one declaration but not the other, and any relationship that is declared one way in ads.txt and another in sellers.json.",
+                "Record entries for sellers, accounts, or resellers the publisher no longer works with as stale lines to remove."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the OpenX entries in the publisher's ads.txt and app-ads.txt reconcile with OpenX's sellers.json on both seller ID and declared relationship, and whether any stale entries remain. Declarations that agree across the files and describe only current arrangements pass. Mismatched seller IDs, a relationship declared differently across the files, or stale entries for partners no longer used are a fail recorded with the specific lines that do not reconcile.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the ads.txt and sellers.json entries reconcile on seller ID and relationship above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the OpenX entries in {{site_name}}'s ads.txt and app-ads.txt do not fully reconcile with OpenX's sellers.json, whether through mismatched seller IDs, a relationship declared as 'direct' where the inventory is resold, or stale entries for partners no longer used. A buyer running Supply Path Optimization (SPO) checks these declarations to confirm a path is authorized, so a mismatch can make a legitimate path read as suspect and get deprioritized. {{voice_recommend}} reconciling the ads.txt and app-ads.txt entries against the sellers.json seller IDs and relationships, clearing the stale lines, and reviewing the declarations on a set schedule and after any change to how the inventory is sold. After the cleanup, the declarations describe only the paths that are live, so a buyer can confirm and keep them."
+      }
+    }
+  ]
+}

@@ -1,0 +1,173 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://iabtechlab.com/ads-txt/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "An ads.txt file is the public record of who a publisher has authorized to sell its inventory, so a missing, wrong, or stale OpenX line decides whether demand-side platforms (DSPs) treat OpenX-routed bids as legitimate or as unauthorized supply they should not buy. The check reads a text file the publisher already controls and compares it against the OpenX seller account the publisher actually uses, so it costs reading and verification time rather than rebuild time, and the finding points to a specific line to add, correct, or remove.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "An ads.txt file is a plain-text record at the root of a publisher's domain that lists the advertising systems authorized to sell that publisher's inventory, and app-ads.txt does the same job for app inventory. For OpenX to sell a publisher's inventory cleanly, the publisher's ads.txt or app-ads.txt has to name OpenX with the correct seller account ID and the right relationship type. These checks confirm that the authorizing line for OpenX is present and accurate, and that no stale, duplicate, or unauthorized OpenX line remains to muddy the record.",
+  "audit_checks": [
+    {
+      "id": "openx-ads-txt-missing-or-incorrect-authorization",
+      "title": "ads.txt does not authorize OpenX with the correct seller account and relationship",
+      "category": "supply-chain",
+      "subcategory": "ads_txt",
+      "impact_score": 4,
+      "impact_rationale": "When the ads.txt line that authorizes OpenX is missing or carries the wrong seller account ID or relationship type, demand-side platforms that validate against ads.txt can treat OpenX-routed bids as unauthorized supply and decline to buy, which suppresses demand and revenue on inventory the publisher meant to monetize through OpenX.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "The ads.txt standard, published by the Interactive Advertising Bureau (IAB) Tech Lab, lets a publisher declare publicly which advertising systems are authorized to sell its inventory. The file lives at the root of the domain (e.g., example.com/ads.txt), and app-ads.txt does the same job for app inventory. Each line names one advertising system, the publisher's account ID within that system, the relationship type, and an optional certification authority ID. Demand-side platforms (DSPs) read these files to decide whether a bid request that claims to represent a publisher comes from a seller the publisher actually authorized.<br><br>For OpenX, the relevant line names the OpenX domain, the publisher's OpenX seller account ID, and a relationship of either DIRECT or RESELLER. DIRECT means the publisher controls the OpenX account that sells the inventory. RESELLER means the publisher has authorized a third party to sell the inventory through its OpenX account. The seller account ID on the ads.txt line has to match the account ID OpenX uses for that publisher because a DSP that cannot match the bid request to an authorized line may treat the supply as unauthorized and stop buying.<br><br>Three problems break the authorization:<ul><li>No OpenX line exists at all, so DSPs see OpenX-routed inventory as undeclared</li><li>The seller account ID on the OpenX line does not match the account OpenX actually uses for the publisher</li><li>The relationship type is wrong, for example a line marked DIRECT when the inventory is sold through a reseller arrangement, or the reverse</li></ul>The relationship type matters because DIRECT and RESELLER tell a buyer different things about how close the publisher sits to the sale, and a mismatch undercuts the transparency the file is meant to provide. You may want to confirm that the OpenX seller account ID and the DIRECT or RESELLER designation on the ads.txt line match the account and arrangement the publisher actually has with OpenX.",
+        "site_type_overlays": {
+          "publishing": "A media publisher that sells through several supply paths can carry both a DIRECT OpenX line for inventory it controls and a RESELLER line for inventory sold through a partner. You may want to confirm each OpenX line names the correct seller account for the arrangement it represents, so direct and resold inventory are each declared accurately rather than collapsed into one designation.",
+          "ecommerce": "A commerce-content site that runs ads on editorial and product pages still authorizes sellers at the domain level through one ads.txt file. You may want to confirm the OpenX line is present and correct on the main domain. A missing or wrong authorization affects every page that serves OpenX-routed inventory, not only the editorial section."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt - Authorized Digital Sellers",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt Specification Version 1.1",
+            "source_url": "https://iabtechlab.com/wp-content/uploads/2022/04/Ads.txt-1.1.pdf"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Authorized Sellers for Apps (app-ads.txt) Specification",
+            "source_url": "https://iabtechlab.com/wp-content/uploads/2019/03/app-ads.txt-v1.0-final-.pdf"
+          }
+        ],
+        "learn_more_note": "OpenX's specific seller account ID and the DIRECT or RESELLER designation to use for a given publisher are in the OpenX partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Retrieve the publisher's ads.txt or app-ads.txt file, find the lines naming OpenX, and compare the seller account ID and relationship type against the account OpenX uses for the publisher.",
+        "tools": {
+          "free": {
+            "ads_txt_file": {
+              "label": "Publisher ads.txt / app-ads.txt file",
+              "steps": [
+                "Open the publisher's ads.txt at the root of the domain (e.g., example.com/ads.txt), and for app inventory open app-ads.txt at the developer domain.",
+                "Search the file for the OpenX advertising-system domain and list every line that names OpenX.",
+                "For each OpenX line, record the seller account ID, the relationship type (DIRECT or RESELLER), and any certification authority ID.",
+                "Confirm with the publisher the OpenX seller account ID and the DIRECT or RESELLER arrangement that OpenX actually uses for them, and compare it against the lines found."
+              ]
+            },
+            "ads_txt_validator": {
+              "label": "ads.txt validator or aggregator",
+              "steps": [
+                "Run the publisher's ads.txt through a validator (e.g., the IAB Tech Lab open-source ads.txt parser) to confirm the file parses and the OpenX lines are well formed.",
+                "Note any line the validator flags as malformed because a syntax error can drop an otherwise correct OpenX authorization.",
+                "Record whether a valid OpenX line with the expected seller account ID and relationship type is present."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the OpenX lines found in ads.txt and app-ads.txt with their seller account IDs and relationship types, and compares them against the account and arrangement OpenX uses for the publisher. A file that names OpenX with the correct seller account ID and the right DIRECT or RESELLER designation passes. A missing OpenX line, a mismatched seller account ID, or a wrong relationship type is a fail recorded with the specific line and the correction needed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the OpenX lines from the ads.txt and app-ads.txt files with their seller account IDs and relationship types above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the ads.txt file for {{site_name}} does not authorize OpenX with the correct seller account and relationship, so demand-side platforms (DSPs) that validate against ads.txt may treat OpenX-routed bids as unauthorized supply and decline to buy. The authorizing line for OpenX has to name the OpenX domain, the publisher's OpenX seller account ID, and a relationship of DIRECT or RESELLER that matches the actual arrangement. {{voice_recommend}} confirming the OpenX seller account ID and the DIRECT or RESELLER designation with OpenX, then adding or correcting the ads.txt line so it matches. After the file updates, recheck that a validator parses the OpenX line cleanly and that the seller account and relationship are accurate."
+      }
+    },
+    {
+      "id": "openx-ads-txt-stale-or-duplicate-lines",
+      "title": "Stale, duplicate, or unauthorized OpenX lines remain in ads.txt",
+      "category": "supply-chain",
+      "subcategory": "ads_txt",
+      "impact_score": 3,
+      "impact_rationale": "Leftover OpenX lines from a prior account, duplicate entries, or seller account IDs the publisher no longer uses keep declaring authorizations that no longer reflect reality. Stale or unauthorized lines weaken the transparency ads.txt exists to provide and can leave a path open for inventory to be sold under an account the publisher has stopped using.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "An ads.txt file is a record that has to be maintained, not a file that is written once and left alone. Over time, a publisher changes supply partners, migrates OpenX seller accounts, or copies blocks of lines from a template or a partner's recommended list. Each of those events can leave behind a line that no longer reflects who the publisher actually authorizes, and the Interactive Advertising Bureau (IAB) Tech Lab specification treats every valid line as a live authorization, so a stale line keeps declaring an authorization the publisher may have meant to retire.<br><br>Three patterns show up when the file drifts out of date:<ul><li>A stale OpenX line names a seller account ID the publisher migrated away from or a relationship that no longer applies</li><li>A duplicate OpenX line repeats the same authorization, which adds noise and can hide a conflicting entry that should have been removed</li><li>An unauthorized OpenX line was added from a template or a third party's list without the publisher confirming it represents a real arrangement</li></ul>The risk is not only clutter. A live line for an OpenX seller account the publisher no longer controls leaves a declared path for that account to sell, or appear to sell, the publisher's inventory. A duplicate that conflicts with the correct line can make the record ambiguous for a buyer parsing the file. The audit question is whether every OpenX line in the file maps to a current, intended authorization, or whether some lines are residue from a past setup.<br><br>You may want to confirm that each OpenX line corresponds to a seller account and relationship the publisher currently uses, and that any line tied to a retired account or a duplicate entry is removed. One approach is to reconcile the OpenX lines in the file against the publisher's current OpenX account list, then strip the lines that no longer match.",
+        "site_type_overlays": {
+          "publishing": "A media publisher that has changed monetization partners over the years often accumulates ads.txt lines from past arrangements. You may want to reconcile the OpenX lines against the seller accounts the publisher uses today, so a line tied to a retired OpenX account does not keep declaring an authorization the publisher has ended.",
+          "ecommerce": "A commerce-content site that adopted ads.txt from a partner's recommended template can carry OpenX lines it never verified against its own account. You may want to confirm each OpenX line maps to an arrangement the publisher actually has, rather than leaving template lines in place that authorize accounts the publisher does not use."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt - Authorized Digital Sellers",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt Specification Version 1.1",
+            "source_url": "https://iabtechlab.com/wp-content/uploads/2022/04/Ads.txt-1.1.pdf"
+          },
+          {
+            "source_type": "Prebid",
+            "source_title": "Should Prebid bidders be in ads.txt?",
+            "source_url": "https://docs.prebid.org/dev-docs/faq.html"
+          }
+        ],
+        "learn_more_note": "The list of OpenX seller accounts a given publisher currently holds, needed to reconcile against the ads.txt lines, is in the OpenX partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "List every OpenX line in the ads.txt and app-ads.txt files, then reconcile them against the OpenX seller accounts the publisher currently uses to find stale, duplicate, or unauthorized entries.",
+        "tools": {
+          "free": {
+            "ads_txt_file": {
+              "label": "Publisher ads.txt / app-ads.txt file",
+              "steps": [
+                "Open the publisher's ads.txt and app-ads.txt files and extract every line that names the OpenX advertising-system domain.",
+                "Group the OpenX lines by seller account ID and flag any account ID that appears more than once as a possible duplicate.",
+                "Ask the publisher for the OpenX seller accounts they currently use, and mark any line whose account ID is not on that list as stale or unauthorized.",
+                "Record which OpenX lines are current and intended, and which should be removed."
+              ]
+            },
+            "ads_txt_validator": {
+              "label": "ads.txt validator or aggregator",
+              "steps": [
+                "Run the file through a validator (e.g., the IAB Tech Lab open-source ads.txt parser) and note any duplicate or malformed OpenX lines it reports.",
+                "Cross-check the parsed OpenX entries against the publisher's current account list to confirm which lines map to a live authorization.",
+                "Record the lines flagged for removal alongside the reason (stale account, duplicate, or unverified)."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner lists the OpenX lines in ads.txt and app-ads.txt and reconciles each against the OpenX seller accounts the publisher currently uses. A file where every OpenX line maps to a current, intended authorization with no duplicates passes. Any line tied to a retired seller account, a duplicate entry, or an account the publisher cannot confirm is a fail recorded with the specific lines to remove.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the OpenX lines from the file and the publisher's current OpenX seller accounts above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the ads.txt file for {{site_name}} carries stale, duplicate, or unauthorized OpenX lines that no longer match the seller accounts the publisher currently uses. Because a valid ads.txt line is a live authorization, a line tied to a retired OpenX account keeps declaring a path for that account to sell the inventory, and duplicate or unverified lines weaken the transparency the file exists to provide. {{voice_recommend}} reconciling every OpenX line against the publisher's current OpenX seller accounts, then removing the lines tied to retired accounts, the duplicates, and any entry the publisher cannot confirm. After the cleanup, recheck the file with a validator to confirm only current, intended OpenX authorizations remain."
+      }
+    }
+  ]
+}

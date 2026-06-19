@@ -1,0 +1,153 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Yield optimization on a sell-side platform (SSP) decides how much demand reaches the auction and at what price each impression clears, so it controls the trade between filling more impressions and protecting the value of each one. A traffic-shaping setting that throttles demand too aggressively, or an ad-refresh configuration that prints more impressions than the page can show, can move revenue in the wrong direction without anyone reading the result. The check is a review of the auction and refresh settings a publisher already runs through Magnite and its header-bidding wrapper, so it costs reading time rather than rebuild time, and the finding points to a concrete setting the publisher can test.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Yield optimization on Magnite covers the settings that govern how demand competes for a publisher's inventory and how often that inventory is offered for sale. Magnite runs first-price auctions, so the price a buyer bids is the price the publisher receives, which makes auction dynamics and any traffic shaping that filters demand directly load-bearing for revenue. These checks confirm that demand is not being throttled in a way that starves the auction, and that ad refresh and the surrounding auction configuration protect yield and viewability rather than inflate low-value impressions.",
+  "audit_checks": [
+    {
+      "id": "magnite-yield-optimization-traffic-shaping-throttles-demand",
+      "title": "Traffic shaping or bid throttling is filtering demand without a measured result",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "Traffic shaping decides which demand partners are called for each impression, so a setting tuned too aggressively drops bidders that would have competed and lowers the clearing price in a first-price auction. Running it without a before-and-after read leaves the publisher unable to tell whether the filter is trimming waste or trimming revenue on a slice of inventory.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Magnite runs first-price auctions, which means the price a buyer bids is the price the publisher is paid, with no second-price reduction in between. In that model every demand partner that reaches the auction is a chance for a higher clearing price, so the question of which partners get called for each impression sits close to revenue. Traffic shaping is the practice of deciding, per impression, which demand sources to send the bid request to, and bid throttling is the broader idea of limiting how many or how often partners are queried. Both are run to cut waste since calling a partner that rarely wins on a given slice of inventory adds latency and infrastructure cost for little return.<br><br>The trade is real, but it cuts both ways. A shaping model tuned to drop low-probability bidders saves cost when it drops partners that truly would not have won. The same model costs revenue when it drops a partner that would have bid competitively on an impression the model misjudged. In a first-price auction that lost bid is not recovered by a runner-up because the publisher is paid what the winner bids, so a thinner auction can clear lower. The risk is not that shaping is wrong. The risk is running it without a baseline that shows what it is trimming.<br><br>This filtering can live in more than one place in a publisher's setup. It may run inside the header-bidding wrapper through a real-time data module that predicts each bidder's win probability, it may run through timeout settings that cut off slow partners before they respond, or it may run inside Magnite's own routing of demand. Wherever it lives, the audit question is whether the publisher can show what the shaping changed, not just that it is switched on.<br><br>A few signs point to traffic shaping that is filtering demand without a measured result:<ul><li>A win-probability or bidder-filtering module is active in the wrapper with no before-and-after read of revenue and fill on record</li><li>Timeouts are set short enough that a meaningful share of bids arrive too late to compete, with no test confirming the cutoff helps net revenue</li><li>The publisher cannot say which partners the shaping drops or what the auction looked like before it was turned on</li></ul>You may want to confirm that any demand filtering is backed by a measured comparison rather than left on by default. One approach is to read revenue, fill rate, and bids-per-auction with the shaping on and off across a comparable slice of inventory before settling on the configuration.",
+        "site_type_overlays": {
+          "publishing": "On a media site, premium placements such as a homepage or section-front unit draw the widest demand, so an aggressive shaping rule that thins the bidder pool there can clear those impressions below what a fuller auction would have reached. You may want to test traffic shaping on lower-value inventory first and hold a fuller auction on the premium placements until the data shows the filter does not cost the high-value units.",
+          "ecommerce": "On a commerce-content site, product and category pages reach an audience closer to a purchase and attract demand that editorial pages do not, so a shaping model trained on blended traffic can misjudge which partners would compete on the commercial inventory. You may want to compare the shaping result on the commercial pages specifically rather than judging it on an average that the lower-value editorial inventory pulls down."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Optimize header bidding setup",
+            "source_url": "https://docs.prebid.org/overview/how-many-bidders-for-header-bidding.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Publisher Sustainability Best Practices",
+            "source_url": "https://docs.prebid.org/support/sustainability-publishers.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review where demand filtering runs in the publisher's setup, which partners or impressions it drops, and whether any before-and-after read compares the auction with shaping on against shaping off.",
+        "tools": {
+          "free": {
+            "magnite_console": {
+              "label": "Magnite console and Demand Manager",
+              "steps": [
+                "Open the Magnite console, then the Demand Manager configuration for the publisher's header-bidding wrapper, and list the active demand partners and any real-time data or bidder-filtering module in use.",
+                "Note the auction timeout values and any setting that limits which partners are called per impression, recording what each rule is meant to filter.",
+                "Ask the publisher whether any experiment or before-and-after comparison was run when the shaping was turned on, and record what the result showed and when it was measured."
+              ]
+            },
+            "magnite_reporting": {
+              "label": "Magnite reporting",
+              "steps": [
+                "Build a report broken out by demand partner and by inventory, with bid requests, bid responses, win rate, fill rate, and revenue.",
+                "Compare bids-per-auction and revenue on inventory where shaping is active against a comparable slice where it is off, if one exists, to see whether the filter trimmed waste or trimmed competition.",
+                "Note whether the data supports the current shaping setup or whether no unshaped slice exists to compare against."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records where demand filtering runs, which partners or impressions it drops, and whether a before-and-after comparison of revenue, fill, and bids-per-auction exists with a result on record. A setup where shaping is deliberate and backed by a measured comparison passes. A setup where shaping filters demand across inventory with no comparison and no stated reason for the configuration is a fail recorded with the partners and inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record where demand filtering runs and whether a shaping-on versus shaping-off comparison exists above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs traffic shaping or bid throttling on its header-bidding demand without a before-and-after read on record, so the effect of the filter on the auction has not been measured. Magnite settles in a first-price auction, where the price the winner bids is the price the publisher is paid, so a thinner bidder pool can clear lower and that lost competition is not recovered by a runner-up. {{voice_recommend}} reading revenue, fill rate, and bids-per-auction with the shaping on and off across a comparable slice of inventory before settling on the configuration. After the comparison, keep whichever setup the data supports for each slice of inventory."
+      }
+    },
+    {
+      "id": "magnite-yield-optimization-ad-refresh-inflates-impressions",
+      "title": "Ad refresh or auction configuration inflates impressions instead of protecting yield",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "Ad refresh prints a new impression on a timer or an event, so a refresh set too fast or on units a reader rarely sees floods the auction with low-viewability impressions that depress the average price and erode buyer trust. Without a refresh rule tied to viewability and active engagement, the extra impressions can lower effective revenue even as the raw count rises.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Ad refresh replaces the creative in a slot with a new one after a set time or a defined event, which prints a fresh impression each time it fires. Done with care it raises revenue because a reader who stays on a page long enough to see two ads in a slot can be worth two impressions rather than one. Done without guardrails it does the opposite since refreshing a slot the reader has scrolled past, or refreshing faster than the eye can register the ad, prints impressions that were never really seen.<br><br>The cost shows up in two places. Effective revenue per impression falls because the auction now contains a pool of low-viewability impressions that buyers value less, so the average clearing price drops even as the raw impression count climbs. Buyer trust falls too since demand-side platforms measure viewability and post-bid performance, and a stream of unviewable refreshed impressions can lead a buyer to bid lower or pull back on the inventory. The result can be more impressions and less money, which is the opposite of the goal.<br><br>The settings that protect yield here are concrete. A refresh tied to viewability fires only when the slot is in view, measured against the Open Measurement (OM) standard or an equivalent viewability signal. A refresh tied to active engagement pauses when the tab is in the background or the user is idle. A minimum dwell time between refreshes gives each impression a real chance to be seen and counted. The surrounding auction configuration matters as well because a refresh that fires before the header-bidding auction has time to gather bids hands the slot to a thinner auction that clears lower.<br><br>A few signs point to ad refresh that inflates impressions rather than protecting yield:<ul><li>Refresh fires on a fixed timer with no viewability or in-view condition gating it</li><li>Refresh continues while the tab is backgrounded or the user is idle, printing impressions no one is looking at</li><li>The refresh interval is short enough that average viewability and average clearing price fall as impression count rises</li><li>Refresh fires faster than the header-bidding auction can complete, so refreshed impressions clear on a thin auction</li></ul>You may want to confirm that any ad refresh is gated by viewability and engagement and paced to let the auction complete. One approach is to read viewability and average clearing price alongside the raw impression count, so the refresh is judged on revenue that the impressions actually earn rather than on the count alone.",
+        "site_type_overlays": {
+          "publishing": "On a media site, long-form articles keep readers on the page long enough that a viewability-gated refresh can earn genuine repeat impressions, while short pages or units far down the page rarely stay in view to justify it. You may want to gate refresh to in-view units with a minimum dwell time so the long-read inventory benefits without flooding the auction with impressions from slots the reader passed.",
+          "ecommerce": "On a commerce-content site, product and category pages are often scanned quickly before a click, so a fast timer-based refresh on those pages can print impressions the shopper never saw. You may want to tie refresh to active engagement and in-view status on the commercial pages so the higher-intent inventory keeps its viewability and the price buyers are willing to pay for it."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Open Measurement SDK",
+            "source_url": "https://iabtechlab.com/standards/open-measurement-sdk/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Timeouts",
+            "source_url": "https://docs.prebid.org/features/timeouts.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the ad-refresh rules in place, the conditions that gate them, and whether the surrounding auction has time to complete before a refresh fires, then read viewability and average price alongside the impression count.",
+        "tools": {
+          "free": {
+            "magnite_console": {
+              "label": "Magnite console and Demand Manager",
+              "steps": [
+                "Open the Magnite console, then the Demand Manager or wrapper configuration for the publisher's units, and identify which slots have ad refresh enabled and what triggers each refresh.",
+                "Record the refresh interval, any viewability or in-view condition, any pause-on-idle or pause-on-background behavior, and the header-bidding auction timeout for those units.",
+                "Note any unit that refreshes on a fixed timer with no viewability gate, or faster than the auction timeout allows the auction to complete."
+              ]
+            },
+            "magnite_reporting": {
+              "label": "Magnite reporting",
+              "steps": [
+                "Build a report broken out by ad unit, with impressions, measured viewability, average eCPM, and revenue.",
+                "Compare units with refresh enabled against comparable units without it to see whether the refreshed inventory holds its viewability and price or whether the average falls as the count rises.",
+                "Note any case where impression count climbs while viewability and average clearing price drop, which points to refresh inflating low-value impressions."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per unit with refresh enabled, whether the refresh is gated by viewability and engagement, the dwell time between refreshes, and whether the auction has time to complete before a refresh fires, alongside measured viewability and average clearing price. A refresh that is viewability-gated, paced to let the auction complete, and that holds its viewability and price passes. A refresh that fires on a fixed timer with no viewability gate, or where viewability and average price fall as impression count rises, is a fail recorded with the units affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the refresh rules, their viewability and engagement gates, and the viewability and average price by unit above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs ad refresh that is not gated by viewability and engagement, so the configuration prints impressions that depress yield rather than protecting it. A refresh fired on a fixed timer, on units the reader rarely sees or while the tab is idle, adds low-viewability impressions that lower the average clearing price and can lead buyers to bid lower on the inventory. {{voice_recommend}} gating refresh to in-view units measured against the Open Measurement (OM) standard, pausing it on idle or backgrounded tabs, holding a minimum dwell time between refreshes, and pacing it so the header-bidding auction can complete first. After the change, read viewability and average price alongside the impression count to confirm the refresh earns the revenue the impressions imply."
+      }
+    }
+  ]
+}

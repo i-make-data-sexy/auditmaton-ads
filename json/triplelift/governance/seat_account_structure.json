@@ -1,0 +1,152 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "A publisher's seat and account structure on TripleLift decides how reporting, payments, and the supply chain hang together, so a fragmented or stale structure scatters revenue across entities and leaves seller IDs in the wild that no longer map to live inventory. The check is a review of the seats, inventory codes, and seller entries a publisher already has, so it costs reading time rather than rebuild time, and the finding points to a concrete cleanup the publisher can make.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "TripleLift identifies a publisher's inventory through seats and inventory codes, and a buyer traces that inventory back to the publisher through the seller ID that TripleLift carries in its sellers.json file and the SupplyChain object on each bid request. This subcategory is about whether that structure is clean. The question is whether a publisher's seats and entities are organized so reporting and payment land in one place rather than splitting across duplicates, and whether seats or integrations that no longer carry live traffic have been closed rather than left open. These checks read the structure a publisher already has on TripleLift against what its inventory actually serves today.",
+  "audit_checks": [
+    {
+      "id": "triplelift-seat-account-structure-fragmented-seats",
+      "title": "Inventory is split across fragmented or duplicate seats",
+      "category": "governance",
+      "subcategory": "seat_account_structure",
+      "impact_score": 3,
+      "impact_rationale": "When a publisher's inventory is spread across more than one seat or seller entity on TripleLift that should be a single entity, reporting splits across them and payment can route to more than one place, so the publisher loses a single clear view of revenue and a buyer sees more than one seller ID for what is really one publisher. The split is recoverable through consolidation, but until then it obscures the numbers the publisher relies on.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "On TripleLift, a publisher's inventory is tied to a seat and to one or more inventory codes that identify each ad unit or placement. A buyer does not see the seat directly. What a buyer sees is the seller ID that TripleLift publishes in its sellers.json file and carries in the SupplyChain object on the bid request, and that seller ID is what maps the impression back to the publisher as the entity being paid. A clean structure keeps one publisher behind one seller entity, so reporting and payment for that publisher's inventory land in one place.<br><br>Fragmentation happens when a single publisher ends up represented by more than one seat or seller entity that should have been one. A site that onboarded twice, a separate seat opened for a new property that belongs to the same business, or an inventory code set duplicated during a migration can each split one publisher's inventory across two identities. The inventory still serves and still earns, so nothing looks broken, but the revenue is now reported under two entities and the publisher has to add the two together by hand to see the real total.<br><br>The split also reaches the buyer. TripleLift's sellers.json file lists each seller it works with, and a publisher fragmented across two seats appears as two seller IDs. A buyer applying supply-path optimization, which trims the number of paths it buys the same inventory through, may treat the two as separate sellers and keep only one, so the impressions flowing through the dropped seat lose that buyer's demand. Consolidating to one seat keeps the publisher's inventory behind one seller ID where the buyer can see all of it.<br><br>A few signs point to fragmented or duplicate seats:<ul><li>The publisher's inventory reports under more than one TripleLift seat or seller entity when one business owns all of it</li><li>The same site or app appears under two inventory code sets that were never deliberately separated</li><li>TripleLift's sellers.json lists more than one seller ID for what is a single publisher</li><li>Payment settles to more than one account for inventory that should pay to one</li></ul>You may want to confirm that each distinct publisher entity maps to a single seat and seller ID on TripleLift. One approach is to list every seat and inventory code the publisher holds, match each to the property it actually serves, and consolidate any that represent the same business behind one entity.",
+        "site_type_overlays": {
+          "publishing": "A media business that runs several titles can legitimately want each title reported separately, so not every multi-seat setup is fragmentation. The question is whether the split is deliberate and matches how the business wants to see revenue, or whether two seats carry the same title because it onboarded twice. You may want to map each seat to the title it serves and consolidate only the seats that represent the same property.",
+          "ecommerce": "A commerce-content site that monetizes ads alongside its store usually has one publisher entity for the ad inventory, so more than one seat for the same site points to a duplicate rather than a deliberate split. You may want to confirm that the editorial and any separate content inventory report under one seat unless the business has a clear reason to keep them apart."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "OpenRTB SupplyChain Object specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/openrtb/blob/main/supplychainobject.md"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "TripleLift bid adapter (inventoryCode setup)",
+            "source_url": "https://docs.prebid.org/dev-docs/bidders/triplelift.html"
+          }
+        ],
+        "learn_more_note": "TripleLift's detailed seat and account configuration documentation is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the seats, seller entities, and inventory codes the publisher holds on TripleLift, then compare them against the properties the publisher actually serves and against the seller IDs listed in TripleLift's sellers.json.",
+        "tools": {
+          "free": {
+            "triplelift_console": {
+              "label": "TripleLift publisher console",
+              "steps": [
+                "Sign in to the TripleLift publisher console and list every seat and seller entity the publisher holds.",
+                "For each seat, list the inventory codes under it and the property or properties each code serves.",
+                "Record any case where two seats or two inventory code sets cover the same site or app, which points to a duplicate rather than a deliberate split.",
+                "Confirm with the publisher whether any multi-seat structure is deliberate, for example to report two distinct businesses separately, and record the reason."
+              ]
+            },
+            "sellers_json": {
+              "label": "TripleLift sellers.json",
+              "steps": [
+                "Open TripleLift's published sellers.json file and search for the publisher's name and domain.",
+                "Record each seller ID listed for the publisher and note whether more than one appears for a single business.",
+                "Compare the seller IDs against the seats found in the console to confirm whether the inventory maps to one seller entity or several."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records every seat, seller entity, and inventory code the publisher holds, the property each serves, and the seller IDs that appear in TripleLift's sellers.json. A structure where each distinct publisher business maps to a single seat and seller ID, with any multi-seat split deliberate and explained, passes. A structure where one business is split across more than one seat or seller ID without a stated reason is a fail recorded with the duplicated seats and the inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the seats, seller entities, and inventory codes alongside the properties they serve and the sellers.json seller IDs above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} is split across more than one TripleLift seat or seller entity for inventory that one business owns. Reporting then splits across those entities and payment can route to more than one place, so there is no single clear view of revenue, and a buyer applying supply-path optimization may treat the two seller IDs as separate sellers and drop one. {{voice_recommend}} listing every seat and inventory code, matching each to the property it serves, and consolidating the entities that represent the same business behind one seat and one seller ID. After consolidating, confirm that TripleLift's sellers.json shows a single seller ID for the publisher and that reporting and payment land in one place."
+      }
+    },
+    {
+      "id": "triplelift-seat-account-structure-orphaned-seats-not-closed",
+      "title": "Inactive or orphaned seats and integrations are left open",
+      "category": "governance",
+      "subcategory": "seat_account_structure",
+      "impact_score": 2,
+      "impact_rationale": "A seat or integration that no longer carries live inventory but stays open leaves a seller ID in TripleLift's sellers.json that maps to nothing a buyer can verify against current ads.txt, and it leaves an open path that no one is monitoring. The risk is a transparency mismatch and an unwatched entry rather than direct lost revenue, so the impact is contained, but closing the stale entry keeps the supply chain honest.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "Seats and integrations accumulate over time. A property a publisher stopped running, an app that was retired, a test seat opened during onboarding, or an integration set up for a partner the publisher no longer works with can each stay open on TripleLift long after the inventory behind it went quiet. The seat still exists, its seller ID is still listed in TripleLift's sellers.json, and the integration path is still technically live, but nothing real flows through it.<br><br>The first cost is a transparency mismatch. A buyer validates supply by checking that the seller ID on a bid request, traced through TripleLift's sellers.json, matches an authorized line in the publisher's ads.txt or app-ads.txt file. When a seat is orphaned, the seller ID can linger in sellers.json while the publisher has already removed the matching ads.txt line for inventory it no longer runs, or the reverse, so the records disagree. A buyer reading that mismatch sees a supply path it cannot cleanly verify, which is the kind of signal supply-path and fraud controls are built to flag.<br><br>The second cost is an unwatched door. An open seat or integration that no one reviews is a path into the publisher's supply that sits outside regular attention. Keeping the set of live seats limited to inventory that actually serves means every open path is one someone is accountable for, which is the governance posture the supply-chain transparency standards are meant to support.<br><br>A few signs point to inactive or orphaned seats and integrations:<ul><li>A seat or inventory code shows no impressions or revenue across a recent reporting window yet remains open</li><li>TripleLift's sellers.json lists a seller ID for a property the publisher has retired or no longer monetizes through TripleLift</li><li>An integration remains configured for a partner or a property the publisher has stopped working with</li><li>Test or onboarding seats created during setup were never closed once live inventory moved to its permanent seat</li></ul>You may want to confirm that every open seat and integration maps to inventory that currently serves. One approach is to pull a recent activity report per seat, flag any with no traffic, confirm with the publisher whether the inventory is truly retired, and close the seats that are, then reconcile the seller IDs in sellers.json against the publisher's current ads.txt.",
+        "site_type_overlays": {
+          "publishing": "A media business that sunsets a title or a microsite can leave its seat or inventory codes open after the content comes down. You may want to cross-check the open seats against the titles currently publishing and close the seats tied to retired properties, then remove the matching ads.txt lines so sellers.json and ads.txt agree.",
+          "ecommerce": "A commerce-content site that ran a seasonal property or a campaign microsite can leave a seat open once that property closes. You may want to confirm whether each open seat still serves live inventory and close the ones tied to properties that are no longer up, so no stale seller ID remains in the supply chain."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "OpenRTB SupplyChain Object specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/openrtb/blob/main/supplychainobject.md"
+          }
+        ],
+        "learn_more_note": "TripleLift's detailed documentation for closing seats and removing integrations is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each open seat and integration on TripleLift for recent activity, then confirm whether the inventory behind any quiet seat is truly retired and reconcile the seller IDs in sellers.json against the publisher's current ads.txt.",
+        "tools": {
+          "free": {
+            "triplelift_console": {
+              "label": "TripleLift publisher console",
+              "steps": [
+                "Sign in to the TripleLift publisher console and list every open seat, inventory code, and integration.",
+                "Pull an activity report per seat across a recent window and record impressions and revenue for each.",
+                "Flag any seat or inventory code showing no activity, and confirm with the publisher whether the inventory behind it is retired or simply paused.",
+                "Record which open seats and integrations no longer map to inventory that currently serves."
+              ]
+            },
+            "ads_txt_check": {
+              "label": "ads.txt and sellers.json reconciliation",
+              "steps": [
+                "Open the publisher's ads.txt or app-ads.txt file and list the TripleLift lines it authorizes.",
+                "Open TripleLift's sellers.json and list the seller IDs tied to the publisher.",
+                "Compare the two and record any seller ID present in sellers.json with no matching authorized ads.txt line, or any retired property whose ads.txt line still points to TripleLift."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each open seat and integration, its recent activity, and whether the seller IDs in sellers.json reconcile with the publisher's current ads.txt. A structure where every open seat carries live inventory and the sellers.json seller IDs match authorized ads.txt lines passes. A structure with seats or integrations that show no activity and remain open, or with seller IDs that no longer reconcile against ads.txt, is a fail recorded with the orphaned seats and the mismatches found.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each open seat with its recent activity and the sellers.json-to-ads.txt reconciliation above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has TripleLift seats or integrations that no longer carry live inventory yet remain open. Each stale seat leaves a seller ID in TripleLift's sellers.json that a buyer cannot cleanly verify against current ads.txt, and it leaves a supply path that no one is monitoring. {{voice_recommend}} pulling a recent activity report per seat, confirming which properties are truly retired, closing the seats and integrations tied to them, and reconciling the seller IDs in sellers.json against the publisher's current ads.txt. After the cleanup, confirm that every open seat maps to inventory that currently serves and that the sellers.json and ads.txt records agree."
+      }
+    }
+  ]
+}

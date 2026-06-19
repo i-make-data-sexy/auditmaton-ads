@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Auction and yield settings decide how much demand reaches a publisher's inventory and at what price it clears. A first-price auction rewards floors and bid handling that fit the inventory, and a refresh setup that chases impression counts rather than viewable, engaged ones can trade durable revenue for short-term volume that buyers learn to discount. The check is a review of settings the publisher already controls inside Index Exchange and the header-bidding wrapper, so it costs reading time rather than rebuild time, and each finding points to a concrete pricing or refresh decision the publisher can test.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Index Exchange runs a first-price auction across a Prebid-compatible header-bidding wrapper, so the floors a publisher signals and the way each impression is handled set where the line falls between filling more impressions and protecting the value of each one. This subcategory is about the yield settings the publisher controls, the floor strategy and the refresh configuration, rather than the partner-by-partner demand mix. These checks confirm that the auction is signaling deliberate floors rather than a default, and that ad refresh is protecting yield and viewability rather than inflating low-value impressions.",
+  "audit_checks": [
+    {
+      "id": "index-exchange-yield-optimization-first-price-floors-not-reviewed",
+      "title": "First-price floors and bid handling are accepted without review",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "In a first-price auction the buyer pays the price they bid, so the floor the publisher signals and any throttling on the demand path directly shape what clears. A floor left at a single flat default, or a wrapper that drops bids or shapes traffic in ways the publisher never reviewed, can clear impressions below their value or cut demand the publisher meant to keep. The setup is correctable inside the wrapper and Index Exchange, so the impact is a revenue leak on a slice of inventory rather than a catastrophic loss.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Index Exchange clears inventory in a first-price auction, which means the winning buyer pays the price they bid rather than one increment above the runner-up. That single fact changes what a floor does. In a first-price auction the floor the publisher signals is the price the buyer has to beat, and buyers adjust their bids around the floor they see, so a floor set too low invites bids that clear under the inventory's value while a floor set too high cuts off demand that would have paid. The floor is no longer a safety net at the bottom. It is an active lever on the clearing price.<br><br>Index Exchange participates through a Prebid-compatible header-bidding wrapper, and Prebid's Price Floors module is the mechanism that carries floor signals into the auction in most setups. The module supports a flat floor, floors that vary by ad unit, size, or media type, and dynamic floors fetched from a floor provider that updates values per request. A publisher running a single flat floor across all inventory is leaving the same number to serve placements, sizes, and demand conditions that clear at very different prices.<br><br>Bid handling is the second half of the picture. A wrapper can apply timeouts that drop slow bidders, traffic-shaping or bid-throttling that limits how many requests reach certain partners, and floor enforcement that rejects bids below the signaled price. Each of these protects something, page speed, infrastructure cost, or inventory value, but each can also cut demand the publisher meant to keep if it was set once and never revisited. A timeout tight enough to exclude a real bidder, or throttling that starves a partner of requests, removes demand from a first-price auction where every retained bid matters.<br><br>A few signs point to floors and bid handling being accepted rather than reviewed:<ul><li>A single flat floor covers all inventory with no breakout by ad unit, size, or media type, and no dynamic floor provider in use</li><li>Wrapper timeouts, traffic-shaping, or bid-throttling were set at launch and have no record of being revisited against fill and revenue</li><li>The publisher cannot say how the current floor was chosen or what it is protecting</li></ul>You may want to confirm that the floor strategy and the bid-handling settings were chosen on evidence rather than left at a default. One approach is to read clearing price and bid density by ad unit and size, then test segmented or dynamic floors against the current flat floor on a slice of inventory before rolling a change wider.",
+        "site_type_overlays": {
+          "publishing": "On a media site, premium placements such as a homepage unit or a sponsorship-adjacent slot usually clear higher than an article-footer unit, so a flat floor either underprices the premium inventory or prices the filler inventory out of the auction. You may want to set floors by placement and protect a deliberate floor on the premium units while testing a dynamic floor on the rest.",
+          "ecommerce": "On a commerce-content site, product and category pages reach an audience closer to a purchase and tend to clear higher than editorial pages. You may want to signal a higher floor on the commercial, higher-intent inventory than on the editorial inventory rather than sharing one number, and check that wrapper timeouts are not dropping demand on the pages that matter most."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Module - Price Floors for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/floors.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Price Granularity",
+            "source_url": "https://docs.prebid.org/adops/price-granularity.html"
+          }
+        ],
+        "learn_more_note": "Index Exchange's detailed configuration documentation for its first-price auction and seat-level controls is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the floor strategy carried into the Index Exchange auction and the wrapper's bid-handling settings, then read clearing price and bid density to see whether the floors and timeouts fit the inventory.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Header-bidding wrapper configuration",
+              "steps": [
+                "Open the Prebid configuration and locate the Price Floors module setup, noting whether floors are flat, segmented by ad unit, size, or media type, or fetched from a dynamic floor provider.",
+                "Record the wrapper timeout, any traffic-shaping or bid-throttling applied to the Index Exchange bidder, and whether floor enforcement is on so bids below the floor are rejected.",
+                "Ask the publisher how the current floor was set and what it is meant to protect, and record the answer or note that no reason is on record."
+              ]
+            },
+            "ix_reporting": {
+              "label": "Index Exchange reporting",
+              "steps": [
+                "Build a report broken out by ad unit and size with revenue, impressions, bid rate, and average clearing price.",
+                "Compare clearing price and bid density across placements and sizes to see how much they vary while the floor stays the same.",
+                "Note any case where strong inventory clears at or near the same price as filler inventory, which points to a floor that is not protecting value, and any partner whose bid rate looks suppressed by a timeout or throttle."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the floor strategy carried into the auction, whether it is flat, segmented, or dynamic, alongside clearing price and bid density by ad unit and size, and notes the wrapper's timeout and any throttling on the Index Exchange path. A setup where the floor reflects the value differences the reporting shows and the bid-handling settings have a stated reason and a recent read passes. A flat floor applied across inventory that clears at widely different prices, or throttling and timeouts that were never revisited against fill and revenue, is a fail recorded with the inventory and settings affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the floor strategy, the bid-handling settings, and the clearing price by ad unit and size above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} signals a single flat floor into the Index Exchange first-price auction and runs wrapper timeouts and throttling that have not been reviewed against fill and revenue. In a first-price auction the floor is the price buyers bid against, so a flat floor across inventory that clears at different prices either underprices the strong inventory or prices the weak inventory out, and unreviewed bid handling can drop demand the auction needed. {{voice_recommend}} reading clearing price and bid density by ad unit and size, then testing segmented or dynamic floors through the Prebid Price Floors module against the current flat floor on a slice of inventory while confirming the timeout and any throttling are not suppressing real demand. After the test, keep whichever floor and bid-handling settings the data supports for each slice of inventory."
+      }
+    },
+    {
+      "id": "index-exchange-yield-optimization-ad-refresh-not-protecting-yield",
+      "title": "Ad refresh inflates impressions rather than protecting yield and viewability",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "Ad refresh that fires on a timer alone, or that reloads units without requesting fresh header-bidding demand, raises impression counts while lowering the viewable, engaged rate buyers pay for. Over time buyers discount inventory whose viewability and engagement metrics fall, so a refresh setup tuned for volume can lower the effective price across a publisher's account rather than add durable revenue.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Ad refresh reloads an ad slot while the user stays on the page, which can add legitimate revenue when a unit is in view and the user is engaged long enough for a second impression to be seen. The value of refresh depends entirely on how it is triggered. A refresh that fires on a fixed timer regardless of whether the unit is on screen produces impressions that are served but not seen, and a refresh that reloads the same creative without asking the header-bidding wrapper for new bids re-renders the previous winner instead of running a fresh auction.<br><br>Prebid's own guidance on refreshing a unit is explicit about the second failure. When an ad server refresh is called directly without clearing the existing header-bidding targeting, the same targeting keys get re-sent, the same bid gets re-chosen, and the same creative renders again without a new auction ever running. The correct pattern requests fresh bids, sets the new targeting, and only then refreshes the slot, so each refreshed impression is a real auction with current demand rather than a redraw of the last result.<br><br>Viewability is the metric refresh most often erodes. Buyers pay for impressions that are seen, and a timer-driven refresh on a unit that has scrolled out of view counts an impression that no one viewed, which pushes the unit's viewable rate down. Prebid offers a bid-viewability signal tied to the ad server's Active View criteria, which lets a publisher trigger refresh only after the current impression has actually been viewable rather than after a fixed number of seconds. Anchoring refresh to viewability rather than a timer keeps the inventory's viewable rate intact and gives the refreshed impression a fair chance to be seen too.<br><br>A few signs point to refresh that is not protecting yield:<ul><li>Refresh fires on a fixed timer with no viewability condition, so units refresh whether or not they are on screen</li><li>The refresh calls the ad server directly without requesting fresh header-bidding bids first, so the same creative re-renders</li><li>Reporting shows the unit's viewable rate falling or its average price drifting down as refresh volume rose</li></ul>You may want to confirm that refresh is anchored to viewability and runs a fresh auction on each reload. One approach is to gate refresh on a viewability signal, request new bids before each refresh, and compare viewable rate and average price before and after to confirm the refresh is adding value rather than diluting it.",
+        "site_type_overlays": {
+          "publishing": "On a media site, long-form articles and infinite-scroll feeds keep users on the page long enough that refresh can add real revenue, but only on units that stay in view. You may want to gate refresh on a viewability signal so a unit that has scrolled off does not refresh, and confirm each refresh requests fresh bids rather than redrawing the last creative.",
+          "ecommerce": "On a commerce-content site, product and category pages can hold a shopper's attention while they compare options, which suits refresh on in-view units. You may want to anchor refresh to viewability on those pages and watch the viewable rate since a falling viewable rate on commercial inventory is the metric buyers discount fastest."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Individual Ad Unit Refresh / Infinite Scroll for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/examples/adunit-refresh.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Module - Bid Viewability - GAM for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/bidViewable.html"
+          }
+        ],
+        "learn_more_note": "Index Exchange's documentation on its refresh and auction configuration controls is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review how ad refresh is triggered, whether it requests fresh header-bidding demand on each reload, and how the units' viewable rate and average price moved as refresh volume changed.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Header-bidding wrapper and refresh configuration",
+              "steps": [
+                "Locate the refresh logic in the page or wrapper setup and record what triggers it, whether a fixed timer, a viewability signal, or a user action.",
+                "Confirm whether the refresh requests fresh bids with 'pbjs.requestBids()' and sets new targeting before calling the ad server refresh, or whether it calls the ad server directly and re-renders the prior creative.",
+                "Note whether refresh is capped per unit per session and whether any viewability condition gates it."
+              ]
+            },
+            "ix_reporting": {
+              "label": "Index Exchange and ad server reporting",
+              "steps": [
+                "Build a report for the refreshed units with impressions, viewable rate, average clearing price, and revenue over a window that spans before and after refresh was enabled or its volume changed.",
+                "Compare the viewable rate and average price on refreshed units against comparable units that do not refresh.",
+                "Note any case where impression count rose while viewable rate or average price fell, which points to refresh adding volume rather than value."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records what triggers refresh, whether each refresh requests fresh header-bidding bids before the reload, and how the refreshed units' viewable rate and average price moved against comparable non-refreshed units. A setup where refresh is gated on viewability, runs a fresh auction on each reload, and holds viewable rate and average price steady passes. A timer-only refresh, a refresh that re-renders without a new auction, or a refresh where viewable rate and average price fell as volume rose is a fail recorded with the units affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the refresh trigger, whether each refresh runs a fresh auction, and the viewable rate and average price on the refreshed units above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that ad refresh on {{site_name}} fires on a timer without a viewability condition and reloads units without requesting fresh header-bidding demand, so refreshed impressions are served without being seen and re-render the prior creative instead of running a new auction. Refresh tuned for volume lowers the viewable rate buyers pay for, and buyers discount inventory whose viewability falls, so the setup can lower the effective price across the account rather than add durable revenue. {{voice_recommend}} gating refresh on a viewability signal so a unit refreshes only after the current impression has been viewable, requesting fresh bids before each reload so every refreshed impression is a real auction, and capping refresh per unit per session. After the change, compare viewable rate and average price before and after to confirm the refresh is adding value rather than diluting it."
+      }
+    }
+  ]
+}

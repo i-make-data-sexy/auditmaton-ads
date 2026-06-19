@@ -1,0 +1,161 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The header-bidding wrapper sits between the publisher's page and the demand that fills it, so its configuration sets the trade between how much demand competes for each impression and how long the page waits to collect it. A timeout set too short cuts off bidders before they answer, and a bidder list grown by accumulation rather than evidence adds latency for demand that no longer earns its place. The check is a review of the Index Exchange wrapper and Prebid configuration the publisher already runs, so it costs reading time rather than rebuild time, and each finding points to a concrete setting the publisher can test against revenue and page speed.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "The Index Exchange wrapper, the publisher's header-bidding integration built on Prebid, decides how demand is gathered before the ad server is called. Two settings shape the result more than any other. The auction timeout sets how long the wrapper waits for bids, which trades fill against page latency, and the list of enabled bidders sets how much demand competes, which trades auction pressure against the cost of every extra adapter on the page. This subcategory reviews those two decisions. These checks confirm that the timeout is tuned against measured fill and latency rather than left at a copied default, and that each enabled bidder earns its place with a deliberate choice about whether it runs client-side or server-side.",
+  "audit_checks": [
+    {
+      "id": "index-exchange-header-bidding-config-timeout-not-tuned",
+      "title": "Wrapper timeout is left at a default rather than tuned to fill and page speed",
+      "category": "monetization",
+      "subcategory": "header_bidding_config",
+      "impact_score": 3,
+      "impact_rationale": "The auction timeout sets how long the wrapper waits for bids before calling the ad server, so it controls the trade between fill and page latency directly. A timeout copied from a setup guide and never measured against the publisher's own demand and audience either cuts off bidders that would have answered, leaving revenue on the table, or holds the page too long, which slows ad load and can push revenue down as users leave.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "The Index Exchange wrapper runs on Prebid, and Prebid coordinates a timed auction. The auction timeout is the amount of time the wrapper is allowed to gather bids before it hands control to the ad server. A bidder that answers inside the window competes for the impression. A bidder that answers after it is dropped from that auction. The timeout is therefore the single setting that decides how much demand reaches the auction and how long the page waits to find out.<br><br>Prebid also carries a second, outer timeout called the failsafe timeout, a plain JavaScript setTimeout that lives outside Prebid and calls the ad server if something stalls so the page is never left without ads. Prebid's own guidance suggests starting points of 1,000 milliseconds or less for the internal auction timeout and 3,000 milliseconds or less for the failsafe, but those are starting points, not answers. The right value depends on the publisher's bidders, their server response times, and the patience of the audience.<br><br>The trade runs in both directions. Prebid's analysis of header-bidding setups shows that revenue rises as the page waits longer and more bids arrive, then falls once the wait grows long enough that users abandon the page before the ad loads. A timeout set too short clips the slower bidders out of the auction and forfeits the demand they carried. A timeout set too long collects more bids but slows the page and can erase the gain. The value that fits sits where measured fill stops rising fast enough to justify the added latency.<br><br>The audit question is whether the timeout was tuned on the publisher's own data or copied from a default and left alone. A few signs point to a timeout that was set once and never revisited:<ul><li>The auction timeout matches a round number from a setup guide with no record of a test behind it</li><li>No report exists showing bid response times by bidder, so there is no view of which bidders the current timeout includes or excludes</li><li>The failsafe timeout sits at or below the auction timeout, which can cut the auction off early, rather than comfortably above it</li><li>Server-side bidders run through Prebid Server with a server timeout that was never set relative to the page-level auction timeout</li></ul>You may want to confirm that the timeout reflects a measured balance rather than a copied default. One approach is to read bid response times by bidder, then test a small set of timeout values and compare fill, revenue, and ad-load latency across them before settling on one.",
+        "site_type_overlays": {
+          "publishing": "On a media site, readers move through many pages in a session, so ad-load latency compounds across the visit and a long timeout taxes every page the reader moves through. You may want to lean toward a timeout that protects page speed across a multi-page session, then confirm the faster window still captures the bidders that carry most of the revenue.",
+          "ecommerce": "On a commerce-content site, a slow ad load on a product or category page competes for the same milliseconds as the page content a shopper came to see. You may want to test a shorter timeout on the commercial pages and read whether the fill lost is smaller than the page-speed gained. Latency on a buying page carries a cost beyond the ad itself."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Timeouts",
+            "source_url": "https://docs.prebid.org/features/timeouts.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "How to optimize header bidding setup",
+            "source_url": "https://docs.prebid.org/overview/optimal-header-bidding-setup.html"
+          }
+        ],
+        "learn_more_note": "Index Exchange's detailed configuration documentation for the wrapper and its timeout settings is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the auction timeout and failsafe timeout the wrapper runs, then read bid response times by bidder to see which bidders the current timeout includes and which it cuts off.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Wrapper configuration",
+              "steps": [
+                "Locate the Prebid configuration the Index Exchange wrapper loads, and record the auction timeout passed to the auction (the bidderTimeout or the per-auction timeout).",
+                "Record the failsafe timeout, the setTimeout that calls the ad server, and confirm it sits comfortably above the auction timeout rather than at or below it.",
+                "If any bidders run server-side through Prebid Server, record the server timeout in the s2sConfig and note how it relates to the page-level auction timeout.",
+                "Ask the publisher whether the current timeout values came from a test on their own data or from a setup guide, and record what they say."
+              ]
+            },
+            "browser_tools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load a representative page with the Prebid debug flag enabled and capture the bid responses, or use a header-bidding inspection extension to read response times per bidder.",
+                "Record each bidder's typical response time and note which bidders answer inside the current auction timeout and which fall outside it.",
+                "Compare the slowest revenue-carrying bidders against the timeout to see whether the window includes the demand that matters or clips it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the auction timeout, the failsafe timeout, and the bid response times by bidder, alongside any record of a test behind the current value. A timeout set against measured response times and revenue, with the failsafe comfortably above the auction timeout, passes. A timeout copied from a default with no test on record, or a failsafe at or below the auction timeout, is a fail recorded with the values found and the bidders the window excludes.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the auction timeout, the failsafe timeout, and the bid response times by bidder above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Index Exchange wrapper on {{site_name}} runs an auction timeout that was left at a default rather than tuned to the site's own fill and page speed. The auction timeout decides how long the wrapper waits for bids before calling the ad server, so a value set too short clips slower bidders out of the auction while a value set too long slows ad load and can push revenue down as users leave. {{voice_recommend}} reading bid response times by bidder, then testing a small set of timeout values and comparing fill, revenue, and ad-load latency across them before settling on one. After the change, confirm the failsafe timeout sits comfortably above the auction timeout so the page is never cut off early."
+      }
+    },
+    {
+      "id": "index-exchange-header-bidding-config-bidders-not-justified",
+      "title": "Enabled bidders and their server-side or client-side placement are not justified",
+      "category": "monetization",
+      "subcategory": "header_bidding_config",
+      "impact_score": 3,
+      "impact_rationale": "Every bidder the wrapper loads adds a request, a possible user sync, and weight on the page, so a bidder list grown by accumulation rather than evidence adds latency for demand that may no longer compete. Whether each bidder runs client-side or server-side changes the cost it imposes, and a placement chosen by default rather than by value leaves the wrapper carrying bidders in the more expensive slot without a reason on record.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Each bidder a publisher enables in the Index Exchange wrapper is a separate adapter that adds a bid request, sometimes a user-sync call, and code weight to the page. More bidders mean more competition, which Prebid's analysis confirms raises revenue, but the same analysis shows the gain shrinks as bidders pile up and the latency cost grows. A bidder list that grew by accumulation, every adapter a sales team ever asked for, left in place, can carry demand that no longer wins enough auctions to justify the weight it adds.<br><br>The wrapper offers two paths for any given bidder, and the choice between them changes the cost. A client-side adapter bids directly into Prebid in the browser, which gives the publisher a direct connection and full control but spends browser time and a network round trip on every bidder. A server-side adapter routes the bidder through Prebid Server, so one request to the server fans out to many bidders without burdening the browser with each one. Most publishers run a hybrid, and the common pattern is to give the highest-value bidders client-side connections while lower-priority bidders and bidders under test run server-side.<br><br>That pattern is a guideline, not a rule, and the audit looks for whether the publisher's placement follows their own evidence. A high-revenue bidder buried server-side may be losing auctions it would win with the lower latency of a direct connection. A low-value or rarely-winning bidder held client-side spends browser time it does not earn. Index Exchange itself can run either way, so its own placement is part of the question.<br><br>The audit question is whether the enabled bidders and their placement reflect a deliberate, evidence-based choice. A few signs point to a bidder list and placement set by accumulation rather than review:<ul><li>The wrapper loads bidders that win few or no auctions in recent reporting, yet they stay enabled</li><li>Every bidder runs client-side with no server-side path in use, so the browser carries the full cost of demand that could route through Prebid Server</li><li>The split between client-side and server-side bidders does not track bidder value, with low-value bidders client-side or high-value bidders server-side</li><li>No record exists of when the bidder list was last reviewed against win rate and revenue per bidder</li></ul>You may want to confirm that each enabled bidder earns its place and sits in the right path. One approach is to read win rate and revenue by bidder, retire or move the bidders that no longer compete, and align the client-side and server-side split with the value each bidder brings.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a long bidder list runs on every page across a reader's session, so the weight of a bidder that no longer wins is paid again on each pageview. You may want to read win rate by bidder across the session and move or retire the bidders that rarely clear, keeping the client-side slots for the demand that carries the revenue.",
+          "ecommerce": "On a commerce-content site, the higher-intent product and category pages are where bidder latency competes most directly with the shopping experience. You may want to confirm the bidders that win on commercial inventory hold the client-side path for the lower latency, while testing whether lower-value bidders can route server-side without losing meaningful demand."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "How many bidders should I work with?",
+            "source_url": "https://docs.prebid.org/overview/how-many-bidders-for-header-bidding.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Use Case: Prebid Server with Prebid.js",
+            "source_url": "https://docs.prebid.org/prebid-server/use-cases/pbs-pbjs.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Index Exchange bid adapter",
+            "source_url": "https://docs.prebid.org/dev-docs/bidders/ix.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the bidders the wrapper enables and whether each runs client-side or server-side, then read win rate and revenue by bidder to see which earn their place and whether the placement fits their value.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Wrapper configuration",
+              "steps": [
+                "Locate the Prebid configuration the Index Exchange wrapper loads, and list every enabled bidder adapter.",
+                "For each bidder, record whether it bids client-side directly into Prebid or server-side through Prebid Server in the s2sConfig.",
+                "Note any user-sync calls and the count of adapters loading on the page. Each adds a request and weight.",
+                "Ask the publisher when the bidder list was last reviewed against performance, and record what they say."
+              ]
+            },
+            "demand_reporting": {
+              "label": "Demand reporting",
+              "steps": [
+                "Build a report of win rate, revenue, and bid rate by bidder over a recent period long enough to be representative.",
+                "Compare each enabled bidder's contribution against the cost of keeping it on the page, and flag bidders that rarely win or carry little revenue.",
+                "Check the split between client-side and server-side bidders against the revenue each brings, and note any high-value bidder held server-side or low-value bidder held client-side."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the enabled bidders, the client-side or server-side placement of each, and the win rate and revenue per bidder. A bidder list where each adapter earns its place and the client-side and server-side split tracks bidder value passes. A list carrying bidders that win little, an all-client-side setup with no server-side path, or a placement that does not track value is a fail recorded with the bidders and placements that do not fit.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the enabled bidders, their client-side or server-side placement, and the win rate and revenue per bidder above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Index Exchange wrapper on {{site_name}} enables bidders, and assigns each to a client-side or server-side path, without a justification on record. Every enabled bidder adds a request and weight to the page, so demand that no longer wins enough auctions taxes page speed without earning it, and a placement chosen by default rather than by value can leave a high-revenue bidder in the slower server-side path or a low-value bidder spending browser time it does not earn. {{voice_recommend}} reading win rate and revenue by bidder, retiring or moving the bidders that rarely compete, and aligning the client-side and server-side split with the value each bidder brings. After the change, recheck fill and ad-load latency to confirm the leaner bidder list holds the demand that matters."
+      }
+    }
+  ]
+}

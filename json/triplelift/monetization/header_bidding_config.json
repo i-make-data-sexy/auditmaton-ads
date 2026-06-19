@@ -1,0 +1,154 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "TripleLift reaches a publisher's page through a header bidding integration, most often its Prebid adapter, and the way that integration is wired sets the trade between how often TripleLift wins inventory and how much the auction slows the page. A timeout pitched too short cuts TripleLift off before it bids, and a stack stuffed with redundant bidders adds latency without adding real competition. The check is a review of configuration the publisher already controls in Prebid and its tags, so it costs reading time rather than rebuild time, and the finding points to a concrete setting the publisher can test.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "TripleLift is a sell-side platform (SSP) that a publisher connects through header bidding, usually with the TripleLift Prebid adapter, so the wrapper configuration around that adapter decides how well TripleLift can compete for an impression. This subcategory is about the integration settings the publisher controls, the auction timeout and the set of bidders and where each one runs, rather than the deals or pricing terms that sit inside the TripleLift account. These checks confirm that the timeout is tuned to balance fill against page speed and that the bidders in the stack each earn their place rather than adding latency for no gain.",
+  "audit_checks": [
+    {
+      "id": "triplelift-header-bidding-config-timeout-not-tuned",
+      "title": "The wrapper timeout is left at a default rather than tuned for the page",
+      "category": "monetization",
+      "subcategory": "header_bidding_config",
+      "impact_score": 3,
+      "impact_rationale": "The auction timeout sets how long the wrapper waits for bids before it calls the ad server, so it directly governs how often TripleLift and the other bidders get to compete. A timeout set too short cuts bidders off before they respond and lowers fill and revenue, while one set too long delays the ad render and can cost impressions when readers leave before the ad paints. A default left unexamined is unlikely to fit the page's own load profile.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "When a header bidding wrapper such as Prebid.js loads, it starts a timer and waits for bidders, TripleLift among them, to return a price before it hands the auction result to the ad server. That timer is the auction timeout, and it is the single setting that decides how much room each bidder has to respond. Prebid's own guidance frames the choice as a balance. Set the timeout too short and the wrapper calls the ad server before bidders finish, so their bids never enter the auction. Set it too long and the ad server call is delayed, which slows the ad render and can lose the impression when a reader scrolls past or leaves the page first.<br><br>TripleLift is one bidder inside that timer. If the timeout is tighter than the time TripleLift's adapter needs to respond on a given page, TripleLift bids less often or not at all, and the same applies to every other bidder in the stack. The right value is not a number a publisher can copy from someone else because it depends on conditions specific to the page, including average time on page, the share of revenue that comes from direct-sold inventory, and the typical network latency of the audience.<br><br>The audit question is whether the timeout was chosen against those conditions or simply left at whatever the wrapper or a setup guide shipped with. A timeout that has never been measured against the page's real bid-response times and load behavior is a setting working by assumption rather than evidence.<br><br>A few signs point to a timeout that was set by default rather than tuned:<ul><li>The wrapper timeout matches a round example number from a setup guide, with no record of why that value fits this page</li><li>Bid-response timing reports show TripleLift or other bidders frequently arriving after the timeout fires, which means they are timing out rather than competing</li><li>No before-and-after read exists comparing fill rate, revenue, and ad load time across different timeout values</li></ul>You may want to confirm that the timeout reflects the page's measured bid-response times rather than a copied default. One approach is to read how many bidders respond within the current timeout, then test a slightly higher or lower value and compare fill, revenue, and ad render time across the two.",
+        "site_type_overlays": {
+          "publishing": "On a media site, readers often stay on a long article for a while, which can give a timeout more room before the lost-impression risk grows. You may want to read time on page for the article templates that carry the most inventory, then test whether a modestly higher timeout lets TripleLift and other bidders respond more often without a noticeable hit to ad render time.",
+          "ecommerce": "On a commerce-content site, shoppers can move between product and category pages quickly, so a long timeout risks delaying the ad until after the reader has navigated away. You may want to test the timeout on the fast-moving commercial templates specifically. The value that fits a slow editorial read may be too generous for a quick product-page visit."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.org Documentation",
+            "source_title": "Timeouts in Prebid.js",
+            "source_url": "https://docs.prebid.org/features/timeouts.html"
+          },
+          {
+            "source_type": "Prebid.org Documentation",
+            "source_title": "Analyze your header bidding setup",
+            "source_url": "https://docs.prebid.org/overview/optimal-header-bidding-setup.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the wrapper timeout in the page's header bidding configuration, then read bid-response timing to see how many bidders, TripleLift included, return before the timeout fires.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Header bidding wrapper configuration",
+              "steps": [
+                "Open the page's Prebid configuration and find the auction timeout, typically the bidderTimeout value passed in the wrapper setup.",
+                "Record the current timeout value and whether the TripleLift adapter is loaded client-side, server-side, or both.",
+                "Ask the publisher how the timeout value was chosen and whether any test or before-and-after read informed it, and record what they say.",
+                "Note whether a failsafe timeout is also set. It acts as the backstop if the auction timer never resolves."
+              ]
+            },
+            "prebid_analytics": {
+              "label": "Bid-response timing report",
+              "steps": [
+                "Using the wrapper's analytics or browser console timing, record how long each bidder, including TripleLift, takes to respond on a sample of pages.",
+                "Count how often bidders return after the current timeout fires, which means their bids are excluded from the auction.",
+                "Compare bid response times against the timeout to see whether the timeout is cutting off bidders that would otherwise compete or leaving more room than the bidders use."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the current wrapper timeout, the share of bidders that respond within it, and whether any test compared fill, revenue, and ad render time across timeout values. A timeout chosen against measured bid-response times and page load behavior, with most bidders responding inside it, passes. A timeout left at a copied default, or one where TripleLift and other bidders frequently arrive after it fires, is a fail recorded with the timeout value and the share of late bids.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the current timeout value and the share of bidders responding within it above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs its header bidding wrapper on a timeout that was left at a default rather than tuned to the page, so TripleLift and the other bidders may be cut off before they respond or the ad render may be delayed longer than the page needs. The auction timeout sets how long the wrapper waits for bids before calling the ad server, and the value that fits depends on this page's time on page, revenue mix, and audience latency rather than a copied number. {{voice_recommend}} reading how many bidders respond within the current timeout, then testing a higher and a lower value and comparing fill rate, revenue, and ad render time across them. After the test, keep whichever timeout the data supports for each page template."
+      }
+    },
+    {
+      "id": "triplelift-header-bidding-config-bidder-bloat-and-placement",
+      "title": "Demand connections are not justified and client versus server placement is undecided",
+      "category": "monetization",
+      "subcategory": "header_bidding_config",
+      "impact_score": 3,
+      "impact_rationale": "Each bidder added to the wrapper adds a request the page waits on, so bidders that rarely win add latency without adding real competition. Whether a bidder such as TripleLift runs client-side or through a server connection also changes its bid rate and the load it puts on the browser, so leaving that placement undecided trades away either revenue or page speed without a deliberate choice.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "A header bidding stack grows one bidder at a time, and each bidder the wrapper calls is a request the auction waits on before it resolves. TripleLift is one of those connections, and so is every other sell-side platform (SSP) wired into the same wrapper. The instinct is that more bidders mean more competition and a higher price, but past a point the extra bidders add latency and duplicate the demand already in the auction without lifting the winning bid. A bidder that rarely wins, or that wins only impressions another bidder would have taken at a similar price, is paying for itself in page-load cost rather than revenue.<br><br>Where each bidder runs is the second half of the question. Prebid supports both a client-side path, where the browser calls the bidder directly, and a server-side path, where Prebid Server calls the bidder over a server-to-server connection and returns the result to the page. The two are not interchangeable. Client-side bidders can set and read their own cookies more readily, so they often bid more often and at higher prices, while server-side bidders lighten the load on the browser by moving the requests off the device. Many publishers run a hybrid, keeping their strongest bidders client-side for bid rate and moving others server-side to hold down browser cost.<br><br>The audit question has two parts. First, does each bidder in the stack, TripleLift included, earn its place by winning often enough to justify the request it adds. Second, is each bidder's client-side or server-side placement a deliberate choice measured against bid rate and page speed, or did it land wherever the setup guide put it.<br><br>A few signs point to an unjustified or undecided stack:<ul><li>Bidders sit in the wrapper that win a negligible share of impressions, with no record of why they were kept</li><li>Every bidder runs client-side with no consideration of moving lower-value connections server-side to cut browser load</li><li>A bidder was moved to a server-side path without confirming its bid rate held up, or kept client-side without weighing the latency it adds</li></ul>You may want to confirm that each demand connection earns its request and that its client-side or server-side placement was chosen on evidence. One approach is to read each bidder's win rate and revenue contribution, drop or consolidate the connections that contribute little, and test client versus server placement for the bidders that stay.",
+        "site_type_overlays": {
+          "publishing": "On a media site with many ad units per page, every extra bidder multiplies across those units, so a bloated stack compounds the latency the reader feels. You may want to trim the bidders that rarely win and weigh moving secondary connections to a server-side path, keeping the strongest bidders, TripleLift among them if it wins well here, on the client side for bid rate.",
+          "ecommerce": "On a commerce-content site, page speed feeds directly into how shoppers move toward a purchase, so the browser cost of a long client-side bidder list carries a sharper trade than on a slow editorial read. You may want to test moving lower-contributing bidders server-side on the commercial templates, then confirm the shift did not drop bid rate on the inventory that earns the most."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid.org Documentation",
+            "source_title": "Server-Side Header Bidding with Prebid.js",
+            "source_url": "https://docs.prebid.org/dev-docs/pbsBidAdapter-video-overview.html"
+          },
+          {
+            "source_type": "Prebid.org Documentation",
+            "source_title": "TripleLift bid adapter (Prebid.js and Prebid Server)",
+            "source_url": "https://docs.prebid.org/dev-docs/bidders/triplelift.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which bidders the wrapper calls, how each one is placed client-side or server-side, and how often each wins, to see whether every connection earns its request and its placement was a deliberate choice.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Header bidding wrapper configuration",
+              "steps": [
+                "Open the page's Prebid configuration and list every bidder the wrapper calls, noting whether each runs client-side, server-side through Prebid Server, or both.",
+                "Confirm whether the TripleLift adapter is configured client-side, server-side, or in a hybrid setup, and record which.",
+                "Ask the publisher why each bidder was added and how its placement was decided, and record any case where the answer is that it came with the setup."
+              ]
+            },
+            "prebid_analytics": {
+              "label": "Win-rate and revenue report",
+              "steps": [
+                "Using the wrapper's analytics, build a per-bidder read of bid rate, win rate, and revenue contribution across a representative period.",
+                "Identify bidders that win a negligible share of impressions or contribute little revenue relative to the latency their request adds.",
+                "Compare bid rate for any bidder running server-side against what it had client-side, where that history exists, to see whether the placement helped or hurt."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each bidder in the wrapper, its client-side or server-side placement, and its win rate and revenue contribution. A stack where each connection wins often enough to justify its request and where placement was chosen against bid rate and page speed passes. A stack carrying bidders that contribute little with no stated reason, or one where client versus server placement was never weighed, is a fail recorded with the bidders and placements affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each bidder, its placement, and its win rate and revenue contribution above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the header bidding stack on {{site_name}} carries demand connections that are not justified by their win rate and leaves client versus server placement undecided for bidders such as TripleLift. Each bidder the wrapper calls adds a request the page waits on, so connections that rarely win add latency without real competition, and a bidder's client-side or server-side placement changes both its bid rate and the load it puts on the browser. {{voice_recommend}} reading each bidder's win rate and revenue contribution, dropping or consolidating the connections that contribute little, and testing client against server placement for the bidders that stay. After the change, recheck fill rate, revenue, and ad render time to confirm the stack competes without slowing the page."
+      }
+    }
+  ]
+}

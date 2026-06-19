@@ -1,0 +1,167 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Yield on a TripleLift integration rests on two settings a publisher can actually see and change. The first is how demand reaches the auction, which the header-bidding wrapper and any bidder throttling control. The second is how often a slot re-auctions and whether each re-auction is a real viewable opportunity. Both are configuration reviews rather than rebuilds, so the check costs reading time, and each finding points to a concrete setting the publisher can test against revenue and viewability data.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "TripleLift is a Supply-Side Platform (SSP) that a publisher reaches through a header-bidding wrapper, most often Prebid. TripleLift ships a Prebid bid adapter, so the wrapper is where the publisher's auction settings live. Yield optimization here is about the auction settings the publisher controls around that adapter, not the internal pricing model TripleLift runs on its own side. These checks confirm that demand is reaching the auction without being thinned by throttling the publisher did not mean to apply, and that the refresh and auction configuration earns yield from genuine viewable opportunities rather than re-auctioning slots no one is looking at.",
+  "audit_checks": [
+    {
+      "id": "triplelift-yield-optimization-demand-thinned-by-throttling",
+      "title": "First-price auction demand is thinned by bidder throttling that was never measured",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "Header bidding runs a first-price auction, so every eligible bidder that reaches the auction is a chance at a higher clearing price. Throttling that drops TripleLift or other bidders from some auctions to save page weight or latency trims that chance. When the throttling was applied without measuring the revenue it costs against the performance it buys, the publisher cannot tell whether it is a fair trade or a quiet loss of demand.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Header bidding runs a first-price auction, which means the price a bid sets is the price the impression clears at when that bid wins. There is no second-price reduction, so the bid itself is the clearing candidate. In that model, every eligible bidder that reaches the auction is a fresh chance at a higher price, and a bidder that never reaches the auction is a chance the publisher never had. TripleLift reaches a publisher's auction through its Prebid adapter, so its participation depends on the wrapper calling it for a given ad slot.<br><br>Wrappers give a publisher levers to thin demand on purpose. A publisher can call fewer bidders, call different bidder sets in different regions, move some bidders server-side, or apply timeouts and throttling so slow or low-yielding partners do not slow the page. Prebid's own sustainability guidance frames these as ways to cut auctions that consume resources without earning their keep. The levers are legitimate, and on a heavy page they protect load time and the visitor experience that keeps the audience coming back.<br><br>The risk is applying them without measuring what they cost. Dropping a bidder from an auction removes its bids, and in a first-price auction a removed bid can be the one that would have set the clearing price. A throttling rule added to fix a latency problem, or a regional bidder set copied from a template, can quietly hold TripleLift or other demand out of auctions where it would have won. Without a before-and-after read on revenue and fill, the trade between page weight and yield stays a guess.<br><br>A few signs point to throttling that was applied rather than measured:<ul><li>The wrapper calls different bidder sets by region, device, or page type, and TripleLift is absent from some of them with no recorded reason</li><li>A timeout, throttling rule, or bidder cap was added to fix latency, and no revenue read was taken before and after</li><li>Bid participation reporting shows TripleLift or other bidders responding far less often than the number of auctions would suggest</li></ul>You may want to confirm that any throttling reflects a measured trade rather than a default. One approach is to read TripleLift's bid request and bid response counts against total auctions, then compare revenue and page-load timing with and without the throttling on a slice of traffic before keeping it.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a heavy article page with several ad slots is where publishers most often reach for throttling to protect load time. You may want to confirm that any rule thinning bidders on those pages was measured against the revenue those slots earn. Editorial pages carry a large share of a media site's impressions, and a small per-auction loss adds up across them.",
+          "ecommerce": "On a commerce-content site, product and category pages reach an audience close to a purchase and tend to clear higher, so demand thinned on those pages costs more per impression than on editorial pages. You may want to check that throttling rules are not applied uniformly across the site in a way that holds TripleLift out of the higher-value commercial auctions."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "TripleLift for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/bidders/triplelift.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Publisher Sustainability Best Practices",
+            "source_url": "https://docs.prebid.org/support/sustainability-publishers.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Price Floors Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/floors.html"
+          }
+        ],
+        "learn_more_note": "TripleLift's detailed configuration documentation for its SSP-side auction and traffic-shaping settings is in the partner portal (login required). The public Prebid references above cover the wrapper-side controls a publisher manages directly.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which auctions TripleLift is called in, whether any throttling or regional bidder set holds it out, and whether the revenue and latency trade was measured before the throttling was kept.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Prebid wrapper configuration",
+              "steps": [
+                "Open the page's Prebid configuration and list the ad units that include TripleLift in their bidder array, and the ones that omit it.",
+                "Look for any conditional logic, regional bidder set, or server-side versus client-side split that changes which auctions TripleLift is called in.",
+                "Check the auction timeout and any throttling or bidder-cap rule, and record what it does and which slots it affects.",
+                "Ask the publisher why each throttling rule or regional set exists, and whether a revenue read was taken before and after it was added."
+              ]
+            },
+            "ssp_reporting": {
+              "label": "TripleLift and wrapper reporting",
+              "steps": [
+                "Read TripleLift's bid request and bid response counts and compare them against the total auctions the affected slots ran.",
+                "Build a revenue and fill read for the slots where TripleLift is throttled or absent, alongside comparable slots where it is called every time.",
+                "Note any case where TripleLift responds far less often than the auction count would suggest, which points to demand held out of auctions it could have won."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad unit or slice, whether TripleLift is called in every auction or thinned by throttling, a regional bidder set, or a timeout, and whether the revenue and latency trade was measured before the rule was kept. A setup where any throttling is deliberate and backed by a before-and-after read passes. A setup where bidders are thinned with no recorded reason and no revenue read is a fail recorded with the rules and slots affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which auctions TripleLift is called in and whether any throttling was measured against revenue above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} thins header-bidding demand through throttling or regional bidder sets that hold TripleLift out of some auctions, with no revenue read recorded before the rules were kept. Header bidding is a first-price auction, so each eligible bidder that reaches the auction is a chance at a higher clearing price, and a removed bid can be the one that would have set the price. {{voice_recommend}} reading TripleLift's bid request and response counts against total auctions, then comparing revenue and page-load timing with and without the throttling on a slice of traffic before keeping any rule that drops demand. After the comparison, keep whichever configuration the data supports for each slice of inventory."
+      }
+    },
+    {
+      "id": "triplelift-yield-optimization-refresh-without-viewability-gate",
+      "title": "Ad refresh re-auctions slots without a viewability gate",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "Ad refresh re-runs the auction for a slot on a timer or event, which can lift yield by selling the same slot more than once per page view. Refreshing a slot that is off-screen or that no one has seen mints impressions with no opportunity to see, which depresses viewability and the prices buyers pay for it. A refresh that fires without a viewability gate trades long-term price for short-term impression count.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Ad refresh re-auctions a slot during a single page view, on a timer or after an event, so one placement can sell more than once while a visitor reads. Done well, it earns more from an engaged visitor who stays on the page. Prebid supports refreshing individual ad units, which is the mechanism behind refresh and infinite-scroll setups, and a TripleLift slot delivered through Prebid re-auctions the same way any other bidder's slot does.<br><br>The mechanics have to be exact or the refresh sells nothing new. When a refresh is wired incorrectly, the same header-bidding bids get re-sent to the ad server, re-chosen, and re-rendered without the wrapper ever being asked for fresh targeting. The slot looks refreshed but serves the same creative at the same price, so the publisher counts a new impression that earned nothing. The correct pattern requests fresh bids first, then updates the ad server targeting, then refreshes the slot.<br><br>The larger risk is refreshing impressions no one can see. The Media Rating Council (MRC) defines a viewable display impression as at least 50 percent of the ad's pixels in view for a continuous second, and that viewable rate is what buyers price against. Refreshing a slot that is scrolled off-screen, or that was never viewed in the first place, mints impressions with no opportunity to see. That dilutes the slot's viewable rate, and a lower viewable rate pulls down the prices buyers are willing to pay across the slot. A refresh gated on viewability, firing only when the slot is in view, protects the rate while still earning from engaged visitors. Prebid's bid viewability module reads Active View signals from the ad server and can supply the in-view check a refresh rule should wait on.<br><br>A few signs point to refresh that re-auctions without a viewability gate:<ul><li>Refresh fires on a fixed timer with no check that the slot is in view, so off-screen slots re-auction</li><li>The refresh calls the ad server directly without first requesting fresh bids, so the same creative re-renders at the same price</li><li>Reporting shows refreshed slots with a lower viewable rate than first-view slots, and average price falling with it</li></ul>You may want to confirm that any refresh waits on an in-view signal and requests fresh bids before each re-auction. One approach is to gate refresh on the bid viewability module's in-view event and compare the viewable rate and average price of refreshed slots against first-view slots.",
+        "site_type_overlays": {
+          "publishing": "On a media site, long articles and infinite-scroll feeds are where refresh earns the most from engaged readers, and also where off-screen slots are easiest to refresh by accident. You may want to gate refresh on an in-view signal for the feed and article-body slots so the re-auctions land on placements a reader can actually see.",
+          "ecommerce": "On a commerce-content site, product and category pages hold a higher-intent audience, so refreshed impressions there carry more value when they are viewable and cost more in diluted price when they are not. You may want to confirm refresh on those pages waits on a viewability gate rather than a fixed timer, so the higher-value inventory keeps its viewable rate intact."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Individual Ad Unit Refresh / Infinite Scroll",
+            "source_url": "https://docs.prebid.org/dev-docs/examples/adunit-refresh.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Bid Viewability Module (GAM)",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/bidViewable.html"
+          },
+          {
+            "source_type": "Media Rating Council",
+            "source_title": "MRC Viewable Ad Impression Measurement Guidelines (Desktop)",
+            "source_url": "https://mediaratingcouncil.org/sites/default/files/Standards/081815%20Viewable%20Ad%20Impression%20Guideline_v2.0_Final.pdf"
+          }
+        ],
+        "learn_more_note": "TripleLift's slot-level refresh and viewability configuration documentation is in the partner portal (login required). The public Prebid and MRC references above cover the wrapper-side refresh mechanics and the viewability standard buyers price against.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether ad refresh is gated on a viewability signal, whether each refresh requests fresh bids before re-auctioning, and how the viewable rate and price of refreshed slots compare to first-view slots.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Prebid and refresh configuration",
+              "steps": [
+                "Open the page's refresh logic and record what triggers a refresh, whether a timer, a scroll event, or an in-view check.",
+                "Confirm the refresh requests fresh bids first, then updates ad server targeting, then refreshes the slot, rather than calling the ad server directly.",
+                "Check whether the bid viewability module or another in-view signal gates the refresh, so off-screen slots do not re-auction.",
+                "List the slots that refresh and note which ones can sit off-screen during a page view."
+              ]
+            },
+            "ssp_reporting": {
+              "label": "Viewability and revenue reporting",
+              "steps": [
+                "Build a report comparing the viewable rate of refreshed slots against first-view slots for the same placements.",
+                "Read the average price for refreshed versus first-view impressions to see whether the refreshed inventory clears lower.",
+                "Note any case where refreshed slots show a markedly lower viewable rate and lower price, which points to refresh firing without a viewability gate."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per refreshing slot, whether refresh waits on an in-view signal, whether it requests fresh bids before each re-auction, and how the viewable rate and price of refreshed slots compare to first-view slots. A setup where refresh is gated on viewability and requests fresh bids passes. A setup where refresh fires on a timer with no in-view check, or re-renders without fresh bids, is a fail recorded with the slots affected and the viewable-rate gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether refresh is gated on viewability and requests fresh bids, and the viewable rate of refreshed versus first-view slots above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs ad refresh without a viewability gate, so slots re-auction on a timer whether or not a visitor can see them. The Media Rating Council (MRC) defines a viewable impression as at least 50 percent of the ad in view for a continuous second, and refreshing off-screen slots mints impressions with no opportunity to see, which dilutes the viewable rate buyers price against and pulls down the price across the slot. {{voice_recommend}} gating refresh on an in-view signal such as the Prebid bid viewability module, requesting fresh bids before each re-auction, and comparing the viewable rate and average price of refreshed slots against first-view slots. After the change, recheck the viewable rate to confirm the refresh earns from impressions a visitor can actually see."
+      }
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/admanager/answer/2880055?hl=en",
+  "worth_it": "Yes",
+  "worth_it_explanation": "First-party audience continuity is what lets frequency capping, audience segmentation, and bidder-targeting hold together across sessions and devices once third-party cookies are gone. Google Publisher Tag (GPT) carries that continuity through two settings a publisher controls in their own code and account, the Publisher Provided Identifier (PPID) and secure signals. Both are off until the publisher turns them on, so the gap is silent: ad requests still serve, but the first-party signal the publisher meant to pass never reaches Google Ad Manager (GAM) or the bidders. The check reads the GPT implementation and the matching account settings, so it costs inspection time rather than rebuild time, and the finding points to a concrete wiring decision the publisher can act on.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "GPT is the JavaScript library a publisher runs on their own pages to request and render ads from GAM. Two of GPT's settings decide whether first-party audience continuity reaches the auction. The PPID gives GAM a stable per-user identifier for frequency capping and audience targeting, and secure signals share encrypted first-party data with the bidders a publisher chooses. Both default to off and must be wired in code and matched by account settings. This subcategory confirms that where the publisher intends to pass first-party audience or frequency continuity, the GPT implementation actually sets it, rather than leaving the signal unsent.",
+  "audit_checks": [
+    {
+      "id": "google-publisher-tag-audience-targeting-ppid-not-set",
+      "title": "A Publisher Provided Identifier is not set where first-party continuity is needed",
+      "category": "targeting",
+      "subcategory": "audience_targeting",
+      "impact_score": 3,
+      "impact_rationale": "Without a Publisher Provided Identifier, Google Ad Manager has no stable first-party key to tie impressions to a single user across sessions and devices, so frequency capping and audience targeting fall back to weaker third-party signals or stop working as third-party cookies are restricted. The result is over-delivery against frequency caps and audience segments that no longer reach the right users, which the publisher does not see until reporting shows the drift.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "inventory",
+        "privacy"
+      ],
+      "educate": {
+        "base": "A Publisher Provided Identifier (PPID) is a stable, publisher-set identifier passed to Google Ad Manager (GAM) through Google Publisher Tag (GPT). GAM uses it to recognize the same user across sessions and devices, which is what frequency capping, audience segmentation, sequential ad rotation, and other audience-based delivery controls depend on. In GPT the publisher sets it with a single call, <a href='https://developers.google.com/publisher-tag/reference' class='tools-link-no-padding' target='_blank'>setPublisherProvidedId</a> on the pubads service, passing an alphanumeric ID between 32 and 150 characters.<br><br>The reason this matters more each year is that the third-party cookie GAM used to lean on for cross-session recognition is being restricted. A PPID is a first-party signal the publisher owns, so it keeps frequency capping and audience targeting working where third-party identifiers no longer do. Google's guidance is that the identifier must be pseudonymous and persistent for the same user across sessions, hashed or encrypted so it is meaningless to Google, and never raw personally identifiable information.<br><br>The setting is off until the publisher writes the call, and a missing or unstable PPID is not visible in the rendered ad. The page still serves. What breaks underneath is continuity. Frequency caps reset because GAM cannot tell it is the same user, and audience segments built on the PPID stop reaching the people they were meant to. A common wiring fault is generating a fresh PPID on every page load rather than persisting one per user, which looks like a value is present but gives GAM a new identity each time.<br><br>A few signs point to a PPID that is missing or not wired for continuity:<ul><li>No setPublisherProvidedId call appears in the GPT command queue on pages where frequency capping or first-party audience targeting is intended</li><li>The PPID value changes on every page load or session rather than persisting for the same user</li><li>The value is shorter than 32 characters or otherwise outside the accepted range, so GAM rejects it</li><li>The publisher relies on first-party audience segments or frequency caps in GAM but cannot point to where the PPID is generated and persisted</li></ul>You may want to confirm both that a PPID is set and that it is the same persistent value for a returning user. One approach is to set it from a first-party identifier the publisher already persists, such as a logged-in account key or a long-lived first-party cookie, rather than a value created fresh each load.",
+        "site_type_overlays": {
+          "publishing": "On a media or content site running GPT, frequency capping across a returning audience and first-party segments built from reading behavior both rest on a stable PPID. You may want to derive the PPID from a logged-in account where one exists, and from a persistent first-party cookie for signed-out readers, so the same person carries the same identifier across visits rather than resetting each session.",
+          "ecommerce": "On a commerce-content site running GPT, product and category pages reach an audience the publisher may want to retarget or frequency-cap across sessions. You may want to set the PPID from the same first-party identifier the site already uses to recognize a returning shopper, so the audience continuity on the commercial pages holds rather than starting over on each visit."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag Reference",
+            "source_title": "GPT Reference: setPublisherProvidedId",
+            "source_url": "https://developers.google.com/publisher-tag/reference"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "About publisher provided identifiers",
+            "source_url": "https://support.google.com/admanager/answer/2880055?hl=en"
+          },
+          {
+            "source_type": "Google Publisher Tag Guide",
+            "source_title": "Google Publisher Console",
+            "source_url": "https://developers.google.com/publisher-tag/guides/publisher-console"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect the GPT implementation on pages where first-party continuity is intended to see whether a Publisher Provided Identifier (PPID) is set, then confirm the value persists for a returning user rather than changing on each load.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open a page running GPT, open DevTools, and search the page source and loaded scripts for 'setPublisherProvidedId' to confirm whether the call exists.",
+                "In the Network panel, filter for requests to 'securepubads.g.doubleclick.net' and inspect the ad request, looking for the PPID parameter ('ppid') to confirm a value is actually sent.",
+                "Reload the page and load it in a fresh session, comparing the PPID value across loads. A stable value for the same user is the goal; a value that changes every load points to a per-load identifier rather than a persistent one.",
+                "Confirm the value length falls within 32 to 150 characters. Values outside that range are rejected."
+              ]
+            },
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the Google Publisher Console on a GPT page by adding '?google_console=1' to the URL or running 'googletag.openConsole()' in the browser JavaScript console.",
+                "Open the 'Page request' tab and review the page-level request information for whether a publisher-provided identifier is present on the request.",
+                "Note any console messages flagging an absent or malformed identifier, and record which pages carry a PPID and which do not."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each page type where first-party continuity is intended, whether a setPublisherProvidedId call fires, whether the value reaches the ad request, and whether it persists for the same user across loads and sessions. A setup that sets a persistent, in-range PPID on the pages that need it passes. A setup where the PPID is absent on those pages, falls outside the accepted length, or regenerates on every load is a fail recorded with the pages and the wiring fault found.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a PPID is set, sent on the ad request, and persistent across loads for each page type above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not set a stable Publisher Provided Identifier (PPID) through Google Publisher Tag (GPT) on the pages where first-party frequency capping and audience targeting are intended. Without a persistent PPID, Google Ad Manager (GAM) has no first-party key to recognize the same user across sessions and devices, so frequency caps over-deliver and first-party audience segments stop reaching the right users as third-party cookies are restricted. {{voice_recommend}} setting the PPID with setPublisherProvidedId from a first-party identifier the site already persists, such as a logged-in account key or a long-lived first-party cookie, keeping the value pseudonymous and the same for a returning user, and confirming it reaches the ad request within the accepted 32-to-150-character range. After the change, recheck frequency capping and audience reach to confirm the continuity holds."
+      }
+    },
+    {
+      "id": "google-publisher-tag-audience-targeting-secure-signals-not-configured",
+      "title": "Secure signals are left off where the publisher intends bidders to receive first-party data",
+      "category": "targeting",
+      "subcategory": "audience_targeting",
+      "impact_score": 3,
+      "impact_rationale": "Secure signals share encrypted first-party data with the bidders a publisher chooses, which lets those bidders value the impression with the publisher's own audience signal rather than bidding blind. Left off, or collected but not shared with any recipient, the bidders never receive the signal, so bids land lower than the inventory could command and the publisher leaves revenue uncollected without any error surfacing.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "inventory",
+        "privacy"
+      ],
+      "educate": {
+        "base": "Secure signals are encrypted, first-party signals a publisher shares with the bidders and curation partners they choose, carried on the ad request through Google Publisher Tag (GPT). Google Ad Manager (GAM) uses the GPT library to collect and send these signals for web ad requests. The signal itself is created by a collection script or adapter the publisher adds, supplied by the bidder or a secure signals provider, and the data is obfuscated before it reaches Google so that, in Google's words, the information in the signal is never visible or readable by Google or its platforms.<br><br>The value is in how it changes the auction. A bidder that receives a publisher's first-party signal can value the impression with that context instead of bidding on the impression alone, which can lift bids on the inventory the signal describes. The control stays with the publisher: signals are shared only at the publisher's explicit instruction and only with the recipients the publisher has allowed.<br><br>That control is also where the gap lives. Two account-level toggles gate the feature, and both default off. Secure signal sharing has to be turned on at the account level, and then each demand channel or recipient the publisher wants to receive the signal has to be turned on individually. A publisher can add the collection adapter in GPT, see the signal being collected, and still share it with no one because the recipient toggles were never set. The ad request carries the signal, but no bidder is allowed to read it, so the lift the publisher set out to capture never happens.<br><br>A few signs point to secure signals that are collected but not reaching bidders:<ul><li>Secure signal sharing is off at the account level, so no signal leaves regardless of what GPT collects</li><li>A collection adapter is present in the GPT setup, but no demand channel or recipient is toggled on to receive the signal</li><li>The publisher names bidders they expect to receive first-party signals, but those recipients are not enabled in the secure signal sharing settings</li><li>Troubleshooting shows the signal collected on the request but not delivered to any recipient</li></ul>You may want to confirm both that secure signal sharing is on and that the specific bidders the publisher intends are each enabled to receive it. One approach is to match the collection adapters present in GPT against the recipients turned on in the account settings, so every signal collected has at least one intended bidder allowed to read it.",
+        "site_type_overlays": {
+          "publishing": "On a media or content site running GPT, first-party signals built from reading behavior or registration data can raise what bidders pay for the audience, but only the bidders the publisher enables can use them. You may want to confirm that each bidder the publisher works with is turned on as a recipient, so the editorial-audience signal the site collects actually reaches the demand that values it.",
+          "ecommerce": "On a commerce-content site running GPT, first-party signals from product and category browsing describe a high-intent audience that bidders value, provided the signal is shared. You may want to verify that the bidders buying the commercial inventory are each enabled as recipients, so the purchase-intent signal collected on those pages reaches the demand rather than being collected and held."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Share secure signals with bidders and curation partners",
+            "source_url": "https://support.google.com/admanager/answer/10488752?hl=en"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Troubleshoot secure signals",
+            "source_url": "https://support.google.com/admanager/answer/15280244?hl=en"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether secure signal sharing is enabled at the account level, whether the intended bidders are each turned on as recipients, and whether the signal is actually carried on the GPT ad request.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Admin', then 'Global settings', then the Ad Exchange account settings, and confirm whether the secure signal sharing toggle is on.",
+                "In the secure signal sharing section, list which demand channels, bidders, and curation partners are turned on to receive signals.",
+                "Compare the enabled recipients against the bidders the publisher names as intended recipients, and record any intended bidder that is not enabled."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open a page running GPT, open DevTools, and confirm the secure signals collection adapter or script the publisher uses is loaded on the page.",
+                "In the Network panel, filter for requests to 'securepubads.g.doubleclick.net' and inspect the ad request for the secure signals payload to confirm the signal is collected and carried.",
+                "Record which adapters are present so they can be matched against the recipients enabled in the account settings."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether secure signal sharing is enabled at the account level, which recipients are turned on, and whether the collection adapters present in GPT match the bidders the publisher intends to receive signals. A setup where sharing is on and every intended bidder is enabled to receive a signal that is actually collected passes. A setup where sharing is off, or where signals are collected but no intended recipient is enabled, is a fail recorded with the adapters present and the intended recipients left disabled.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether secure signal sharing is on, which recipients are enabled, and which collection adapters are present above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} collects secure signals through Google Publisher Tag (GPT) but does not share them with the bidders the publisher intends. Secure signal sharing or the recipient toggles in Google Ad Manager (GAM) are left off. Secure signals let chosen bidders value an impression with the publisher's encrypted first-party data, which can lift bids, but only recipients the publisher explicitly enables can read them, so a signal collected and shared with no one delivers no lift. {{voice_recommend}} turning on secure signal sharing at the account level, enabling each bidder the publisher intends as a recipient, and matching the collection adapters present in GPT against those enabled recipients so every signal collected reaches the demand meant to use it. After the change, recheck reporting on signal delivery and bids to confirm the intended bidders receive the signal."
+      }
+    }
+  ]
+}

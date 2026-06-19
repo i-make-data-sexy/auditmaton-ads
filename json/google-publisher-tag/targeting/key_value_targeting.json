@@ -1,0 +1,160 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://developers.google.com/publisher-tag/guides/key-value-targeting",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Key-value targeting is how a Google Publisher Tag (GPT) page tells Google Ad Manager what the page is about, so line items and bidders can target the right impressions. When the targeting is set in the wrong order or the keys do not match what is defined in Ad Manager, the values either never reach the ad request or reach it under a name nothing is targeting, and the targeted demand goes unfilled. This check reads the GPT calls already on the page against the custom targeting keys already in Ad Manager, so it costs reading time rather than rebuild time, and each finding points to a concrete line of code or a single key to align.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Key-value targeting is the mechanism a GPT implementation uses to attach context to an ad request, so Ad Manager can match line items and bidders to the right impressions. This subcategory is about whether the targeting GPT sends actually reaches the ad request and actually matches the targeting keys defined in Ad Manager. These checks confirm that page-level key-values are set before the services are enabled, so the values make it onto the request, and that the keys and values GPT passes line up with the custom targeting keys in Ad Manager, so the demand built to target them can serve.",
+  "audit_checks": [
+    {
+      "id": "google-publisher-tag-key-value-targeting-set-before-enableservices",
+      "title": "Page-level key-values are set after enableServices, so they may not reach the ad request",
+      "category": "targeting",
+      "subcategory": "key_value_targeting",
+      "impact_score": 3,
+      "impact_rationale": "Google Publisher Tag processes page-level targeting when the services are enabled, so a setTargeting call that runs after enableServices may not be applied to the requests for the slots on the page. The targeting that did not reach the request cannot match any line item or bidder built around it, so demand that was set up to target the page serves elsewhere or goes unfilled while the page looks correctly tagged in the source.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "inventory",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "Google Publisher Tag (GPT) builds an ad request from the configuration that exists at the moment the services are enabled. Page-level key-value targeting, set with <a href='https://developers.google.com/publisher-tag/guides/key-value-targeting' class='tools-link-no-padding' target='_blank'>setTargeting at the page level</a>, has to be in place before that point so it is attached to the requests for the slots on the page. A page-level setTargeting call that runs after googletag.enableServices may not be applied to the requests already in flight, which means the value never reaches Google Ad Manager (GAM) and cannot match the demand built around it.<br><br>This is one of the call-ordering mistakes Google documents directly. GPT supports two valid orderings, and both place page-level targeting ahead of enableServices:<ul><li>Define page-level settings, define slots, call enableServices, then display the slots</li><li>Define page-level settings, call enableServices, define slots, then display the slots</li></ul>In both, the page-level setTargeting calls come first. The case to watch for is the reverse, where setTargeting runs after enableServices. GPT processes page-level targeting when the services are enabled, so a later call may arrive too late for the request.<br><br>The failure is hard to see from the rendered page because the source still contains the setTargeting call and the ad still serves. What is missing is the targeted match. Demand that was set up to target the page-level value is no longer eligible, so the impression fills from broader demand or goes unfilled while the tag reads as correct. Slot-level targeting passed into defineSlot is set as part of the slot definition and is not exposed to this particular ordering problem, so the risk sits specifically with page-level setTargeting and where it runs relative to enableServices.<br><br>A few signs point to page-level targeting running too late:<ul><li>A googletag.setTargeting or googletag.pubads().setTargeting call appears after the googletag.enableServices call in the page source or in a tag-manager-injected snippet</li><li>The Google Publisher Console shows page-level key-values missing from slots that the source appears to tag</li><li>The outgoing ad request to securepubads.g.doubleclick.net does not carry the page-level key-values the source sets</li></ul>You may want to confirm that every page-level setTargeting call runs before enableServices and that the values it sets actually appear on the outgoing request. One approach is to read the page-level key-values in the Google Publisher Console and compare them against the setTargeting calls in the source.",
+        "site_type_overlays": {
+          "publishing": "On a media site, page-level key-values often carry the section, the article category, or a sponsorship flag that a direct-sold line item targets. If those values are set after enableServices and do not reach the request, the sponsorship or section-targeted demand falls out of eligibility while the page still shows ads, so you may want to confirm the section and sponsorship values appear on the request before the slots are displayed.",
+          "ecommerce": "On a commerce-content site, page-level key-values often carry the product category or page type that separates higher-intent commercial pages from editorial ones. If those values are set after enableServices and never reach the request, demand built to target the commercial pages cannot find them, so you may want to confirm the page-type and category values are set before enableServices on the product and category templates."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag Developer Guide",
+            "source_title": "Key-value targeting",
+            "source_url": "https://developers.google.com/publisher-tag/guides/key-value-targeting"
+          },
+          {
+            "source_type": "Google Publisher Tag Developer Guide",
+            "source_title": "Common implementation mistakes",
+            "source_url": "https://developers.google.com/publisher-tag/common_implementation_mistakes"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the GPT call order in the page source and confirm that page-level key-values reach the outgoing ad request rather than being set after the services are enabled.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "View the page source and the tag-manager-injected scripts, and locate every googletag.setTargeting and googletag.pubads().setTargeting call along with the googletag.enableServices call.",
+                "Confirm that each page-level setTargeting call runs before enableServices, given that a page-level call after enableServices may not reach the request.",
+                "Open the Network panel, filter for requests to securepubads.g.doubleclick.net, and inspect an ad request to check whether the page-level key-values from the source appear on it.",
+                "Record any page-level value that is set in the source but absent from the outgoing request, along with the line where its setTargeting call runs."
+              ]
+            },
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the Google Publisher Console on the page by appending '?googfc' to the URL or by using the Publisher Console bookmarklet.",
+                "Select a slot and review its page-level key-values to see which values GPT actually applied.",
+                "Compare the key-values the console reports against the page-level setTargeting calls in the source, and record any value that the source sets but the console does not show."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each page-level setTargeting call, whether it runs before or after enableServices and whether its value appears on the outgoing ad request and in the Google Publisher Console. A setup where every page-level key-value is set before enableServices and reaches the request passes. A setup where one or more page-level values are set after enableServices, or are absent from the request, is a fail recorded with the affected keys and the line where each call runs.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether each page-level setTargeting call runs before enableServices and whether its value reaches the ad request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sets one or more page-level key-values after calling googletag.enableServices, so those values may not reach the ad request. Google Publisher Tag (GPT) processes page-level targeting when the services are enabled, and a setTargeting call that runs later can arrive too late for the request, which drops the targeted match while the page still serves ads and reads as correctly tagged. {{voice_recommend}} moving every page-level setTargeting call ahead of enableServices, following one of the two valid orderings Google documents, then confirming the values appear on the outgoing request and in the Google Publisher Console. After the change, recheck a sample of pages to confirm the page-level key-values reach the request before the slots are displayed."
+      }
+    },
+    {
+      "id": "google-publisher-tag-key-value-targeting-keys-match-ad-manager",
+      "title": "GPT keys and values do not match the custom targeting keys defined in Ad Manager",
+      "category": "targeting",
+      "subcategory": "key_value_targeting",
+      "impact_score": 3,
+      "impact_rationale": "A key-value reaches Google Ad Manager only as the string Google Publisher Tag sends it, so a key name or value that does not match what is defined in Ad Manager cannot be targeted by any line item or bidder. The mismatch passes without an error because the request is well formed and the ad still fills from broader demand, so the targeted demand built around the intended key never becomes eligible and the publisher sees no error.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "inventory"
+      ],
+      "educate": {
+        "base": "A key-value only works when the same key name and the same value exist on both sides of the request. Google Publisher Tag (GPT) sends whatever string the setTargeting call contains, and Google Ad Manager (GAM) matches it against the custom targeting keys defined under Inventory, then Key-values. A line item or a bidder can only target a key-value that exists in Ad Manager, so a key or value GPT sends that is not defined there, or is defined under a different name, matches nothing.<br><br>Google's own guidance is explicit that key-values stay inert until they are both defined in Ad Manager and included in the GPT tags. The audit question is whether the two sides agree. The mismatch is usually small, for example a key sent as 'pageType' in GPT but defined as 'page_type' in Ad Manager, a value sent as 'Sports' against a value defined as 'sports', or a dynamic value the line item never had added to its targeting. Any of these breaks the match while leaving the request well formed.<br><br>The reason this passes without notice is that nothing fails loudly. The ad request is valid, the impression fills from broader demand, and no error surfaces. What is missing is the eligibility the targeted line item or bidder was supposed to gain, so the demand built to target the page never competes for it. A practitioner has to compare the two sides directly to see it.<br><br>A few signs point to keys and values that do not match Ad Manager:<ul><li>A key name or value in the GPT setTargeting calls does not appear in the Inventory, then Key-values list in Ad Manager, or appears there under a different spelling or case</li><li>The Google Publisher Console shows key-values on the request that no line item or bidder targets</li><li>A line item targets a key-value that the page is supposed to send, but the value never reaches the request under that exact name</li></ul>You may want to confirm that every key and value GPT sends has a matching entry in Ad Manager and that the line items and bidders meant to target it use the same names. One approach is to list the key-values the Google Publisher Console reports on the request, then check each against the key-values defined in Ad Manager and the targeting on the line items that should serve.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the section and article-category key-values that direct-sold and sponsorship line items depend on are the ones most worth checking. A single spelling or case difference between the GPT value and the Ad Manager value drops the sponsored placement out of eligibility. You may want to confirm the section and category values GPT sends match the custom targeting keys the sponsorship line items target.",
+          "ecommerce": "On a commerce-content site, the product-category and page-type key-values that separate commercial pages from editorial ones are the ones most worth checking. A mismatch there lets higher-intent inventory fill from broader demand instead of the targeted line items. You may want to confirm the category and page-type values GPT sends on product and category pages match the key-values defined in Ad Manager."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Get started with key-values",
+            "source_url": "https://support.google.com/admanager/answer/188092?hl=en"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Set targeting and sizes with GPT",
+            "source_url": "https://support.google.com/admanager/answer/1697712?hl=en"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Compare the key-values GPT sends on the request against the custom targeting keys defined in Ad Manager and the targeting on the line items meant to serve.",
+        "tools": {
+          "free": {
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the Google Publisher Console on a representative page by appending '?googfc' to the URL or using the Publisher Console bookmarklet.",
+                "Select each slot and list the key-values GPT reports, recording the exact key name, value, spelling, and case for each.",
+                "Note any key-value the console shows that you do not expect, and any expected key-value the console does not show."
+              ]
+            },
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Inventory', then 'Key-values', and list the custom targeting keys and their values, recording the exact names and case.",
+                "Compare each key and value GPT sends against this list, and record any GPT key or value with no matching entry or with a different spelling or case.",
+                "Open the line items and bidder targeting meant to serve on the page and confirm they target the key-values under the same names GPT sends, recording any that do not align."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the key-values GPT sends, the custom targeting keys defined in Ad Manager, and the targeting on the line items meant to serve, then compares them name by name and value by value. A setup where every key and value GPT sends has a matching Ad Manager entry and the targeting line items use the same names passes. A setup where a GPT key or value has no match in Ad Manager, differs in spelling or case, or is not targeted by the intended line item is a fail recorded with each mismatched key-value.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the key-values GPT sends and the custom targeting keys defined in Ad Manager above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sends one or more key-values through Google Publisher Tag (GPT) that do not match the custom targeting keys defined in Google Ad Manager (GAM). A key-value reaches Ad Manager only as the exact string GPT sends, so a key or value that is missing from Ad Manager, or that differs in spelling or case, cannot be targeted by any line item or bidder, and the mismatch passes without an error because the impression still fills from broader demand. {{voice_recommend}} listing the key-values the Google Publisher Console reports on the request, checking each against the key-values defined in Ad Manager and the targeting on the line items meant to serve, then aligning the names and values so both sides agree. After the change, recheck the targeted line items to confirm they become eligible on the pages that send the matching key-values."
+      }
+    }
+  ]
+}

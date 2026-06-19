@@ -1,0 +1,175 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://developers.google.com/publisher-tag/guides/monitor-performance",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Performance monitoring decides whether the publisher can tell what ads cost the page or only guess at it. GPT requests and renders ads in the browser, so the script weight, the network calls, and the space the slots take all land on the same page a reader is trying to load. Without a baseline and a layout-shift measurement, a change to the ad setup ships with no way to read its effect on load speed or visual stability. The check is a review of measurement the publisher can put in place with free tools, so it costs reading and setup time rather than rebuild time, and the finding points to a concrete instrument the publisher can keep watching.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Google Publisher Tag (GPT) is the JavaScript library a publisher runs on their own pages to request ads from Google Ad Manager and render them in the browser. Because that work happens on the reader's page, the ad setup affects how fast the page loads and how steady it looks while loading. This subcategory is about whether that effect is measured rather than assumed. These checks confirm that a Core Web Vitals baseline exists so the impact of GPT and any ad change can be read against a known starting point, and that the layout shift ad slots cause is measured and the slot space is reserved so ads do not push content as they arrive.",
+  "audit_checks": [
+    {
+      "id": "google-publisher-tag-performance-monitoring-no-cwv-baseline",
+      "title": "No Core Web Vitals baseline exists to measure the effect of ad changes",
+      "category": "measurement",
+      "subcategory": "performance_monitoring",
+      "impact_score": 3,
+      "impact_rationale": "Without a Core Web Vitals (CWV) baseline, the publisher cannot tell whether a GPT change, a new ad slot, or a demand-partner addition helped or hurt page performance, so every ad decision ships blind to its effect on load speed and responsiveness. A baseline turns that guess into a before-and-after read, which is the difference between managing the performance cost of ads and discovering it from a ranking or revenue drop later.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "performance",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "Google Publisher Tag (GPT) does its work in the reader's browser. It loads its own script, sends ad requests to Google's servers, waits for responses, and paints creatives into slots on the page. Each of those steps takes time and competes with the page's own content for the browser's attention, so the ad setup has a real effect on how fast the page feels and how steady it looks while it loads. The question this check asks is not whether ads slow the page, where some cost is expected, but whether the publisher can measure that cost rather than guess at it.<br><br>Core Web Vitals are Google's three field metrics for that measurement. Largest Contentful Paint (LCP) measures perceived load speed, Interaction to Next Paint (INP) measures responsiveness, and Cumulative Layout Shift (CLS) measures visual stability. A baseline is a record of where those three numbers sit today, captured before the next ad change, so the effect of that change can be read against a known starting point instead of a memory of how the page used to feel.<br><br>A baseline can come from either of two measurement approaches, and using both gives the fullest picture:<ul><li>Real user monitoring (RUM) reads the metrics from actual visitors through the Chrome User Experience Report, Google Search Console, or a field-data tool, which reflects the devices and networks the real audience uses</li><li>Synthetic monitoring runs the page through a lab tool such as Lighthouse or PageSpeed Insights on a fixed device and connection, which gives a repeatable number for before-and-after comparisons</li></ul>Once a baseline exists, the publisher can attribute a movement in the metrics to a specific ad change. Adding a slot, switching to single request architecture (SRA), enabling lazy loading, or adding a demand partner each becomes a measured experiment rather than a change that ships and is forgotten. Google's own guidance recommends establishing a baseline first and then watching the metrics over time as the ad setup evolves.<br><br>You may want to confirm that a Core Web Vitals baseline exists and is recorded somewhere the team can return to. One approach is to capture LCP, INP, and CLS from both a field source and a lab run, store the numbers with the date, and re-read them after each meaningful ad change.",
+        "site_type_overlays": {
+          "publishing": "On a media site running GPT, article pages carry the bulk of the traffic and often the bulk of the ad slots, so the performance cost of ads concentrates there. You may want to capture the Core Web Vitals baseline on a representative article template rather than the homepage alone. The article page is where most readers meet the ad load and where a regression would do the most damage to engagement and search visibility.",
+          "ecommerce": "On a commerce-content site running GPT, product and category pages carry ads alongside content that is closer to a purchase, so a layout shift or a slow load there can cost a sale as well as a metric. You may want to baseline Core Web Vitals separately on the commercial templates and the editorial templates. The two often load differently and a blended number can hide a problem on the pages that matter most to revenue."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag documentation",
+            "source_title": "Monitor performance",
+            "source_url": "https://developers.google.com/publisher-tag/guides/monitor-performance"
+          },
+          {
+            "source_type": "web.dev",
+            "source_title": "Web Vitals",
+            "source_url": "https://web.dev/articles/vitals"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Look for a recorded Core Web Vitals baseline, then confirm it can be reproduced from a field source and a lab run on the templates that carry ads.",
+        "tools": {
+          "free": {
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the Google Publisher Console on a page that runs GPT by appending '?google_console=1' to the URL or running 'googletag.openConsole()' in the browser console.",
+                "Open the 'Page Request' tab and read the fetch and render times reported for the ad request, which show how long the GPT setup spends requesting and painting ads on that page.",
+                "Note whether the page uses single request architecture (SRA) and how many slots load, which both affect how the ad load weighs on the metrics."
+              ]
+            },
+            "pagespeed_insights": {
+              "label": "PageSpeed Insights",
+              "steps": [
+                "Run a representative page that carries ads through PageSpeed Insights and record the field data section, which reports Largest Contentful Paint (LCP), Interaction to Next Paint (INP), and Cumulative Layout Shift (CLS) from real visitors.",
+                "Record the lab (synthetic) Lighthouse scores from the same run as a repeatable baseline for before-and-after comparisons.",
+                "Save the LCP, INP, and CLS numbers with the date and the page tested so the baseline can be re-read after the next ad change."
+              ]
+            },
+            "search_console": {
+              "label": "Google Search Console",
+              "steps": [
+                "Open the 'Core Web Vitals' report and review the field metrics for mobile and desktop across the site's URL groups.",
+                "Confirm whether the templates that carry ads sit in the 'Good' range or show 'Needs improvement' or 'Poor' URLs that an ad change could push further.",
+                "Ask the publisher whether any baseline was recorded before the current ad setup, and note what was captured and when."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a Core Web Vitals baseline exists, what it captured (LCP, INP, and CLS), the source (field, lab, or both), and the date. A setup with a recorded baseline on the templates that carry ads, reproducible from a field source and a lab run, passes. A setup with no recorded baseline, so ad changes cannot be measured against a known starting point, is a fail recorded with the templates that lack a baseline.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a Core Web Vitals baseline exists and what it captured above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has no Core Web Vitals baseline recorded, so the effect of Google Publisher Tag (GPT) and any ad change on page performance cannot be measured against a known starting point. GPT requests and renders ads in the browser, which affects load speed, responsiveness, and visual stability, and without a baseline each ad decision ships blind to its effect on those metrics. {{voice_recommend}} capturing Largest Contentful Paint (LCP), Interaction to Next Paint (INP), and Cumulative Layout Shift (CLS) from both a field source and a lab run on the templates that carry ads, storing the numbers with the date, and re-reading them after each meaningful ad change. After the baseline is in place, treat each change to the ad setup as a measured before-and-after rather than a guess."
+      }
+    },
+    {
+      "id": "google-publisher-tag-performance-monitoring-ad-slot-layout-shift",
+      "title": "Ad slot layout shift is not measured and slot space is not reserved",
+      "category": "measurement",
+      "subcategory": "performance_monitoring",
+      "impact_score": 3,
+      "impact_rationale": "When an ad slot has no reserved space, the creative pushes the content below it as it arrives, which shifts the layout under the reader and raises Cumulative Layout Shift (CLS). A poor CLS hurts the reading experience, can cost accidental clicks and engagement, and counts against the page in Core Web Vitals, so leaving slot space unreserved and unmeasured trades visual stability for a problem that reserving space largely prevents.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "performance",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "Cumulative Layout Shift is the Core Web Vitals metric for visual stability. It measures how much the visible content of a page jumps around while it loads, and Google recommends keeping it below 0.1 at the 75th percentile of visits. Ad slots are one of the most direct causes of layout shift. A slot that has no height before its creative arrives takes up no space, and then the creative loads and pushes everything below it down the page. The reader is mid-sentence when the text slides away under an ad, which is the exact experience CLS is built to catch.<br><br>The fix is to reserve the slot's space before the ad loads, so the page reserves room for the creative from the start and nothing shifts when it arrives. Google's guidance for Google Publisher Tag (GPT) recommends specifying the slot size with CSS, setting a 'min-height' and 'min-width' on the slot container so the browser holds that space open while the ad request is in flight. For a fixed-size slot such as a 300x250, the reserved height matches the creative. For a slot that can serve more than one size, reserving space for the largest expected creative, or using an aspect ratio, keeps the reservation honest across the sizes the slot can fill.<br><br>Reserving space and measuring the result are two separate steps, and a thorough setup does both:<ul><li>Reserve the space by setting 'min-height' (and 'min-width' where the size is fixed) on each ad slot container so the room is held before the creative loads</li><li>Measure the layout shift by reading CLS from a field source such as the Chrome User Experience Report or Google Search Console, and by checking the layout-shift entries in browser DevTools or a Lighthouse run, so the effect of the reservation is confirmed rather than assumed</li></ul>Some slots resist a clean reservation, for example an anchor or interstitial format, or a slot whose served size genuinely varies in ways a single reservation cannot cover. Those are worth flagging on their own rather than forcing a reservation that does not fit. The audit question is whether the slots that can reserve space do, and whether the layout shift they cause is being measured rather than left to chance.<br><br>You may want to confirm that ad slots reserve their space and that the resulting CLS is measured. One approach is to read the CLS field metric, then check each slot container for a 'min-height' that matches the creative it serves, and reserve space on any slot that lacks it.",
+        "site_type_overlays": {
+          "publishing": "On a media site running GPT, in-content ad slots that sit between paragraphs are a frequent source of layout shift. The creative arrives after the reader has started reading and pushes the next paragraph down. You may want to reserve space on the in-content slots first, where they shift content directly under the reader's eye, and then measure CLS on the article template to confirm the reservations held.",
+          "ecommerce": "On a commerce-content site running GPT, a shift on a product or category page can move a price, a button, or a product card just as the shopper reaches for it, which costs more than a metric. You may want to reserve space on the slots near interactive elements first and measure CLS on the commercial templates, where a layout shift can turn into a mis-tap or an abandoned action."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag documentation",
+            "source_title": "Minimize layout shift",
+            "source_url": "https://developers.google.com/publisher-tag/guides/minimize-layout-shift"
+          },
+          {
+            "source_type": "web.dev",
+            "source_title": "Web Vitals",
+            "source_url": "https://web.dev/articles/vitals"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the Cumulative Layout Shift the page reports, then inspect each ad slot container to see whether its space is reserved before the creative loads.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the page in Chrome, open DevTools, and use the Performance panel or the Performance Insights view to record a page load and read the layout-shift entries it reports.",
+                "Inspect each ad slot's container element and check for a 'min-height' (and 'min-width' where the size is fixed) that holds the slot's space before the creative loads.",
+                "Note any slot whose container has no reserved height, then watch the load to confirm whether the creative pushes the content below it when it arrives."
+              ]
+            },
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the Google Publisher Console on the page by appending '?google_console=1' to the URL or running 'googletag.openConsole()' in the browser console.",
+                "Open the 'Ad Slots' tab and list the slots defined on the page along with the sizes each is set to serve.",
+                "For each slot, compare the sizes it can serve against the reserved space on its container, and record any slot whose largest served size exceeds the space the container reserves."
+              ]
+            },
+            "pagespeed_insights": {
+              "label": "PageSpeed Insights",
+              "steps": [
+                "Run a representative page that carries ads through PageSpeed Insights and read the Cumulative Layout Shift (CLS) value in both the field data and the lab results.",
+                "Review the 'Avoid large layout shifts' diagnostic to see which elements contributed most to the shift, and note any ad slot among them.",
+                "Record the CLS value with the date so the effect of reserving slot space can be confirmed after the change."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad slot, whether the container reserves space (a 'min-height' that matches the creative it serves) and what the page's Cumulative Layout Shift measures. A setup where the slots that can reserve space do, and CLS is measured and sits in the recommended range, passes. A setup where slot containers lack reserved space, or CLS is not measured at all, is a fail recorded with the slots that shift and the CLS value if one exists.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether each ad slot reserves space and what the page's Cumulative Layout Shift measures above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not reserve space for its ad slots and does not measure the layout shift they cause, so creatives push content as they arrive and the effect on Cumulative Layout Shift (CLS) goes unmeasured. A slot with no reserved height takes no space until the creative loads, then shifts everything below it, which raises CLS, hurts the reading experience, and counts against the page in Core Web Vitals. {{voice_recommend}} setting a 'min-height' (and 'min-width' where the size is fixed) on each ad slot container so the space is held before the ad loads, then reading CLS from a field source and a browser performance trace to confirm the reservation held. After the change, recheck CLS on the templates that carry ads to confirm the slots no longer move the content around them."
+      }
+    }
+  ]
+}

@@ -1,0 +1,163 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://developers.google.com/publisher-tag/samples/ad-event-listeners",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Slot render events are the signal a publisher reads to know whether an ad slot actually filled, so they are the difference between a page that handles an empty slot gracefully and one that leaves a blank gap. The check is a review of the Google Publisher Tag (GPT) code already on the page, which means it costs reading time rather than rebuild time, and the finding points to a concrete change in how the page listens for and responds to render events. Because the event timing depends on the order of calls in the page script, a small fix to where a listener is registered can recover events that were being missed entirely.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "GPT fires events as ad slots move through their lifecycle, and the slotRenderEnded event is the one that tells a publisher whether a slot filled with a creative or came back empty. This subcategory is about whether the page listens for that event and acts on it, and whether the listeners are registered at the right moment to catch it. These checks confirm that empty slots are detected and handled rather than left as blank gaps, and that event listeners are in place before the slot renders so its events are not missed.",
+  "audit_checks": [
+    {
+      "id": "google-publisher-tag-slot-render-events-empty-slot-not-handled",
+      "title": "Empty slots are not detected through slotRenderEnded",
+      "category": "measurement",
+      "subcategory": "slot_render_events",
+      "impact_score": 3,
+      "impact_rationale": "When a slot returns no ad, the page has no way to know unless it listens for the slotRenderEnded event and reads its isEmpty value. Without that listener, an unfilled slot leaves a reserved blank gap on the page, which wastes layout space and can read as a broken page to a visitor, and the publisher loses the signal needed to collapse the slot or request a backfill.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "Google Publisher Tag (GPT) does not always return an ad for every slot it requests. When demand does not clear or the slot is otherwise unfilled, GPT renders the slot as empty, and the only way the page learns that this happened is the slotRenderEnded event. That event fires for every slot once GPT finishes rendering it, filled or not, and it carries an isEmpty value that reports whether a creative was injected. A page that does not listen for this event has no way to tell a filled slot from an empty one.<br><br>The cost of missing this signal shows up on the page itself. A slot div is usually reserved with a fixed height so the layout does not jump when the ad arrives. When the slot comes back empty and nothing handles it, that reserved height stays in place as a blank gap. The visitor sees an empty box where an ad should be, and on a page with several unfilled slots those gaps add up to a layout that looks unfinished or broken.<br><br>Listening for slotRenderEnded turns the empty result into something the page can act on. The common response is to collapse the empty slot so it takes no space, which GPT also supports directly through the collapseDiv setting, but the event gives the publisher finer control, for example swapping in house content or a backfill creative instead of collapsing. The audit question is whether the page reads the render result at all, not which specific response it chooses.<br><br>A few signs point to empty slots going undetected:<ul><li>The page script defines and displays slots but registers no listener for the slotRenderEnded event</li><li>Unfilled slots leave visible blank gaps on the rendered page rather than collapsing or filling with fallback content</li><li>Neither a slotRenderEnded listener nor the collapseDiv setting is present in the GPT configuration</li></ul>You may want to confirm that the page detects and handles empty slots. One approach is to add a slotRenderEnded listener that reads the isEmpty value and collapses or backfills the slot when it comes back empty, or to enable the collapseDiv setting where collapsing alone is the intended response.",
+        "site_type_overlays": {
+          "publishing": "On a media site, in-article and sidebar slots frequently sit on long pages where an unfilled slot leaves a noticeable gap in the reading flow. You may want to listen for slotRenderEnded on those slots and collapse the empty ones, so an article that did not fill every slot still reads as a finished page rather than one dotted with blank boxes.",
+          "ecommerce": "On a commerce-content site, ad slots often sit alongside product listings and category content where a blank gap competes with the merchandising for the visitor's attention. You may want to handle the empty result on those slots so an unfilled ad collapses or gives way to product content rather than pushing the listings down with reserved empty space."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag Reference",
+            "source_title": "GPT Reference (events and SlotRenderEndedEvent)",
+            "source_url": "https://developers.google.com/publisher-tag/reference"
+          },
+          {
+            "source_type": "Google Publisher Tag Samples",
+            "source_title": "Collapse empty ad slots",
+            "source_url": "https://developers.google.com/publisher-tag/samples/collapse-empty-ad-slots"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the GPT code on the page for a slotRenderEnded listener and check whether unfilled slots are handled, using the Google Publisher Console to read the render result of each slot live.",
+        "tools": {
+          "free": {
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the page that runs GPT, then open the Google Publisher Console by appending '?googfc' to the page URL or by using the googfc bookmarklet.",
+                "Open the 'Page request' or slot view and read each slot's render result to see which slots filled and which came back empty.",
+                "For any slot reported as empty, look at the page to see whether the slot collapsed, filled with fallback content, or left a blank reserved gap.",
+                "Record which slots return empty and whether the page handles the empty result for each."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the page and open DevTools, then view the page source or the script that configures GPT.",
+                "Search the GPT code for an 'addEventListener' call with the 'slotRenderEnded' event, and for any use of the 'collapseEmptyDivs' or 'collapseDiv' setting.",
+                "Note whether a slotRenderEnded listener exists and whether it reads the 'isEmpty' value to decide what to do with an unfilled slot.",
+                "Record whether empty slots are handled through a listener, through collapseDiv, or not at all."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the page registers a slotRenderEnded listener that reads isEmpty, or enables the collapseDiv setting, and whether unfilled slots are handled on the rendered page. A setup that detects empty slots and collapses or backfills them passes. A setup that defines and displays slots with no slotRenderEnded listener and no collapseDiv setting, leaving unfilled slots as blank gaps, is a fail recorded with the slots affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a slotRenderEnded listener or the collapseDiv setting is present and how unfilled slots are handled above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} requests ad slots through Google Publisher Tag (GPT) without listening for the slotRenderEnded event, so the page has no way to tell a filled slot from an empty one. When a slot returns no ad and nothing handles the result, the reserved slot height stays in place as a blank gap, which wastes layout space and can read as a broken page to a visitor. {{voice_recommend}} adding a slotRenderEnded listener that reads the isEmpty value and collapses or backfills the slot when it comes back empty, or enabling the collapseDiv setting where collapsing alone is the intended response. After the change, recheck the page in the Google Publisher Console to confirm unfilled slots no longer leave a blank gap."
+      }
+    },
+    {
+      "id": "google-publisher-tag-slot-render-events-listeners-after-display",
+      "title": "Event listeners are registered after display is called",
+      "category": "measurement",
+      "subcategory": "slot_render_events",
+      "impact_score": 3,
+      "impact_rationale": "GPT slot events fire as each slot renders, so a listener added after display() has already requested and rendered the slot misses the events for that slot. A listener registered too late records nothing for the early slots, which makes empty-slot detection and any render-based reporting unreliable while looking like it is in place.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "Google Publisher Tag (GPT) events are tied to the moment a slot moves through its lifecycle. The slotRenderEnded event fires when GPT finishes rendering a slot, and a listener only receives an event if it was registered before that event fired. Because display() is the call that requests and renders a slot, a listener added after display() has run for a slot will never see that slot's slotRenderEnded event. The listener exists, but it was attached too late to catch what already happened.<br><br>The order of calls in the page script is what decides this. The GPT lifecycle runs as defineSlot to create the slot, enableServices to initialize the pubads service, and display() to request and render the slot. The addEventListener call that registers a slotRenderEnded listener needs to come before display() so the listener is in place when GPT renders the slot. Google's own samples register the listeners ahead of the display call for exactly this reason.<br><br>This failure is easy to miss because nothing errors. The listener is present in the code, so a quick read suggests events are being captured, but the early slots rendered before the listener attached and their events were lost. Any logic that depends on those events, such as collapsing empty slots or counting rendered slots, runs short without any sign that it is missing data. The result is partial coverage that looks complete.<br><br>A few signs point to listeners registered too late:<ul><li>The addEventListener call for slotRenderEnded appears after the display() call in the page script</li><li>Empty-slot handling works for some slots but not the ones that render first on the page</li><li>The listener and the display call sit in separate googletag.cmd.push() blocks with the display block running first</li></ul>You may want to confirm that every slotRenderEnded listener is registered before display() is called for the slots it covers. One approach is to register the listeners in the same command block that defines the slots and enables services, ahead of the display call, so the listener is in place before any slot renders.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the slots near the top of an article, such as a leaderboard or the first in-content unit, render first and are the ones a late listener misses. You may want to register the slotRenderEnded listener before display() so those above-the-fold slots, which carry the most weight for the page, are covered rather than skipped.",
+          "ecommerce": "On a commerce-content site, the ad slots on a category or product page often load alongside the first screen of listings, so they render early. You may want to make sure the listener is in place before display() runs, so the render result of those early commercial-page slots is captured rather than lost to listener timing."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag Samples",
+            "source_title": "Ad event listeners",
+            "source_url": "https://developers.google.com/publisher-tag/samples/ad-event-listeners"
+          },
+          {
+            "source_type": "Google Publisher Tag Guide",
+            "source_title": "Get started with Google Publisher Tag",
+            "source_url": "https://developers.google.com/publisher-tag/guides/get-started"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the order of calls in the GPT code to confirm that each slotRenderEnded listener is registered before display() runs for the slots it covers.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the page and open DevTools, then view the page source or the script that configures GPT.",
+                "Find each 'addEventListener' call for the 'slotRenderEnded' event and find each 'display()' call.",
+                "Compare their order in the script, including across separate 'googletag.cmd.push()' blocks, to see whether the listener is registered before or after display() runs for the slots it covers.",
+                "Record any listener that is registered after the display call for the slots it is meant to cover."
+              ]
+            },
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the page that runs GPT, then open the Google Publisher Console by appending '?googfc' to the page URL or by using the googfc bookmarklet.",
+                "Read the render result for each slot and compare it against what the page's listener logic recorded or acted on.",
+                "Note any slot that rendered, for example one that returned empty, but that the page did not handle, which points to a listener that attached after the slot rendered.",
+                "Record which slots show a gap between what GPT rendered and what the listener captured."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the order of the addEventListener and display() calls in the GPT code, including across command blocks. A setup where every slotRenderEnded listener is registered before display() runs for the slots it covers passes. A setup where a listener is registered after the display call for slots it is meant to cover is a fail recorded with the slots whose events are missed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the order of the addEventListener and display() calls above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} registers its slotRenderEnded listener after display() has already run for some slots, so the events for those slots are missed. Google Publisher Tag (GPT) fires the slotRenderEnded event as each slot renders, and a listener only receives an event if it was in place before the event fired, which means a listener added after display() records nothing for the slots that rendered first. {{voice_recommend}} moving the addEventListener call ahead of display(), registering the listener in the same command block that defines the slots and enables services, so the listener is in place before any slot renders. After the change, recheck the page in the Google Publisher Console to confirm the render result of the early slots is now captured."
+      }
+    }
+  ]
+}

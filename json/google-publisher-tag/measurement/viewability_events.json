@@ -1,0 +1,162 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/admanager/answer/4524488?hl=en",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Viewability is the single signal that separates an ad that was served from an ad that had a chance to be seen, and it sits at the center of how buyers value publisher inventory. Google Publisher Tag (GPT) fires an impressionViewable event in the page, which lets a publisher capture per-slot viewability client-side rather than reading it only after the fact in Google Ad Manager (GAM) reporting. The check is a review of the event wiring and how its numbers line up with Active View, so it costs reading time and a short look at the page rather than a rebuild, and the finding points to a concrete instrumentation gap a publisher can close.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Viewability measures whether an ad had a real chance to be seen, and it is the signal buyers lean on most when they decide what a publisher's inventory is worth. GPT exposes viewability in the page through the impressionViewable event, while GAM measures it server-recorded through Active View. This subcategory is about whether the publisher captures the client-side signal at all and whether the two measurements are reconciled rather than assumed to agree. These checks confirm that viewability is something the publisher observes directly and understands across both sources, rather than a number read from a single report and trusted without a second view.",
+  "audit_checks": [
+    {
+      "id": "google-publisher-tag-viewability-events-impressionviewable-not-captured",
+      "title": "The impressionViewable event is not captured for analysis",
+      "category": "measurement",
+      "subcategory": "viewability_events",
+      "impact_score": 3,
+      "impact_rationale": "Without listening to the impressionViewable event, a publisher sees viewability only in aggregated Google Ad Manager reporting and has no per-slot signal in the page to analyze against layout, scroll depth, or page template. That removes the fastest way to find which placements go unseen and to test layout changes, so a viewability problem on a specific slot can persist without a direct measurement pointing to it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "Google Publisher Tag (GPT) emits an impressionViewable event for each ad slot once that slot meets the viewability threshold, which for a display ad is at least 50% of its pixels visible for a continuous one second. A publisher registers a listener through the GPT event service, and from that point the page knows, slot by slot, which impressions crossed the line into viewable. That is a client-side signal the publisher owns, captured in the same context where the layout, the scroll behavior, and the page template all live.<br><br>The alternative is to rely on Google Ad Manager (GAM) Active View reporting alone. Active View is a sound measurement, but it arrives aggregated and after the fact, which makes it slow to connect a low viewability number back to the specific placement or layout choice that caused it. Capturing impressionViewable in the page closes that gap. The publisher can join the event to which slot fired it, where that slot sits on the page, and how far the user scrolled, then read which placements are seen and which are not.<br><br>The instrumentation is a listener registered before the first ad request, so it is in place when slots begin to render. A common shape is to call addEventListener for the impressionViewable event inside the same googletag.cmd queue that defines and displays the slots, then forward the slot identifier and a timestamp to the publisher's own analytics. The Google Publisher Console, opened in the page, shows the event firing per slot, which confirms the wiring works before any analysis is built on top of it.<br><br>A few signs point to the impressionViewable event going uncaptured:<ul><li>No addEventListener call for impressionViewable appears in the GPT setup, so the event fires but nothing listens for it</li><li>Viewability is discussed only in terms of Google Ad Manager Active View reporting, with no per-slot client-side number anywhere in the publisher's analytics</li><li>The Publisher Console shows impressionViewable events firing while the page's own analytics record none of them</li></ul>You may want to confirm that the impressionViewable event is captured and routed somewhere it can be analyzed. One approach is to register a listener that forwards the slot and a timestamp to your analytics, then verify in the Publisher Console that the event fires for the slots you expect.",
+        "site_type_overlays": {
+          "publishing": "On a media site, viewability often varies sharply by where a slot sits in a long article and by how far readers scroll, so a slot near the footer of a deep page can go unseen while a top slot is reliably viewable. Capturing the impressionViewable event per slot lets you tie viewability to scroll depth and article length, which points to the specific placements that a layout change could lift.",
+          "ecommerce": "On a commerce-content site, product and category pages carry different layouts and scroll patterns than editorial pages, so a slot that is viewable on a short product page may go unseen on a long category listing. Capturing the impressionViewable event per slot and per page template lets you read viewability by page type, which shows where a placement works and where it does not."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag Reference",
+            "source_title": "GPT API reference (events: ImpressionViewableEvent)",
+            "source_url": "https://developers.google.com/publisher-tag/reference"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Overview of Viewability and Active View",
+            "source_url": "https://support.google.com/admanager/answer/4524488?hl=en"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the GPT setup for an impressionViewable listener and confirm in the page that the event fires and reaches the publisher's analytics.",
+        "tools": {
+          "free": {
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the page that runs GPT and launch the Google Publisher Console by appending '?googfc' to the URL or using the googfc bookmarklet.",
+                "Switch to the event log and scroll the page so the ad slots come into view.",
+                "Watch for impressionViewable events firing per slot, and record which slots fire the event and which do not.",
+                "Compare the slots that fire the event against the slots the publisher expects to be measured, and note any gaps."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open DevTools and find the GPT setup in the page source or the 'Sources' panel.",
+                "Search the JavaScript for an addEventListener call referencing 'impressionViewable' to confirm a listener is registered.",
+                "In the 'Network' panel, scroll the page and watch whether a request to the publisher's own analytics fires when a slot becomes viewable.",
+                "Record whether the listener exists and whether the captured event reaches the publisher's analytics, or whether the event fires with nothing listening."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether an impressionViewable listener is registered in the GPT setup and whether the captured event reaches the publisher's analytics, confirmed against the Publisher Console showing the event fire per slot. A setup that captures impressionViewable and routes it somewhere it can be analyzed passes. A setup where the event fires with no listener, or where the listener exists but the data lands nowhere usable, is a fail recorded with the slots affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether an impressionViewable listener is registered and whether the event reaches your analytics above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not capture the Google Publisher Tag (GPT) impressionViewable event, so viewability is visible only in aggregated Google Ad Manager (GAM) reporting and not as a per-slot signal in the page. Without the client-side event, there is no fast way to tie a low viewability number back to the placement, layout, or scroll depth that caused it. {{voice_recommend}} registering an impressionViewable listener in the GPT setup that forwards the slot identifier and a timestamp to your analytics, then confirming in the Google Publisher Console that the event fires for the slots you expect. With the event captured, you can read which placements are seen and which go unseen, and test layout changes against a direct measurement."
+      }
+    },
+    {
+      "id": "google-publisher-tag-viewability-events-not-reconciled-with-active-view",
+      "title": "Client-side viewability is not reconciled with Active View",
+      "category": "measurement",
+      "subcategory": "viewability_events",
+      "impact_score": 2,
+      "impact_rationale": "Client-side impressionViewable counts and Google Ad Manager Active View counts measure related but not identical things, so treating them as interchangeable can lead a publisher to trust a number that the other source contradicts. Without reconciling the two, a publisher cannot tell whether a gap between them reflects a real measurement difference or an instrumentation fault, which leaves the viewability picture resting on an untested assumption.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "A publisher who captures the Google Publisher Tag (GPT) impressionViewable event in the page and also reads Google Ad Manager (GAM) Active View reporting holds two viewability measurements. They are related, but they are not the same measurement, and expecting them to match exactly leads to confusion when they do not.<br><br>The differences are structural. The client-side event fires when a slot crosses the viewability threshold in the user's browser, and what the publisher records depends on the listener firing, the analytics call completing, and the user not leaving before both happen. Active View measures the rendered creative through a tracking element that GAM injects, and it filters to measurable impressions, which are the ones where Active View captured viewability information at all. Active View also follows the Media Rating Council and IAB standard of at least 50% of pixels visible for a continuous one second for display, and it relies on the Intersection Observer API in most browsers with fallbacks on older ones. The two counts can diverge for several reasons, including measurability, analytics calls that never complete, and the two counting against slightly different denominators.<br><br>Reconciliation does not mean forcing the numbers to be equal. It means reading both, understanding why they differ, and confirming the gap is explained rather than a sign of a fault. A persistent, large gap in one direction can point to a real instrumentation problem, for example a listener that drops events on a particular template, or analytics calls lost on slow connections. A stable, explained gap means both sources can be trusted for what each measures.<br><br>A few signs point to viewability measurements that are not reconciled:<ul><li>The publisher cites a single viewability figure without noting whether it came from the client-side event or from Active View</li><li>No comparison exists between the per-slot impressionViewable counts and the Active View measurable and viewable counts for the same inventory and period</li><li>A gap between the two sources is treated as noise rather than examined for an instrumentation cause</li></ul>You may want to confirm that the client-side counts and Active View are read together and that any gap between them is understood. One approach is to compare the two for the same slots over the same period, then look into any large or one-sided difference before relying on either number.",
+        "site_type_overlays": {
+          "publishing": "On a media site, templates differ across the home page, section fronts, and article pages, and a listener that drops events on one template can open a gap between the client-side count and Active View for just that inventory. You may want to reconcile the two by template so a discrepancy points to the specific page type where the instrumentation differs.",
+          "ecommerce": "On a commerce-content site, product and category pages often load more slowly than editorial pages because of imagery and scripts, and analytics calls lost on slow loads can pull the client-side count below Active View. You may want to reconcile the two by page type so a gap that follows the heavier commercial pages is examined for a load-related cause rather than accepted."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "How Active View measures viewability",
+            "source_url": "https://support.google.com/admanager/answer/9893936?hl=en"
+          },
+          {
+            "source_type": "Google Publisher Tag Reference",
+            "source_title": "GPT API reference (events: ImpressionViewableEvent)",
+            "source_url": "https://developers.google.com/publisher-tag/reference"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the client-side impressionViewable counts and Google Ad Manager Active View counts are compared for the same inventory and period, and whether any gap between them is explained.",
+        "tools": {
+          "free": {
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Reporting' and build an Active View report broken out by ad unit, with measurable impressions and viewable impressions for the period under review.",
+                "Record the Active View measurable and viewable counts per slot so they can be set against the client-side counts.",
+                "Note the measurable rate. Impressions that were not measurable will not appear in the viewable count and explain part of any gap."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open DevTools on a page that runs GPT and confirm the impressionViewable listener forwards each event to the publisher's analytics.",
+                "Pull the per-slot impressionViewable counts from the publisher's analytics for the same slots and period as the Active View report.",
+                "Set the client-side counts next to the Active View measurable and viewable counts and record the size and direction of any gap.",
+                "For any large or one-sided gap, check whether a particular template or slow-loading page is dropping events, and record the suspected cause."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the per-slot client-side impressionViewable counts alongside the Google Ad Manager Active View measurable and viewable counts for the same inventory and period, then notes whether any gap is explained. A setup where the two sources are compared and any difference is understood, whether by measurability, lost analytics calls, or a known measurement difference, passes. A setup where only one source is cited, or where a gap is left unexamined, is a fail recorded with the slots and the size of the gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the client-side impressionViewable counts and the Active View counts for the same slots and period above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} reads client-side viewability from the Google Publisher Tag (GPT) impressionViewable event and Active View from Google Ad Manager (GAM) without reconciling the two, so a single figure is trusted without a second view confirming it. The two measure related but not identical things. Active View filters to measurable impressions while the client-side count depends on the listener and analytics call completing, and an unexamined gap can hide an instrumentation fault. {{voice_recommend}} comparing the per-slot impressionViewable counts against the Active View measurable and viewable counts for the same inventory and period, then looking into any large or one-sided gap before relying on either number. Once the gap is explained, both sources can be trusted for what each measures."
+      }
+    }
+  ]
+}

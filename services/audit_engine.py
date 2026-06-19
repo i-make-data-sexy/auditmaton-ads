@@ -154,20 +154,29 @@ def get_active_side():
     return platform_side(get_active_platform())
 
 
-def default_platform_for_side(side):
+def default_platform_for_side(side, prefer=None):
     """
-    Returns the default platform slug for a side: the first registry platform
-    of that side that has authored content, falling back to the first of that
-    side, then to DEFAULT_PLATFORM.
+    Returns the default platform slug for a side.
+
+    When `prefer` (e.g. the practitioner's intake-selected platforms) names a
+    platform on this side, the first such platform wins (content-bearing
+    first). Otherwise the first content-bearing platform of the side, then the
+    first of the side, then DEFAULT_PLATFORM.
 
     Args:
         side (str): "demand" or "supply".
+        prefer (set[str], optional): Platform slugs to prefer when present.
 
     Returns:
         str: A platform slug for the side.
     """
 
     candidates = [p["slug"] for p in PLATFORMS if p.get("side") == side]
+    prefer = prefer or set()
+    for require_content in (True, False):
+        for slug in candidates:
+            if slug in prefer and (platform_has_content(slug) or not require_content):
+                return slug
     for slug in candidates:
         if platform_has_content(slug):
             return slug

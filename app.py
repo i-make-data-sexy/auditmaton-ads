@@ -561,8 +561,11 @@ def create_app(config_class=None):
         """Redirect a side landing (or legacy bare-platform URL) to the side-prefixed dashboard."""
         from services.audit_engine import default_platform_for_side, get_platform
         if side in ("demand", "supply"):
+            # Land on an intake-selected platform for this side when there is
+            # one, so the landing agrees with the intake-narrowed picker.
+            prefer = set(session.get("intake_platforms") or [])
             return redirect(
-                url_for("dashboard", side=side, platform=default_platform_for_side(side))
+                url_for("dashboard", side=side, platform=default_platform_for_side(side, prefer=prefer))
             )
         p = get_platform(side)
         if p:
@@ -620,10 +623,16 @@ def create_app(config_class=None):
         # Audit finding #7: Apply intake session data to lock/unlock sections
         categories = apply_intake_overrides(categories)
 
-        # The platform picker is scoped to the side in the URL. The Side
-        # dropdown links to /dashboard/<side>/, so the path is the single
-        # source of truth for the side (no query params).
-        picker_groups = platforms_grouped_by_type(side)
+        # The platform picker is scoped to the side in the URL (the path is the
+        # single source of truth for the side, no query params). Within the
+        # side, narrow to the practitioner's intake-selected platforms when
+        # present. If they selected none on this side (e.g. they are browsing
+        # the other side via the Side dropdown), fall back to the whole side so
+        # the picker is never empty.
+        selected = set(session.get("intake_platforms") or [])
+        picker_groups = platforms_grouped_by_type(side, slugs=(selected or None))
+        if selected and not picker_groups:
+            picker_groups = platforms_grouped_by_type(side)
         side_label = "Supply" if side == "supply" else "Demand"
 
         rendered = render_template(

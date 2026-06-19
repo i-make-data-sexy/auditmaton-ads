@@ -1,0 +1,154 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Video completion and viewability are the metrics buyers pay against, so when the player, Amazon Publisher Services (APS), and the buyer disagree on them, the publisher's rate card loses its evidence. This check reads numbers a publisher already has, the player analytics and the APS reports, and compares them against the buyer's measurement vendor, so it costs reconciliation time rather than a player rebuild. The finding points to a concrete instrumentation gap the publisher can close before it shows up as a buyer dispute.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Video completion and viewability are the two signals a video buyer uses to decide what an impression is worth, and APS sits between the player that fires those signals and the buyer who values them. This subcategory covers whether the player's quartile and completion events are tracked and reconcile across the player and APS, and whether viewability measurement is wired in so a buyer can value the impression and the publisher can defend its rates. These checks confirm the measurement chain is intact rather than assumed since a break anywhere along it shows up as a discrepancy the publisher has to argue against rather than a number it can stand behind.",
+  "audit_checks": [
+    {
+      "id": "amazon-publisher-services-video-completion-viewability-quartiles-not-reconciled",
+      "title": "Quartile and completion events do not reconcile across the player and APS",
+      "category": "measurement",
+      "subcategory": "video_completion_viewability",
+      "impact_score": 3,
+      "impact_rationale": "Video Through Rate (VTR) and quartile counts come from the player firing tracking events, and the same impression is counted by Amazon Publisher Services and again by the buyer's measurement vendor. When those counts diverge and no one has reconciled them, the publisher cannot say which number is right, so a buyer dispute over completion lands with no evidence to settle it and the rate the publisher charges for completed views loses its footing.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "performance"],
+      "educate": {
+        "base": "A video ad reports its own progress. The Video Ad Serving Template (VAST) document the ad returns carries tracking event URLs that the player fires as playback crosses each mark, and the standard set runs 'start', 'firstQuartile', 'midpoint', 'thirdQuartile', and 'complete'. VTR is the share of starts that reach 'complete', so it is built directly from those fired events. When the player fires them correctly and on time, completion is measured. When it skips an event, fires late, or fires twice, the count is wrong before any platform reads it.<br><br>Amazon Publisher Services (APS) sits in the middle of this chain on a server-side header-bidding setup, brokering demand through Transparent Ad Marketplace and Unified Ad Marketplace, and the buyer's own measurement vendor counts the same impression independently. That means a single completed view can be counted three times, by the player, by the channel APS reports through, and by the buyer's vendor, and the three counts will rarely match to the impression. Small gaps are expected. A persistent, one-directional gap is the signal that something in the instrumentation is dropping or duplicating events.<br><br>The reconciliation question is whether anyone has compared the three. A publisher that reads VTR only from the player has no way to know the buyer is seeing a lower completion rate and discounting the inventory for it. A publisher that reads only the platform report cannot see whether the player is firing the quartile events at all. Reconciliation means lining the player analytics, the APS-side report, and the buyer's reported numbers side by side over the same window and the same inventory, then explaining any gap rather than assuming it away.<br><br>A few signs point to quartile and completion events that have not been reconciled:<ul><li>VTR is read from one source only, with no comparison against the platform report or the buyer's measurement vendor</li><li>The player's quartile events were never validated against the VAST the ad returns, so a missing or double-fired event would go unnoticed</li><li>A buyer has questioned the completion rate and the publisher had no second source to confirm or refute the buyer's number</li></ul>You may want to confirm that completion is measured consistently end to end rather than trusted from a single source. One approach is to validate the player fires every VAST quartile event once, then reconcile the player, APS, and buyer counts over a shared window before relying on the VTR for pricing.",
+        "site_type_overlays": {
+          "publishing": "On a media site, instream video in editorial content and outstream units in articles fire quartile events through different player paths, and a player that handles one path cleanly may drop events on the other. You may want to validate quartile firing separately for each video placement type rather than assuming the instream result holds for outstream.",
+          "ecommerce": "On a commerce-content site, product and how-to videos often autoplay muted and then unmute on interaction, and the start and quartile events around an autoplay-to-active transition are a frequent place for the player to miscount. You may want to confirm the quartile events fire correctly through that transition before reading VTR on autoplay inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "Video Ad Serving Template (VAST) 4.2",
+            "source_url": "https://iabtechlab.com/wp-content/uploads/2019/06/VAST_4.2_final_june26.pdf"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Video Module",
+            "source_url": "https://docs.prebid.org/prebid-video/video-module.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Validate that the player fires each VAST quartile event once, then pull completion and quartile counts from the player, the APS-side report, and the buyer's measurement vendor over the same window and compare them.",
+        "tools": {
+          "free": {
+            "player_analytics": {
+              "label": "Video player analytics",
+              "steps": [
+                "Open the video player's analytics and record starts, each quartile, and completes for the inventory under review over a fixed window.",
+                "Use the browser network panel to watch a few sample playbacks and confirm the player fires the VAST 'start', 'firstQuartile', 'midpoint', 'thirdQuartile', and 'complete' tracking URLs once each, with none missing or duplicated.",
+                "Calculate Video Through Rate (VTR) as completes divided by starts from the player numbers and note it as the player-side baseline."
+              ]
+            },
+            "buyer_measurement": {
+              "label": "Buyer measurement vendor report",
+              "steps": [
+                "Request the buyer's reported starts, quartiles, and completes for the same inventory and window, or ask the buyer for the completion rate their measurement vendor recorded.",
+                "Line the buyer's completion rate up against the player-side VTR and record the size and direction of any gap.",
+                "Note whether the gap is small and two-directional, which is expected, or persistent and one-directional, which points to an instrumentation problem."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records VTR and quartile counts from the player, the APS-side report, and the buyer's measurement vendor over the same window and inventory, plus the result of validating that the player fires each VAST quartile event once. A setup where the three sources reconcile within a small expected gap and the player fires every quartile event correctly passes. A setup with a persistent one-directional gap, a missing or duplicated quartile event, or VTR read from a single source with no comparison is a fail recorded with the sources compared and the gap measured.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record VTR from the player, the APS report, and the buyer's measurement vendor, plus the quartile-firing validation result, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} reads video completion from a single source without reconciling it against the Amazon Publisher Services (APS) report and the buyer's measurement vendor, so the Video Through Rate (VTR) behind the rate card has no second source to confirm it. Completion is built from the player firing the Video Ad Serving Template (VAST) quartile events, and the same impression is counted again by APS and by the buyer, so a persistent gap between those counts points to an instrumentation problem that goes unseen when only one source is read. {{voice_recommend}} validating that the player fires each VAST quartile event once, then reconciling the player, APS, and buyer completion numbers over a shared window before relying on the VTR for pricing. After the reconciliation, keep the comparison on a regular cadence so a future drift surfaces before a buyer raises it."
+      }
+    },
+    {
+      "id": "amazon-publisher-services-video-completion-viewability-measurement-not-integrated",
+      "title": "Viewability measurement is not integrated on video inventory sold through APS",
+      "category": "measurement",
+      "subcategory": "video_completion_viewability",
+      "impact_score": 3,
+      "impact_rationale": "Buyers value a video impression partly on whether it was viewable, and the MRC standard sets a clear threshold for that. When viewability is not measured on the inventory a publisher sells through Amazon Publisher Services, the buyer either supplies its own number, which the publisher cannot check, or discounts the inventory for the missing signal. Either way the publisher loses the ability to defend its rates with measurement of its own.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "performance"],
+      "educate": {
+        "base": "Viewability answers a question separate from completion. Completion asks how far the ad played, and viewability asks whether the ad was actually on screen while it played. The Media Rating Council (MRC) and the Interactive Advertising Bureau (IAB) set the standard a video impression has to meet to count as viewable, which is at least 50 percent of the ad's pixels in view for a minimum of two continuous seconds. A view can complete while never meeting that threshold, for example in a player parked below the fold, so the two metrics measure different things and a buyer reads both.<br><br>On video inventory sold through Amazon Publisher Services (APS), viewability has to be measured by something wired into the player or the page. That measurement comes either from the player reporting an in-view signal, from a measurement vendor's tag integrated alongside the ad, or from an Open Measurement (OM) SDK integration that lets an accredited vendor verify the impression. When none of those is in place, the publisher is selling video with no viewability number of its own.<br><br>The consequence is a measurement the publisher does not control. A buyer that requires viewability will measure it themselves and report back a number the publisher cannot verify, or will treat the unmeasured inventory as higher risk and bid lower. A publisher that has integrated viewability measurement can show its own viewable rate, reconcile it against the buyer's, and price the inventory on a shared standard rather than the buyer's word alone.<br><br>A few signs point to viewability that is not integrated:<ul><li>No viewable rate exists for the video inventory sold through APS, only completion and impression counts</li><li>Buyers report viewability numbers the publisher has no independent measurement to check against</li><li>The player exposes a viewable signal, e.g., the Prebid video module's 'VIEWABLE' event, but nothing reads or reports it</li></ul>You may want to confirm that the video inventory carries a viewability measurement the publisher controls and that it reconciles against what buyers report. One approach is to integrate an accredited measurement path, then read the viewable rate against the MRC threshold before treating viewability as a selling point.",
+        "site_type_overlays": {
+          "publishing": "On a media site, video frequently runs in a sticky or floating player that follows the reader down the page, and whether that player counts as in view depends on how the viewability measurement treats a pinned element. You may want to confirm the viewable signal reflects the MRC 50-percent-for-two-seconds threshold for the sticky player specifically rather than assuming the standard instream measurement applies.",
+          "ecommerce": "On a commerce-content site, product video often sits inside a gallery or a tab that loads before the shopper scrolls to it, so the ad can play while off screen. You may want to confirm viewability is measured for those deferred placements so completed-but-unviewed impressions are not counted as viewable."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Guidelines",
+            "source_title": "MRC Viewable Impression Guidelines",
+            "source_url": "https://www.iab.com/guidelines/mrc-viewable-impression-guidelines/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Video Module",
+            "source_url": "https://docs.prebid.org/prebid-video/video-module.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Check whether a viewability measurement is integrated on the video inventory sold through APS, confirm what it measures against, and reconcile its viewable rate against what buyers report.",
+        "tools": {
+          "free": {
+            "player_config": {
+              "label": "Video player configuration",
+              "steps": [
+                "Review the player setup and confirm whether a viewability measurement is wired in, whether through a player in-view signal, a measurement vendor tag, or an Open Measurement (OM) SDK integration.",
+                "If the player exposes a viewable signal such as the Prebid video module 'VIEWABLE' event, confirm something reads and reports it rather than letting it go unused.",
+                "Record whether the viewable measurement reflects the Media Rating Council (MRC) threshold of 50 percent of pixels in view for two continuous seconds, or a different definition."
+              ]
+            },
+            "buyer_reconciliation": {
+              "label": "Buyer-reported viewability",
+              "steps": [
+                "Ask buyers what viewable rate their measurement vendor records for the video inventory and over what window.",
+                "Compare the buyer-reported viewable rate against the publisher's own measurement, if one exists, and record the gap.",
+                "Note any inventory where the publisher has no viewability measurement of its own and is relying entirely on the buyer's reported number."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a viewability measurement is integrated on the APS video inventory, what threshold it measures against, and how its viewable rate compares to what buyers report. A setup with an accredited or player-reported viewability measurement that reflects the MRC threshold and reconciles against buyer numbers passes. A setup with no viewability measurement of the publisher's own, or one that goes unread, or one that cannot be reconciled against the buyer's number is a fail recorded with the inventory affected and the measurement gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether viewability is integrated, the threshold it measures against, and how it compares to buyer-reported numbers above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sells video inventory through Amazon Publisher Services (APS) without a viewability measurement of its own, so the only viewable rate available is whatever a buyer reports back. The Media Rating Council (MRC) standard counts a video impression as viewable when at least 50 percent of its pixels are in view for two continuous seconds, and a buyer values the impression partly on meeting it, so unmeasured viewability leaves the publisher discounting the inventory or accepting a number it cannot check. {{voice_recommend}} integrating an accredited viewability measurement on the video inventory, reading the viewable rate against the MRC threshold, and reconciling it against what buyers report. After the integration, present the publisher's own viewable rate alongside completion so the inventory is priced on measurement the publisher controls."
+      },
+      "learn_more_note": "Amazon Publisher Services's detailed configuration documentation for wiring viewability measurement into its server-side video setup is in the partner portal (login required)."
+    }
+  ]
+}

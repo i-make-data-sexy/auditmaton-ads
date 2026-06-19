@@ -1,0 +1,147 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Amazon Publisher Services (APS) and the publisher ad server count impressions at different points in the ad call, so a gap between the two numbers is expected. The audit question is whether the publisher knows the size of that gap and whether it sits inside a normal range. A discrepancy that drifts past the usual band points at a fixable cause such as a tight timeout, slow creative rendering, or a counting-method mismatch, and each of those maps to revenue the publisher is billing for or losing. The check reads reports the publisher already has rather than rebuilding anything, so it costs reading time and points to a concrete number to defend.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "APS is a server-side header-bidding suite, so its Transparent Ad Marketplace and Unified Ad Marketplace report impressions from the SSP side while the publisher's ad server reports them from the serving side. Those two systems count at different moments in the ad call, which means the APS number and the ad server number will rarely match to the unit. This subcategory is about whether the publisher measures that gap and keeps it inside an accepted tolerance, and whether the publisher investigates the gap when it drifts out of range. These checks confirm that discrepancy reconciliation is a deliberate, recurring read rather than a number nobody is watching.",
+  "audit_checks": [
+    {
+      "id": "amazon-publisher-services-discrepancy-reconciliation-not-measured-against-tolerance",
+      "title": "The APS-versus-ad-server impression discrepancy is not measured against an accepted tolerance",
+      "category": "measurement",
+      "subcategory": "discrepancy_reconciliation",
+      "impact_score": 3,
+      "impact_rationale": "Amazon Publisher Services and the ad server count impressions at different points, so a gap is normal, but a gap nobody measures can hide a real problem or mask billing the publisher cannot defend. Without a stated tolerance, the publisher cannot tell an ordinary gap from one that has drifted into revenue loss, so the discrepancy goes unwatched until a payment dispute or a demand partner forces the question.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "Amazon Publisher Services (APS) reports impressions from the SSP side of the ad call, counting a bid as won when its demand partner is declared the winner. The publisher's ad server reports impressions from the serving side, counting when the creative is delivered to the page. Those are two different moments, so the APS number and the ad server number measure slightly different events. A gap between them is the normal state of a server-side header-bidding setup, not a defect.<br><br>The gap matters because its size carries information. A small, steady discrepancy is the cost of two systems counting at two points in the chain. A discrepancy that grows, or that sits well above the range a publisher sees across comparable inventory, points at a cause worth finding, for example a timeout cutting off bids before they render or a creative that wins the auction but fails to load before the user leaves. The number the publisher bills a demand partner for, and the number that demand partner is willing to pay against, both live inside this gap.<br><br>Industry impression measurement guidance from the IAB and the Media Rating Council (MRC) sets the reconciliation expectation. Counting is meant to be client-initiated and to fire when the creative begins to render, and the guidelines treat a difference past roughly ten percent over an invoice period as the point where the parties reconcile rather than absorb the gap. That gives a publisher a defensible reference band rather than a guess.<br><br>The check is whether the publisher measures the discrepancy at all and compares it against a tolerance they can state. A few signs point to the gap going unmeasured:<ul><li>No recurring report compares APS-reported impressions against ad-server-reported impressions for the same inventory and period</li><li>The publisher cannot state the discrepancy percentage they currently see or the tolerance they consider acceptable</li><li>The gap is noticed only when a demand partner queries a payment rather than on a schedule the publisher owns</li></ul>You may want to confirm that the discrepancy is measured on a recurring basis and held against a stated tolerance. One approach is to pull APS-side and ad-server-side impression counts for the same date range and inventory, compute the percentage gap, and record the band the publisher treats as normal so an out-of-range read is visible the moment it happens.",
+        "site_type_overlays": {
+          "publishing": "On a media site, traffic can arrive in spikes around a news event or a campaign, and a spike often pushes the discrepancy up because more impressions race against the same timeout. You may want to measure the gap by traffic source or by daypart as well as in aggregate, so a spike-driven discrepancy is read as a load condition rather than mistaken for a steady measurement problem.",
+          "ecommerce": "On a commerce-content site, the higher-value product and category pages are the inventory where a discrepancy costs the most per impression. You may want to read the gap on the commercial inventory separately from the editorial inventory, so a discrepancy concentrated on the high-value pages is not averaged away against the larger volume of lower-value editorial impressions."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Guidelines",
+            "source_title": "Desktop Display Impression Measurement Guidelines",
+            "source_url": "https://www.iab.com/wp-content/uploads/2016/12/Desktop-Display-Impression-Measurement-Guidelines-US-MMTF-Public-Comment-Final.pdf"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Analytics for Prebid.js",
+            "source_url": "https://docs.prebid.org/overview/analytics.html"
+          }
+        ],
+        "impactful_updates": [],
+        "learn_more_note": "Amazon Publisher Services's detailed reporting and reconciliation documentation for Transparent Ad Marketplace and Unified Ad Marketplace is in the partner portal (login required)."
+      },
+      "investigate": {
+        "intro": "Pull APS-reported and ad-server-reported impression counts for the same inventory and date range, compute the percentage gap, and check whether a tolerance is stated and watched on a schedule.",
+        "tools": {
+          "free": {
+            "ad_server_reporting": {
+              "label": "Publisher ad server reporting",
+              "steps": [
+                "Build a report of ad-server-reported impressions for the inventory APS serves, broken out by ad unit and by date.",
+                "Pull the matching APS-reported impression counts from the APS reporting view for the same inventory and the same date range.",
+                "Compute the percentage gap between the two counts per ad unit and in aggregate, recording the date range so the comparison is repeatable.",
+                "Ask the publisher what discrepancy percentage they consider acceptable and where that tolerance is written down, and record whether the current gap sits inside it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the APS-reported and ad-server-reported impression counts for the same inventory and period, the computed percentage gap, and the tolerance the publisher states as acceptable. A setup where the discrepancy is measured on a recurring basis, held against a stated tolerance, and currently inside that tolerance passes. A setup where no recurring comparison exists, or where the publisher cannot state a tolerance, is a fail recorded with the inventory and period checked.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the APS-reported and ad-server-reported impression counts, the percentage gap, and the stated tolerance above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not measure the impression discrepancy between Amazon Publisher Services (APS) and the publisher ad server against a stated tolerance. The two systems count impressions at different points in the ad call, so a gap is expected, but without a recurring comparison and an accepted range, an ordinary gap and a revenue-losing one look the same. {{voice_recommend}} pulling APS-side and ad-server-side impression counts for the same inventory and period, computing the percentage gap, and recording the tolerance the publisher treats as acceptable so an out-of-range read is visible when it happens. Industry impression measurement guidance from the IAB and the Media Rating Council (MRC) treats a gap past roughly ten percent over an invoice period as the point to reconcile, which gives a defensible reference band."
+      }
+    },
+    {
+      "id": "amazon-publisher-services-discrepancy-reconciliation-out-of-range-causes-not-investigated",
+      "title": "Out-of-range discrepancies are not traced to a cause",
+      "category": "measurement",
+      "subcategory": "discrepancy_reconciliation",
+      "impact_score": 3,
+      "impact_rationale": "When the gap drifts past tolerance, the cause is usually fixable, for example a timeout cutting off bids, slow creative rendering, a counting-method mismatch, or blocked creatives that win but never serve. Leaving an out-of-range gap untraced means the publisher cannot tell whether it is losing revenue, billing a demand partner for impressions that never rendered, or simply reading two counting methods, so the gap stays unresolved and the underlying loss continues.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "A discrepancy that sits inside the normal band needs no action. A discrepancy that drifts past the tolerance the publisher has set is a signal that something in the ad call is behaving differently, and the value of measuring the gap is lost if nobody traces it to a cause. In a server-side header-bidding setup like Amazon Publisher Services (APS), the gap between SSP-reported and ad-server-reported impressions has a short list of usual drivers, and each one points at a different fix.<br><br>Timeouts are the most frequent driver. A bid that responds just before the auction timeout can still arrive too late for its creative to render before the user navigates away, so APS records a winning bid that the ad server never counts as a served impression. A tight timeout widens this gap, and loosening it trades latency for fill, so the timeout setting is the first place to look when the discrepancy climbs.<br><br>Latency and creative rendering are the next drivers. A heavy creative, a slow demand partner, or a page that unloads quickly can mean the impression is awarded but the render never completes, which the ad server does not count. Counting method is a third driver because APS and the ad server may count at different events, one at the win and one at begin-to-render, and that difference is structural rather than a fault. Blocked creatives are a fourth, where a creative wins the auction but is blocked by the page or a brand-safety control and never serves.<br><br>The check is whether out-of-range discrepancies are traced to one of these causes rather than left as an unexplained number. A few signs point to causes going uninvestigated:<ul><li>The discrepancy has moved out of the accepted band with no recorded investigation of timeout settings, latency, counting method, or blocked creatives</li><li>The timeout configured for APS or the wrapper has not been reviewed against the rate of late or lost bids</li><li>An out-of-range gap is explained away as normal without checking which of the usual drivers is responsible</li></ul>You may want to confirm that an out-of-range discrepancy is traced to a specific driver before it is accepted or dismissed. One approach is to check the timeout setting against the rate of late bids, review creative render times and any blocked-creative counts, and confirm whether the gap reflects a counting-method difference or a real loss of served impressions.",
+        "site_type_overlays": {
+          "publishing": "On a media site, traffic spikes around a news event raise server load and lengthen response times, which pushes more bids past the timeout and widens the gap during the spike. You may want to check whether an out-of-range discrepancy lines up with a high-traffic window before treating it as a configuration fault because a load-driven gap and a setup-driven gap call for different responses.",
+          "ecommerce": "On a commerce-content site, richer creatives on product pages can take longer to render, so a winning bid is more likely to be lost before the render completes. You may want to review creative render times on the commercial inventory specifically when tracing an out-of-range gap there because the heavier creatives are a plausible driver that the lighter editorial pages would not show."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Timeouts",
+            "source_url": "https://docs.prebid.org/features/timeouts.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "impactful_updates": [],
+        "learn_more_note": "Amazon Publisher Services's configuration documentation for timeout and reporting settings in Transparent Ad Marketplace and Unified Ad Marketplace is in the partner portal (login required)."
+      },
+      "investigate": {
+        "intro": "For any discrepancy sitting outside the accepted tolerance, check the usual drivers in turn, the timeout setting, latency and creative render times, the counting method, and blocked creatives, and record which one accounts for the gap.",
+        "tools": {
+          "free": {
+            "ad_server_reporting": {
+              "label": "Publisher ad server reporting",
+              "steps": [
+                "Identify the inventory and period where the discrepancy sits outside the accepted band, using the comparison from the prior check.",
+                "Check the timeout configured for APS or the header-bidding wrapper, and read the rate of late or lost bids to see whether the timeout is cutting off bids that would otherwise render.",
+                "Review creative render times and any blocked-creative counts for the affected inventory to see whether winning bids are failing to serve.",
+                "Confirm whether the remaining gap reflects a counting-method difference between APS and the ad server, which is structural, or a real loss of served impressions, and record the driver that accounts for the out-of-range gap."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each out-of-range discrepancy, whether it was traced to a specific driver, the timeout setting, latency or creative rendering, the counting method, or blocked creatives, and what the investigation found. A setup where out-of-range gaps are traced to a cause and acted on passes. A setup where the gap has drifted past tolerance with no recorded investigation of the usual drivers is a fail recorded with the inventory, period, and gap size.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each out-of-range discrepancy and the driver it traces to, the timeout, latency, counting method, or blocked creatives, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has an impression discrepancy between Amazon Publisher Services (APS) and the ad server sitting outside the accepted tolerance with no recorded investigation of the cause. In a server-side header-bidding setup the usual drivers are a tight timeout cutting off bids, latency or slow creative rendering, a counting-method difference between the two systems, and creatives that win the auction but are blocked before they serve. {{voice_recommend}} tracing the out-of-range gap to one of these drivers by checking the timeout against the rate of late bids, reviewing creative render times and blocked-creative counts, and confirming whether the remainder is a structural counting difference or a real loss of served impressions. After the driver is found, fix the setting it points to and recheck the gap against the tolerance."
+      }
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Video Ad Serving Template (VAST) configuration decides which video demand can read, value, and render an impression, so a missing player size or an undeclared placement type narrows the buyers willing to bid before the auction even runs. The check is a review of the video parameters a publisher already passes to OpenX and the verification signals already carried in the VAST response, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration value the publisher can correct in the player or the wrapper.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "VAST is the XML format that carries a video ad from the seller to the player, and the parameters a publisher declares around it decide which demand can value and render the impression. OpenX runs a Prebid-compatible header bidding wrapper, so the video request a publisher sends carries the same OpenRTB video object Prebid documents, and the response carries the same VAST and verification signals the Interactive Advertising Bureau (IAB) standardizes. This subcategory is about how the video request and its VAST response are configured, the player and placement parameters declared and the viewability and content signals passed, rather than the floor pricing or the demand partners attached to the inventory. These checks confirm that the video setup describes the impression accurately enough for demand to bid on it and verify it.",
+  "audit_checks": [
+    {
+      "id": "openx-video-vast-setup-player-params-not-declared",
+      "title": "Player size, placement type, and skippability are not declared correctly in the video request",
+      "category": "inventory",
+      "subcategory": "video_vast_setup",
+      "impact_score": 3,
+      "impact_rationale": "Video demand prices an impression on what the request says about it, so a missing player size, an undeclared placement type, or a wrong skippability flag narrows the buyers willing to bid. A publisher running video without these parameters declared correctly clears a thinner auction than the inventory could support, which holds video CPMs below where accurate signals would carry them.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "A video impression is worth different amounts to a buyer depending on the player it runs in and how it plays, so the request a publisher sends has to describe those conditions for demand to price it. OpenX runs a Prebid-compatible header bidding wrapper, which means the video request carries the OpenRTB video object that Prebid documents, and a handful of parameters in that object do most of the work of describing the impression.<br><br>Player size is the width and height of the video player in pixels, declared in Prebid as 'playerSize'. A buyer uses it to match a creative to the slot and to judge the value of the placement, so a request that omits the player size or sends a size that does not match the rendered player asks demand to bid on an impression it cannot picture. Placement type, carried in the 'plcmt' field, tells demand whether the ad is instream (before, during, or after streaming content) or runs outside a content stream, and the Interactive Advertising Bureau (IAB) defines the values for it. Many buyers and brand-safety filters treat instream and outstream inventory differently, so an undeclared or misstated placement type either drops bidders or invites bids the inventory cannot honor.<br><br>Skippability is the 'skip' flag, which states whether the viewer can skip the ad and, with related fields, after how long. It changes how a buyer values the impression because a skippable pre-roll and a non-skippable one carry different completion expectations. A request that flags inventory as skippable when the player offers no skip control, or the reverse, misprices the impression and can produce creatives the player cannot render as intended.<br><br>Two supporting fields round out the description. The 'mimes' array lists the media formats the player accepts (e.g., video/mp4), and 'protocols' lists the VAST versions and wrappers it can handle. A player that accepts VAST 4 but advertises only an older protocol turns away creatives it could have rendered.<br><br>A few signs point to player parameters that are not declared correctly:<ul><li>The video request omits 'playerSize', or the declared size does not match the rendered player on the page</li><li>The 'plcmt' placement value is missing, or it labels outstream inventory as instream or the reverse</li><li>The 'skip' flag does not match the skip control the player actually offers the viewer</li><li>The 'mimes' or 'protocols' arrays exclude formats and VAST versions the player can in fact render</li></ul>You may want to confirm that the video request describes the player and the placement the way they actually behave. One approach is to capture the outgoing video request, read the player size, placement type, skippability, and accepted formats against the rendered player, and correct any field that misstates the impression.",
+        "site_type_overlays": {
+          "publishing": "On a media site, video often runs as instream pre-roll on an article player and as outstream units inside the article body, and the two carry different value and different placement types. You may want to confirm that each player declares its own 'plcmt' value and player size rather than sharing one video configuration across both, so instream and outstream inventory each reach the demand that prices it correctly.",
+          "ecommerce": "On a commerce-content site, product-page video and editorial-page video can run in differently sized players and reach audiences at different points before a purchase. You may want to verify that the player size and placement type are declared per player rather than inherited from a single template, so the higher-intent commercial inventory is described accurately to demand rather than blended with editorial video."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Video for Header Bidding",
+            "source_url": "https://docs.prebid.org/formats/video.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference (mediaTypes.video)",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Capture the outgoing video request and read the declared player size, placement type, skippability, and accepted formats against the player that actually renders on the page.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load a page that serves video and open the browser developer tools 'Network' panel before the player initializes.",
+                "Find the bid request and read the video object, noting 'playerSize', 'plcmt', 'skip', 'mimes', and 'protocols'.",
+                "Compare the declared player size against the rendered player dimensions, and compare the placement type and skippability against how the ad actually plays.",
+                "Record any field that is missing or that misstates the player or the placement."
+              ]
+            },
+            "prebid_config": {
+              "label": "Prebid wrapper configuration",
+              "steps": [
+                "Open the Prebid video ad unit configuration for each video player on the site.",
+                "Read the 'mediaTypes.video' block and confirm 'playerSize', 'context', 'plcmt', 'skip', 'mimes', and 'protocols' are set for each player.",
+                "Note any player that inherits a shared video configuration rather than declaring its own size and placement type."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per video player, the declared player size, placement type, skippability, and accepted formats alongside the player's actual behavior. A setup where each player declares a size that matches the rendered player, the correct placement type, an accurate skip flag, and the formats and VAST versions it can render passes. A setup where a video request omits the player size, misstates the placement type or skippability, or excludes formats the player supports is a fail recorded with the player and the field affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the declared player size, placement type, skippability, and accepted formats against the rendered player above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sends video requests where the player size, placement type, or skippability does not match the player that actually renders. Video demand prices an impression on what the request says about it, so a missing 'playerSize', a misstated 'plcmt' placement value, or a wrong 'skip' flag narrows the buyers willing to bid and holds video clearing prices below where accurate signals would carry them. {{voice_recommend}} capturing the outgoing video request, reading the declared player size, placement type, skippability, and accepted formats against the rendered player, and correcting each field that misstates the impression. After the change, recheck the video request to confirm it describes the player and the placement as they behave."
+      }
+    },
+    {
+      "id": "openx-video-vast-setup-viewability-content-signals-missing",
+      "title": "Viewability and content signals are not passed in the VAST response",
+      "category": "inventory",
+      "subcategory": "video_vast_setup",
+      "impact_score": 3,
+      "impact_rationale": "Demand values a video impression higher when it can verify viewability and read the content it runs against, so a VAST response that carries no AdVerifications node and no content signals asks buyers to bid on an unverifiable, context-blind impression. That uncertainty pushes buyers to bid lower or skip the inventory, which leaves video revenue below what verified, context-rich inventory clears.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "A buyer pays more for a video impression it can verify and place in context, so the signals a publisher passes alongside the video request and inside the Video Ad Serving Template (VAST) response shape how demand values the inventory. Two signal families carry most of that weight: viewability verification and content description.<br><br>Viewability verification rides in the VAST response through the AdVerifications node, which carries the resources a third-party measurement vendor needs to confirm the ad was on screen and for how long. The Interactive Advertising Bureau (IAB) standardizes this through the Open Measurement Interface Definition (OMID) and the Open Measurement SDK, which let an independent vendor read placement on screen, percentage in view, and quartile completion through one consistent method rather than a different one per partner. When a player declares Open Measurement support, typically the 'api' value 'omid' in the request, and the VAST response carries the AdVerifications resources, demand can verify the impression rather than take it on trust. A response that omits those resources leaves the impression unverifiable, and unverifiable inventory clears lower.<br><br>Content signals describe what the ad runs against. The video request can pass a content object carrying fields such as the content title, genre, length, and a content category drawn from a standard taxonomy, along with the content rating where it applies. Buyers and their brand-safety filters read those fields to decide whether the impression fits the campaign and meets the advertiser's safety requirements. A request that passes no content signals asks demand to bid context-blind, which a cautious buyer answers by bidding lower or holding back.<br><br>A few signs point to viewability and content signals that are not passed:<ul><li>The VAST response carries no AdVerifications node, so no third-party vendor can verify the impression</li><li>The player does not declare Open Measurement support (e.g., the 'api' value 'omid') in the video request</li><li>The video request passes no content object, or passes it with the title, category, and rating fields left empty</li><li>The content category is absent or does not map to a recognized content taxonomy that buyers can read</li></ul>You may want to confirm that the video setup passes the viewability and content signals demand uses to value the impression. One approach is to capture the video request and the VAST response, check for the Open Measurement declaration and the AdVerifications resources, and confirm the content object carries the fields buyers read for fit and safety.",
+        "site_type_overlays": {
+          "publishing": "On a media site, editorial video runs against a wide range of topics, and the content category and rating signals are what let a brand-safety filter separate inventory a campaign can run against from inventory it cannot. You may want to confirm that each video request passes content category and rating drawn from a recognized taxonomy, so demand can value the safe, well-described inventory rather than discounting all of it for missing context.",
+          "ecommerce": "On a commerce-content site, video on product and category pages runs in a purchase-adjacent context that buyers value, but only if the request describes it. You may want to verify that the content object passes the page context and category for commercial video, so demand can read the higher-intent placement rather than treating it as undescribed inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Open Measurement SDK (OMID)",
+            "source_url": "https://iabtechlab.com/standards/open-measurement-sdk/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "VAST specification and schema (AdVerifications)",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/vast"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference (mediaTypes.video)",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Capture the video request and the VAST response and check whether they carry the Open Measurement declaration, the AdVerifications resources, and a content object with the fields buyers read.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load a page that serves video and open the browser developer tools 'Network' panel before the player initializes.",
+                "Read the outgoing video request and note whether the 'api' array declares Open Measurement (the 'omid' value) and whether a content object carries title, category, and rating.",
+                "Find the VAST response and confirm it includes an 'AdVerifications' node with verification resources rather than omitting it.",
+                "Record any case where the Open Measurement declaration, the AdVerifications resources, or the content fields are missing."
+              ]
+            },
+            "vast_validator": {
+              "label": "IAB Tech Lab VAST validator",
+              "steps": [
+                "Paste a sample VAST response from the player into the IAB Tech Lab VAST validator.",
+                "Confirm the response parses against the VAST schema and check whether the 'AdVerifications' node is present and well-formed.",
+                "Note any validation warning that points to missing verification resources or malformed content signals."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per video player, whether the video request declares Open Measurement support, whether the VAST response carries an AdVerifications node, and whether the content object passes the title, category, and rating fields. A setup where verification is declared and carried and the content signals are populated from a recognized taxonomy passes. A setup that omits the AdVerifications resources, skips the Open Measurement declaration, or passes an empty content object is a fail recorded with the player and the missing signal.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether each player passes the Open Measurement declaration, the AdVerifications resources, and the content signals above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} serves video without passing the viewability and content signals demand uses to value the impression. A Video Ad Serving Template (VAST) response with no AdVerifications node leaves the impression unverifiable, and a request with no content object asks buyers to bid context-blind, so both push demand to bid lower or hold back. {{voice_recommend}} capturing the video request and the VAST response, confirming the player declares Open Measurement support and the response carries the AdVerifications resources, and populating the content object with the category and rating fields buyers read for fit and safety. After the change, recheck a sample response to confirm the verification and content signals are present and well-formed."
+      }
+    }
+  ]
+}

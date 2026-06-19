@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Ad slot mapping is the join between a publisher's ad units on the page and the tag IDs OpenX reads to match them with demand. When the mapping drifts, an impression can pass under the wrong placement, carry a size the demand cannot fill, or surface from a tag that no longer corresponds to a live unit, and each of those reduces fill and clearing price. The check is a review of mapping a publisher already has rather than a rebuild, so it costs reading time, and the finding points to a concrete tag or placement the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Ad slot mapping is how each ad unit on a publisher's page connects to the OpenX tag ID and placement that represents it in the auction. OpenX runs Prebid-compatible header bidding, so the ad unit a publisher defines in the page wrapper carries a code, declared sizes, and formats that have to line up with the tag the impression is sold under. This subcategory is about that join staying accurate, the right tag for the right placement with the sizes and formats the unit actually serves, rather than the bidding or floor logic that runs once the mapping is correct. These checks confirm that placements map to the correct tag IDs and that no orphaned or mismatched tag is passing inventory under the wrong placement.",
+  "audit_checks": [
+    {
+      "id": "openx-ad-slot-mapping-incorrect-tag-or-size",
+      "title": "Ad units map to the wrong OpenX tag ID or declare sizes the placement does not serve",
+      "category": "inventory",
+      "subcategory": "ad_slot_mapping",
+      "impact_score": 3,
+      "impact_rationale": "When an ad unit points at the wrong tag ID, or declares sizes and formats the placement does not actually run, the impression reaches the auction described inaccurately. Demand that filters on placement or size sees a request that does not match the real slot, so bids that would have cleared are filtered out and fill and clearing price fall on the affected units.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "data-quality"],
+      "educate": {
+        "base": "In a Prebid-compatible header bidding setup like OpenX, each ad unit a publisher defines carries three things that describe the slot to the auction. The ad unit code identifies the placement, the declared sizes list the dimensions the slot can serve, and the media types name the formats, for example banner or video. OpenX reads a tag ID tied to that placement, and the bid request that goes out carries the sizes and formats the ad unit declared. Demand bids against that description, not against the slot as it really renders on the page.<br><br>The mapping breaks in two ways. A placement can point at the wrong tag ID, so the impression is sold under a different unit's identity than the one the reader sees. The sizes or formats declared on the ad unit can also diverge from what the placement actually serves, for example a leaderboard unit declaring a 300x250 size it never renders, or a display-only unit declaring a video media type. In both cases the request reaching the auction describes a slot that does not match reality.<br><br>The cost lands at the point demand evaluates the request. Many buyers filter on placement, size, or format before they bid, so a request carrying a size the creative cannot fill, or a placement label that does not match the deal targeting, gets passed over rather than bid on. The publisher sees lower fill or a lower clearing price on the affected units without an obvious cause because the slot looks fine on the page while the request behind it does not.<br><br>A few signs point to a tag or size mismatch:<ul><li>An ad unit's code or tag ID in the wrapper configuration does not match the placement it renders in</li><li>Declared sizes include dimensions the slot never serves, or omit sizes it does serve</li><li>A media type is declared, for example video, on a placement that only runs display, or the reverse</li><li>Reporting shows a placement filling at sizes that do not correspond to where it sits on the page</li></ul>You may want to confirm that each ad unit's tag ID, declared sizes, and media types match the placement it represents. One approach is to read the wrapper configuration against the live page, slot by slot, and reconcile any unit whose declared description does not match what it renders.",
+        "site_type_overlays": {
+          "publishing": "On a media site, templated layouts repeat the same ad unit codes across many articles, so a single mismatched tag ID or stray declared size can propagate across the whole section rather than affecting one page. You may want to check the mapping at the template level, confirming that each recurring placement carries the tag and sizes meant for it before assuming the units are correct everywhere.",
+          "ecommerce": "On a commerce-content site, product and category templates often carry placements that differ from the editorial ones, and a unit copied from an editorial template can keep editorial sizes that the commercial slot does not serve. You may want to confirm that the commercial placements declare the sizes and formats they actually render rather than inherited ones, so higher-intent inventory is described accurately to demand."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Ad Slot and GPID for Header Bidding",
+            "source_url": "https://docs.prebid.org/features/pbAdSlot.html"
+          }
+        ],
+        "learn_more_note": "OpenX's detailed tag ID and placement configuration documentation is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each ad unit's tag ID, declared sizes, and media types in the wrapper configuration against the placement it renders on the live page, and look for any unit whose declared description does not match.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Header bidding wrapper configuration",
+              "steps": [
+                "Open the page's header bidding wrapper configuration and list each ad unit with its code, the OpenX tag ID it maps to, its declared sizes, and its media types.",
+                "Load the live page and identify where each ad unit renders, noting the sizes and format the slot actually serves.",
+                "For each unit, compare the declared tag ID, sizes, and media types against the placement it renders in, and record any unit where they diverge."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the browser developer tools console on a page with the ad units loaded and inspect the bid requests the wrapper sends.",
+                "Confirm the sizes and placement identifiers in each request match the slot the impression renders in.",
+                "Record any request that carries a size, format, or placement label that does not correspond to the visible slot."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad unit, the declared tag ID, sizes, and media types alongside the placement and sizes it actually renders. Units whose declared description matches the placement they render in pass. A unit pointing at the wrong tag ID, declaring sizes the slot does not serve, or declaring a media type the placement does not run is a fail recorded with the unit and the mismatch found.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each ad unit's declared tag ID, sizes, and media types against the placement it renders in above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more ad units on {{site_name}} map to a tag ID, declared size, or media type that does not match the placement they render in. In a Prebid-compatible setup, demand bids against the description the bid request carries, so a request whose size, format, or placement does not match the real slot gets filtered out before a bid is placed, which lowers fill and clearing price on the affected units. {{voice_recommend}} reconciling each ad unit's tag ID, declared sizes, and media types against the placement it renders, slot by slot, and correcting any unit whose declared description diverges from what it serves. After the change, recheck fill and clearing price on the affected units to confirm the request now matches the slot."
+      }
+    },
+    {
+      "id": "openx-ad-slot-mapping-orphaned-stale-tags",
+      "title": "Orphaned or stale tags pass inventory under placements that no longer exist",
+      "category": "inventory",
+      "subcategory": "ad_slot_mapping",
+      "impact_score": 2,
+      "impact_rationale": "A tag left in the configuration after its placement is removed or renamed keeps requesting bids for a slot that no longer renders as intended. The impressions it generates are either unfillable or attributed to the wrong placement, which muddies reporting and can let inventory pass under a label that no longer describes it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "data-quality"],
+      "educate": {
+        "base": "Ad slot mapping accumulates history. As a publisher redesigns pages, renames placements, or retires sections, the ad units and OpenX tag IDs that served the old layout do not always get removed from the wrapper configuration. A tag becomes orphaned when its placement no longer exists, and stale when its placement was renamed or repurposed but the old tag is still firing. In both cases the configuration still requests bids for a slot that no longer matches the page.<br><br>An orphaned tag is not harmless idle code. If the unit still initializes, it keeps sending bid requests for a placement that renders nothing or renders something other than what the tag describes. Those requests either go unfilled, which adds noise to fill-rate reporting, or fill into a slot the tag no longer accurately represents, which lets inventory pass under a placement label that has stopped describing it. Either outcome makes the reporting harder to trust and can route demand to the wrong place.<br><br>OpenX reads the tag IDs the wrapper presents, so the configuration is the record that has to stay current with the page. The audit question is whether every tag in the configuration still corresponds to a live placement that renders as the tag describes, and whether any tag is firing for inventory that no longer exists or has moved.<br><br>A few signs point to orphaned or stale tags:<ul><li>Tag IDs or ad unit codes remain in the wrapper configuration for placements that were removed in a redesign</li><li>Reporting shows impressions or requests against a placement name that no longer appears on the live site</li><li>A renamed placement runs alongside its old tag, so two identifiers describe what is now one slot</li><li>Bid requests fire for an ad unit that initializes but renders nothing on the page</li></ul>You may want to confirm that every tag in the configuration maps to a live placement that still renders as the tag describes. One approach is to reconcile the configured tags against the placements on the current site and remove any tag whose placement no longer exists or has been renamed.",
+        "site_type_overlays": {
+          "publishing": "On a media site, section relaunches and template changes happen often enough that old placements accumulate, and a retired section's tags can keep firing from a cached template or a stray include. You may want to reconcile the configured tags against the sections the site currently runs, removing tags for placements that no longer exist so reporting reflects only live inventory.",
+          "ecommerce": "On a commerce-content site, category pages and product templates change as the catalog changes, so placements tied to discontinued categories can leave orphaned tags behind. You may want to confirm that the tags firing on the current catalog correspond to live placements, and retire any tag tied to a category or template the site has dropped."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Ad Slot and GPID for Header Bidding",
+            "source_url": "https://docs.prebid.org/features/pbAdSlot.html"
+          }
+        ],
+        "learn_more_note": "OpenX's detailed tag ID and placement configuration documentation is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the tags configured in the wrapper against the placements on the live site, and look for any tag whose placement has been removed or renamed.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Header bidding wrapper configuration",
+              "steps": [
+                "List every ad unit code and OpenX tag ID configured in the wrapper.",
+                "Walk the live site and confirm which placements still render, matching each rendered slot back to a configured tag.",
+                "Record any configured tag that has no corresponding live placement, and any placement that was renamed but still carries its old tag alongside the new one."
+              ]
+            },
+            "openx_reporting": {
+              "label": "OpenX reporting",
+              "steps": [
+                "Build a report broken out by placement or tag, with requests, impressions, and fill rate.",
+                "Look for placement names that still receive requests or impressions but no longer appear on the live site.",
+                "Note any tag firing with zero or near-zero fill that points at a placement the site no longer renders."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each configured tag alongside whether its placement still renders on the live site as the tag describes. A configuration where every tag maps to a live placement passes. A tag whose placement has been removed, or a renamed placement still running its old tag, is a fail recorded with the tag and the placement it no longer matches.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each configured tag against whether its placement still renders on the live site above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has one or more orphaned or stale tags in its header bidding configuration, where the tag fires for a placement that has been removed or renamed. An orphaned tag keeps requesting bids for a slot that no longer renders as intended, so the impressions it generates are unfillable or attributed to the wrong placement, which adds noise to reporting and can let inventory pass under a label that has stopped describing it. {{voice_recommend}} reconciling the configured tags against the placements on the current site and retiring any tag whose placement no longer exists or has been renamed. After the cleanup, confirm that every tag still firing maps to a live placement that renders as the tag describes."
+      }
+    }
+  ]
+}

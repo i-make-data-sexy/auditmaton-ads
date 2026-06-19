@@ -1,0 +1,173 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Seat and account structure decides how a publisher's Index Exchange relationship maps to reporting and payment, so a fragmented or stale structure splits the numbers a publisher relies on without anyone seeing it happen. The check is a review of the seller entity, the seat or site identifiers, and the integrations a publisher already has, so it costs reading time rather than rebuild time, and a finding points to a concrete consolidation or closure the publisher can act on.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Index Exchange (IX) is a sell-side platform (SSP) that connects a publisher's inventory to programmatic demand, typically through a Prebid-based header-bidding wrapper. The way a publisher's account and seat structure is set up decides how its inventory rolls up for reporting and payment, and how it appears to buyers in the supply chain. This subcategory looks at whether the seller entity, the seat or site identifiers, and the integrations carrying IX demand form one clean structure rather than several fragments that split reporting and payment across duplicate or orphaned seats. These checks confirm the account structure is a deliberate arrangement the publisher can account for, and that nothing inactive is left open to muddy the data or widen the attack surface.",
+  "audit_checks": [
+    {
+      "id": "index-exchange-seat-account-structure-fragmented-seats",
+      "title": "Inventory is split across duplicate or fragmented seller seats",
+      "category": "governance",
+      "subcategory": "seat_account_structure",
+      "impact_score": 3,
+      "impact_rationale": "When the same inventory runs through more than one Index Exchange seat or site identifier, reporting and payment split across the fragments, so a publisher sees several partial pictures rather than one. The split makes revenue reconciliation harder and can leave each fragment looking smaller than the publisher's true supply, which weakens the position from which the publisher negotiates and reasons about its IX relationship.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "Index Exchange (IX) identifies a publisher's inventory through seller and site identifiers. The seller is the legal entity IX pays, declared in the sellers.json file IX publishes so buyers can see who is paid for an impression. Within that relationship, individual placements carry their own identifiers, the siteId values that a Prebid wrapper passes to IX on each bid request. Together these decide how a publisher's inventory rolls up for reporting, for payment, and for how buyers see the supply.<br><br>Fragmentation happens when the same inventory ends up associated with more than one seat or seller record that should have been one. A publisher that signed up directly and later joined through a managed wrapper partner can end up with two seller relationships carrying overlapping inventory. A site migration, a rebrand, or a second integration stood up for a test can leave a parallel set of siteId values live alongside the originals. Each fragment reports and pays separately, so the publisher reads several partial pictures instead of one whole.<br><br>The cost is not only reconciliation effort. Inventory spread thin across fragments can look smaller per seat than the publisher's true supply, which weakens the basis for any conversation about rates or support. Two seller records for one publisher can also complicate the sellers.json picture buyers rely on since each seller_id is meant to map to a single paid entity under the IAB Tech Lab specification.<br><br>A few signs point to fragmented or duplicate seats:<ul><li>More than one Index Exchange seller relationship or account carries the same or overlapping inventory</li><li>Reporting has to be summed across several seats or siteId sets to see total IX revenue for one property</li><li>A site migration, rebrand, or test integration left a parallel set of identifiers live alongside the ones in use</li><li>Payment arrives split across records that, on inspection, describe the same publisher and the same inventory</li></ul>You may want to confirm that each property maps to one clean seller relationship and one coherent set of identifiers. One approach is to list every IX seat, seller record, and active siteId, match each to the inventory it carries, and consolidate the duplicates so reporting and payment roll up to a single picture per property.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a network of titles or sections that grew over time can each have been integrated with Index Exchange at different points, leaving several seats or siteId sets for what is really one publishing entity. You may want to map every title to its seller record and siteId values, then consolidate so each property reports under one structure rather than scattering revenue across fragments from earlier integrations.",
+          "ecommerce": "On a commerce-content site, ad inventory is often a secondary line stood up alongside the store, so a second Index Exchange integration added for a campaign or a subdomain can sit unnoticed beside the main one. You may want to confirm the editorial inventory and any subdomain inventory map to one seller relationship rather than separate seats that split the reporting."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Index Exchange for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/bidders/ix.html"
+          }
+        ],
+        "learn_more_note": "Index Exchange's detailed configuration documentation for seller and seat structure is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "List every Index Exchange seller relationship, seat, and active site identifier, then match each to the inventory and property it carries to see whether one property maps to one clean structure or to several fragments.",
+        "tools": {
+          "free": {
+            "ix_console": {
+              "label": "Index Exchange console",
+              "steps": [
+                "Sign in to the Index Exchange account and list every seller relationship, seat, or publisher account the organization holds.",
+                "For each, record the site identifiers it contains and the inventory or properties associated with them.",
+                "Note any case where the same property or overlapping inventory appears under more than one seat or seller record, which points to a fragment to consolidate.",
+                "Ask the publisher whether any of the records came from a migration, rebrand, managed-wrapper partner, or test integration, and record what each one was for."
+              ]
+            },
+            "sellers_json": {
+              "label": "Index Exchange sellers.json",
+              "steps": [
+                "Open the Index Exchange sellers.json file and search for the publisher's entity by name or domain.",
+                "Record each seller_id that maps to the publisher and confirm whether one entity is represented once or appears across more than one record.",
+                "Note any duplicate or overlapping seller records for the same publisher since the specification expects each seller_id to map to a single paid entity."
+              ]
+            },
+            "prebid_config": {
+              "label": "Prebid wrapper configuration",
+              "steps": [
+                "Review the site's Prebid configuration and list every siteId passed to the Index Exchange adapter (the 'ix' bidder params).",
+                "Match each siteId to the ad unit and property it serves, and note any values that no longer correspond to live inventory.",
+                "Record whether the live siteId values trace back to one coherent account structure or to parallel sets left from earlier integrations."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records every Index Exchange seller relationship, seat, and active siteId alongside the property and inventory each one carries. A structure where each property maps to one seller relationship and one coherent set of identifiers, with reporting and payment rolling up to a single picture, passes. A structure where the same or overlapping inventory runs through duplicate seats or parallel seller records, so reporting has to be summed across fragments, is a fail recorded with the duplicate records and the inventory they split.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each Index Exchange seat, seller record, and active siteId with the inventory it carries above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs the same or overlapping inventory through more than one Index Exchange (IX) seat or seller record, so reporting and payment split across fragments rather than rolling up to a single picture. Inventory spread across duplicate seats can look smaller per seat than the true supply, which weakens the basis for any conversation about rates, and duplicate seller records can complicate the sellers.json picture buyers rely on since each seller_id is meant to map to a single paid entity. {{voice_recommend}} listing every IX seat, seller record, and active siteId, matching each to the inventory it carries, and consolidating the duplicates so each property reports and pays under one clean structure. After consolidating, confirm that total IX revenue for each property reads from a single record rather than summed across fragments."
+      }
+    },
+    {
+      "id": "index-exchange-seat-account-structure-orphaned-integrations",
+      "title": "Inactive or orphaned seats and integrations are left open",
+      "category": "governance",
+      "subcategory": "seat_account_structure",
+      "impact_score": 3,
+      "impact_rationale": "An Index Exchange seat, site identifier, or integration left open after the inventory behind it is gone keeps a path live that no one is watching. The orphaned record can keep appearing in sellers.json and in bid traffic, which muddies the supply a publisher presents to buyers and leaves an unmonitored entry point that a spoofer or a stale partner could use to transact against the publisher's name.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "A publisher's relationship with Index Exchange (IX) accumulates identifiers and integrations over time. A site retired from the portfolio, a subdomain folded into another, a campaign test that stood up its own siteId, a managed-wrapper partner the publisher no longer works with: each can leave a seat, a site identifier, or an integration behind after the inventory it served is gone. An orphaned record is one of these that stays live with nothing genuine behind it.<br><br>The concern is that the record keeps working even when no one is watching it. A siteId still configured in a wrapper, or a seller relationship still listed in the IX sellers.json file, continues to represent the publisher to buyers. Bid traffic can still flow against it. Because no one is reconciling an integration that should have been closed, anomalies on it go unnoticed, and the path becomes a place where a spoofer or a stale partner can transact against the publisher's name without the publisher seeing the activity in its day-to-day reporting.<br><br>Closing the inactive paths keeps the supply a publisher presents accurate. The sellers.json file and the ads.txt records that authorize sellers should describe the relationships that are genuinely live, so that a buyer reading them sees the real shape of the publisher's supply rather than a mix of active and abandoned entries. The IAB Tech Lab ads.txt and sellers.json specifications exist so that this declared picture stays trustworthy.<br><br>A few signs point to orphaned seats or integrations:<ul><li>A seat or seller record remains active for a site, brand, or property the publisher has retired</li><li>A siteId is still configured in the Prebid wrapper but maps to inventory that no longer runs</li><li>A managed-wrapper or partner integration the publisher no longer works with still carries IX demand or still appears in sellers.json</li><li>The ads.txt or sellers.json entries include relationships the publisher cannot account for as currently active</li></ul>You may want to confirm that every live Index Exchange seat, identifier, and integration corresponds to inventory the publisher genuinely runs today. One approach is to reconcile the active records against the current portfolio, then close or remove the ones with nothing behind them and update ads.txt and sellers.json to match.",
+        "site_type_overlays": {
+          "publishing": "On a media site, titles get retired, merged, or rebranded, and the Index Exchange seats and siteId values tied to the old shape can outlive the change. You may want to reconcile the live IX records against the titles the publisher runs today, then close the seats and remove the siteId values that map to retired or merged properties so the supply you present reflects the current portfolio.",
+          "ecommerce": "On a commerce-content site, ad inventory usually follows campaigns and seasonal sections, so a siteId or integration stood up for a one-time push can stay live long after the section is gone. You may want to check for Index Exchange identifiers tied to retired campaign pages or subdomains and remove the ones with no live inventory behind them."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "ads.txt Authorized Digital Sellers",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          },
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "learn_more_note": "Index Exchange's detailed steps for deactivating a seat or integration are in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Reconcile every active Index Exchange seat, site identifier, and integration against the publisher's current portfolio, and flag any record that has no live inventory behind it.",
+        "tools": {
+          "free": {
+            "ix_console": {
+              "label": "Index Exchange console",
+              "steps": [
+                "Sign in to the Index Exchange account and list every active seat, seller relationship, and site identifier.",
+                "For each, confirm with the publisher whether the inventory behind it still runs today or has been retired, merged, or rebranded.",
+                "Flag any record that is active in IX but corresponds to a site, brand, or campaign the publisher no longer operates.",
+                "Note any managed-wrapper or partner integration still carrying IX demand for a partner the publisher no longer works with."
+              ]
+            },
+            "ads_txt_sellers_json": {
+              "label": "ads.txt and sellers.json review",
+              "steps": [
+                "Open the publisher's ads.txt file and the Index Exchange sellers.json file and list the entries that reference Index Exchange or the publisher's seller identifiers.",
+                "Match each entry to a seat or integration the publisher can confirm is currently active.",
+                "Record any ads.txt line or sellers.json record that the publisher cannot account for as a live relationship, which points to an entry to remove or update."
+              ]
+            },
+            "prebid_config": {
+              "label": "Prebid wrapper configuration",
+              "steps": [
+                "Review the live Prebid configuration and list every siteId passed to the Index Exchange adapter.",
+                "Match each siteId to inventory that currently runs, and flag any value that maps to retired pages, merged properties, or a finished test.",
+                "Record the siteId values that have no live inventory behind them so they can be removed from the configuration."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records every active Index Exchange seat, siteId, and integration alongside whether the inventory behind it currently runs, and reconciles the ads.txt and sellers.json entries against the live relationships. A structure where every active record maps to inventory the publisher genuinely runs, and where ads.txt and sellers.json describe only live relationships, passes. A structure where seats, identifiers, or integrations remain open for retired inventory, or where ads.txt or sellers.json carry relationships the publisher cannot account for, is a fail recorded with the orphaned records and what each one was for.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each active Index Exchange seat, siteId, and integration with whether its inventory still runs above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} leaves Index Exchange (IX) seats, site identifiers, or integrations open for inventory that no longer runs, so paths stay live that no one is watching. An orphaned record keeps representing the publisher to buyers through sellers.json and can still carry bid traffic, which muddies the supply the publisher presents and leaves an unmonitored entry point a spoofer or a stale partner could transact against. {{voice_recommend}} reconciling every active IX seat, siteId, and integration against the current portfolio, closing or removing the records with no live inventory behind them, and updating ads.txt and sellers.json so they describe only the relationships that are genuinely live. After the cleanup, confirm that every remaining IX record maps to inventory {{site_name}} runs today."
+      }
+    }
+  ]
+}

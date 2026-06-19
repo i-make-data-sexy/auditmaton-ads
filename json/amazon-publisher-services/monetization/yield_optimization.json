@@ -1,0 +1,160 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Yield on Amazon Publisher Services rests on two settings that are easy to leave at their defaults. The first is how the server-side auction is run and whether any demand is being filtered or throttled before it can bid. The second is how ad refresh and the auction are configured so that each impression is one a buyer wants to pay for rather than a low-value reload. This check is a review of settings the publisher already has in place plus the auction records and reporting that show their effect, so it costs reading time rather than a rebuild, and the finding points to a specific configuration the publisher can adjust.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Amazon Publisher Services (APS) runs server-side header bidding through Transparent Ad Marketplace (TAM) and Unified Ad Marketplace (UAM), and the auction settings behind those wrappers decide how much demand reaches each impression and what that impression is worth. This subcategory is about the yield settings themselves, the auction mechanics and the refresh configuration, rather than the floor values that a separate price-floor check covers. These checks confirm that the first-price auction is running on the full set of demand it should reach, that no traffic shaping is removing bids before they can compete, and that ad refresh is configured to protect yield and viewability rather than manufacture impressions a buyer will not value.",
+  "audit_checks": [
+    {
+      "id": "amazon-publisher-services-yield-optimization-auction-demand-not-reviewed",
+      "title": "First-price auction demand and any traffic shaping are not reviewed against the records",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "Transparent Ad Marketplace runs a first-price auction where the highest net bid wins, so the revenue depends on how many demand partners actually bid and whether anything is filtering or throttling them before they can. A publisher who never reads the auction records cannot tell whether a partner is failing to bid, whether a timeout is cutting demand off, or whether routing filters are removing eligible buyers, so demand can thin out without anyone noticing.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Amazon Publisher Services (APS) carries Transparent Ad Marketplace (TAM) and Unified Ad Marketplace (UAM) as server-to-server header bidding wrappers, which means the auction runs on Amazon's servers rather than in the visitor's browser. TAM runs a first-price auction on net bids, so the highest bid wins and the publisher receives the winning amount without the price reductions a second-price auction would apply. That model only pays off when the auction is reaching the demand it should and nothing is removing bids before they land.<br><br>Server-side auctions hide their mechanics behind a single response, so a thin auction and a healthy one can look the same on the page. The revenue difference shows up only in the auction records, which on TAM let a publisher see the bidders for each impression, the bid CPMs, and the winner. Reading those records is how a publisher tells whether the auction is competitive or whether demand has quietly thinned out.<br><br>Demand can fall away for reasons that have nothing to do with the floor. A demand partner can stop bidding after a configuration change on either side. A timeout set too low can cut off bids that would have arrived a moment later, which matters more server-side where the round trip to each partner takes time. Routing filters or SSP-side controls can remove buyers from the auction before they are asked to bid. Each of these shapes the traffic the auction sees, and each can shrink revenue while the setup looks untouched.<br><br>A few signs point to auction demand that has not been reviewed against the records:<ul><li>The publisher cannot say how many demand partners typically bid on an impression or which partners win most often</li><li>No one has read the TAM auction records or compared bid rates and win rates across partners since the integration was set up</li><li>A demand partner was added or removed without a before-and-after read of bid density and revenue</li><li>Timeout values were set once and never revisited against the share of bids arriving in time</li></ul>You may want to confirm that the auction is running on the demand it should and that no setting is shaping traffic away from it. One approach is to read the auction records for a sample of impressions, check bid rates and win rates per partner, and compare them against what the integration was expected to deliver.",
+        "site_type_overlays": {
+          "publishing": "On a media site, traffic can swing hard by section and by time of day, so an auction that looks healthy on a homepage sample can be thin on long-tail article pages where fewer buyers target the content. You may want to read the auction records broken out by section so a demand gap on the lower-value pages is visible rather than hidden inside a blended average.",
+          "ecommerce": "On a commerce-content site, product and category pages reach an audience closer to a purchase and tend to draw more buyers than editorial pages. You may want to check bid density on the commercial pages specifically because a routing filter or a partner that fails to bid there costs more than the same gap on editorial inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "Amazon Publisher Services",
+            "source_title": "Optimizing Header Bidding Integrations on Transparent Ad Marketplace",
+            "source_url": "https://aps.amazon.com/aps/optimizing-header-bidding-integrations-on-transparent-ad-marketplace/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Price Floors for Header Bidding (first-price auction context)",
+            "source_url": "https://docs.prebid.org/dev-docs/floors-video-overview.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the TAM auction records and the bid and win rates per demand partner, and check the timeout and any routing filters that could shape which buyers reach the auction.",
+        "tools": {
+          "free": {
+            "aps_console": {
+              "label": "Amazon Publisher Services console",
+              "steps": [
+                "Open the Transparent Ad Marketplace reporting and the auction records for a representative window.",
+                "For a sample of impressions, read the bidders that participated, their bid CPMs, and the winner, and note how many partners typically bid on an impression.",
+                "Record the bid rate and win rate per demand partner, and flag any partner that rarely bids or never wins.",
+                "Note the configured auction timeout and ask whether it was set against the share of bids that arrive in time, or set once and left."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the page in a browser, open DevTools, and watch the Network tab for the APS bid request and response.",
+                "Confirm the bid request fires on page load and that a response returns within the configured timeout.",
+                "Note whether the APS call is being made on every eligible slot or whether some slots are missing it, which would keep that inventory out of the auction entirely."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a representative window, how many demand partners typically bid, the bid and win rates per partner, the configured timeout, and any routing filter that removes buyers. An auction with steady bid density across partners, a timeout that captures most bids, and no unexplained filtering passes. An auction where a partner has stopped bidding, where the timeout cuts off a meaningful share of bids, or where a filter removes eligible demand with no stated reason is a fail recorded with the partners and settings affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the per-partner bid and win rates, the timeout, and any routing filter above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs Transparent Ad Marketplace (TAM) on Amazon Publisher Services (APS) without a review of the auction records, so it is not clear whether the first-price auction is reaching the demand it should. TAM awards each impression to the highest net bid, which only pays off when bidders are competing, and demand can thin out from a partner that stopped bidding, a timeout set too low, or a routing filter that removes buyers before they bid. {{voice_recommend}} reading the auction records for a sample of impressions, checking the bid and win rates per demand partner, and confirming the timeout captures most bids before adjusting any partner or filter. After the review, keep whichever settings the records show are bringing the strongest demand to the auction."
+      }
+    },
+    {
+      "id": "amazon-publisher-services-yield-optimization-ad-refresh-not-configured-for-yield",
+      "title": "Ad refresh is not configured to protect yield and viewability",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "Ad refresh that fires on a timer, ignores viewability, or reuses stale targeting manufactures impressions a buyer does not value, which can lower the average price and the viewable rate that buyers judge the inventory by. Refresh that waits for viewability and requests a fresh auction each cycle adds revenue, so the configuration decides whether refresh raises yield or inflates a low-value impression count.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Ad refresh reloads an ad slot while the visitor is still on the page, which turns one pageview into several impressions. Done well, refresh adds revenue from engaged visitors who linger. Done carelessly, it manufactures impressions that no buyer wants to pay for, and on a server-side setup like Amazon Publisher Services (APS) the refreshed impression still has to win a fresh auction to be worth anything.<br><br>Three configuration choices decide which outcome a publisher gets. The first is the trigger. A refresh that fires on a fixed timer reloads a slot whether or not the visitor is looking at it, while a refresh that waits until the slot has been viewable reloads only impressions a buyer would value. The Media Rating Council (MRC) defines a viewable display impression as at least half the pixels in view for at least one continuous second, and a refresh keyed to that threshold reloads inventory that has already been seen rather than inventory scrolled past.<br><br>The second choice is whether the refresh requests a fresh auction. In header bidding, calling the ad server to reload a slot without first requesting new bids and clearing the previous targeting reuses the stale bid, so the same buyer is served again at the same price without a new competition. Prebid documents this directly, warning that calling the ad server refresh without removing the previous targeting causes the same bids to render repeatedly. The fix is to request bids first, apply the new targeting in the callback, and only then refresh the slot.<br><br>The third choice is the cadence and the limits. A refresh interval that is too short, or one with no cap on the number of refreshes per slot, drives up the impression count while the viewable rate and the average price fall because buyers discount inventory that refreshes faster than a visitor can engage with it.<br><br>A few signs point to refresh that is not configured for yield:<ul><li>Refresh fires on a fixed timer rather than waiting for the slot to be viewable</li><li>The reload calls the ad server without requesting a fresh auction first, so stale bids and targeting are reused</li><li>The refresh interval is short or uncapped, and the viewable rate or average price has fallen as the impression count rose</li><li>Refresh is applied to every slot rather than the units where visitors actually linger</li></ul>You may want to confirm that refresh waits for viewability, requests a fresh auction each cycle, and runs on a cadence that holds the viewable rate steady. One approach is to read the viewable rate and average price before and after a refresh cycle on a sample of slots, then adjust the trigger and interval to whichever the data supports.",
+        "site_type_overlays": {
+          "publishing": "On a media site, long articles and infinite-scroll feeds are where refresh earns its keep because visitors stay on the page and scroll through several screens. You may want to key refresh to viewability and to the scroll position so a slot reloads only after it has been seen, and avoid refreshing slots near the top that the visitor has already scrolled past.",
+          "ecommerce": "On a commerce-content site, visitors move quickly between product and category pages, so a slot may not stay viewable long enough for a timer-based refresh to add value. You may want to tie refresh to viewability and to genuine dwell time on the higher-intent pages rather than reloading on a fixed timer that fires after the visitor has moved on."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Individual Ad Unit Refresh / Infinite Scroll for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/examples/adunit-refresh.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Bid Viewable Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/bidViewable.html"
+          },
+          {
+            "source_type": "Media Rating Council",
+            "source_title": "Viewable Ad Impression Measurement Guidelines",
+            "source_url": "https://mediaratingcouncil.org/standards-and-guidelines"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review how refresh is triggered, whether each reload requests a fresh auction, and how the viewable rate and average price move across a refresh cycle.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open a page with a refreshing slot, open DevTools, and watch the Network tab as the slot reloads.",
+                "Confirm that a fresh bid request fires before each reload rather than the ad server being called with the previous targeting still in place.",
+                "Time the interval between reloads and note whether the reload waits for the slot to be viewable or fires on a fixed timer.",
+                "Check whether refresh is applied to every slot on the page or only to units where a visitor would linger."
+              ]
+            },
+            "aps_console": {
+              "label": "Amazon Publisher Services console",
+              "steps": [
+                "Open the Transparent Ad Marketplace or Unified Ad Marketplace reporting and isolate the slots that use refresh.",
+                "Read the viewable rate, the average eCPM, and the impression count for those slots across a window that includes the refresh cycle.",
+                "Compare those figures against comparable non-refreshing slots to see whether refresh raised revenue or inflated a low-value impression count with a falling viewable rate."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the refresh trigger, whether each reload requests a fresh auction and clears the previous targeting, the refresh interval and any cap, and the viewable rate and average price across a refresh cycle. Refresh that waits for viewability, requests a fresh auction each cycle, and holds the viewable rate and average price steady passes. Refresh that fires on a timer, reuses stale bids, or runs a cadence under which the viewable rate or average price falls is a fail recorded with the slots and settings affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the refresh trigger, whether each reload runs a fresh auction, the interval, and the viewable rate and average price across a cycle above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs ad refresh on Amazon Publisher Services (APS) without it being configured to protect yield and viewability. Refresh that fires on a fixed timer, reuses the previous auction's bids, or runs on too short an interval manufactures impressions a buyer does not value, which can lower the viewable rate and the average price that buyers judge the inventory by. {{voice_recommend}} keying refresh to a viewable threshold, requesting a fresh auction and clearing the previous targeting on each reload, and setting an interval and cap that hold the viewable rate steady. After the change, read the viewable rate and average price across a refresh cycle to confirm refresh is adding revenue rather than inflating a low-value impression count."
+      }
+    }
+  ]
+}

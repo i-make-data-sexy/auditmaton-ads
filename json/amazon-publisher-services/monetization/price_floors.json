@@ -1,0 +1,154 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Floor strategy sets the price below which an impression goes unsold, so it controls the trade between fill rate and the value of each impression. A floor that leans entirely on automation, or one flat number applied across every placement, format, country, and device, can leave revenue uncollected without anyone noticing. The check is a review of the floor rules a publisher already runs on Amazon Publisher Services and its bidding stack, so it costs reading time rather than rebuild time, and the finding points to a concrete pricing decision the publisher can test.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Floor pricing decides the minimum price a bid has to clear before an impression sells, which sets where the line falls between filling more impressions and protecting the value of each one. On Amazon Publisher Services (APS), the Transparent Ad Marketplace (TAM) and Unified Ad Marketplace (UAM) run server-side header-bidding auctions, and the floor a publisher carries into those auctions shapes what clears. This subcategory is about the floor strategy itself, the values chosen and how they are applied across the bidding setup, rather than the auction mechanics that carry them. These checks confirm that the floor strategy is a deliberate, evidence-based choice rather than automation accepted by default, and that the floors reflect the price differences across the publisher's inventory.",
+  "audit_checks": [
+    {
+      "id": "amazon-publisher-services-price-floors-dynamic-vs-fixed-not-evaluated",
+      "title": "Dynamic floors are accepted without evaluating them against a fixed-floor baseline",
+      "category": "monetization",
+      "subcategory": "price_floors",
+      "impact_score": 3,
+      "impact_rationale": "Dynamic floors set by an external service adjust the price automatically and often raise revenue, but they optimize toward the objective the service was built for, which does not always match a publisher's own strategy, for example protecting a premium price point. Accepting them without comparing them to a fixed-floor baseline leaves the choice untested, so a publisher cannot tell whether the automated floor is helping or trading away inventory value on a slice of inventory.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "inventory"],
+      "educate": {
+        "base": "A publisher running Amazon Publisher Services (APS) on a Prebid-compatible header-bidding stack has more than one way to set the floor a bid has to clear. A fixed floor is a number the publisher chooses and the auction applies as written, whether it is hard-coded into the ad unit or supplied in the wrapper configuration. A dynamic floor instead hands the floor to a real-time service that fetches and refreshes values before each auction, adjusting the price per request to balance fill and value. The Prebid Price Floors module supports all three locations, and several commercial providers (e.g., Magnite, OpenX, PubMatic) offer dynamic flooring that plugs into it. The automated approach often raises revenue, and a dynamic service can react to demand patterns faster than a publisher updating a static number by hand.<br><br>The risk is not that automation is wrong. The risk is accepting it without a comparison. A dynamic floor optimizes toward the objective its provider built it for, which is yield, and that objective does not always match a publisher's own strategy. A publisher protecting a premium price point on a sponsorship-adjacent placement, or holding a deliberate floor to keep a direct-sold rate intact, may find the dynamic floor clears impressions below the price they meant to protect. Without a baseline to measure against, the publisher has no way to see that happening.<br><br>The Prebid Price Floors module supports running this comparison. Schema 2 lets a publisher run more than one floor model side by side with weighted sampling, so a dynamic model and a fixed-floor model can be tested against each other on the same inventory. The publisher can then read win rate, revenue, and average clearing price across both, including the per-SSP win and bid rates that APS reporting exposes for TAM. That turns the floor choice into a measured result rather than a default that was never questioned.<br><br>A few signs point to dynamic floors being accepted rather than evaluated:<ul><li>The header-bidding stack runs a dynamic floor provider across all inventory with no fixed-floor model held for comparison</li><li>No experiment or before-and-after read exists showing how the dynamic floor performed against a fixed baseline</li><li>The publisher cannot say why the dynamic option was chosen beyond it being the provider's recommendation</li></ul>You may want to confirm that the dynamic-versus-fixed choice was made on evidence rather than by default. One approach is to run a fixed-floor model alongside the dynamic one through Schema 2 sampling, or hold a fixed floor on a comparable slice of inventory, long enough to compare the two.",
+        "site_type_overlays": {
+          "publishing": "On a media site, premium placements such as a homepage takeover slot or a sponsorship-adjacent unit often carry a price the publisher set on purpose to protect direct-sold value. You may want to keep a fixed-floor model on those units while testing a dynamic floor elsewhere, so the comparison shows whether automation respects the premium or clears below it.",
+          "ecommerce": "On a commerce-content site, product and category pages can command higher prices than editorial pages because the audience is closer to a purchase. You may want to compare a dynamic floor against a fixed floor on the commercial pages specifically, rather than judging it on a blended average that the lower-value editorial inventory pulls down."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Module - Price Floors for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/floors.html"
+          },
+          {
+            "source_type": "Amazon Publisher Services",
+            "source_title": "Optimizing Header Bidding Integrations on Transparent Ad Marketplace",
+            "source_url": "https://aps.amazon.com/aps/optimizing-header-bidding-integrations-on-transparent-ad-marketplace/index.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the floor is dynamic or fixed across the header-bidding stack, and look for any test result or before-and-after read that compares the two.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Prebid floors configuration",
+              "steps": [
+                "Open the header-bidding wrapper configuration and find the Price Floors module setup.",
+                "Note whether the floor comes from a dynamic fetch (a floor provider endpoint), a setConfig package, or values hard-coded into the ad units.",
+                "If a dynamic provider is in use, record whether any fixed-floor model is held alongside it, for example through Schema 2 weighted sampling, that could serve as a comparison baseline.",
+                "Ask the publisher whether any experiment or before-and-after comparison was run, and record what the result showed and when it was measured."
+              ]
+            },
+            "aps_reporting": {
+              "label": "Amazon Publisher Services reporting",
+              "steps": [
+                "Open the APS console reporting and read win rate, bid rate, and eCPM by SSP for the Transparent Ad Marketplace inventory.",
+                "Compare a slice running a dynamic floor against a comparable slice on a fixed floor, if one exists, to see whether the dynamic floor raised revenue or cleared at a lower price.",
+                "Note whether the data supports the current floor choice or whether no fixed-floor slice exists to compare against."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per slice of inventory, whether the floor is dynamic or fixed, and whether any comparison between a dynamic floor and a fixed baseline exists with a result on record. A setup where the dynamic-versus-fixed choice is deliberate and backed by a comparison passes. A setup where dynamic floors are applied across inventory with no fixed-floor comparison and no stated reason for the choice is a fail recorded with the inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the floor type for each slice of inventory and whether a dynamic-versus-fixed comparison exists above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs a dynamic floor across its Amazon Publisher Services (APS) header-bidding inventory without a fixed-floor comparison on record, so the choice between automated and fixed floors has not been tested. A dynamic floor sets the price to maximize yield, which often helps, but that objective does not always match a publisher's own strategy, such as protecting a premium price point, and without a baseline the difference goes unmeasured. {{voice_recommend}} running a fixed-floor model alongside the dynamic one through the Prebid Price Floors module, or holding a fixed floor on a slice of comparable inventory, and comparing win rate, revenue, and average price across both before settling on a floor strategy. After the comparison, keep whichever floor the data supports for each slice of inventory."
+      }
+    },
+    {
+      "id": "amazon-publisher-services-price-floors-not-segmented",
+      "title": "Floors are not segmented by placement, format, geography, or device",
+      "category": "monetization",
+      "subcategory": "price_floors",
+      "impact_score": 2,
+      "impact_rationale": "A single flat floor across all inventory ignores that some placements, formats, countries, and devices clear at higher prices than others. A flat floor either underprices the strong inventory, leaving revenue uncollected, or overprices the weak inventory, leaving impressions unsold, so one number cannot serve inventory whose value varies.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "inventory"],
+      "educate": {
+        "base": "A floor price works best when it matches what the impression is worth, and impressions are not worth the same across a publisher's inventory. An above-the-fold unit on a high-engagement page clears higher than a unit far down a thin page. A video slot carries different demand and a different typical clearing price than a standard display banner. Traffic from a high-spending country clears higher than traffic from a market where advertiser demand is thin. Desktop, mobile web, and in-app inventory each carry their own demand. A floor set as one flat number across all of this cannot fit inventory whose value varies along every one of those lines.<br><br>The cost of a flat floor cuts both ways. Set it to the average and it sits below the strong inventory, so impressions that could have cleared higher clear at the floor and the difference is left uncollected. Set it higher to protect the strong inventory and it sits above the weak inventory, so impressions that would have sold at a lower price go unsold instead. Either way, one number serves the middle and misprices the ends.<br><br>The Prebid Price Floors module that carries floors into Amazon Publisher Services (APS) auctions supports floor rules built on more than one dimension, including ad unit, media type, ad size, and domain, with custom dimensions such as geography available through a matching function. That lets a publisher set different floors for different placements, formats, geographies, and device categories rather than one floor for everything. The audit question is whether the floors in place reflect those value differences or whether a single flat floor is doing work that several segmented floors should do.<br><br>A few signs point to floors that are not segmented:<ul><li>One floor value covers all inventory, with no breakout by placement, format, geography, or device in the floor rules</li><li>Reporting shows average clearing prices that differ widely across placements, formats, countries, or devices while the floor stays the same for all of them</li><li>Premium placements clear at or near the same floor as filler inventory, which suggests the floor is not protecting their value</li></ul>You may want to confirm that the floors reflect the price differences the inventory actually shows. One approach is to read average clearing price by placement, format, geography, and device, then build floor rules that follow those differences rather than a single number across the board.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a homepage or section-front placement usually clears higher than an article-footer unit, and audience from high-demand markets clears higher than audience from thin ones. You may want to set floor rules by placement and geography so the premium inventory holds its value while the lower-value inventory keeps a floor low enough to stay filled.",
+          "ecommerce": "On a commerce-content site, product and category pages reach an audience closer to a purchase and clear higher than editorial pages, and device matters because mobile shoppers and desktop shoppers carry different demand. You may want to segment floor rules so the commercial, higher-intent inventory carries a higher floor than the editorial inventory rather than sharing one number."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Module - Price Floors for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/floors.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Module Rules for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/module-rules.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the floor values across placements, formats, geographies, and device categories to see whether they are differentiated or whether one flat floor covers everything.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Prebid floors configuration",
+              "steps": [
+                "Open the header-bidding wrapper configuration and find the Price Floors module floor rules.",
+                "Read the rule schema and values, and note which dimensions the rules use, for example ad unit, media type, ad size, domain, or a custom geography or device dimension.",
+                "Record whether the floors differ across placement, format, geography, and device, or whether a single floor value applies across all inventory with no breakout."
+              ]
+            },
+            "aps_reporting": {
+              "label": "Amazon Publisher Services reporting",
+              "steps": [
+                "Open the APS console reporting and read average eCPM and win rate broken out by placement, then by format, then by country, then by device where the data allows.",
+                "Compare the average clearing price across those dimensions to see how much it varies between strong and weak inventory.",
+                "Note any case where clearing prices differ widely but the floor stays the same, which points to inventory that a segmented floor could price more accurately."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the floor values across placements, formats, geographies, and device categories alongside the average clearing price for each. Floors that follow the value differences the reporting shows, with higher floors on inventory that clears higher and lower floors on inventory that clears lower, pass. A single flat floor applied across inventory whose clearing prices differ widely is a fail recorded with the dimensions where the floor and the value diverge.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the floor values and the average clearing price by placement, format, geography, and device above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} applies a single flat floor across inventory whose value differs by placement, format, geography, and device. A flat floor either underprices the strong inventory, leaving revenue uncollected, or overprices the weak inventory, leaving impressions unsold, so one number cannot fit inventory that clears at different prices. {{voice_recommend}} reading the average clearing price by placement, format, geography, and device, then building floor rules in the Prebid Price Floors module that carry higher floors on the inventory that clears higher and lower floors on the inventory that clears lower. After the change, recheck win rate and average price across the segments to confirm the floors fit the value of each."
+      }
+    }
+  ]
+}

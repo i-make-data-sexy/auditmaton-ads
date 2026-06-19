@@ -1,0 +1,157 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The header bidding configuration in Amazon Publisher Services (APS) decides how long the auction waits for bids and which demand connections take part, so it sets the trade between fill and the latency that page speed and revenue both ride on. A timeout tuned by guesswork, or a demand list that grew by accretion rather than by decision, can shave revenue and slow the page at the same time without anyone seeing the connection. The check reads settings the publisher already has in the APS console and the wrapper, so it costs reading time rather than rebuild time, and the finding points to a concrete timeout value or a specific demand connection the publisher can test or remove.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "APS runs header bidding server-side through Transparent Ad Marketplace (TAM) for larger publishers and Unified Ad Marketplace (UAM) for smaller ones, which moves the auction off the page and into the cloud. Two settings carry most of the weight. The wrapper timeout decides how long the page waits for the APS bid before it calls the ad server, and the enabled demand connections decide which buyers compete for the impression. This subcategory is about whether those two settings are deliberate choices rather than defaults left in place. These checks confirm that the timeout balances fill against latency for this publisher's pages, and that the demand list earns its place rather than adding redundant connections that slow the auction without lifting the clearing price.",
+  "audit_checks": [
+    {
+      "id": "amazon-publisher-services-header-bidding-config-timeout-untuned",
+      "title": "The APS wrapper timeout is left at a default rather than tuned for this publisher",
+      "category": "monetization",
+      "subcategory": "header_bidding_config",
+      "impact_score": 3,
+      "impact_rationale": "The timeout sets how long the page waits for the Amazon Publisher Services bid before calling the ad server. Too short and bids that would have cleared arrive late and get dropped, lowering fill and revenue. Too long and the page waits on slow responses, hurting load time and the user experience that drives return visits. A default value carried over from a template fits neither this publisher's audience connection speeds nor their page weight, so the trade between fill and latency goes unmeasured.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Amazon Publisher Services (APS) runs its auction server-side, but the page still has to wait a set amount of time for the APS bid to come back before it hands the slot to the ad server. That wait is the wrapper timeout, and it sits at the center of the trade between fill and speed. Set it too short and bids that would have cleared arrive after the gate closes, so they get dropped and the impression fills at a lower price or goes to the ad server with nothing from APS at all. Set it too long and the page waits on the slowest responses, so load time stretches and the reader feels the lag before the content settles.<br><br>The setting that matters is not the one Amazon Publisher Services uses internally, which a publisher cannot see, but the timeout the publisher controls in the page wrapper around the APS tag. In a Prebid-compatible setup, APS is one bidder among others, and Prebid's own guidance is explicit that the client-side timeout and any server-side timeout have to be coordinated so server-side bids are not cut off by a client timeout that fires first. The same logic applies to the APS fetchBids call. The wait the page allows has to be long enough for the APS response to arrive under real conditions, not the conditions of a fast office network.<br><br>A default value is the usual culprit because it travels. A timeout copied from a setup guide, a template, or another site fits that source rather than this publisher. Audience connection speed, the device mix, and how heavy the page already is all move where the right timeout falls, and none of those carry over from the place the default came from.<br><br>The way to settle the value is measurement rather than instinct. Prebid documents tracking the timeout rate, the response time, and fill so a publisher can see how many bids the current timeout drops and whether a longer or shorter wait moves revenue without breaking page speed. A few signs point to a timeout that was set rather than tuned:<ul><li>The wrapper timeout matches a round number from a setup guide (e.g., 1000ms or 1500ms) with no record of testing it against this publisher's data</li><li>No reporting on the APS timeout rate or bid response time exists, so the publisher cannot say how many bids the current wait is dropping</li><li>The same timeout is used across desktop and mobile despite the two carrying different connection speeds and page weights</li></ul>You may want to confirm the timeout was chosen against this publisher's own response-time data rather than carried in from a template. One approach is to read the APS bid response distribution, set the timeout to capture the bulk of real responses, and recheck fill and page-load timing after the change.",
+        "site_type_overlays": {
+          "publishing": "On a media site, readers arrive from a wide range of devices and connections, and a heavy article page already competes for the browser's attention before the auction runs. You may want to read the APS response time separately on mobile, where slower connections push more bids past a tight timeout, and consider a longer wait on mobile than on desktop if the data shows mobile bids arriving late.",
+          "ecommerce": "On a commerce-content site, a slow page costs more than a dropped bid because load time affects the path to a purchase, not just an impression. You may want to weigh the timeout toward protecting page speed on product and category pages, then read whether the shorter wait drops enough high-value bids to justify easing it back on the inventory that clears highest."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Timeouts in Prebid",
+            "source_url": "https://docs.prebid.org/features/timeouts-video.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Analyze Header Bidding Setup",
+            "source_url": "https://docs.prebid.org/overview/optimal-header-bidding-setup.html"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's detailed configuration documentation for the wrapper integration and timeout is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the wrapper timeout that governs the APS bid wait and look for any record of it being tested against this publisher's bid response times, broken out by device where possible.",
+        "tools": {
+          "free": {
+            "page_source": {
+              "label": "Page source and wrapper configuration",
+              "steps": [
+                "Open the page template or the tag manager container where the APS tag and the header bidding wrapper load, and find the timeout that governs the wait for the APS bid (the fetchBids timeout, or the Prebid bid timeout in a Prebid-compatible setup).",
+                "Record the timeout value and whether the same value applies across desktop and mobile or differs by device.",
+                "Note whether the value matches a round number from a common setup guide, which suggests a default, or whether it sits at a tuned figure.",
+                "Ask the publisher for any record of testing the timeout against bid response data, and record what the test showed and when it ran."
+              ]
+            },
+            "aps_console": {
+              "label": "Amazon Publisher Services console",
+              "steps": [
+                "Open the APS console and review the reporting available for bid response time and timeout rate on the relevant ad slots.",
+                "Record the share of APS bids that arrive after the current wrapper timeout, which is the share being dropped.",
+                "Compare bid response times across device categories to see whether mobile bids arrive later than desktop under the same timeout."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the wrapper timeout value, whether it differs by device, the share of APS bids arriving after the timeout, and whether any test against this publisher's response data exists. A timeout set to capture the bulk of real bid responses, with a test or response-time read on record, passes. A default round number applied across all devices with no response-time data and no record of testing is a fail recorded with the timeout value and the share of bids it drops.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the wrapper timeout, the share of APS bids it drops, and whether it was tested against response data above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs the Amazon Publisher Services (APS) wrapper timeout at a default value with no record of testing it against the site's own bid response times. The timeout sets how long the page waits for the APS bid before calling the ad server, so a value too short drops bids that would have cleared and a value too long slows the page, and a default carried from a template fits neither this audience's connections nor these pages. {{voice_recommend}} reading the APS bid response distribution, broken out by device, then setting the timeout to capture the bulk of real responses and rechecking fill rate and page-load timing after the change. Where mobile bids arrive later than desktop, consider a longer wait on mobile so slower connections are not cut off."
+      }
+    },
+    {
+      "id": "amazon-publisher-services-header-bidding-config-redundant-demand",
+      "title": "Enabled demand connections are not justified against their cost to the auction",
+      "category": "monetization",
+      "subcategory": "header_bidding_config",
+      "impact_score": 2,
+      "impact_rationale": "Every demand connection added to the auction competes for the same fixed timeout window. A connection that rarely wins, or that duplicates demand a stronger connection already brings, adds latency and request weight without lifting the clearing price. Demand lists that grow by accretion rather than by decision carry connections that no longer earn their place, so the auction pays a speed cost for buyers that do not move revenue.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "Amazon Publisher Services (APS) connects a publisher to a set of demand sources, and through Unified Ad Marketplace (UAM) or Transparent Ad Marketplace (TAM) those connections compete server-side for each impression. Adding a connection feels free because the auction runs in the cloud, but it is not. Every demand source has to be given time to respond inside the same fixed window the timeout allows, and each one adds to the request the page sends. A connection that wins often and clears at a strong price earns that cost. A connection that rarely wins, or that brings the same buyers a stronger connection already covers, spends the cost without returning anything.<br><br>The pattern that causes trouble is accretion. A demand source gets added during a test, a partner relationship, or a one-time push for fill, and then it stays because removing it is nobody's job. Over time the list grows past the point where each connection earns its place, and the auction carries dead weight. Prebid's guidance on header bidding setup is direct about the cost of this. More demand partners is not automatically better, and the right number is the set that lifts fill at the highest clearing prices without the added latency outweighing the gain. Prebid's own FAQ frames a working client-side range in the low single digits and treats server-to-server as more forgiving, but still a decision to make on data rather than a list to grow without limit.<br><br>The audit question is whether each enabled demand connection has a reason to be there that the publisher can state and the reporting can support. A connection that contributes meaningful win rate and revenue passes that test. A connection that has not won in a measurable stretch, or that overlaps almost entirely with another that performs better, is a candidate to remove so the auction runs leaner and the page runs faster.<br><br>A few signs point to demand connections that are not justified:<ul><li>Connections are enabled that show little or no win rate over a recent reporting window</li><li>Two or more connections route to overlapping demand, so the same buyers compete twice without adding distinct value</li><li>No one can say why a given connection was enabled, which points to a list grown by accretion rather than by decision</li></ul>You may want to confirm each enabled connection earns its place against its cost to the auction. One approach is to read win rate and revenue per connection over a recent window, then remove or pause the connections that add latency without adding clearing price, and recheck fill and page timing after the change.",
+        "site_type_overlays": {
+          "publishing": "On a media site with high page views, a small per-auction latency cost from a redundant connection multiplies across millions of impressions, so trimming dead-weight demand can lift page speed at scale. You may want to read win rate per connection across the site's heaviest-traffic sections first since that is where the latency saving compounds fastest.",
+          "ecommerce": "On a commerce-content site, page speed feeds the path to a purchase, so a demand connection that adds latency without adding revenue costs more than the impression it touches. You may want to weigh the demand list toward the connections that clear highest on the commercial pages and prune connections that contribute little there, even if they hold some value on lower-intent editorial inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Analyze Header Bidding Setup",
+            "source_url": "https://docs.prebid.org/overview/optimal-header-bidding-setup.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js FAQ",
+            "source_url": "https://docs.prebid.org/dev-docs/faq.html"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's detailed documentation on enabling and managing demand connections is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the demand connections enabled in the APS setup, read the win rate and revenue each contributes over a recent window, and look for connections that add cost without adding clearing price.",
+        "tools": {
+          "free": {
+            "aps_console": {
+              "label": "Amazon Publisher Services console",
+              "steps": [
+                "Open the APS console and list every demand connection enabled in the UAM or TAM setup.",
+                "For each connection, read the win rate, the revenue, and the average clearing price over a recent reporting window.",
+                "Flag connections with little or no win rate over that window, and note any two connections that appear to route to overlapping demand.",
+                "Ask the publisher why each flagged connection was enabled, and record whether a reason exists beyond it having been added at some point."
+              ]
+            },
+            "page_source": {
+              "label": "Page source and wrapper configuration",
+              "steps": [
+                "Open the page template or tag manager container and confirm which APS demand connections load on the page and whether any are client-side rather than server-side by design.",
+                "Record whether the placement of each connection, server-side or client-side, was a deliberate choice or a default since client-side connections carry a larger page-speed cost.",
+                "Note any connection present in the wrapper that the publisher cannot account for."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each enabled demand connection with its win rate and revenue over a recent window, and whether the publisher can state a reason for it. A demand list where each connection contributes measurable win rate and revenue, or holds a stated strategic reason, passes. A list carrying connections with little or no win rate, overlapping demand, or no stated reason is a fail recorded with the specific connections that add cost without adding clearing price.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each enabled demand connection with its win rate, revenue, and reason for being enabled above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} enables demand connections in its Amazon Publisher Services (APS) setup that are not justified against their cost to the auction. Every connection competes inside the same fixed timeout window and adds to the request the page sends, so a connection that rarely wins or that duplicates demand a stronger connection already brings adds latency without lifting the clearing price. {{voice_recommend}} reading the win rate and revenue per connection over a recent window, then removing or pausing the connections that add cost without adding value and keeping the set that lifts fill at the highest prices. After the change, recheck fill rate and page-load timing to confirm the leaner demand list holds revenue while the auction runs faster."
+      }
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Demand tag controls decide which buyers, advertisers, and creative categories are allowed to compete for a publisher's video and CTV inventory. Allowlists and blocklists that drift over time, or blocks set so wide that they sweep up legitimate demand, change fill and revenue without anyone watching the dial. The check is a review of the buyer-facing controls a publisher already maintains in SpringServe, so it costs reading time rather than rebuild time, and the finding points to a concrete control the publisher can adjust and remeasure.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Demand tag controls in SpringServe decide which buyers and advertisers may bid on a publisher's video and Connected TV (CTV) inventory and which creative categories may serve against it. SpringServe is a video and CTV ad server, so these controls govern both direct-sold demand tags and the programmatic demand routed through them. This subcategory covers the allowlists and blocklists themselves, the buyers and advertisers permitted or restricted and the breadth of those rules, rather than the pricing or pod logic that sits alongside them. These checks confirm that the controls reflect a deliberate buyer strategy and that blocks are scoped tightly enough to keep legitimate demand and fill in place.",
+  "audit_checks": [
+    {
+      "id": "springserve-demand-tag-controls-allowlists-blocklists-not-maintained",
+      "title": "Buyer and advertiser allowlists and blocklists are not maintained intentionally",
+      "category": "buyers",
+      "subcategory": "demand_tag_controls",
+      "impact_score": 3,
+      "impact_rationale": "Allowlists and blocklists that no one reviews drift away from what the publisher meant them to do. A blocked advertiser that has since cleaned up its creative stays blocked and keeps suppressing demand, while a buyer that should be excluded for brand-safety reasons stays allowed because the list was never revisited. Left unmaintained, the controls stop reflecting the publisher's intent and quietly shape fill and brand safety in ways the publisher cannot account for.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "brand-safety"],
+      "educate": {
+        "base": "A demand tag in SpringServe carries controls that decide which buyers, advertisers, and creative categories may compete for an impression. On the buyer side, this maps to the same allow-and-block model the open standards use. The OpenRTB protocol that programmatic demand rides on defines an allowed list of buyer seats (wseat) and a block list of buyer seats (bseat), plus blocked advertiser domains (badv) and blocked advertiser categories (bcat). A publisher uses the SpringServe equivalents to say which demand it wants and which it refuses, on a per-tag basis.<br><br>The risk is not that a publisher set a block. The risk is that the block was set once and never revisited. An advertiser blocked a year ago for a creative-quality reason may have since fixed the problem, so the block now suppresses demand the publisher would accept today. A buyer that should be excluded for a brand-safety reason may have been added to inventory after the allowlist was last reviewed, so it now serves against content it was meant to stay away from. Lists that no one maintains stop matching the publisher's current intent.<br><br>An allowlist and a blocklist are not the same tool, and confusing them changes the outcome. An allowlist is restrictive by default because only the named buyers may bid and everything else is shut out. A blocklist is permissive by default because every buyer may bid except the named ones. A publisher who treats a stale allowlist as a light-touch filter can starve a demand tag without realizing the list itself is the limit.<br><br>A few signs point to controls that are set rather than maintained:<ul><li>No record exists of when each allowlist and blocklist was last reviewed or why each entry is on it</li><li>Blocked advertisers or buyers appear on the list with no note of the reason, so no one can judge whether the block still applies</li><li>The same block list is copied across demand tags without checking that each entry fits the inventory that tag serves</li></ul>You may want to confirm that each allowlist and blocklist still reflects a current decision. One approach is to schedule a periodic review where each entry is checked against the reason it was added and removed if that reason no longer holds."
+      ,
+        "site_type_overlays": {
+          "publishing": "For a streaming service or broadcaster, demand tag controls often protect the on-air brand, so an advertiser blocked for a tone or category reason may be a deliberate editorial choice rather than a quality one. You may want to review those blocks against the channel's current content standards so the list reflects today's programming rather than a rule set for a show that has since left the lineup.",
+          "ecommerce": "For a commerce-content video property, where shoppable and product-adjacent video sits next to editorial, a competitor block may be intentional to keep rival brands off product pages. You may want to confirm that each competitor entry still maps to a current commercial relationship rather than a partnership that has since ended, so the block protects the right inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "OpenRTB 2.x Specification (wseat, bseat, badv, bcat buyer controls)",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/openrtb2.x/blob/main/2.6.md"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "OpenRTB (Real-Time Bidding) standards overview",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for buyer and advertiser allowlists and blocklists on demand tags is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the allowlists and blocklists on each demand tag, and look for a record of when each was last reviewed and why each entry is on it.",
+        "tools": {
+          "free": {
+            "springserve_ui": {
+              "label": "SpringServe console",
+              "steps": [
+                "Open the demand tags and list the buyer and advertiser allowlists and blocklists applied to each.",
+                "For each blocklist entry, record the advertiser or buyer, the reason it was added if one is noted, and the date it was added if available.",
+                "For each allowlist, note whether it is restrictive by intent or whether it is acting as an unintended limit on demand the publisher would otherwise accept.",
+                "Ask the publisher when the lists were last reviewed and whether a process exists to revisit entries against their original reason."
+              ]
+            },
+            "springserve_reporting": {
+              "label": "SpringServe reporting",
+              "steps": [
+                "Build a report broken out by demand tag with requests, fill rate, and revenue.",
+                "Compare fill across tags that carry heavy blocklists against tags with lighter controls to see whether a block is suppressing demand more than intended.",
+                "Note any demand tag where fill is low and the blocklist is large, which points to controls worth reviewing entry by entry."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per demand tag, the allowlists and blocklists in place, the reason and date for each entry where known, and whether a review process exists. A setup where each entry maps to a current, stated reason and the lists are reviewed on a schedule passes. A setup where entries carry no reason, no review date, and no process to revisit them is a fail recorded with the tags and entries affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the allowlist and blocklist entries for each demand tag and whether a review process exists above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} maintains buyer and advertiser allowlists and blocklists on its demand tags that carry no record of when they were last reviewed or why each entry is on them. Controls set once and never revisited stop matching current intent, so a block added for a reason that no longer holds keeps suppressing demand, and a buyer that should be excluded can stay allowed because the list was never checked. {{voice_recommend}} scheduling a periodic review where each allowlist and blocklist entry is checked against the reason it was added and removed if that reason no longer applies, with the reason and date recorded for every entry that stays. After the review, recheck fill and revenue on the affected demand tags to confirm the controls reflect a current decision."
+      }
+    },
+    {
+      "id": "springserve-demand-tag-controls-blocks-too-broad-suppress-fill",
+      "title": "Blocks are scoped so broadly that they suppress legitimate demand and fill",
+      "category": "buyers",
+      "subcategory": "demand_tag_controls",
+      "impact_score": 3,
+      "impact_rationale": "A block written wider than the problem it was meant to solve shuts out demand the publisher would have accepted. A whole advertiser category blocked to stop a single offending creative, or a broad seat block applied to catch one buyer, removes legitimate bidders along with the intended one. The result is lower fill and lost revenue on inventory that had no quality or safety problem, and the gap is hard to spot because the blocked demand never appears in reporting.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "brand-safety"],
+      "educate": {
+        "base": "A block is a blunt instrument, and the breadth of the block decides how much legitimate demand it removes alongside the demand it was meant to stop. The OpenRTB protocol that programmatic demand rides on offers controls at different widths. Blocked advertiser domains (badv) name a single advertiser, blocked advertiser categories (bcat) name a whole category, and a blocked buyer seat (bseat) shuts out an entire seat. A category block is far wider than a single-domain block, so choosing the wider tool to solve a narrow problem trades fill for convenience.<br><br>The cost of an over-broad block is that it suppresses demand the publisher would have accepted. Blocking an entire advertiser category to stop one creative that crossed a line removes every other advertiser in that category, including ones the publisher has no quarrel with. Applying a broad seat block to catch a single misbehaving buyer shuts out every other advertiser that bids through that seat. The intended target is caught, but so is a band of legitimate demand, and fill drops on inventory that had no problem to begin with.<br><br>This gap is hard to see because the blocked demand never shows up. Reporting shows the impressions that served, not the bids a block refused, so a publisher reading fill and revenue sees a lower number without an obvious cause. The block does its work silently, which is exactly why an over-broad block can sit in place for a long time before anyone connects the soft fill to the control that caused it.<br><br>A few signs point to blocks scoped wider than the problem:<ul><li>A whole advertiser category is blocked when the original concern was a single advertiser or creative</li><li>A buyer seat is blocked outright to address one creative rather than blocking the specific advertiser domain</li><li>Fill rate on a demand tag is soft and the tag carries broad category or seat blocks with no record of why they were set that wide</li></ul>You may want to confirm that each block is scoped to the narrowest control that solves the problem. One approach is to replace a category or seat block with a specific advertiser-domain block where the concern is a single advertiser, then recheck fill to see whether the narrower block recovered legitimate demand."
+      ,
+        "site_type_overlays": {
+          "publishing": "For a streaming service or broadcaster, a category block set to protect the on-air brand can be wider than the brand standard requires because one sensitive creative does not mean the whole category conflicts with the programming. You may want to narrow the block to the specific advertisers that breach the standard so the rest of the category can still fill the CTV inventory.",
+          "ecommerce": "For a commerce-content video property, a broad block meant to keep one competitor off product video can sweep up adjacent advertisers that pose no commercial conflict. You may want to scope the block to the named competitor's advertiser domain rather than its category, so unrelated demand in that category keeps competing for the inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "OpenRTB 2.x Specification (badv, bcat, bseat block-list scope)",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/openrtb2.x/blob/main/2.6.md"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "OpenRTB (Real-Time Bidding) standards overview",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for scoping advertiser, category, and buyer-seat blocks on demand tags is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the breadth of each block on the demand tags and compare it against the problem it was meant to solve, then read fill on the tags that carry the broadest blocks.",
+        "tools": {
+          "free": {
+            "springserve_ui": {
+              "label": "SpringServe console",
+              "steps": [
+                "Open the demand tags and list the blocks applied to each, noting whether each is a single advertiser block, a category block, or a buyer-seat block.",
+                "For each category or seat block, record the original concern if it is documented and judge whether a narrower advertiser-domain block would have addressed it.",
+                "Flag any block whose breadth exceeds the problem it was meant to solve, for example a category block traced to a single creative."
+              ]
+            },
+            "springserve_reporting": {
+              "label": "SpringServe reporting",
+              "steps": [
+                "Build a report broken out by demand tag with requests, fill rate, and revenue.",
+                "Compare fill on tags carrying broad category or seat blocks against comparable tags with narrower controls to estimate the demand a broad block may be suppressing.",
+                "Note any demand tag where fill is soft and the controls are broad, which points to a block worth narrowing and remeasuring."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per demand tag, the breadth of each block, the problem it was meant to solve, and the fill rate on the tag. Blocks scoped to the narrowest control that solves the stated problem, with fill that holds, pass. A block scoped wider than its problem, for example a category or seat block traced to a single advertiser, on a tag with soft fill is a fail recorded with the block and the tag affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the breadth of each block, the problem it addresses, and the fill rate per demand tag above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} applies blocks on its demand tags that are scoped wider than the problem they were meant to solve, for example a whole advertiser category blocked to stop a single creative. A block written wider than its problem removes legitimate demand alongside the intended target, so fill drops on inventory that had no quality or safety issue, and because the refused bids never appear in reporting the cause is hard to trace. {{voice_recommend}} replacing each over-broad category or seat block with a specific advertiser-domain block where the concern is a single advertiser, then rechecking fill on the affected demand tags. After narrowing the blocks, confirm that legitimate demand returned while the intended target stayed excluded."
+      }
+    }
+  ]
+}

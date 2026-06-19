@@ -1,0 +1,156 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Demand routing decides which buyer sees each impression and in what order, so it controls both the fill rate and the price a video impression clears at. A demand setup that grew by accretion, with tags added over time and rarely removed, can route impressions to partners that no longer pay or respond, while the priorities and budgets that decide the order drift away from what the inventory is worth. This check is a review of the demand tags and routing rules a publisher already has in SpringServe, so it costs reading time rather than rebuild time, and each finding points to a concrete routing decision the publisher can test.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "SpringServe routes each video or Connected TV (CTV) impression to a set of direct-sold demand tags and third-party demand partners, and the priority, budget, and pacing settings on those tags decide which buyer wins the impression and at what price. This subcategory is about the demand configuration itself, the partners connected and how their tags are ordered and capped, rather than the creative or measurement that follows the win. These checks confirm that the demand routing reflects the value of the inventory and that the tag list reflects partners that are still live, rather than a list that grew over time and was rarely pruned.",
+  "audit_checks": [
+    {
+      "id": "springserve-direct-demand-partners-priorities-and-budgets-misaligned",
+      "title": "Demand tag priorities and budgets do not reflect partner value",
+      "category": "buyers",
+      "subcategory": "direct_demand_partners",
+      "impact_score": 3,
+      "impact_rationale": "Priority and budget settings decide which demand partner sees each impression and in what order. When a low-paying partner sits ahead of a higher-paying one, or a strong partner runs out of budget early in the day, impressions route to weaker demand and clear below what they were worth, so the misalignment trades revenue away on every impression it touches.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "transparency"],
+      "educate": {
+        "base": "SpringServe is a video and Connected TV (CTV) ad server, and it routes each impression to demand through a stack of tags. Direct-sold demand tags carry the deals a publisher sold itself, and third-party demand partner tags carry programmatic and reseller demand routed in through the Video Ad Serving Template (VAST). Each tag carries settings that decide whether it sees the impression and when. Priority decides the order the server tries tags in, and budget or spend caps decide how much volume a tag can take before the server stops sending to it.<br><br>The order matters because it decides which buyer gets the first chance at the impression. A demand stack works when the tag most likely to pay the most for an impression sees it first, and the rest follow in descending order of expected value. When the order does not match value, the impression goes to a weaker buyer that happens to sit higher in the stack, and the stronger buyer either sees it after the price has already been set lower or does not see it at all.<br><br>Budgets shape the same trade across the day. A high-value partner capped too low runs out of budget in the morning, so the afternoon's impressions route to whatever demand is left, which clears lower. A low-value partner with no cap absorbs volume that a stronger partner could have won. The result in both cases is the same, which is impressions clearing below the price the inventory could have reached.<br><br>A few signs point to priorities and budgets that no longer reflect partner value:<ul><li>A demand tag's priority sits above partners that report a higher average clearing price for the same inventory</li><li>A high-performing partner hits its budget or spend cap well before the end of the day while lower-value tags keep serving</li><li>The priority order has not been reviewed against recent revenue and clearing-price reporting, so it reflects the order tags were added rather than how they perform</li></ul>You may want to confirm that the priority order and the budget caps follow what each partner actually pays for the inventory. One approach is to read average clearing price and revenue per demand tag, then reorder the stack and adjust caps so the strongest demand sees each impression first and is not capped out before the day ends.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, live and premium video carries direct-sold sponsorships alongside programmatic demand, and the direct deals usually need to sit ahead of the open-market tags to honor the rate that was sold. You may want to confirm that direct-sold demand tags hold priority over third-party partners on the premium inventory, and that the programmatic tags below them are ordered by clearing price rather than by when they were added.",
+          "ecommerce": "On a commerce-content video property, product and shoppable video reaches an audience closer to a purchase and can command higher-paying demand than general editorial video. You may want to confirm that the demand partners routed to the commercial video inventory are ordered and budgeted to match its higher value, rather than sharing one priority order with the lower-value editorial video."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "OpenRTB (Real-Time Bidding)",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for demand tag priorities, budgets, and routing is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the priority order, budget, and spend caps across the demand tags routed to a given slice of inventory, then compare that order against each partner's recent revenue and average clearing price.",
+        "tools": {
+          "free": {
+            "springserve_ui": {
+              "label": "SpringServe console",
+              "steps": [
+                "Open the demand tags routed to the supply or inventory in question and list them with their priority order.",
+                "For each demand tag, note whether it is a direct-sold tag or a third-party demand partner, and record its priority value, budget, and any spend or volume cap.",
+                "Record the order the tags currently run in, and flag any case where a tag's priority sits above a partner you expect to pay more for the same inventory.",
+                "Note any demand tag that hits its budget or cap before the end of the day, which points to a strong partner being capped out early."
+              ]
+            },
+            "springserve_reporting": {
+              "label": "SpringServe reporting",
+              "steps": [
+                "Build a report broken out by demand tag, with revenue, impressions, fill rate, and average clearing price (eCPM).",
+                "Rank the demand tags by average clearing price and revenue, then compare that ranking against the priority order recorded above.",
+                "Note any demand tag whose priority order does not match its clearing-price ranking, and any high-paying tag that ran out of budget before the day ended."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per demand tag, the priority order, the budget or spend cap, and the average clearing price and revenue from reporting. A demand stack where the priority order tracks clearing-price ranking, direct-sold deals hold their intended position, and no high-value partner is capped out early passes. A stack where lower-value tags sit ahead of higher-value partners, or where a strong partner hits its budget before the day ends while weaker tags keep serving, is a fail recorded with the tags and the inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the priority order, budget, and average clearing price for each demand tag above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the demand tags on {{site_name}} are ordered and budgeted in a way that does not match what each partner pays for the inventory, so impressions route to weaker demand while stronger partners either see them late or run out of budget early. Priority decides which buyer sees each impression first, and a budget cap set too low on a high-value partner pushes the day's later impressions to demand that clears lower. {{voice_recommend}} reading the average clearing price and revenue per demand tag, then reordering the stack so the strongest demand sees each impression first and raising the caps on the partners that pay the most so they are not capped out before the day ends. After the change, recheck revenue and average clearing price per tag to confirm the order and the caps follow partner value."
+      }
+    },
+    {
+      "id": "springserve-direct-demand-partners-stale-tags-not-removed",
+      "title": "Stale or non-performing demand tags are left in the stack",
+      "category": "buyers",
+      "subcategory": "direct_demand_partners",
+      "impact_score": 2,
+      "impact_rationale": "A demand tag that no longer responds or wins still gets queried for impressions, which adds latency to the ad request and, on video and CTV, raises the chance the impression times out before an ad returns. A dead tag also clutters reporting and the priority order, so the genuine demand is harder to read and tune.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "transparency"],
+      "educate": {
+        "base": "Demand tags accumulate in a video ad server. A publisher adds a partner for a campaign, tests a reseller, or onboards a buyer for a flight, and the tag stays in the stack after the reason for adding it has passed. Over time the demand list holds tags that pay well, tags that pay little, and tags that no longer return a bid at all, and only the first group earns its place.<br><br>A dead or non-performing tag is not free to leave in place. SpringServe is a video and Connected TV (CTV) ad server, and on video the server often queries demand tags in sequence within a strict timeout. Every tag the server tries before it finds a paying ad spends part of that timeout. A tag that times out or returns no bid still consumes its slice of the window, so a stack padded with non-performing tags raises the chance the impression times out before an ad returns, which shows up as an unfilled impression and lost revenue.<br><br>Stale tags also make the demand harder to read. A priority order with dead tags scattered through it is harder to reason about, and reporting that lists partners with no recent fill makes it harder to see which demand is actually carrying the inventory. Pruning the tags that no longer perform leaves a shorter list that is easier to order, cap, and tune.<br><br>A few signs point to demand tags that should be reviewed for removal:<ul><li>A demand tag has returned no bids, or no wins, across a recent reporting window despite being queried for impressions</li><li>A tag was added for a campaign or test that has since ended and was never turned off</li><li>The demand list holds more tags than the publisher can name a current reason for, which suggests the list grew by accretion</li></ul>You may want to confirm that every demand tag in the stack still responds and still wins enough to justify the latency it adds. One approach is to read fill rate, bid rate, and revenue per tag across a recent window, then pause or remove the tags that no longer perform and recheck fill and timeout rates afterward.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, ad pods on live and long-form video run within a strict break duration, so a stack padded with non-responding demand tags raises the chance a pod slot goes unfilled before the break ends. You may want to prune the demand tags that no longer return bids so the server reaches paying demand within the time the pod allows.",
+          "ecommerce": "On a commerce-content video property, short shoppable and product video gives the server little time to find a paying ad before the viewer moves on, so latency from dead demand tags costs fill directly. You may want to remove the demand tags that no longer perform so the request reaches live demand inside the short window the format allows."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "OpenRTB (Real-Time Bidding)",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for pausing and removing demand tags is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each demand tag's recent activity to find tags that are still queried but no longer return bids or wins, and tags tied to campaigns or tests that have ended.",
+        "tools": {
+          "free": {
+            "springserve_ui": {
+              "label": "SpringServe console",
+              "steps": [
+                "List the active demand tags in the stack and note when each was added and the reason recorded for it, if any.",
+                "Flag any demand tag tied to a campaign, flight, or test that has since ended and is still set to active.",
+                "Record the demand tags the publisher cannot name a current reason for, which point to a list that grew by accretion."
+              ]
+            },
+            "springserve_reporting": {
+              "label": "SpringServe reporting",
+              "steps": [
+                "Build a report broken out by demand tag across a recent window, with requests, bid rate, fill rate, wins, and revenue.",
+                "Flag any demand tag that received requests but returned no bids or no wins across the window.",
+                "Record the unfilled rate and any timeout signal for the affected inventory so the cost of querying dead tags can be read alongside the prune list."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per demand tag, the requests, bid rate, fill rate, wins, and revenue across a recent window, plus whether the tag is tied to a campaign or test that has ended. A demand stack where every active tag still returns bids and wins enough to justify the latency it adds passes. A stack holding tags that are queried but return no bids or wins, or tags tied to ended campaigns left active, is a fail recorded with the tags to pause or remove.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the recent requests, bid rate, fill rate, and revenue for each demand tag above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} keeps demand tags in the stack that no longer return bids or wins, including tags tied to campaigns and tests that have ended. On a video and Connected TV (CTV) ad server, every tag the server queries before it finds a paying ad spends part of the request timeout, so non-performing tags raise the chance the impression goes unfilled, and they clutter the priority order and reporting. {{voice_recommend}} reading fill rate, bid rate, and revenue per demand tag across a recent window, then pausing or removing the tags that no longer perform and the ones whose reason for being added has passed. After the prune, recheck fill and timeout rates on the affected inventory to confirm the shorter stack reaches paying demand more often."
+      }
+    }
+  ]
+}

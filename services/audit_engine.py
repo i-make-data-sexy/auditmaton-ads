@@ -818,6 +818,17 @@ CATEGORY_METADATA = {
         "brand-safety": {"display_name": "Brand Safety", "icon_class": "fa-solid fa-shield-halved", "description": "Ad quality scanning, creative blocking, and content classification"},
         "measurement": {"display_name": "Measurement", "icon_class": "fa-solid fa-chart-line", "description": "Discrepancy reconciliation, report accuracy, and video metrics"},
     },
+    "freewheel": {
+        "governance": {"display_name": "Governance", "icon_class": "fa-solid fa-scale-balanced", "description": "Account structure, access roles, and naming conventions"},
+        "inventory": {"display_name": "Inventory", "icon_class": "fa-solid fa-boxes-stacked", "description": "Supply tags, ad pods, and VAST/VMAP setup"},
+        "delivery": {"display_name": "Delivery", "icon_class": "fa-solid fa-truck-fast", "description": "Demand routing, competitive separation, and pacing"},
+        "monetization": {"display_name": "Monetization", "icon_class": "fa-solid fa-sack-dollar", "description": "Price floors, programmatic demand, and yield"},
+        "buyers": {"display_name": "Buyers", "icon_class": "fa-solid fa-handshake", "description": "Programmatic deals, direct demand, and demand controls"},
+        "supply-chain": {"display_name": "Supply Chain", "icon_class": "fa-solid fa-link", "description": "ads.txt, sellers.json, and supply path optimization"},
+        "brand-safety": {"display_name": "Brand Safety", "icon_class": "fa-solid fa-shield-halved", "description": "Ad quality, creative blocking, and content classification"},
+        "privacy": {"display_name": "Privacy", "icon_class": "fa-solid fa-user-shield", "description": "Consent signals, US state privacy, and child-directed treatment"},
+        "measurement": {"display_name": "Measurement", "icon_class": "fa-solid fa-chart-line", "description": "Discrepancy reconciliation, completion, and reporting"},
+    },
     "springserve": {
         "governance": {"display_name": "Governance", "icon_class": "fa-solid fa-scale-balanced", "description": "Account structure, access roles, and naming conventions"},
         "inventory": {"display_name": "Inventory", "icon_class": "fa-solid fa-boxes-stacked", "description": "Supply tags, ad pods, and VAST/VMAP setup"},

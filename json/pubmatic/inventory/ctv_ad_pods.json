@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Ad pod settings decide how many ads run in a Connected TV (CTV) ad break, how long the break is, and which advertisers can sit next to each other inside it, so they shape both the revenue from a break and the experience the viewer sees. Pod settings left on their defaults, or built without competitive separation and frequency limits, can stack repeated or competing ads into one break and push viewers to abandon the stream. The check is a review of the pod configuration a publisher already has in PubMatic's OpenWrap OTT setup, so it costs reading time rather than rebuild time, and the finding points to a concrete pod decision the publisher can adjust.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "A CTV ad pod is the sequenced group of ads that plays inside a single ad break, and its settings decide how long the break runs, how many ads fill it, and which advertisers are allowed to share it. PubMatic monetizes CTV inventory through OpenWrap OTT, a Prebid-based wrapper, so the pod settings carry into the bid request that demand responds to. This subcategory is about whether those pod settings are deliberate rather than carried over from a default template, and whether competitive separation and frequency limits inside the pod protect the viewing experience. These checks confirm that the pod structure reflects a publisher's own decision about break length, ad count, and ad adjacency rather than whatever the wrapper shipped with.",
+  "audit_checks": [
+    {
+      "id": "pubmatic-ctv-ad-pods-settings-left-on-defaults",
+      "title": "Ad pod settings are left on defaults rather than chosen deliberately",
+      "category": "inventory",
+      "subcategory": "ctv_ad_pods",
+      "impact_score": 3,
+      "impact_rationale": "Pod duration, the number of ads per pod, and the slot structure decide how a CTV ad break is built and how it is offered to demand. Settings carried over from a wrapper's default template may not match the break length the content actually supports, so a publisher can end up requesting more ad time than the break holds, leaving slots unfilled, or less than it holds, leaving revenue uncollected on every break.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "ad-experience"],
+      "educate": {
+        "base": "A Connected TV (CTV) ad pod is configured by a small set of decisions, and each one shapes how the ad break is built. Pod duration sets how many seconds of ad time the break holds. The maximum number of ads per pod caps how many separate spots fill that time. The slot structure decides whether the pod is structured, with a fixed count of ads at specified lengths, or dynamic, with a fixed total duration and flexibility in how many ads and what lengths fill it. PubMatic monetizes CTV through OpenWrap OTT, a Prebid-based wrapper, so these settings carry into the pod request that demand responds to.<br><br>The risk is not that any single setting is wrong. The risk is leaving the settings on whatever a wrapper template shipped with. A default pod duration may be longer than the break the content actually supports, so the wrapper requests ad time the break cannot hold and slots come back unfilled. A default ad count may chop a break into more spots than the duration comfortably fits, so each spot runs short and clears low, or into fewer spots than the duration allows, so ad time goes unsold. In each case the pod is built to a template rather than to the break.<br><br>Prebid's video endpoint, which OpenWrap OTT builds on, describes the pod through a 'podconfig' object that carries the allowed ad durations and the pod structure, and it lets a publisher require an exact duration match or round flexibly to the nearest allowed length. That gives a publisher direct control over how the pod is shaped, which is the control this check confirms a publisher is actually using.<br><br>A few signs point to pod settings left on defaults rather than chosen:<ul><li>The pod duration and maximum ads per pod match the wrapper's template values with no record of a decision to set them</li><li>The same pod structure applies across content types whose break lengths differ, such as short clips and long-form episodes</li><li>Reporting shows unfilled slots at the end of pods or short-running ads, which points to a duration or ad count that does not fit the break</li></ul>You may want to confirm that the pod duration, ad count, and slot structure were set to match the break the content supports rather than carried over from a template. One approach is to read fill and ad length per pod, then adjust the pod settings on the content types where the pod and the break diverge.",
+        "site_type_overlays": {
+          "publishing": "On a media property streaming long-form episodes or live content, the natural ad break is longer than a break in a short news clip, so one pod template rarely fits both. You may want to set pod duration and ad count per content type, with longer pods on episodic and live inventory and shorter pods on clip inventory, so each pod matches the break the content actually carries.",
+          "ecommerce": "On a commerce-content property running short product or how-to videos, the break is brief and a pod template built for long-form content can request more ad time than the clip supports. You may want to keep pod duration short and the ad count low on this inventory so the pod fits the clip rather than padding a brief break with slots that come back unfilled."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Server Video Endpoint (podconfig, durationrangesec)",
+            "source_url": "https://docs.prebid.org/prebid-server/endpoints/openrtb2/pbs-endpoint-video.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB standard (ad pod buying and selling for CTV)",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed OpenWrap OTT pod configuration documentation is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the pod duration, maximum ads per pod, and slot structure in the OpenWrap OTT setup, and compare them against the break lengths the content actually supports.",
+        "tools": {
+          "free": {
+            "openwrap_ui": {
+              "label": "PubMatic OpenWrap OTT configuration",
+              "steps": [
+                "Open the OpenWrap OTT pod configuration and list the pod duration and maximum number of ads per pod for each profile or content type in use.",
+                "For each pod, note whether the structure is fixed, such as a set number of ads at specified lengths, or dynamic, such as a total duration with flexible ad count and length.",
+                "Record whether the settings match the wrapper's default template values or whether they were changed to fit a specific break, and ask the publisher what break length each content type supports."
+              ]
+            },
+            "ssp_reporting": {
+              "label": "PubMatic reporting",
+              "steps": [
+                "Build a report broken out by content type or pod, with fill rate, the number of ads served per pod, and average ad duration.",
+                "Compare the ads served per pod against the configured maximum to see whether pods are filling completely or returning unfilled slots.",
+                "Note any content type where pods run short or leave slots empty, which points to a pod duration or ad count that does not fit the break."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per content type, the pod duration, maximum ads per pod, and slot structure, alongside the fill rate and average ad length the reporting shows. Pod settings chosen to match the break the content supports, with full or near-full pods and ad lengths that fit the duration, pass. Pod settings carried over from a wrapper template that produce unfilled slots or short-running ads on inventory whose break length differs from the template are a fail recorded with the content types and settings affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the pod duration, ad count, and slot structure for each content type, along with the fill rate and ad length above, to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs CTV ad pods on the OpenWrap OTT default settings rather than pod durations and ad counts chosen to fit each break. A pod built to a template can request more ad time than the break holds, leaving slots unfilled, or less than it holds, leaving ad time unsold, so the pod does not match the content it runs against. {{voice_recommend}} reading the fill rate and average ad length per content type, then setting the pod duration, maximum ads per pod, and slot structure to match the break each content type supports. After the change, recheck fill and ad length per pod to confirm the pods fit the breaks."
+      }
+    },
+    {
+      "id": "pubmatic-ctv-ad-pods-no-competitive-separation-or-frequency",
+      "title": "Competitive separation and frequency limits within pods are not configured",
+      "category": "inventory",
+      "subcategory": "ctv_ad_pods",
+      "impact_score": 3,
+      "impact_rationale": "Without competitive separation, two ads from the same industry can land in one break, and without a frequency limit the same ad can repeat across the break. Both push a viewer to abandon the stream, which costs the publisher the remaining ad slots in that session, so a pod that protects the viewing experience holds revenue that an unprotected pod loses to drop-off.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["ad-experience", "inventory"],
+      "educate": {
+        "base": "A Connected TV (CTV) ad break shows several ads in sequence, and what plays next to what matters to the viewer. Two ads from competing brands in the same break, or the same ad repeated twice in one pod, reads as a broken experience and gives a viewer a reason to leave the stream. When a viewer leaves, the publisher loses the remaining ad slots in the session along with that impression, so pod hygiene is a revenue question as much as an experience one.<br><br>Two controls protect the pod. Competitive separation, also called competitive exclusion, prevents ads from the same industry group from running in the same pod or adjacent to each other. Frequency control limits how many times one ad or one advertiser appears within a break. PubMatic monetizes CTV through OpenWrap OTT, a Prebid-based wrapper, and Prebid's long-form video setup defines competitive exclusion as preventing ads in the same industry group from appearing in the same pod or next to each other, keyed off the advertiser category on the bid. The same category signal supports frequency limits inside the pod.<br><br>Responsibility for separation sits with the sell side when more than one demand source fills a pod because no single buyer sees the whole break. That makes the wrapper and ad server configuration the place where separation and frequency are enforced. If those controls are left off, the auction can fill a single break with two competing advertisers or a repeated creative, and nothing downstream catches it.<br><br>A few signs point to separation and frequency limits being unconfigured:<ul><li>No competitive exclusion or category-based separation is set in the OpenWrap OTT or ad server pod configuration</li><li>No frequency cap limits how many times one advertiser or creative can appear within a single pod</li><li>Session recordings or QA passes show competing brands in the same break or a creative repeated inside one pod</li></ul>You may want to confirm that competitive separation and a per-pod frequency limit are configured so a single break cannot fill with competing or repeated ads. One approach is to enable category-based competitive exclusion in the wrapper, set a frequency limit per advertiser within the pod, and QA a sample of breaks to confirm the rules hold.",
+        "site_type_overlays": {
+          "publishing": "On a media property running long-form or live CTV, the ad breaks are longer and hold more slots, so the odds of two competing brands or a repeated creative landing in one break rise with the pod size. You may want to enforce category-based competitive separation and a per-advertiser frequency limit on these larger pods specifically because a broken break costs the publisher the rest of a long viewing session.",
+          "ecommerce": "On a commerce-content property, a viewer who sees a competitor's product ad next to the publisher's own content, or the same ad twice in a short break, has extra reason to leave. You may want to confirm competitive separation excludes direct competitors of the property's own products and that a frequency limit keeps a single creative from repeating inside the brief pod."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Show Long-Form Video Ads with Prebid and Google Ad Manager (competitive exclusion)",
+            "source_url": "https://docs.prebid.org/dev-docs/show-long-form-video-with-gam.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Server Video Endpoint (competitive separation for ad pods)",
+            "source_url": "https://docs.prebid.org/prebid-server/endpoints/openrtb2/pbs-endpoint-video.html"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed OpenWrap OTT competitive separation and frequency settings are documented in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether competitive separation and per-pod frequency limits are configured in the OpenWrap OTT and ad server setup, and QA a sample of served breaks to confirm the rules hold.",
+        "tools": {
+          "free": {
+            "openwrap_ui": {
+              "label": "PubMatic OpenWrap OTT configuration",
+              "steps": [
+                "Open the OpenWrap OTT pod and category settings and note whether competitive exclusion, keyed off the advertiser category, is enabled for CTV pods.",
+                "Check whether a frequency limit is set for how many times one advertiser or creative can appear within a single pod.",
+                "Record which protections are configured and which are absent, and note whether they apply across all CTV content types or only some."
+              ]
+            },
+            "break_qa": {
+              "label": "Served-break QA review",
+              "steps": [
+                "Collect a sample of served CTV ad breaks through session recordings, ad logs, or a manual playback pass across the content types in use.",
+                "For each break, note whether two ads from the same industry category appeared together and whether any single advertiser or creative repeated within the pod.",
+                "Record any break that shows competing brands or a repeated creative, which points to separation or frequency rules that are missing or not holding."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether competitive separation and a per-pod frequency limit are configured in the OpenWrap OTT and ad server setup, alongside the results of a served-break QA sample. A setup where category-based separation and a per-advertiser frequency limit are enabled and the QA sample shows no competing or repeated ads inside a pod passes. A setup where either control is absent, or where the QA sample shows competing brands or a repeated creative within a break, is a fail recorded with the missing control and the breaks affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether competitive separation and a per-pod frequency limit are configured, along with the served-break QA results above, to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs CTV ad pods without competitive separation or a per-pod frequency limit, so a single break can fill with two competing advertisers or a repeated creative. Both read as a broken experience and give a viewer a reason to leave the stream, which costs the publisher the remaining ad slots in that session. {{voice_recommend}} enabling category-based competitive exclusion in the OpenWrap OTT setup, setting a frequency limit per advertiser within the pod, and QA-ing a sample of served breaks to confirm the rules hold. After the change, recheck a fresh sample of breaks to confirm competing and repeated ads no longer share a pod."
+      }
+    }
+  ]
+}

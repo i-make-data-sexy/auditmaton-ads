@@ -1,0 +1,156 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Slot mapping is the wiring between a publisher's on-page ad units and the PubMatic tag IDs that request demand for them, so a mistake here sends the wrong placement, the wrong size, or no demand at all into the auction. The check reads the mapping a publisher already has in PubMatic and OpenWrap against the ad units on the page, so it costs reading time rather than rebuild time, and a finding points to a specific tag or placement to correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Ad slot mapping is the link between the ad units a publisher renders on the page and the PubMatic tag IDs and placements that request demand for them. PubMatic's OpenWrap header-bidding wrapper is built on Prebid, so each on-page ad unit carries a slot code, a set of declared sizes, and a media format, and each of those has to point at the matching PubMatic tag with the same dimensions and format. This subcategory is about whether that mapping is correct and current. These checks confirm that every ad unit maps to the right tag with the sizes and formats it actually serves, and that no orphaned, stale, or mismatched tags are still passing inventory under a placement that no longer fits.",
+  "audit_checks": [
+    {
+      "id": "pubmatic-ad-slot-mapping-units-mismatched-to-tags",
+      "title": "Ad units do not map to the correct PubMatic tag IDs with matching sizes and formats",
+      "category": "inventory",
+      "subcategory": "ad_slot_mapping",
+      "impact_score": 3,
+      "impact_rationale": "When an ad unit maps to the wrong PubMatic tag, or to a tag whose declared sizes or format do not match what the unit serves, demand is requested for the wrong placement. Bidders price against a slot that is not what renders, so bids come in low, get filtered, or never arrive, and the impression clears below its value or goes unfilled.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "data-quality"],
+      "educate": {
+        "base": "In PubMatic's OpenWrap wrapper, every ad unit on the page carries an identity that the auction reads. Because OpenWrap is built on Prebid, that identity is a Prebid ad unit with a slot code, a list of declared sizes, and one or more media types, e.g., banner, video, or native. Each of those ad units maps to a PubMatic tag ID, and the demand a bidder returns is priced against the slot the wrapper described, not against whatever actually renders in the div.<br><br>The mapping has to agree on three things for the demand to fit the impression. The slot code has to point at the tag the publisher intended for that placement. The declared sizes have to match the sizes the unit actually serves since a bidder that thinks a slot is 300x250 will not bid a 728x90 creative into it. The media format has to match too because a banner-only tag mapped to a unit that serves outstream video collects banner demand for a video slot. Prebid's own ad unit reference describes the slot code as 'an identifier you create and assign to this ad unit', generally the ad slot name or the div element ID, and ties the declared sizes on the ad unit to the sizes the ad server expects.<br><br>When any of the three falls out of agreement, the cost is quiet. There is no error on the page. The unit still renders, often filled by a fallback or by whichever bidder priced loosely enough to win the mismatched slot. The lost value shows up only as a lower clearing price or a lower fill rate on that placement, which is hard to trace back to a mapping error without reading the mapping directly.<br><br>A few signs point to ad units that do not map cleanly to their tags:<ul><li>A slot code on the page does not match any active PubMatic tag, or matches a tag built for a different placement</li><li>The sizes declared on the ad unit differ from the sizes the placement actually serves, so a bidder prices against dimensions that never render</li><li>A unit that serves video or native maps to a tag declared banner-only, or the reverse, so the format the bidder receives does not fit the slot</li></ul>You may want to confirm that each ad unit on the page maps to the PubMatic tag intended for it, with the same sizes and format the unit serves. One approach is to list the on-page ad units alongside the PubMatic tags they map to and compare slot code, sizes, and format row by row.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the page templates vary, so an article page, a section front, and a homepage can each carry a different set of ad units. You may want to check the mapping per template rather than once for the site since a slot code or size list that is correct on the article template can be wrong on the homepage where a larger premium unit sits.",
+          "ecommerce": "On a commerce-content site, product and category pages often introduce placements that editorial pages do not carry, e.g., a sticky sidebar unit or a unit between product rows. You may want to confirm those commercial placements map to their own tags with the right sizes, rather than reusing an editorial tag whose declared sizes do not fit the commercial slot."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Advanced Size Mapping module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/sizeMappingV2.html"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed configuration documentation for OpenWrap slot and tag setup is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the ad units rendered on the page against the PubMatic tags they map to, and compare slot code, declared sizes, and media format for each.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open a representative page, then open DevTools and the Console.",
+                "Inspect the OpenWrap or Prebid ad unit configuration to list each on-page ad unit with its slot code, declared sizes, and media types.",
+                "Record the rendered size and format of each unit as it appears on the page so it can be compared against what the ad unit declares.",
+                "Note any unit whose declared sizes or format differ from what it renders, which points to a mapping that does not fit the slot."
+              ]
+            },
+            "pubmatic_console": {
+              "label": "PubMatic console",
+              "steps": [
+                "Open the PubMatic console and list the active tags and placements with their assigned sizes and formats.",
+                "Match each on-page ad unit to the PubMatic tag it maps to by slot code, and record whether the tag's sizes and format match the unit's.",
+                "Flag any ad unit that maps to a tag built for a different placement, or whose tag declares sizes or a format the unit does not serve."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad unit, the slot code, declared sizes, and media format, alongside the PubMatic tag it maps to and that tag's sizes and format. A mapping where each unit points at the intended tag with matching sizes and format passes. A unit that maps to the wrong tag, or to a tag whose sizes or format do not match what the unit serves, is a fail recorded with the unit and the dimension that diverges.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each ad unit's slot code, sizes, and format alongside the PubMatic tag it maps to above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more ad units on {{site_name}} do not map cleanly to their PubMatic tags, with a slot code, declared size, or media format that does not match the placement the unit serves. PubMatic's OpenWrap wrapper prices demand against the slot the mapping describes, so a tag whose sizes or format differ from what renders collects bids for a placement that is not there, and the impression clears low or goes unfilled. {{voice_recommend}} listing each on-page ad unit alongside the PubMatic tag it maps to and comparing slot code, sizes, and format row by row, then correcting any unit whose mapping does not fit the slot. After the change, recheck fill rate and clearing price on the affected placements to confirm the demand now matches the inventory."
+      }
+    },
+    {
+      "id": "pubmatic-ad-slot-mapping-orphaned-stale-tags",
+      "title": "Orphaned or stale tags pass inventory under a placement that no longer fits",
+      "category": "inventory",
+      "subcategory": "ad_slot_mapping",
+      "impact_score": 3,
+      "impact_rationale": "A tag left active after its placement changed or was removed keeps requesting demand for inventory that no longer exists or no longer matches. That sends auction traffic and bidder spend toward a slot that does not render as described, which can misreport inventory, depress measured performance, and in the worst case let unauthorized or spoofed inventory clear under a placement a buyer trusts.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "data-quality"],
+      "educate": {
+        "base": "Tags accumulate over the life of a site. A placement gets renamed, a unit moves down the page, a section is retired, a test slot is launched and forgotten. Each of those changes the inventory, but the PubMatic tag that served the old arrangement often stays active because removing it takes a deliberate step that nobody owns. An orphaned tag is one whose placement no longer exists. A stale tag is one whose placement still exists but has changed, so the tag now describes inventory that no longer matches.<br><br>An orphaned or stale tag is not harmless background noise. While it stays active it keeps requesting demand, so bidders spend auction budget pricing a slot that renders differently than the tag claims, or does not render at all. That inflates request counts, distorts the fill and clearing numbers a publisher reads, and makes the real inventory harder to see. A buyer reading the supply chain sees a placement that no longer matches what the tag delivers.<br><br>This connects to the publisher's transparency declarations. The IAB Tech Lab ads.txt standard exists so a publisher can 'publicly declare the companies they authorize to sell their digital inventory', which lets buyers tell authorized inventory from counterfeit. A mapping cluttered with orphaned and stale tags works against that clarity since inventory passing under a placement that no longer fits is exactly the kind of mismatch the supply chain is meant to surface. Keeping the tag list current is part of keeping the inventory honest.<br><br>A few signs point to orphaned or stale tags:<ul><li>An active PubMatic tag maps to a slot code or placement that no longer appears on any page</li><li>A tag still requests demand for a placement that has changed size, format, or position since the tag was built</li><li>The tag list holds entries from retired sections, old tests, or prior site versions that were never removed</li></ul>You may want to reconcile the active PubMatic tags against the placements that currently render on the site. One approach is to list every active tag, mark which on-page placement it serves today, and retire any tag that no longer maps to a live, matching placement.",
+        "site_type_overlays": {
+          "publishing": "On a media site, sections and templates change often, so retired verticals and redesigned page types tend to leave tags behind. You may want to reconcile the tag list against the current section and template structure since a tag built for a section that no longer exists keeps requesting demand for inventory that is gone.",
+          "ecommerce": "On a commerce-content site, seasonal placements and discontinued product categories can leave tags active after the inventory is removed. You may want to retire the tags for placements that only ran during a campaign or for categories no longer stocked, so they stop passing inventory that no longer renders."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt - Authorized Digital Sellers",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed documentation for managing and retiring tags is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the active PubMatic tags against the placements that currently render on the site, and identify any tag whose placement no longer exists or no longer matches.",
+        "tools": {
+          "free": {
+            "pubmatic_console": {
+              "label": "PubMatic console",
+              "steps": [
+                "Open the PubMatic console and export or list every active tag with its slot code, placement, sizes, and format.",
+                "Note the creation or last-modified date for each tag where the console shows it, so older entries stand out for review.",
+                "Record which tags still receive requests since a tag with traffic but no live matching placement is the clearest orphaned-tag signal."
+              ]
+            },
+            "site_crawl": {
+              "label": "Site crawl or page review",
+              "steps": [
+                "Crawl or review a sample of current page templates and list the ad unit slot codes that actually render.",
+                "Match each active PubMatic tag to a rendered slot code, and mark any tag with no matching on-page placement as orphaned.",
+                "For tags that do match a placement, confirm the placement's current size, format, and position still match the tag, and mark any that have drifted as stale."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner lists each active PubMatic tag and marks whether it maps to a live on-page placement whose size, format, and position still match the tag. A tag list where every active tag serves a current, matching placement passes. Any active tag with no matching placement, or one whose placement has drifted from the tag, is a fail recorded with the tag and the reason it no longer fits.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "List the active PubMatic tags and mark which map to a live, matching placement above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} keeps active PubMatic tags that no longer map to a live, matching placement, so orphaned or stale tags are still requesting demand for inventory that is gone or has changed. An active tag pointed at a placement that no longer fits spends auction budget on a slot that does not render as described, which distorts the fill and clearing numbers and clouds the supply chain a buyer reads. {{voice_recommend}} reconciling the active tags against the placements that render today, then retiring any tag that no longer maps to a current, matching placement. After the cleanup, recheck request counts and reporting to confirm the remaining tags all serve live inventory."
+      }
+    }
+  ]
+}

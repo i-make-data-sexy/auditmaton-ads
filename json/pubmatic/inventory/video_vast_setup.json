@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Video impressions clear at higher prices than display, so a video request that reaches PubMatic with the wrong player parameters or missing content signals is a high-value impression sold at a discount, or not sold at all. The check is a review of the video and Video Ad Serving Template (VAST) configuration a publisher already passes through OpenWrap, so it costs reading time rather than rebuild time, and the finding points to a concrete declaration the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Video inventory carries some of a publisher's highest clearing prices, and the value a video impression reaches depends on what the request tells demand about it. This subcategory covers the video and VAST configuration a publisher passes to PubMatic through OpenWrap, which is built on Prebid, so the player parameters and content signals follow the Prebid and OpenRTB conventions. These checks confirm that the player parameters are declared correctly and that the viewability and content signals demand needs to value the impression are passed rather than left empty.",
+  "audit_checks": [
+    {
+      "id": "pubmatic-video-vast-setup-player-parameters-misdeclared",
+      "title": "Player parameters are missing or do not match the rendered player",
+      "category": "inventory",
+      "subcategory": "video_vast_setup",
+      "impact_score": 3,
+      "impact_rationale": "Player size, placement, and skippability are the parameters demand reads to decide what a video impression is worth and whether to bid at all. A request that omits them, or declares a placement or player size that does not match the player the user sees, prices the impression on bad information, so bids come in low or not at all on inventory that could clear higher.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "A video ad request carries a set of parameters that describe the player and the slot to demand. PubMatic's OpenWrap wrapper is built on Prebid, so a publisher declares these in the video media type of the ad unit, and they flow on into the OpenRTB Video object PubMatic sends to bidders. The parameters that move price the most are the player size (the width and height of the player on the page), the placement (whether the slot is instream sound-on, accompanying content, interstitial, or a standalone unit), and skippability (whether the player lets the user skip the ad, and after how many seconds).<br><br>Demand reads these to value the impression. An instream sound-on pre-roll on a large player is worth more than an out-stream unit that autoplays muted in an article, and a buyer who cannot tell which one is being offered either bids low to be safe or filters the request out. When the parameters are missing, the request reaches demand without the signal it needs to price the slot. When the parameters are present but wrong, for example a placement value that says instream on a slot that actually renders out-stream, the request is mispriced on information the buyer trusts and the discrepancy surfaces later as a mismatch between what was bought and what was delivered.<br><br>The OpenRTB Video object that carries these fields uses the current 'plcmt' attribute for placement, which replaced the older 'placement' field, so a setup still passing only the deprecated field can read as incomplete to buyers who expect the current one. Player width and height should reflect the player as it actually renders, not a default left over from a template. Skippability should match the player's real behavior.<br><br>A few signs point to player parameters that are missing or misdeclared:<ul><li>The video ad unit omits player size, placement, or skippability, so the request reaches demand without them</li><li>The declared placement does not match how the slot renders, for example an instream value on a slot that plays out-stream in article content</li><li>The declared player size does not match the rendered player, or is a default value never set to the real dimensions</li><li>Only the deprecated 'placement' field is sent and the current 'plcmt' field is absent</li></ul>You may want to confirm that the player parameters in the video ad unit match the player the user actually sees. One approach is to compare the declared player size, placement, and skippability against the rendered player on each video slot, then correct any field that does not match.",
+        "site_type_overlays": {
+          "publishing": "On a media site, video slots often vary from a large instream pre-roll on a watch page to a small out-stream unit inside an article, and each needs its own player size and placement value. You may want to check that each video slot declares the parameters for the player it actually renders rather than sharing one block of settings, so an out-stream article unit is not sold to demand as an instream impression.",
+          "ecommerce": "On a commerce-content site, video usually sits inside editorial or product content as an out-stream unit rather than a dedicated player. You may want to confirm the placement value reflects that out-stream, in-content reality and that the player size matches the slot in the page, so demand prices it as the in-content unit it is."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference (video media type parameters)",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB 2.6 Specification (Video object)",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/openrtb2.x/blob/main/2.6.md"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed OpenWrap configuration documentation for video ad units is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the video parameters declared in each video ad unit and compare them against the player as it actually renders on the page.",
+        "tools": {
+          "free": {
+            "openwrap_config": {
+              "label": "OpenWrap configuration",
+              "steps": [
+                "Open the OpenWrap configuration for each video ad unit and record the declared player size, placement, and skippability.",
+                "Note whether the current 'plcmt' placement field is set or whether only the deprecated 'placement' field is present.",
+                "List any video ad unit that omits player size, placement, or skippability."
+              ]
+            },
+            "rendered_player": {
+              "label": "Rendered player inspection",
+              "steps": [
+                "Load each page that carries a video slot and observe how the player renders, including its size, whether it is instream or out-stream, and whether the ad can be skipped.",
+                "Compare what renders against the declared parameters recorded above, and mark any field that does not match.",
+                "Record any slot where the declared placement or player size differs from the player the user sees."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per video ad unit, whether player size, placement, and skippability are declared and whether they match the rendered player. A setup where each video slot declares the parameters that match its real player passes. A setup that omits parameters, declares a placement or size that does not match the rendered player, or sends only the deprecated placement field is a fail recorded with the ad units affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the declared player size, placement, and skippability for each video ad unit and whether they match the rendered player above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes video requests to PubMatic with player parameters that are missing or do not match the rendered player. Player size, placement, and skippability are the signals demand reads to value a video impression, so a request that omits them or declares the wrong placement is priced on bad information and clears low or goes unfilled on inventory that could clear higher. {{voice_recommend}} comparing the declared player size, placement, and skippability in each OpenWrap video ad unit against the player the user actually sees, setting the current 'plcmt' placement field, and correcting any value that does not match the rendered player. After the change, recheck a sample of video slots to confirm the declared parameters match what renders."
+      }
+    },
+    {
+      "id": "pubmatic-video-vast-setup-content-signals-not-passed",
+      "title": "Viewability and content signals are not passed with the video request",
+      "category": "inventory",
+      "subcategory": "video_vast_setup",
+      "impact_score": 3,
+      "impact_rationale": "Viewability measurement and content metadata are signals demand uses to value a video impression and to confirm it ran as bought. A request that omits Open Measurement support or content fields gives buyers less reason to value the slot, so bids come in lower and some buyers who require measurement filter the inventory out.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "Beyond the player parameters, a video request can carry signals that tell demand how the impression will be measured and what content it sits next to. Two carry the most weight. The first is viewability and verification support, which the Video Ad Serving Template (VAST) handles through the Open Measurement framework. VAST 4.1 and later let a publisher declare that the player supports Open Measurement, so a buyer's verification vendor can measure viewability on the impression directly. The second is content metadata, the OpenRTB content object fields that describe the programming the ad runs against, which a buyer uses to judge brand suitability and audience.<br><br>These signals change what demand will pay. A buyer who can verify viewability through Open Measurement values the impression as a measurable one, and many buyers will not bid at all on video they cannot measure. A buyer who can read content metadata can confirm the ad runs against suitable programming rather than treating the slot as unknown. When neither signal is passed, the request still serves, but demand prices it as an impression it cannot measure or place, which means lower bids and fewer bidders.<br><br>PubMatic's OpenWrap, built on Prebid, supports passing both. The publisher's video player needs to expose Open Measurement so the VAST response can carry the verification nodes, and the content object fields need to be populated rather than left empty. The audit question is whether these signals are actually being passed or whether the request reaches demand without the viewability and content information that raises its value.<br><br>A few signs point to viewability and content signals that are not passed:<ul><li>The video player does not support Open Measurement, so VAST verification cannot measure viewability on the impression</li><li>The OpenRTB content object fields are empty, so demand cannot read what programming the ad runs against</li><li>Buyers who require viewability measurement appear to be filtering the inventory out, which shows as thin video demand relative to comparable measured inventory</li></ul>You may want to confirm that the video request carries the viewability and content signals demand needs. One approach is to verify the player exposes Open Measurement and that the content object fields are populated, then watch whether video bid density improves once both are in place.",
+        "site_type_overlays": {
+          "publishing": "On a media site, content metadata matters because buyers value video that runs against known, suitable programming, for example a news or sports section. You may want to confirm the content object fields describe the programming each video slot sits in rather than leaving them empty, so buyers can value the inventory by what it runs against.",
+          "ecommerce": "On a commerce-content site, video often sits inside product or editorial content, and buyers reward inventory they can both measure and place. You may want to confirm the player exposes Open Measurement so viewability is verifiable and that the content fields describe the surrounding content, so the in-content video is valued as measurable, suitable inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB 2.6 Specification (Content object)",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/openrtb2.x/blob/main/2.6.md"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed OpenWrap configuration documentation for video viewability and content signals is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the video player exposes Open Measurement for viewability and whether the content metadata fields are populated on the video request.",
+        "tools": {
+          "free": {
+            "vast_inspection": {
+              "label": "VAST response inspection",
+              "steps": [
+                "Capture a VAST response from a video slot and check whether it carries the Open Measurement verification nodes that allow viewability measurement.",
+                "Confirm the video player declares Open Measurement support because the VAST verification nodes depend on the player exposing it.",
+                "Record any video slot where viewability cannot be measured because Open Measurement is absent."
+              ]
+            },
+            "openwrap_config": {
+              "label": "OpenWrap configuration",
+              "steps": [
+                "Open the OpenWrap configuration for each video ad unit and check whether the OpenRTB content object fields describing the programming are populated.",
+                "Note any video ad unit where the content fields are empty, so demand reaches the request without knowing what programming the ad runs against.",
+                "Record whether both viewability support and content metadata are passed, one of the two, or neither."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per video ad unit, whether the player supports Open Measurement for viewability and whether the content metadata fields are populated. A setup where both viewability support and content metadata are passed with the request passes. A setup where Open Measurement is absent or the content fields are empty is a fail recorded with the signal missing and the ad units affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether Open Measurement is supported and whether the content metadata fields are populated for each video ad unit above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes video requests to PubMatic without the viewability and content signals demand uses to value the impression. Open Measurement support lets buyers verify viewability, and the OpenRTB content fields tell them what programming the ad runs against, so a request that omits both is priced as inventory that cannot be measured or placed, which lowers bids and filters out buyers who require measurement. {{voice_recommend}} confirming the video player exposes Open Measurement so the Video Ad Serving Template (VAST) response carries the verification nodes, and populating the content metadata fields in the OpenWrap configuration. After the change, watch whether video bid density improves once both signals are in place."
+      }
+    }
+  ]
+}

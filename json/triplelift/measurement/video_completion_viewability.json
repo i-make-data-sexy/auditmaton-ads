@@ -1,0 +1,161 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Video completion and viewability are the two numbers a buyer reads to decide what a video impression is worth, so a gap between what the player records and what TripleLift reports lands directly on the rate a publisher can hold. The check reviews how quartile events fire from the player, how they reconcile against TripleLift's count, and whether a viewability vendor is measuring the impression. It costs reading and reconciliation time rather than a player rebuild, and the finding points to a specific tracking or measurement fix the publisher can act on.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Video Through Rate (VTR) and viewability are the signals a buyer uses to value a video impression on TripleLift, and a publisher defends its rates with them. This subcategory is about whether those signals are measured cleanly, that the quartile events fire from the player and reconcile with TripleLift's count, and that a viewability vendor is integrated so the impression can be judged in view. These checks confirm the metrics a buyer reads match what actually happened in the player, rather than drifting through a tracking gap that erodes the price.",
+  "audit_checks": [
+    {
+      "id": "triplelift-video-completion-viewability-quartiles-not-reconciled",
+      "title": "Video quartile and completion events do not reconcile between the player and TripleLift",
+      "category": "measurement",
+      "subcategory": "video_completion_viewability",
+      "impact_score": 3,
+      "impact_rationale": "Quartile and completion events are the basis for Video Through Rate (VTR) and for completed-view pricing. When the player and TripleLift disagree on how many starts, quartiles, and completes occurred, the VTR a buyer reads is wrong, and a publisher cannot defend its rate or diagnose where the count breaks. The gap usually traces to a tracking setup the publisher controls rather than a platform fault.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "A video ad reports its progress through a fixed set of tracking events defined in the Video Ad Serving Template (VAST). The player fires 'start' when playback begins, then 'firstQuartile', 'midpoint', and 'thirdQuartile' as the creative passes 25 percent, 50 percent, and 75 percent of its duration, and 'complete' when it plays through. Each event is a tracking URL the player calls, and the counts of those calls are what every downstream report, including TripleLift's, builds VTR and completion rate from.<br><br>VTR and completed-view pricing both depend on those events being counted the same way on both sides. When the player and TripleLift report different numbers of starts, quartiles, or completes for the same inventory, the VTR a buyer sees no longer describes what happened in the player. A buyer paying on a completed-view basis is reconciling against a number the publisher cannot stand behind, and the publisher has no way to tell whether the difference is a tracking gap, a discrepancy in how each side defines a metric, or genuine drop-off in playback.<br><br>The events drift apart for reasons a publisher can usually find. The player may fire some quartiles but not all of them, so 'complete' arrives without the 'thirdQuartile' that should precede it. Tracking pixels may be blocked, time out, or fire on the wrong creative when several video slots share a player. The two sides may also count differently, e.g., one counting a 'complete' only when 100 percent of frames played and the other counting it at 95 percent, which is a definition difference rather than a tracking fault. Each of these shows up as a reconciliation gap rather than an error message.<br><br>A few signs point to quartile and completion events that do not reconcile:<ul><li>The player's own analytics report a VTR or completion rate that differs from TripleLift's report for the same inventory and date range</li><li>Quartile counts do not step down in order, e.g., more completes than third-quartile events, which means an event is firing out of sequence or being missed</li><li>The player fires VAST tracking events inconsistently across browsers, devices, or video slots on the page</li></ul>You may want to confirm that the player's VAST tracking events fire in full and in order, then reconcile the player's quartile and completion counts against TripleLift's report for the same inventory. One approach is to read both reports side by side for a single date range and isolate where the counts first diverge.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a single article page may carry an outstream unit and an instream pre-roll on the same player library, and a shared player can fire one slot's quartile events against the other's creative. You may want to reconcile quartile and completion counts per video slot rather than per page, so a tracking gap on one unit does not hide inside a blended page-level VTR.",
+          "ecommerce": "On a commerce-content site, product-page video often autoplays muted and then unmutes on interaction, and autoplay can fire a 'start' that never reaches a meaningful quartile because the user scrolls past. You may want to separate autoplay starts from user-initiated starts when reconciling, so the completion rate reflects video a shopper actually watched rather than autoplay impressions that never progressed."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js for Video Overview",
+            "source_url": "https://docs.prebid.org/prebid-video/video-overview.html"
+          }
+        ],
+        "learn_more_note": "TripleLift's detailed configuration documentation for video tracking and reporting is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the player's VAST tracking setup, then reconcile the player's quartile and completion counts against TripleLift's report for the same inventory and date range.",
+        "tools": {
+          "free": {
+            "vast_inspector": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open a page running the video ad, open the browser developer tools, and watch the 'Network' tab while the ad plays.",
+                "Confirm that the VAST tracking calls fire in order as playback passes each quartile, e.g., 'start', then 'firstQuartile', 'midpoint', 'thirdQuartile', and 'complete', and note any event that is missing or fires out of sequence.",
+                "Repeat across a couple of browsers and devices since tracking can fire differently on each, and record where the events drop or reorder."
+              ]
+            },
+            "report_reconciliation": {
+              "label": "Player analytics and TripleLift report",
+              "steps": [
+                "Pull the player's own analytics for video starts, each quartile, and completes over a single date range for one slice of inventory.",
+                "Pull TripleLift's report for the same inventory and date range, with the same quartile and completion metrics.",
+                "Compare the two side by side and record where the counts first diverge, e.g., matching starts but fewer completes on one side, which points to where the tracking gap or definition difference sits."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the player's quartile and completion counts alongside TripleLift's counts for the same inventory and date range, and notes whether the VAST events fire in full and in order. A setup where the two reports reconcile within a small, explained margin and the events fire in sequence passes. A setup where the counts diverge materially with no stated reason, or where quartile events fire out of order or go missing, is a fail recorded with the metric and inventory where the gap appears.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the player's quartile and completion counts and TripleLift's counts for the same inventory above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the video quartile and completion events on {{site_name}} do not reconcile between the player and TripleLift, so the Video Through Rate (VTR) a buyer reads does not match what happened in the player. Quartile and completion events from the Video Ad Serving Template (VAST) are the basis for VTR and for completed-view pricing, and when the two sides count them differently the publisher cannot defend its rate or tell whether the gap is a tracking fault or a definition difference. {{voice_recommend}} confirming that the player's VAST tracking events fire in full and in order, then reconciling the player's quartile and completion counts against TripleLift's report for one date range to isolate where the counts first diverge. After the gap is found and closed, recheck the reconciliation to confirm the two reports agree."
+      }
+    },
+    {
+      "id": "triplelift-video-completion-viewability-no-viewability-measurement",
+      "title": "Video viewability is not measured against a recognized standard",
+      "category": "measurement",
+      "subcategory": "video_completion_viewability",
+      "impact_score": 3,
+      "impact_rationale": "Buyers value a video impression partly on whether it was in view, and many hold viewability thresholds in their buying terms. When a publisher serves video with no viewability measurement integrated, it cannot report a viewable rate, cannot defend its inventory against a low third-party reading, and loses access to buyers who require a measured viewability number.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "Viewability is the measure of whether an ad was actually on screen and visible, separate from whether it was served. The recognized standard for a viewable video impression, set by the Media Rating Council (MRC), is at least 50 percent of the ad's pixels in view for at least two continuous seconds. That two-second video threshold is the line most buyers reference, and it is distinct from the display standard of one continuous second.<br><br>A buyer reads viewability as a signal of quality. A video impression that completed but was never in view, e.g., an outstream unit that scrolled past below the fold while it played in a muted thumbnail, is worth far less than one a user actually saw. Many buyers carry a viewability threshold in their buying terms and will discount or skip inventory that cannot report a measured viewable rate. When a publisher serves video on TripleLift with no viewability vendor integrated, it has no number to show, so it cannot defend the inventory against a buyer's own low reading and cannot reach buyers who require a measured rate as a condition of the buy.<br><br>Viewability is measured by a vendor whose tag or software development kit (SDK) observes the ad in the page or app and reports the viewable result. The IAB Tech Lab Open Measurement SDK is the common path for app and video environments, letting one measurement integration serve multiple vendors rather than each vendor needing its own code. The audit question is whether a recognized viewability measurement is integrated for video inventory at all, and whether it measures against the MRC video standard rather than a looser in-house definition.<br><br>A few signs point to video viewability not being measured against a recognized standard:<ul><li>No viewability vendor tag or Open Measurement integration is present in the video player or ad markup</li><li>The publisher reports a 'viewable' rate from its own player logic rather than from a measurement vendor held to the MRC standard</li><li>Buyers ask for a third-party viewability number that the publisher cannot supply for its video inventory</li></ul>You may want to confirm that a recognized viewability vendor is integrated for video and that it measures against the MRC video standard of 50 percent of pixels in view for two continuous seconds. One approach is to check the player and ad markup for a measurement integration, then read the vendor's reported viewable rate alongside the served impression count.",
+        "site_type_overlays": {
+          "publishing": "On a media site, outstream video that plays inside the article body is the inventory most exposed on viewability since a reader can scroll past it while it plays. You may want to make sure viewability measurement is integrated specifically on the outstream units, so a low in-view rate surfaces in your own report before a buyer raises it.",
+          "ecommerce": "On a commerce-content site, autoplay product video low on a page can serve impressions that never enter view, which drags the viewable rate down even when completion looks healthy. You may want to read viewability and completion together for the autoplay units, so an impression counted as complete but never in view does not inflate the value you report."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Getting Started with Video for Prebid.js",
+            "source_url": "https://docs.prebid.org/prebid-video/video-getting-started.html"
+          }
+        ],
+        "learn_more_note": "TripleLift's detailed configuration documentation for viewability vendor integration is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the video player and ad markup for a viewability measurement integration, then confirm it measures against the recognized video standard and reports a viewable rate.",
+        "tools": {
+          "free": {
+            "markup_inspection": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open a page running the video ad, open the browser developer tools, and inspect the player and ad markup for a viewability vendor tag or an Open Measurement integration.",
+                "Confirm whether a recognized measurement vendor is present, e.g., a vendor verification script loaded with the creative, rather than only the publisher's own in-house in-view logic.",
+                "Record which video units carry a measurement integration and which do not."
+              ]
+            },
+            "viewability_report": {
+              "label": "Viewability vendor report",
+              "steps": [
+                "If a vendor is integrated, pull its report for video inventory and confirm the viewable rate is measured against the MRC video standard of 50 percent of pixels in view for two continuous seconds.",
+                "Read the viewable rate alongside the served impression count and the completion rate for the same inventory, to see how much of the completed video was actually in view.",
+                "Record whether a measured viewable rate exists for video, and whether it follows the recognized standard or a looser in-house definition."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a recognized viewability vendor or Open Measurement integration is present for video inventory and whether it measures against the MRC video standard. A setup where video viewability is measured by a recognized vendor against the standard and a viewable rate is reported passes. A setup where no viewability measurement is integrated for video, or where the only 'viewable' figure comes from in-house player logic rather than a recognized vendor, is a fail recorded with the video units affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a recognized viewability vendor is integrated for video and what viewable rate it reports above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that video viewability on {{site_name}} is not measured against a recognized standard, so the inventory has no measured viewable rate to show a buyer. Buyers value a video impression partly on whether it was in view, and many hold a viewability threshold in their buying terms, so video served with no recognized measurement cannot be defended against a buyer's own low reading and cannot reach buyers who require a measured rate. {{voice_recommend}} integrating a recognized viewability vendor or an Open Measurement setup for the video inventory and confirming it measures against the Media Rating Council (MRC) video standard of 50 percent of pixels in view for two continuous seconds. After the integration is in place, read the reported viewable rate alongside the completion rate to confirm the video is both finishing and in view."
+      }
+    }
+  ]
+}

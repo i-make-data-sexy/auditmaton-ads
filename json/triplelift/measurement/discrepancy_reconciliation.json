@@ -1,0 +1,161 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "A publisher gets paid on the impressions its ad server counts, while TripleLift reports on the impressions it counts, and the two rarely match to the unit. A modest gap is normal, but a gap that drifts wide and goes unwatched can mean revenue the publisher earned is not being billed, or that something in the delivery path is dropping impressions before they render. This check is a review of reports the publisher already pulls from both sides, so it costs reading time rather than rebuild time, and the finding points to a concrete reconciliation the publisher can act on.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Impression counts from TripleLift and from the publisher's primary ad server are produced by two systems counting at different points in the delivery path, so they will not match exactly. The audit question is not whether a gap exists. Some gap always does. The question is whether the publisher measures the gap, holds it to a tolerance, and investigates when it drifts out of range. These checks confirm that the discrepancy between the supply-side platform (SSP) and the ad server is tracked against an accepted tolerance and that the known sources of a gap are examined when the number moves.",
+  "audit_checks": [
+    {
+      "id": "triplelift-discrepancy-reconciliation-not-measured",
+      "title": "SSP-to-ad-server impression discrepancy is not measured against a tolerance",
+      "category": "measurement",
+      "subcategory": "discrepancy_reconciliation",
+      "impact_score": 3,
+      "impact_rationale": "When the gap between TripleLift's reported impressions and the ad server's count is never measured against a set tolerance, a publisher cannot tell a normal discrepancy from one that has drifted wide. A widening gap can mean impressions the publisher served are not being counted on the side that pays, so revenue goes unbilled, and without a tracked tolerance the drift continues unnoticed.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "performance"],
+      "educate": {
+        "base": "TripleLift and the publisher's primary ad server each count impressions, and they count at different points in the path an ad travels from auction to render. The ad server counts when it decides to serve the TripleLift creative. TripleLift counts on its own side of the transaction. Because a counted impression on one side has to survive timeouts, latency, blocked creatives, and the gap between a served ad and a rendered ad before it is counted on the other, the two totals will differ. A difference is expected. The Media Rating Council (MRC) guidance frames the goal as counting an impression as close as possible to its delivery to the client, which is exactly why two systems counting at different points produce two different numbers.<br><br>What matters for an audit is whether the publisher treats that difference as a measured, bounded number or as noise it never looks at. A reconciliation practice sets a tolerance, for example a single-digit percentage gap the publisher considers normal for its setup, then compares the two counts on a regular cadence and flags any period that falls outside the band. Without that, a publisher has no baseline. A 3 percent gap and a 15 percent gap look the same when no one is measuring, and the second one can mean impressions the publisher served are going uncounted on the side that pays.<br><br>Reconciliation is usually done by aligning the two reports on the same dimensions, then dividing one count by the other to get a discrepancy rate. The dimensions that make the comparison meaningful include matching the date range and time zone, isolating TripleLift's line items or ad units in the ad server, and holding the impression definition consistent so a served count is not compared against a rendered count without noting the difference.<br><br>A few signs point to a discrepancy that is not being measured:<ul><li>No regular comparison exists between TripleLift's impression report and the ad server's count for TripleLift inventory</li><li>The publisher has no stated tolerance for a normal gap, so there is no line that separates an acceptable difference from one worth investigating</li><li>Reports from the two systems are pulled on mismatched date ranges or time zones, which makes any comparison unreliable</li></ul>You may want to confirm that the SSP-to-ad-server gap is measured on a regular cadence against a defined tolerance. One approach is to align both reports on the same date range and time zone, isolate TripleLift inventory in the ad server, and track the discrepancy rate period over period so a drift becomes visible early.",
+        "site_type_overlays": {
+          "publishing": "On a media site, traffic spikes around a news event or a seasonal peak can push latency up and widen the discrepancy for a short window. You may want to track the gap by day rather than only as a monthly average, so a spike-driven drift is visible against the tolerance instead of being smoothed away by the slower days around it.",
+          "ecommerce": "On a commerce-content site, the higher-value pages such as product and category pages often carry the inventory where an uncounted impression costs the most. You may want to reconcile the TripleLift-to-ad-server gap on those pages specifically rather than on a blended site-wide rate, so a discrepancy concentrated in the commercial inventory does not hide inside the editorial average."
+        },
+        "learn_more": [
+          {
+            "source_type": "Media Rating Council",
+            "source_title": "MRC Standards and Guidelines (digital ad impression measurement)",
+            "source_url": "https://mediaratingcouncil.org/standards-and-guidelines"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "pbjs.setConfig(options) for Header Bidding (bidderTimeout)",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/setConfig.html"
+          }
+        ],
+        "impactful_updates": [],
+        "learn_more_note": "TripleLift's detailed reporting and reconciliation documentation for its console is in the partner portal (login required)."
+      },
+      "investigate": {
+        "intro": "Pull TripleLift's impression report and the ad server's count for the same TripleLift inventory over the same period, then check whether a tolerance is defined and whether the gap is tracked against it on a regular cadence.",
+        "tools": {
+          "free": {
+            "triplelift_reporting": {
+              "label": "TripleLift reporting",
+              "steps": [
+                "Open the TripleLift reporting console and pull impressions for the inventory in scope over a fixed date range, noting the time zone the report uses.",
+                "Record the impression definition the report uses so it can be matched against the ad server's definition rather than compared blindly.",
+                "Note whether the publisher pulls this report on a regular cadence or only ad hoc."
+              ]
+            },
+            "ad_server_reporting": {
+              "label": "Publisher ad server reporting",
+              "steps": [
+                "In the primary ad server, build a report isolating the TripleLift line items or ad units over the same date range and time zone as the TripleLift report.",
+                "Divide the smaller count by the larger to get the discrepancy rate, and record it alongside the period it covers.",
+                "Ask the publisher whether a tolerance for a normal gap is defined, and record the figure and where it is documented if one exists.",
+                "Note whether any period falls outside that tolerance and whether the publisher acted on it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the TripleLift impression count and the ad server count for the same inventory and period, the resulting discrepancy rate, and whether a tolerance is defined and tracked on a cadence. A setup where the gap is measured period over period against a stated tolerance, with out-of-range periods flagged, passes. A setup where no comparison is run, or where no tolerance separates a normal gap from a wide one, is a fail recorded with the most recent discrepancy rate and the inventory it covers.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the TripleLift and ad server impression counts, the discrepancy rate, and whether a tolerance is defined above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not measure the impression discrepancy between TripleLift and the primary ad server against a defined tolerance. The two systems count at different points in the delivery path, so a gap is expected, but without a tracked tolerance a normal gap and a wide one look the same, and a widening gap can mean impressions {{site_name}} served are going uncounted on the side that pays. {{voice_recommend}} aligning the TripleLift report and the ad server report on the same date range, time zone, and TripleLift inventory, dividing one count by the other to get a discrepancy rate, and tracking that rate period over period against a stated tolerance. After the practice is in place, review any period that falls outside the tolerance and trace where the impressions are being lost."
+      }
+    },
+    {
+      "id": "triplelift-discrepancy-reconciliation-sources-not-investigated",
+      "title": "Out-of-range discrepancies are not traced to a source",
+      "category": "measurement",
+      "subcategory": "discrepancy_reconciliation",
+      "impact_score": 3,
+      "impact_rationale": "Measuring the gap shows that a problem exists, but it does not say where the impressions are being lost. When an out-of-range discrepancy is logged and left there, the publisher knows the gap is wide without knowing whether a timeout, a counting-method mismatch, latency, or a blocked creative is the cause, so it cannot fix the loss or recover the revenue tied to it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "performance"],
+      "educate": {
+        "base": "A measured discrepancy that sits outside the tolerance is a starting point, not an answer. The number says the gap is wide. It does not say why. Closing the loop means tracing an out-of-range gap to the part of the delivery path that produced it. The fix for a timeout problem is different from the fix for a counting-method mismatch, and the two can produce a similar-looking gap.<br><br>A handful of causes account for most of the gap between an SSP count and an ad server count. A bidder or wrapper timeout that fires before TripleLift responds means the ad server may record a request that never became a counted TripleLift impression. Latency, the time an ad takes to load and render, sits behind the difference between a served impression and a rendered one, which the MRC guidance treats as the heart of why two counting points diverge. A counting-method mismatch, where one side counts on serve and the other counts on render, produces a structural gap that is not a defect but does have to be understood so it is not chased as one. A blocked creative, where an ad blocker or a brand-safety control stops the TripleLift ad from rendering after the ad server counted the serve, drops the impression on TripleLift's side only.<br><br>In a header-bidding setup, the timeout cause is worth special attention because it is configurable. TripleLift is compatible with Prebid, and the Prebid wrapper applies a bidder timeout that determines which bids are still counted when the auction closes. The Prebid documentation notes that when the timeout expires, the auction uses whichever bidders have responded, so a timeout set too tight can systematically drop TripleLift bids that would otherwise have cleared, which then shows up as a discrepancy against the ad server.<br><br>A few signs point to out-of-range gaps that are logged but not traced:<ul><li>A wide discrepancy is recorded period after period with no note of which cause was checked or ruled out</li><li>The publisher cannot say whether the gap comes from timeouts, latency, a counting-method difference, or blocked creatives</li><li>No change follows a flagged period, which suggests the flag is recorded but not investigated</li></ul>You may want to confirm that an out-of-range gap is traced to a source before it is accepted. One approach is to work through the common causes in order, checking the Prebid bidder timeout against TripleLift's typical response time, comparing the impression definitions on each side, and reviewing latency and creative-blocking rates for the affected inventory.",
+        "site_type_overlays": {
+          "publishing": "On a media site, heavy article pages with multiple ad slots and rich media can push render latency up, which widens the served-versus-rendered gap on exactly the pages that carry the most inventory. You may want to check latency and the Prebid timeout on those heavier templates first when a discrepancy goes out of range.",
+          "ecommerce": "On a commerce-content site, brand-safety and creative controls are often stricter on product pages to keep competitor or off-brand ads off the storefront, and a blocked creative drops the impression on TripleLift's side after the ad server counted the serve. You may want to review creative-blocking rates on the commercial pages when the gap there runs wider than the editorial pages."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js FAQ (timeouts and which bids are used)",
+            "source_url": "https://docs.prebid.org/dev-docs/faq.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "pbjs.setConfig(options) for Header Bidding (bidderTimeout)",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/setConfig.html"
+          },
+          {
+            "source_type": "Media Rating Council",
+            "source_title": "MRC Standards and Guidelines (digital ad impression measurement)",
+            "source_url": "https://mediaratingcouncil.org/standards-and-guidelines"
+          }
+        ],
+        "impactful_updates": [],
+        "learn_more_note": "TripleLift's typical bidder response-time figures and console-specific reconciliation tooling are in the partner portal (login required)."
+      },
+      "investigate": {
+        "intro": "For a period where the discrepancy fell outside tolerance, work through the common causes, the Prebid bidder timeout, latency, the counting method on each side, and creative blocking, and record which one accounts for the gap.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Prebid configuration review",
+              "steps": [
+                "Find the bidder timeout the wrapper applies, set through pbjs.setConfig with 'bidderTimeout' or passed to the bid request.",
+                "Compare that timeout against TripleLift's typical response time for the inventory to see whether the wrapper is closing the auction before TripleLift bids arrive.",
+                "Note whether a timeout set too tight could be dropping TripleLift bids that the ad server would otherwise have counted as requests."
+              ]
+            },
+            "report_comparison": {
+              "label": "Cross-system report comparison",
+              "steps": [
+                "Confirm the impression definition each side uses, for example served versus rendered, and record whether a counting-method mismatch explains part of the gap.",
+                "Review latency and any creative-blocking or brand-safety rate for the affected inventory over the out-of-range period.",
+                "Record which cause accounts for the gap, or note that the gap remains unexplained after the common causes are ruled out."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for an out-of-range period, which causes were checked, the Prebid bidder timeout against TripleLift's response time, the impression definition on each side, latency, and creative blocking, and which one accounts for the gap. A setup where out-of-range periods are traced to a cause and acted on passes. A setup where wide gaps are logged with no cause checked and no change made is a fail recorded with the unexplained discrepancy and the inventory it affects.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which causes were checked for an out-of-range period and which one accounts for the gap above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} logs out-of-range discrepancies between TripleLift and the ad server without tracing them to a source. A measured gap shows a problem exists, but the fix for a timeout differs from the fix for a counting-method mismatch, so an untraced gap cannot be closed. {{voice_recommend}} working through the common causes for any out-of-range period, checking the Prebid bidder timeout against TripleLift's typical response time, comparing the impression definition on each side, and reviewing latency and creative-blocking rates for the affected inventory. After the cause is identified, correct it where the publisher controls it, such as widening a timeout that is dropping TripleLift bids, and document any structural gap that remains so it is not chased as a defect."
+      }
+    }
+  ]
+}

@@ -1,0 +1,157 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Slot mapping is the wiring between a publisher's on-page ad units and the Amazon Publisher Services (APS) tag, so a mismatch here sends the wrong sizes into the auction or routes an impression under the wrong placement. The check is a review of the slot definitions a publisher already has in place against the page units and the ad server, so it costs reading time rather than rebuild time, and each finding points to a specific slot the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "APS runs a server-side header-bidding tag, so every on-page ad unit a publisher wants to fill through APS has to be declared to the tag as a slot with an identifier, the sizes it can accept, and the format it serves. This subcategory is about whether that declaration is correct and current. These checks confirm that each ad unit maps to the right APS slot with the sizes and format the placement actually serves, and that no stale or mismatched slot definitions are passing inventory under a placement that no longer matches the page.",
+  "audit_checks": [
+    {
+      "id": "amazon-publisher-services-ad-slot-mapping-sizes-formats-mismatch",
+      "title": "Ad units map to APS slots with the wrong sizes or format",
+      "category": "inventory",
+      "subcategory": "ad_slot_mapping",
+      "impact_score": 3,
+      "impact_rationale": "When the sizes declared in an APS slot do not match the sizes the on-page ad unit and the ad server expect, the auction runs on sizes the placement cannot render, so a winning bid can return a creative the slot cannot show. A format mismatch, such as a slot declared as a banner for a placement built for an outstream video, narrows or breaks the demand that can compete, which lowers fill and price on that placement.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "data-quality"],
+      "educate": {
+        "base": "Amazon Publisher Services (APS) fills inventory through a header-bidding tag the publisher places on the page, and that tag works from a set of slot definitions. Each slot tells APS which identifier the placement uses, which sizes it can accept, and which format it serves. When the page loads, the tag sends those slots into a server-side auction, the winning bid comes back keyed to the slot, and the ad server renders it into the matching on-page ad unit. The slot definition is the contract between the on-page unit, the auction, and the ad server, so the sizes and format it declares have to match the placement the unit actually serves.<br><br>The values that matter most are the size list and the format. An on-page ad unit is built to render a known set of sizes, e.g., a 300x250 and a 300x600 in a right-rail unit. If the APS slot for that unit declares a different size list, the auction can return a winning creative at a size the placement cannot show, so the impression either renders broken or falls through to the next eligible line item. Format works the same way. A slot declared as a display banner for a placement built to carry outstream video narrows the demand that can compete to banner buyers only, and a slot declared for a format the placement cannot render returns creatives the unit drops.<br><br>Responsive layouts add a second layer. A single on-page position often serves different sizes at different viewport widths, e.g., a leaderboard on desktop and a smaller banner on mobile. The slot's size list, and any size-mapping the wrapper applies, has to follow the same breakpoints the page uses, or the auction runs on sizes that do not fit the rendered layout. Because APS runs alongside or inside a Prebid wrapper on many publisher pages, the ad unit's declared mediaTypes and sizes are the reference the slot definition should agree with.<br><br>A few signs point to a size or format mismatch:<ul><li>The size list in an APS slot does not match the sizes declared for the same on-page ad unit in the wrapper or the ad server</li><li>A slot declares a single fixed size for a placement that serves multiple sizes, or serves multiple sizes for a placement built for one</li><li>A slot's format does not match what the placement renders, e.g., a banner slot on an outstream video position</li><li>Responsive placements run one size list across all viewports rather than a size-mapping that follows the page breakpoints</li></ul>You may want to confirm that each APS slot's sizes and format match the on-page ad unit and the ad server line items for the same placement. One approach is to list every slot the tag declares, then check its sizes and format against the wrapper configuration and the ad server unit for that position.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a single article template often serves several positions, e.g., an in-content unit, a right-rail unit, and a sticky footer, and each carries its own size list. You may want to check the slot definitions template by template rather than page by page because one wrong size list in a shared template repeats across every article that uses it.",
+          "ecommerce": "On a commerce-content site, product and category pages can use a different layout from editorial pages, so a slot size list copied from the editorial template may not fit the commercial template. You may want to confirm the slots on the product and category templates declare the sizes those pages actually render rather than inheriting an editorial size list."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Size Mapping for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/sizeMapping.html"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's detailed configuration documentation for slot definitions, sizes, and formats is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each APS slot definition against the on-page ad unit and the ad server line items for the same placement, comparing the declared sizes and format.",
+        "tools": {
+          "free": {
+            "page_source": {
+              "label": "Page source and browser console",
+              "steps": [
+                "Open a representative page in the browser and view the source or the network tab to find the APS tag and the slot definitions it sends, noting each slot's identifier, size list, and format.",
+                "For the same page, list the on-page ad units and the sizes each is built to render, including any responsive breakpoints the layout uses.",
+                "Compare each APS slot's size list and format against the on-page unit it maps to, and record any slot whose sizes or format do not match the placement.",
+                "Repeat across each distinct page template, e.g., article, product, category, and home. Slot definitions usually live in shared templates."
+              ]
+            },
+            "ad_server": {
+              "label": "Ad server configuration",
+              "steps": [
+                "Open the ad server and list the ad units and their accepted sizes for the placements that APS fills.",
+                "Match each ad server unit to its APS slot and confirm the size list and format agree across the on-page unit, the APS slot, and the ad server unit.",
+                "Record any case where the three do not agree, naming the placement and which layer carries the wrong sizes or format."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per placement, the sizes and format declared in the APS slot alongside the sizes and format the on-page ad unit and the ad server expect. A placement where all three agree passes. A placement where the APS slot declares sizes or a format that the on-page unit or the ad server does not support is a fail recorded with the placement and the layer that carries the mismatch.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the APS slot sizes and format against the on-page unit and the ad server for each placement above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} maps one or more ad units to Amazon Publisher Services (APS) slots whose declared sizes or format do not match the on-page placement and the ad server. When the slot declares sizes the placement cannot render, the auction can return a creative the unit drops, and when the format does not match, the demand that can compete narrows, so fill and price on that placement fall. {{voice_recommend}} listing every slot the APS tag declares, then aligning each slot's size list and format with the on-page ad unit and the ad server line items for the same placement. After the change, reload each affected template and confirm the rendered sizes and format match the slot definition."
+      }
+    },
+    {
+      "id": "amazon-publisher-services-ad-slot-mapping-stale-orphaned-slots",
+      "title": "Stale or orphaned APS slots pass inventory under the wrong placement",
+      "category": "inventory",
+      "subcategory": "ad_slot_mapping",
+      "impact_score": 3,
+      "impact_rationale": "A slot left in the tag after its on-page unit was removed or moved keeps sending requests into the auction with no rendered placement behind it, which inflates request counts and can route a winning bid to a unit that no longer matches the page. A slot pointed at the wrong placement passes that placement's inventory under another unit's identifier, so reporting and any demand keyed to the slot describe the wrong inventory.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "data-quality"],
+      "educate": {
+        "base": "An Amazon Publisher Services (APS) slot definition is meant to track a live on-page ad unit. Pages get redesigned, units get renamed or removed, and templates get rebuilt, and the slot definitions in the tag do not always follow. The result is a slot that no longer points at the placement it was written for. A stale slot is one whose on-page unit was removed but whose definition stays in the tag. An orphaned slot is one that fires into the auction with no rendered placement behind it at all. A mismatched slot is one pointed at a different unit than its identifier or its history implies.<br><br>The cost is partly wasted requests and partly wrong attribution. A stale or orphaned slot keeps sending bid requests on every page load, which adds load and inflates the request count without a placement to render the winner, so any rate measured against requests, such as fill, is read against a denominator that includes impressions that could never render. When a slot is pointed at the wrong placement, the harm is sharper. Inventory from one placement passes under another's identifier, so reporting credits the wrong unit, and any demand, deal, or floor keyed to the slot applies to inventory it was not meant for.<br><br>Because APS slot identifiers are also the key that ties a bid back to a placement and ties a placement back to seller declarations, a slot that describes the wrong inventory undermines the transparency layer too. The IAB Tech Lab sellers.json and SupplyChain standards depend on each link in the chain describing the inventory it actually represents, so a slot mapped to the wrong placement misrepresents what is being sold even when every other link is correct.<br><br>A few signs point to stale, orphaned, or mismatched slots:<ul><li>The tag declares slots whose identifiers do not correspond to any on-page ad unit on the current templates</li><li>Request counts for a slot continue while the placement it named no longer renders</li><li>A slot's identifier or naming points at one placement while the position it fills is another</li><li>A template redesign or unit rename shipped without a matching update to the slot definitions</li></ul>You may want to confirm that every slot the tag declares maps to a live on-page placement and that each slot's identifier matches the unit it fills. One approach is to reconcile the full list of declared slots against the current set of on-page ad units, then remove or repoint any slot that does not match.",
+        "site_type_overlays": {
+          "publishing": "On a media site, frequent template changes and seasonal section launches leave behind slots for units that no longer exist. You may want to reconcile the slot list against the live templates after each redesign because a retired section's slots can keep firing long after the section is gone.",
+          "ecommerce": "On a commerce-content site, product templates change as the catalog and merchandising change, so slots written for an older product layout can outlive the units they named. You may want to confirm the slots on the current product and category templates match the units those templates render rather than carrying definitions from a prior layout."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's detailed slot management and reporting documentation is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Reconcile the full list of slots the APS tag declares against the current set of on-page ad units, and look for slots with no live placement or a placement that does not match the slot.",
+        "tools": {
+          "free": {
+            "page_source": {
+              "label": "Page source and browser console",
+              "steps": [
+                "Across each distinct page template, list every slot the APS tag declares with its identifier, using the page source or the network tab.",
+                "List the on-page ad units that actually render on those same templates.",
+                "Match each declared slot to a live on-page unit, and record any slot with no matching unit as stale or orphaned.",
+                "For slots that do match a unit, confirm the slot's identifier and naming point at the placement it fills, and record any slot pointed at a different placement."
+              ]
+            },
+            "ad_server": {
+              "label": "Ad server configuration",
+              "steps": [
+                "Open the ad server and list the active ad units and the placements they map to for inventory APS fills.",
+                "Compare the declared APS slots against the active ad server units, noting any slot whose unit has been removed or renamed.",
+                "Record each stale, orphaned, or mismatched slot with the placement it names and whether a live unit exists for it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the full list of declared APS slots and matches each to a live on-page ad unit and ad server placement. A slot set where every slot maps to a live placement and each identifier matches the unit it fills passes. Any slot with no live placement, or a slot whose identifier points at a placement other than the one it fills, is a fail recorded with the slot identifier and the placement involved.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the declared APS slots against the live on-page units and ad server placements above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} carries Amazon Publisher Services (APS) slots that no longer map to a live placement or that point at the wrong on-page unit. A stale or orphaned slot keeps firing requests with nothing to render, which inflates request counts and skews any rate measured against them, and a mismatched slot passes one placement's inventory under another's identifier, so reporting and any demand keyed to the slot describe the wrong inventory. {{voice_recommend}} reconciling the full list of declared slots against the current on-page ad units, then removing the slots with no live placement and repointing the slots whose identifier does not match the unit they fill. After the change, reload each template and confirm every declared slot maps to a placement that renders."
+      }
+    }
+  ]
+}

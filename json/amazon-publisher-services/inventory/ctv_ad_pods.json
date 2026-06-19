@@ -1,0 +1,166 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Ad pod structure decides how many ads a viewer sees in a break, how long the break runs, and whether two competing brands can land back to back. Those settings shape both the revenue a break earns and the experience a viewer sits through, so a pod left on defaults can either underfill a long break or overload a short one. The check is a review of pod configuration the publisher already has in Amazon Publisher Services and its connected ad server, so it costs reading time rather than rebuild time, and the finding points to concrete pod settings the publisher can adjust.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Connected TV (CTV) ad breaks are built as pods, where a single break holds a sequence of ad slots rather than one ad. On Amazon Publisher Services (APS) and the ad server it integrates with, the pod settings decide how long the break runs, how many ads fill it, and how those ads are spaced and separated. This subcategory is about whether those pod settings are deliberate choices that fit the content and the viewer, rather than defaults carried over from a generic setup. These checks confirm that pod duration and slot structure match how the break is meant to play, and that competitive separation and frequency rules inside the pod protect the viewing experience.",
+  "audit_checks": [
+    {
+      "id": "amazon-publisher-services-ctv-ad-pods-settings-on-defaults",
+      "title": "Pod duration and slot structure are left on defaults rather than set to fit the break",
+      "category": "inventory",
+      "subcategory": "ctv_ad_pods",
+      "impact_score": 3,
+      "impact_rationale": "Pod duration and the number of slots decide how a break fills, so defaults that do not match the content can either underfill a long break, leaving paid time empty, or pack a short break with too many ads. A pod that does not fit the break trades away revenue on one side or viewer tolerance on the other, and the mismatch persists on every stream until the settings are reviewed.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "ad-experience"],
+      "educate": {
+        "base": "A connected TV (CTV) ad break is a pod, a container that holds a sequence of ad slots inside one break. Three settings shape how that pod fills. Pod duration is the total length of the break in seconds. The maximum number of ads sets how many slots the pod can hold. The slot structure decides whether the pod is built from fixed-length slots, a flexible duration range, or a single long slot. The Interactive Advertising Bureau (IAB) Tech Lab defines an ad pod as the break you would see in a TV-like viewing experience, and its specifications carry signals for total pod length, the maximum number of ads, and the sequence of slots within the pod.<br><br>The risk is leaving these settings on the values a generic setup ships with rather than fitting them to how the break is meant to play. A default pod duration may be shorter than the natural break in the content, so paid seconds go unfilled and a long break shows house filler or a slate. A default that allows many short slots can pack a brief break with more ads than the moment warrants, which wears on a viewer who only paused for a short interruption. Either way the pod no longer matches the content it sits inside.<br><br>The settings also need to agree with each other. A pod duration of 90 seconds paired with a maximum of three ads implies roughly 30-second slots, while the same duration with a maximum of six ads implies 15-second slots. If the duration and the maximum imply a slot length the available creatives cannot fill, the pod underdelivers. Amazon Publisher Services (APS) passes these pod signals to the connected ad server, so the audit reads the pod configuration in both the APS setup and the ad server that renders the break.<br><br>A few signs point to pod settings left on defaults:<ul><li>Pod duration is a single round number applied to every break regardless of the content the break sits inside</li><li>The maximum number of ads and the pod duration imply a slot length that the publisher's creatives do not match</li><li>No record exists of why the current pod duration and slot count were chosen, only that they were never changed</li></ul>You may want to confirm that pod duration and slot structure were set to fit the break rather than accepted from a default. One approach is to compare the configured pod duration against the natural break length in the content, then check that the maximum ad count implies a slot length the creatives can fill.",
+        "site_type_overlays": {
+          "publishing": "On a streaming media property, a mid-roll break inside a long-form show carries a different natural length than a short pre-roll before a news clip. You may want to set pod duration and slot count per break position, so a longer mid-roll fills its time while a pre-roll stays short enough that a viewer waiting for a brief clip is not held through several ads.",
+          "ecommerce": "On a commerce-linked streaming property, such as shoppable video or a retail media stream, a break that interrupts a short product video should stay brief so the viewer returns to the content quickly. You may want to keep pod duration short and the slot count low on those placements, reserving longer pods for the longer-form content where a fuller break fits."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "CTV Programmatic Guide",
+            "source_url": "https://iabtechlab.com/standards-old/ctv-programmatic-guide/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB (pod bidding attributes in OpenRTB 2.6)",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Getting Started with Long-Form Video",
+            "source_url": "https://docs.prebid.org/prebid-video/video-long-form.html"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's detailed configuration documentation for CTV pod settings is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the pod duration, maximum ad count, and slot structure configured for each CTV break, and check that they fit the content the break sits inside and agree with the creative lengths the publisher serves.",
+        "tools": {
+          "free": {
+            "ad_server_ui": {
+              "label": "Connected ad server UI",
+              "steps": [
+                "Open the ad server that Amazon Publisher Services (APS) integrates with for CTV, and locate the pod or break configuration for each video placement.",
+                "For each break, record the configured pod duration, the maximum number of ads, and whether the slot structure uses fixed-length slots, a duration range, or a single slot.",
+                "Compare the pod duration against the natural break length in the content the break sits inside, and note any break where the pod is shorter or longer than the content allows.",
+                "Divide the pod duration by the maximum number of ads to find the implied slot length, then check it against the creative lengths the publisher actually serves."
+              ]
+            },
+            "aps_setup": {
+              "label": "Amazon Publisher Services setup",
+              "steps": [
+                "Confirm the pod parameters Amazon Publisher Services (APS) passes to the ad server match the pod settings configured in the ad server, so the two are not describing different breaks.",
+                "Record any break where the APS pod signal and the ad server pod configuration disagree on duration or slot count."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per CTV break, the pod duration, maximum ad count, and slot structure, alongside the natural break length and the creative lengths served. A break whose pod duration fits the content and whose maximum ad count implies a slot length the creatives match passes. A break running default pod settings that leave a long break underfilled or pack a short break, or where the duration and slot count imply a slot length the creatives cannot fill, is a fail recorded with the break and the values affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the pod duration, maximum ad count, and slot structure for each CTV break above, alongside the natural break length, to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs default pod duration and slot settings on its connected TV (CTV) breaks rather than settings fitted to each break. A pod that does not match the content either underfills a long break, leaving paid time empty, or packs a short break with more ads than the moment warrants, so the mismatch costs revenue on one side or viewer tolerance on the other. {{voice_recommend}} setting pod duration to match the natural break length in the content, then choosing a maximum ad count whose implied slot length the available creatives can fill, and confirming the pod signal Amazon Publisher Services (APS) passes agrees with the ad server configuration. After the change, recheck fill across the breaks to confirm the pods deliver the time they reserve."
+      }
+    },
+    {
+      "id": "amazon-publisher-services-ctv-ad-pods-no-competitive-separation",
+      "title": "Competitive separation and frequency within the pod are not configured",
+      "category": "inventory",
+      "subcategory": "ctv_ad_pods",
+      "impact_score": 3,
+      "impact_rationale": "Without competitive separation, two ads from rival brands can land back to back in the same break, which advertisers object to and which reads as a poorly run break to the viewer. Without frequency control inside the pod, the same ad can repeat across slots in a single break, so a viewer sees the identical spot twice in one interruption. Both erode the experience and the demand a publisher can hold.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["ad-experience", "inventory"],
+      "educate": {
+        "base": "A connected TV (CTV) pod plays several ads in a row inside one break, which raises two questions a single-ad placement never faces. The first is competitive separation, meaning whether two ads from rival brands can sit in the same pod. The second is frequency within the pod, meaning whether the same ad, or the same advertiser, can repeat across the slots of one break. Both are decisions the publisher makes in how the pod is configured, not outcomes that resolve themselves.<br><br>Competitive separation protects two parties at once. It protects the advertiser, who does not want its CTV spot followed immediately by a direct competitor, and it protects the viewer, for whom two rival ads in one break read as a break nobody curated. The Prebid long-form video setup configures this through brand category exclusion, which prevents competing brands from appearing within the same ad pod by requiring each pod bid to carry a brand category. With that exclusion off, the pod can assemble two ads from the same category side by side.<br><br>Frequency within the pod addresses repetition. A pod assembled from an open auction can return the same creative for more than one slot if nothing prevents it, so a viewer sees the identical spot twice in a single interruption. Frequency control inside the pod, sometimes called pod-level deduplication, stops one ad or one advertiser from filling more than one slot in the same break. This is separate from the account-level frequency cap that limits how often a viewer sees an ad across a session. Pod-level frequency governs a single pod rather than the whole stream.<br><br>A few signs point to competitive separation and pod frequency not being configured:<ul><li>Brand category exclusion is off, so the pod can place two ads from the same product category back to back</li><li>No pod-level deduplication is set, so the same creative or advertiser can fill more than one slot in a single break</li><li>Spot checks of recorded breaks show competing brands adjacent, or the same ad repeated, within one pod</li></ul>You may want to confirm that competitive separation and pod frequency rules are configured rather than absent. One approach is to enable brand category exclusion and pod-level deduplication, then watch a sample of breaks to confirm rival brands and repeated creatives no longer appear together in a pod.",
+        "site_type_overlays": {
+          "publishing": "On a streaming media property, a curated viewing experience is part of what keeps the audience, so two rival brands or a repeated spot inside one break stands out against the editorial quality the rest of the stream carries. You may want to enable brand category exclusion and pod deduplication across all CTV breaks, so the ad experience matches the content quality the audience expects.",
+          "ecommerce": "On a commerce-linked streaming property, competing product ads in one break can confuse a viewer who is close to a purchase decision, and a repeated spot wastes a slot that another advertiser could have filled. You may want to enforce competitive separation by product category and pod-level deduplication so each break presents distinct, non-competing offers."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Module: Adpod for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/adpod.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Getting Started with Long-Form Video",
+            "source_url": "https://docs.prebid.org/prebid-video/video-long-form.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "CTV Programmatic Guide",
+            "source_url": "https://iabtechlab.com/standards-old/ctv-programmatic-guide/"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's detailed configuration documentation for pod competitive separation and frequency is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether competitive separation by brand category and frequency rules within the pod are configured, then check a sample of recorded breaks to confirm rival brands and repeated creatives do not appear together.",
+        "tools": {
+          "free": {
+            "ad_server_ui": {
+              "label": "Connected ad server UI",
+              "steps": [
+                "Open the ad server that Amazon Publisher Services (APS) integrates with for CTV, and find the pod settings that govern competitive separation and within-pod frequency.",
+                "Record whether brand category exclusion, or its equivalent competitive-separation control, is enabled for CTV pods.",
+                "Record whether pod-level deduplication is set so one advertiser or creative cannot fill more than one slot in a single break.",
+                "Note any pod where neither competitive separation nor within-pod frequency control is configured."
+              ]
+            },
+            "stream_review": {
+              "label": "Recorded break review",
+              "steps": [
+                "Watch or step through a sample of recorded CTV breaks across the publisher's placements.",
+                "Note any break where two ads from competing brands play in sequence, and any break where the same creative or advertiser appears in more than one slot.",
+                "Match what the recordings show against the pod settings recorded above to confirm whether the configuration matches the delivered experience."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether competitive separation by brand category and within-pod frequency control are configured for each CTV pod, alongside a sample of recorded breaks. A setup where brand category exclusion and pod-level deduplication are enabled, and the sampled breaks show no adjacent rival brands or repeated creatives, passes. A setup where either control is absent, or the sample shows competing brands together or a repeated creative in one pod, is a fail recorded with the pods and breaks affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether competitive separation and within-pod frequency are configured, plus what the sampled breaks show, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs connected TV (CTV) pods without competitive separation or within-pod frequency control configured, so a break can place two rival brands back to back or repeat the same ad across slots. Both erode the viewing experience and the demand the publisher can hold. Advertisers object to adjacent competitors, and viewers notice a repeated spot in one interruption. {{voice_recommend}} enabling brand category exclusion so competing brands cannot share a pod, setting pod-level deduplication so one advertiser or creative fills only one slot per break, and watching a sample of breaks to confirm the rules hold in delivery. After the change, sample the breaks again to confirm rival brands and repeated creatives no longer appear together in a pod."
+      }
+    }
+  ]
+}

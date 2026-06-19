@@ -1,0 +1,157 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Video clears at higher prices than display, so the parameters a publisher passes to Amazon Publisher Services (APS) for a video request decide how much of that value the demand side can actually see and bid on. A request that omits the player size, the placement type, or the viewability and content signals reaches the bidders as a thinner opportunity than the impression really is, and the bids come back lower to match. The check is a review of the video configuration a publisher already has in place, so it costs reading time rather than rebuild time, and the finding points to specific request fields a publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "When a publisher sells video inventory through APS, the video request carries a set of parameters that describe the slot to the demand side. The player size, the placement type, the skippability, and the viewability and content signals all tell bidders what they are buying, and the bid they return reflects what those parameters say the impression is worth. This subcategory is about whether the video request is described accurately and completely, so the demand side can value the impression on what it actually is rather than on missing or wrong fields. These checks confirm that the Video Ad Serving Template (VAST) version and player parameters are declared correctly and that the signals demand needs to price the impression are present.",
+  "audit_checks": [
+    {
+      "id": "amazon-publisher-services-video-vast-setup-player-parameters-misdeclared",
+      "title": "Video player parameters are missing or declared incorrectly",
+      "category": "inventory",
+      "subcategory": "video_vast_setup",
+      "impact_score": 3,
+      "impact_rationale": "The player size, placement type, and skippability tell the demand side what the video slot is, and bidders price the impression on what those fields say. A request that omits them or sends a placement value that does not match the actual slot reaches bidders as a vaguer or mislabeled opportunity, so bids come back lower or some demand declines to bid, which costs revenue on inventory that should clear higher.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "A video ad request describes the slot to the demand side through a set of player parameters, and the demand side prices the impression on what those parameters say. The player size, given as a width and height in pixels, tells bidders how large the creative will render. The placement type tells them whether the slot is instream video that plays before, during, or after content the user came to watch, or an outstream unit that loads inside an article where there is no video content of its own. Skippability tells them whether the viewer can skip the ad and after how long. Each of these moves the price because a large instream non-skippable slot is worth a different amount than a small outstream skippable one.<br><br>The video request format that Amazon Publisher Services (APS) and the broader header-bidding stack build on follows the OpenRTB video object, and its fields line up with the parameters a header-bidding wrapper such as Prebid documents. The placement field carries one of the Interactive Advertising Bureau (IAB) placement values, where 1 is instream, 2 is accompanying content, 3 is interstitial, and 4 is no-content or standalone. Sending the wrong value, or leaving the field empty, describes the slot inaccurately. An outstream unit declared as instream, for example, reaches bidders as a more valuable opportunity than it is, which can draw bids that later underdeliver, while an instream slot left unlabeled reaches them as something they cannot value confidently.<br><br>The audit question is whether the parameters on the video request match the slot the publisher is actually selling. A request that names the real player size, the correct placement value, and the true skippability lets the demand side price the impression on its actual shape. A request missing those fields, or carrying values that do not match the slot, leaves the demand side guessing or misled.<br><br>A few signs point to player parameters that are missing or misdeclared:<ul><li>The video request omits the player size, so bidders cannot tell how large the creative will render</li><li>The placement value does not match the slot, for example an outstream article unit declared as instream</li><li>Skippability is left unset on a slot where the player does allow skipping, or declared in a way that the player does not honor</li></ul>You may want to confirm that the player size, placement value, and skippability on each video request match the slot being sold. One approach is to inspect a live video request and compare each declared field against how the player actually behaves on the page.",
+        "site_type_overlays": {
+          "publishing": "On a media site, video often runs both as instream pre-roll inside a hosted player and as outstream units dropped into articles, and the two carry different value. You may want to confirm that each slot sends the placement value that matches its real type rather than a single value copied across both, so the instream and outstream inventory each reach the demand side described as what they are.",
+          "ecommerce": "On a commerce-content site, video frequently appears as outstream units inside product guides and category pages rather than as instream pre-roll. You may want to confirm those units declare an outstream placement value and a true player size because a unit mislabeled as instream reaches bidders as inventory it is not and can draw bids that underdeliver."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference (video parameters)",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's detailed configuration documentation for the video request and its player parameters is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the player size, placement value, and skippability declared on each video request, and compare each against how the player actually behaves on the page.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open a page that serves a video ad, open the browser developer tools, and watch the Network panel as the page loads.",
+                "Find the Amazon Publisher Services (APS) video request and inspect the parameters it carries, noting the declared player size, the placement value, and the skippability setting.",
+                "Compare each declared field against how the slot actually behaves, for example whether the player size matches the rendered slot and whether the placement value matches instream or outstream as the unit really plays.",
+                "Record any field that is missing or that does not match the slot, with the page and the unit where it appears."
+              ]
+            },
+            "vast_inspection": {
+              "label": "VAST tag and player inspection",
+              "steps": [
+                "For an instream slot, capture the Video Ad Serving Template (VAST) response the player receives and confirm the VAST version is one the player supports.",
+                "Check whether the skip option the player exposes matches what the request declares, so a slot the player lets the viewer skip is not sent as non-skippable or the reverse.",
+                "Record any mismatch between the declared parameters and the player's actual behavior."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per video slot, the declared player size, placement value, and skippability, and whether each matches how the player behaves on the page. A slot whose declared parameters match the real slot passes. A slot that omits the player size, carries a placement value that does not match instream or outstream as the unit plays, or declares skippability the player does not honor is a fail recorded with the page and unit affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the declared player size, placement value, and skippability for each video slot and whether each matches the player above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sends video requests through Amazon Publisher Services (APS) with player parameters that are missing or do not match the slot, for example a player size left off the request or an outstream unit declared with an instream placement value. The demand side prices a video impression on these fields, so a request that describes the slot inaccurately reaches bidders as a vaguer or mislabeled opportunity and the bids come back lower to match. {{voice_recommend}} inspecting a live video request for each slot type, comparing the declared player size, placement value, and skippability against how the player actually behaves, and correcting any field that is missing or wrong. After the change, recheck the requests so each slot reaches the demand side described as what it is."
+      }
+    },
+    {
+      "id": "amazon-publisher-services-video-vast-setup-viewability-content-signals-absent",
+      "title": "Viewability and content signals are not passed on the video request",
+      "category": "inventory",
+      "subcategory": "video_vast_setup",
+      "impact_score": 3,
+      "impact_rationale": "Viewability measurement and content signals such as the content category and rating let the demand side judge how likely the impression is to be seen and whether the surrounding content fits a buyer's requirements. A video request that omits them gives bidders less to price on, so brand-safety-sensitive and outcome-focused demand either bids more cautiously or declines, which holds back the price on inventory that would otherwise qualify.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "Beyond the size and placement of a video slot, the demand side values an impression on whether it is likely to be seen and on what surrounds it. Viewability measurement, carried through the Open Measurement framework that the video player and the verification vendor support, lets buyers know the impression had a genuine opportunity to be seen rather than counting a request that never rendered in view. Content signals, such as the content category and the content rating, describe the material the ad runs alongside. Both feed directly into how a buyer prices the impression because brand-safety-sensitive and outcome-focused demand pays more for inventory it can verify and judge.<br><br>The video request format supports these signals. The Video Ad Serving Template (VAST) response can carry an ad-verification element where a measurement vendor places its code, which is how viewability and verification are wired into the served creative, and the request itself can describe the content context the video plays within. When those signals are present, a buyer can confirm viewability and confirm the content fits its requirements, and it bids accordingly. When they are absent, the buyer is asked to bid on an impression it cannot verify and a context it cannot read, so cautious demand discounts the bid or sits out.<br><br>The audit question is whether the video requests pass the viewability and content signals the demand side needs to value the impression fully. A request wired for Open Measurement viewability and carrying accurate content signals lets buyers price on confirmed information. A request that omits them leaves value on the table by making the impression harder to trust.<br><br>A few signs point to viewability and content signals being absent:<ul><li>The video player is not wired for Open Measurement, so no viewability measurement reaches the demand side</li><li>The content category and content rating are not passed, so buyers cannot judge the surrounding material</li><li>Reporting shows weaker bids or lower fill from brand-safety-sensitive demand on video than the inventory's viewability would justify</li></ul>You may want to confirm that each video request carries viewability measurement and accurate content signals. One approach is to inspect a live video request and the VAST response for the Open Measurement verification element and for the content fields, then fill in whatever is missing.",
+        "site_type_overlays": {
+          "publishing": "On a media site, editorial content varies widely from news to lifestyle to opinion, and brand-safety-sensitive buyers price video on whether they can read that context. You may want to confirm the content category and rating are passed per section rather than left blank, so demand can value video next to suitable content rather than discounting all of it for lack of a signal.",
+          "ecommerce": "On a commerce-content site, video next to product and buying-guide content can attract outcome-focused demand that pays more when it can verify viewability. You may want to confirm those units are wired for Open Measurement and pass content signals because the higher-intent context only commands its value if the demand side can see and trust it."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "MRC Standard",
+            "source_title": "Viewable Ad Impression Measurement Guidelines",
+            "source_url": "https://mediaratingcouncil.org/standards-and-guidelines"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's documentation for enabling viewability measurement and passing content signals on video requests is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether each video request and its Video Ad Serving Template (VAST) response carry viewability measurement and content signals, and check reporting for demand that appears to be holding back where those signals are missing.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open a page that serves a video ad, open the browser developer tools, and capture the Amazon Publisher Services (APS) video request and the Video Ad Serving Template (VAST) response in the Network panel.",
+                "Check the VAST response for an ad-verification element carrying Open Measurement code, which confirms viewability measurement is wired into the served creative.",
+                "Check whether the request passes content signals such as the content category and content rating, and record any that are missing.",
+                "Record, per slot, whether viewability measurement and content signals are present, with the page and unit where each is checked."
+              ]
+            },
+            "aps_reporting": {
+              "label": "Amazon Publisher Services reporting",
+              "steps": [
+                "In the Amazon Publisher Services (APS) reporting available to the publisher, break video performance out by ad unit or section.",
+                "Look for video inventory where bids or fill from brand-safety-sensitive demand sit lower than the slot's viewability and content would justify, which can point to missing signals.",
+                "Note any pattern where stronger viewability or clearer content context does not translate into stronger demand because that gap can mean the signals are not reaching bidders."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per video slot, whether viewability measurement through Open Measurement and content signals such as category and rating are present on the request and the Video Ad Serving Template (VAST) response. A slot that carries both, with the signals accurate, passes. A slot that omits viewability measurement or content signals is a fail recorded with the page and unit affected and any reporting evidence that demand is discounting the inventory for lack of those signals.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether viewability measurement and content signals are present on each video slot above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sends video requests through Amazon Publisher Services (APS) without the viewability measurement and content signals the demand side uses to value the impression. Buyers price video on whether they can confirm it was seen and read the content it runs beside, so a request that omits Open Measurement viewability or the content category and rating reaches bidders as an opportunity they cannot fully trust, and cautious demand discounts the bid or sits out. {{voice_recommend}} inspecting a live video request and its Video Ad Serving Template (VAST) response for the Open Measurement verification element and the content fields, then wiring in viewability and passing accurate content signals where they are missing. After the change, recheck demand on the affected video to confirm the added signals are reflected in the bids."
+      }
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Third-party cookies have lost most of their reach, so the signal a publisher passes to the exchange is increasingly the publisher's own first-party data. On TripleLift, a Publisher Provided Identifier (PPID) and the audience attributes attached to it are what let curated demand find the right impression without a third-party cookie. The check is a review of what the publisher already passes and whether it is scoped to the consent the user gave, so it costs reading and a consent trace rather than a rebuild, and the finding points to a concrete signal the publisher can correct or a permission they can tighten.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "A PPID is a stable, first-party ID a publisher assigns to a user and passes into the bidstream, and the audience attributes attached to it are what let buyers target without relying on a third-party cookie. TripleLift is an exchange that reads these signals through its Prebid adapter and its supply paths, so the quality and the consent scope of what a publisher passes shape how well curated demand can transact on that inventory. This subcategory is about whether those first-party signals are passed at all, and whether the data attached to them stays inside the consent the user actually granted.",
+  "audit_checks": [
+    {
+      "id": "triplelift-ppid-audience-signals-not-passed",
+      "title": "First-party identity and audience signals are not passed to TripleLift",
+      "category": "identity",
+      "subcategory": "ppid_audience",
+      "impact_score": 3,
+      "impact_rationale": "Curated and audience-targeted demand depends on a stable identifier and the attributes attached to it. When a publisher passes neither a Publisher Provided Identifier (PPID) nor first-party audience data, TripleLift sees an impression with little to match against, so curated line items and audience deals cannot find the inventory and the impression clears on context alone or goes unsold. The inventory still transacts, which keeps this short of catastrophic, but the publisher's own data sits unused where it would otherwise lift the price.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "privacy"],
+      "educate": {
+        "base": "A PPID is an identifier a publisher generates from its own first-party relationship with a user, for example a logged-in account or a stable pseudonymous ID, and passes into the bidstream so buyers can recognize the user without a third-party cookie. Alongside the PPID, a publisher can pass first-party audience attributes, the segments and signals it has built from its own data, so demand can target the impression on more than the page it appears on. As third-party cookies have lost most of their reach, these first-party signals have become the main way curated and audience-based demand finds the right impression.<br><br>TripleLift is an exchange that reads these signals on the supply it receives, including the supply that flows through its Prebid adapter in a header-bidding setup. In Prebid, a publisher passes a publisher-provided ID through the PubProvided user ID module, which carries the ID into the bid request as an extended identifier (EID) that adapters such as TripleLift can read. First-party audience attributes travel through the Prebid first-party data mechanism, which places them in standard OpenRTB fields on the site and user objects. When neither is configured, TripleLift receives an impression with no first-party identity and no audience signal to match against.<br><br>The cost is unrealized demand rather than a broken auction. Curated deals and audience-targeted line items that a buyer set up against the publisher's segments cannot fire because the segment data never reached the exchange. The impression falls back to contextual signals or clears in the open auction at a lower price, and the publisher's first-party data, the asset that survives the loss of third-party cookies, does no work.<br><br>A few signs point to first-party signals not reaching TripleLift:<ul><li>The Prebid configuration includes no PubProvided user ID module, so no publisher-provided EID appears in the bid request</li><li>No first-party data is set on the OpenRTB site or user objects, so audience attributes never travel with the impression</li><li>Curated or audience deals exist on paper but show little or no delivery, which points to the targeting signal not arriving</li></ul>You may want to confirm what first-party identity and audience signals actually leave the page for TripleLift. One approach is to inspect a live bid request and check whether a publisher-provided EID and the expected audience attributes are present.",
+        "site_type_overlays": {
+          "publishing": "A media site with registered readers or a newsletter audience usually holds rich first-party signals, such as reading interests or subscriber status, that curated demand values. You may want to confirm those segments are passed to TripleLift as first-party data and tied to a stable PPID, so the buyers who set up deals against your audience can actually reach it.",
+          "ecommerce": "A commerce-content site can build audience signals from on-site behavior, for example product interest or purchase intent, that are well suited to curated demand. You may want to confirm those signals reach TripleLift as first-party audience data rather than staying inside your own analytics, so demand targeting your shopper segments can transact on the inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "PubProvided ID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/pubprovided.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js First Party Data for Header Bidding",
+            "source_url": "https://docs.prebid.org/features/firstPartyData.html"
+          },
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Publishers overview",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-publishers"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the publisher passes a publisher-provided ID and first-party audience attributes into the bidstream that TripleLift reads, by checking the Prebid configuration and inspecting a live bid request.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Prebid configuration",
+              "steps": [
+                "Open the site's Prebid configuration and check whether the PubProvided user ID module (pubProvidedIdSystem) is included and configured with an EID source.",
+                "Check whether first-party data is set on the OpenRTB site or user objects through setConfig, requestBids, or ortb2Imp.",
+                "Note whether TripleLift is among the bidders permitted to receive the first-party data, given that per-bidder permissions can restrict which adapters see it.",
+                "Record what first-party identity and audience signals are configured to leave the page and whether TripleLift is set up to receive them."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load a page with the ad slots and open the network panel in browser developer tools.",
+                "Find the bid request sent to the TripleLift adapter and inspect its payload.",
+                "Check whether the request carries a publisher-provided EID (e.g., a 'ppuid' source-type identifier) and whether the site or user objects contain the expected audience attributes.",
+                "Record whether the first-party identity and audience signals reach the TripleLift request or are absent."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a publisher-provided ID and first-party audience attributes are configured and whether they reach the TripleLift bid request. A setup that passes a stable publisher-provided ID and the intended audience signals to TripleLift, confirmed in a live request, passes. A setup where no publisher-provided ID or audience data reaches TripleLift, while the publisher holds first-party signals that curated demand would use, is a fail recorded with the signals that are missing from the request.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a publisher-provided ID and first-party audience attributes reach the TripleLift bid request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes no Publisher Provided Identifier (PPID) and no first-party audience data into the bid request TripleLift receives, so curated and audience-targeted demand has little to match against. As third-party cookies have lost most of their reach, these first-party signals are the main way buyers find the right impression, and without them the inventory clears on context alone or goes unsold while the publisher's own data does no work. {{voice_recommend}} configuring a publisher-provided ID through the Prebid PubProvided module and passing the intended audience attributes as first-party data, then inspecting a live TripleLift bid request to confirm both arrive. After the change, watch whether curated and audience deals that previously underdelivered begin to fill."
+      }
+    },
+    {
+      "id": "triplelift-ppid-audience-consent-scope-mismatch",
+      "title": "Audience data passed to TripleLift exceeds the consent the user granted",
+      "category": "identity",
+      "subcategory": "ppid_audience",
+      "impact_score": 4,
+      "impact_rationale": "Passing a Publisher Provided Identifier (PPID) and audience attributes to an exchange when the user withheld consent for that processing is a privacy exposure, not a tuning question. Under the Transparency and Consent Framework (TCF), personalized-advertising data should only travel when the relevant purpose and vendor consents are present. Sending it regardless puts the publisher's regulatory standing and its relationship with the exchange at risk, which is why this sits above the configuration-hygiene checks.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "When a publisher passes a PPID and first-party audience attributes to TripleLift, that data is personal data used for advertising, and the legal basis for passing it comes from the consent the user gave. In a TCF region, a consent management platform records which processing purposes the user allowed and which vendors the user agreed to share data with. The signal that should travel to the exchange is the data the user consented to, scoped to the purposes and the vendors the user accepted, and nothing beyond it.<br><br>A scope mismatch happens when the audience data leaving the page is wider than the consent that backs it. A user may have declined the purpose covering profiling for personalized advertising, yet the page still attaches behavioral segments to the bid request. A user may not have granted consent to TripleLift as a vendor, yet a publisher-provided ID still reaches the TripleLift adapter. In both cases the signal flows on a basis the user did not give, which is the exposure regardless of whether any single impression is ever served.<br><br>The fix is to gate what gets passed on what was consented. Prebid supports this through per-bidder permissions and through its consent modules, so a publisher can hold first-party data back from a vendor the user did not accept and suppress audience attributes when the relevant purpose was declined. The audit question is whether that gating exists and matches the consent state, or whether the same identity and audience payload goes out regardless of what the user chose.<br><br>A few signs point to data exceeding consent:<ul><li>The bid request to TripleLift carries a publisher-provided ID or audience attributes even when the consent string shows the relevant purpose or the TripleLift vendor consent was declined</li><li>First-party data permissions in Prebid send audience attributes to all bidders with no check against the user's vendor or purpose consent</li><li>No trace exists linking the consent state to what is suppressed, so the publisher cannot show that a declined consent stops the signal</li></ul>You may want to confirm that what reaches TripleLift is scoped to the consent the user granted. One approach is to decline a purpose or the TripleLift vendor in a test session and check that the publisher-provided ID and audience attributes drop out of the bid request.",
+        "site_type_overlays": {
+          "publishing": "A media site serving readers in the European Economic Area (EEA) operates under the TCF, so a registered reader's segments should only reach TripleLift when the reader consented to the relevant purpose and to TripleLift as a vendor. You may want to test that declining consent in a session removes the publisher-provided ID and the audience attributes from the TripleLift request.",
+          "ecommerce": "A commerce-content site that builds shopper segments from on-site behavior holds data that is valuable to curated demand and also sensitive under consent rules. You may want to confirm that behavioral segments reach TripleLift only when the user consented to profiling for advertising, so a shopper who declined that purpose does not have their behavior passed to the exchange."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js First Party Data for Header Bidding",
+            "source_url": "https://docs.prebid.org/features/firstPartyData.html"
+          },
+          {
+            "source_type": "IAB Europe",
+            "source_title": "The Transparency & Consent Framework (TCF) v2.2",
+            "source_url": "https://iabeurope.eu/tcf/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the publisher-provided ID and audience attributes that reach TripleLift are gated on the user's consent, by tracing what the bid request carries against the consent string in a test session.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Prebid configuration",
+              "steps": [
+                "Open the Prebid configuration and check whether first-party data permissions restrict which bidders, including TripleLift, receive audience attributes.",
+                "Check whether a consent module is configured and whether the publisher-provided ID and audience data are conditioned on the relevant TCF purpose and vendor consent.",
+                "Record whether the configuration ties what is passed to the consent state or sends the same payload regardless of consent."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "In a test session, set a consent state that declines the purpose covering personalized advertising or declines TripleLift as a vendor.",
+                "Load a page with the ad slots and inspect the bid request sent to the TripleLift adapter in the network panel.",
+                "Check whether the publisher-provided ID and audience attributes still appear in the request despite the declined consent.",
+                "Repeat with full consent granted and compare, recording whether the signal correctly drops out when consent is withheld."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records what the TripleLift bid request carries under a granted-consent session and under a declined-consent session. A setup where the publisher-provided ID and audience attributes appear under granted consent and drop out when the relevant purpose or the TripleLift vendor consent is declined passes. A setup where the same identity and audience payload reaches TripleLift regardless of the consent state is a fail recorded with the consent that was declined and the data that flowed anyway.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record what the TripleLift bid request carries under granted consent versus declined consent above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes a Publisher Provided Identifier (PPID) and audience attributes to TripleLift even when the user declined the relevant consent, so the signal travels on a basis the user did not give. Under the Transparency and Consent Framework (TCF), this data should reach the exchange only when the user consented to the purpose and to TripleLift as a vendor, and sending it regardless is a privacy exposure rather than a tuning question. {{voice_recommend}} gating the publisher-provided ID and audience data on the consent state through Prebid per-bidder permissions and the consent modules, then testing that a declined purpose or vendor removes the signal from the bid request. After the change, keep a periodic test in place so a consent decline reliably stops the data."
+      }
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Alternative identifiers like Unified ID 2.0 (UID2) and European Unified ID (EUID) let a publisher pass an addressable signal into the bid stream as third-party cookies and mobile device identifiers fade, so demand can still recognize an audience without those signals. The value of that addressability depends on two things being right, which are that the token is actually generated and reaching the bid stream where consent allows, and that no token is generated where there is no legal basis. This check is a review of the integration a publisher already has wired through TripleLift, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration decision the publisher can verify and correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "UID2 and EUID are deterministic, consent-based identifiers built from a hashed and encrypted email address or phone number, passed into the bid stream as an encrypted token so demand can recognize an audience without a third-party cookie. TripleLift supports these alternative IDs alongside RampID and others, which means a publisher monetizing through TripleLift can carry a UID2 or EUID signal into the auction when a user has a valid legal basis. This subcategory is about whether that integration works as intended. These checks confirm that tokens are generated and reaching the bid stream where consent allows, and that the integration is gated so a token is never created without a legal basis.",
+  "audit_checks": [
+    {
+      "id": "triplelift-uid2-euid-not-passing-in-bidstream",
+      "title": "UID2 or EUID tokens are not generated or are not reaching the bid stream",
+      "category": "identity",
+      "subcategory": "uid2_euid",
+      "impact_score": 3,
+      "impact_rationale": "When a publisher intends to carry an alternative ID but the token is never generated or never reaches the auction, demand sees an unaddressable impression and bids it as anonymous, which clears lower than an addressable one. The revenue gap is real but bounded to the share of inventory where an authenticated, consented user could have produced a token, so it is a meaningful loss rather than a catastrophic one.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "privacy"],
+      "educate": {
+        "base": "Unified ID 2.0 (UID2) and European Unified ID (EUID) are deterministic identifiers a publisher builds from a user's hashed email address or phone number, then encrypts into a token that travels in the bid stream. The point of the token is addressability. Demand-side platforms can recognize the audience and bid accordingly without relying on a third-party cookie, so an impression that carries a valid token usually clears higher than one demand has to treat as anonymous. TripleLift supports UID2, EUID, and other alternative IDs, so a publisher monetizing through TripleLift can pass that signal into the auction when a user is authenticated and has a legal basis.<br><br>The signal only helps if it actually arrives. A common gap is that the publisher believes the integration is live, yet no token reaches the bid stream because a step in the chain is missing. The token may never be generated because the email or phone number is not captured at the point of authentication. It may be generated but never refreshed, so it expires and stops being valid. It may be generated client-side or server-side but never wired into the path that reaches TripleLift's exchange. Any one of these leaves the impression unaddressable even though the publisher counts the integration as working.<br><br>UID2 documents two integration paths a publisher can take, which are a server-side path where the token is generated and refreshed on the publisher's own servers using the operator API or an SDK, and a path that runs through a header-bidding wrapper. Because TripleLift is Prebid-compatible through its Prebid adapter, a publisher running Prebid can supply the token to the auction through the Prebid UID2 or EUID user-ID submodule rather than wiring it directly. Either path ends the same way, with an encrypted token placed in the bid request that TripleLift carries to demand.<br><br>A few signs point to tokens that are not generated or not reaching the bid stream:<ul><li>The publisher intends to pass UID2 or EUID but cannot show the token present in a sample bid request to TripleLift</li><li>Tokens are generated at authentication but no refresh step exists, so they expire and the bid stream carries stale or empty values</li><li>The integration is configured in one place, such as a tag or a wrapper module, but the value never reaches the path TripleLift reads</li><li>Reporting shows little or no difference in clearing price between authenticated, consented sessions and anonymous ones, which suggests the token is not influencing bids</li></ul>You may want to confirm that a valid token is present in a live bid request to TripleLift for an authenticated, consented user. One approach is to inspect a sample bid request and trace the token back through the generation and refresh steps to see where it is created and whether it stays valid.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the authenticated audience is usually a logged-in newsletter or subscriber base, which is where a UID2 or EUID token can be built. You may want to confirm that the login or newsletter flow captures the email at the point of authentication and that the token generated from it reaches the bid request TripleLift sends, rather than stopping at the login layer.",
+          "ecommerce": "On a commerce-content site, the authenticated audience is often account holders and past purchasers, an audience demand values for its purchase intent. You may want to confirm that the account login produces a UID2 or EUID token and that it reaches the auction, so the higher-intent inventory carries the addressable signal rather than going to the bid stream as anonymous."
+        },
+        "learn_more": [
+          {
+            "source_type": "Unified ID 2.0 documentation",
+            "source_title": "Publisher integration guide, server-side",
+            "source_url": "https://unifiedid.com/docs/guides/integration-publisher-server-side"
+          },
+          {
+            "source_type": "Unified ID 2.0 documentation",
+            "source_title": "Tokenized sharing in the bidstream",
+            "source_url": "https://unifiedid.com/docs/sharing/sharing-tokenized-from-data-bid-stream"
+          },
+          {
+            "source_type": "Prebid documentation",
+            "source_title": "Unified ID 2.0 for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/unified2.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Trace whether a valid UID2 or EUID token is generated for an authenticated, consented user and whether it reaches the bid request TripleLift sends to demand.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the developer tools, sign in to the site as an authenticated test user who has granted consent, and load a page carrying TripleLift inventory.",
+                "Open the 'Network' tab and watch the auction requests, then locate the bid request that goes to TripleLift's exchange.",
+                "Inspect the request payload for the UID2 or EUID token field, and confirm a token value is present rather than empty or stale.",
+                "Repeat as an anonymous user with no consent and confirm no token is present, which establishes that the signal is gated to authenticated, consented sessions."
+              ]
+            },
+            "prebid_debug": {
+              "label": "Prebid debugging (if running Prebid)",
+              "steps": [
+                "If the site runs Prebid, enable Prebid debug output in the console and check that the UID2 or EUID user-ID submodule is configured and producing an ID.",
+                "Confirm the submodule is set to generate and refresh the token, or to read it from the agreed cookie or token parameter, so the value stays valid across the session.",
+                "Verify the resolved ID flows into the bid request sent to the TripleLift adapter rather than stopping inside the wrapper."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for an authenticated and consented test session, whether a valid UID2 or EUID token appears in the bid request to TripleLift, and whether the generation and refresh steps that produce it are in place. A session where the token is present and traceable to a working generation and refresh path passes. A setup where the publisher intends to pass the ID but no valid token reaches the bid stream, or where the token expires for lack of a refresh step, is a fail recorded with the point in the chain where the token is lost.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a valid token appears in the bid request to TripleLift and where it is generated and refreshed above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} intends to pass a Unified ID 2.0 (UID2) or European Unified ID (EUID) token through TripleLift but a valid token is not reaching the bid stream for authenticated, consented users. The token is what makes the impression addressable, so when it is missing demand bids the impression as anonymous and it clears below what an addressable one would. {{voice_recommend}} tracing the token back through the generation and refresh steps, confirming the email or phone number is captured at authentication, and verifying the resolved token reaches the bid request TripleLift sends, whether through a server-side integration or the Prebid UID2 or EUID submodule. After the fix, inspect a live bid request for an authenticated, consented user to confirm a valid token is present."
+      }
+    },
+    {
+      "id": "triplelift-uid2-euid-not-consent-gated",
+      "title": "Token generation is not gated on a valid legal basis",
+      "category": "identity",
+      "subcategory": "uid2_euid",
+      "impact_score": 4,
+      "impact_rationale": "Generating a UID2 or EUID token from an email or phone number without a valid legal basis processes personal data outside the consent framework the identifier is built to respect, which is a compliance exposure rather than a tuning issue. For EUID in particular the documentation ties token creation to a valid legal basis under European data protection law, so an ungated integration risks regulatory and contractual consequences, not merely lost revenue.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "A Unified ID 2.0 (UID2) or European Unified ID (EUID) token is built from a user's email address or phone number, which is personal data. Creating the token is therefore an act of processing that personal data, and it has to rest on a valid legal basis. The identifier framework is built around that principle. EUID's publisher guidance states that creating an EUID requires a valid legal basis under European data protection law, and that where a publisher relies on consent, the consent must be freely given, specific, and informed, including telling the user that an email or phone number will be used to create the EUID. UID2 carries a parallel expectation through its own transparency and consent requirements.<br><br>The audit question is whether the integration is gated on that legal basis or whether it generates a token regardless. An ungated integration is the failure mode that matters most here. If the token is created the moment an email is captured, without first checking that the user has a valid basis recorded, then the publisher is processing personal data outside the framework the identifier is meant to respect. That is a compliance exposure rather than a revenue question, and for EUID it sits directly against the requirements the documentation sets out.<br><br>Gating works by placing the consent or legal-basis check before the token is generated. In a Transparency and Consent Framework (TCF) setup, the consent string carries the user's choices, and the integration reads it before deciding whether to create the token. Where consent is the basis, a token is generated only for users whose recorded consent covers it, and no token is generated for users who declined or were never asked. The capture point and the generation step are linked so the second never runs ahead of the first.<br><br>A few signs point to token generation that is not gated:<ul><li>Tokens are generated as soon as an email or phone number is captured, with no check of the user's recorded consent or legal basis first</li><li>The consent string or legal-basis signal is read after the token is created rather than before, so the gate is downstream of the action it should control</li><li>The same generation path runs for users who declined consent and users who granted it, with no branch that suppresses the token for those who declined</li><li>No record ties each generated token back to the legal basis it relied on</li></ul>You may want to confirm that the consent or legal-basis check runs before any token is generated. One approach is to test the integration as a user who declines consent and confirm that no UID2 or EUID token is created or passed for that session.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the consent prompt usually appears at first visit and the login or newsletter signup follows later, so the order of operations matters. You may want to confirm that the integration reads the user's recorded consent before it generates a token from the newsletter or subscriber email, so a reader who declined never produces an EUID or UID2 token.",
+          "ecommerce": "On a commerce-content site, account creation and checkout capture an email for transactional reasons that are separate from advertising consent. You may want to confirm that an email captured for an order does not by itself trigger token generation, and that the integration generates a token only where the user has a valid legal basis recorded for advertising use."
+        },
+        "learn_more": [
+          {
+            "source_type": "European Unified ID documentation",
+            "source_title": "Publisher information (legal)",
+            "source_url": "https://euid.eu/docs/legal/euid-participant-information-publishers"
+          },
+          {
+            "source_type": "European Unified ID documentation",
+            "source_title": "Consent Examples",
+            "source_url": "https://euid.eu/docs/legal/legal-consent-examples"
+          },
+          {
+            "source_type": "Prebid documentation",
+            "source_title": "European Unified ID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/euid.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Test whether the integration checks the user's recorded consent or legal basis before it generates a UID2 or EUID token, by running the flow as a user who declines.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the developer tools and load the site as a fresh user, then decline consent at the consent prompt so no advertising basis is recorded.",
+                "Authenticate or submit an email if the flow allows it while consent is declined, then watch the 'Network' tab for any token-generation call and for the bid request to TripleLift.",
+                "Confirm that no UID2 or EUID token is generated and none is passed in the bid request for the session that declined consent.",
+                "Repeat with consent granted and confirm a token is generated, which shows the gate distinguishes the two cases rather than generating either way."
+              ]
+            },
+            "consent_string_review": {
+              "label": "Consent string and configuration review",
+              "steps": [
+                "Inspect the consent management platform's stored consent string or legal-basis signal and confirm it is available to the integration before the token-generation step runs.",
+                "Review the integration configuration, whether server-side or in the Prebid UID2 or EUID submodule, and confirm the consent check sits ahead of the generation call rather than after it.",
+                "Record whether a generated token can be tied back to the legal basis it relied on for each session."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the integration reads the user's recorded consent or legal basis before generating a token, tested by confirming that a declined session produces no token while a consented session does. A setup where the gate runs before generation and a declined user yields no token passes. A setup that generates a token regardless of consent, or that reads the consent signal only after the token is created, is a fail recorded with the point where generation runs ahead of the legal-basis check.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a declined session produces no token and a consented session does above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} generates Unified ID 2.0 (UID2) or European Unified ID (EUID) tokens without first confirming a valid legal basis, so a token can be created for a user who has not consented. Because the token is built from an email or phone number, generating it without a legal basis processes personal data outside the framework the identifier is meant to respect, and EUID's documentation ties token creation to a valid basis under European data protection law. {{voice_recommend}} placing the consent or legal-basis check ahead of the token-generation step so no token is created for a user who declined, and recording the basis each generated token relied on. After the change, run the flow as a user who declines consent and confirm no token is generated or passed for that session."
+      }
+    }
+  ]
+}

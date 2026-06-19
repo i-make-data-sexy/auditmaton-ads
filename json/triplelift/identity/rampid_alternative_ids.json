@@ -1,0 +1,164 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Alternative IDs are how a publisher stays addressable on TripleLift as third-party cookies and device identifiers fall away, so a misconfigured or absent ID solution quietly shrinks the audience advertisers can buy. The check reads the identity setup a publisher already has, which is the Prebid configuration, the LiveRamp RampID envelope, and any other alternative ID solution feeding TripleLift, so it costs reading time rather than rebuild time. The finding points to a concrete fix, such as an envelope that is not refreshing or a second ID solution that lacks its own consent.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Alternative identifiers such as RampID from LiveRamp and Unified ID 2.0 (UID2) let a publisher pass an addressable signal to TripleLift after a user authenticates, which keeps inventory buyable as third-party cookies and mobile identifiers fade. This subcategory is about the identity setup itself, which IDs are configured, whether they are populating and refreshing, and whether each carries the consent it needs, rather than the wider auction mechanics. These checks confirm that the alternative IDs a publisher relies on are passing to TripleLift correctly and that multiple ID solutions are not conflicting, duplicating, or running without consent.",
+  "audit_checks": [
+    {
+      "id": "triplelift-rampid-alternative-ids-not-configured-or-passing",
+      "title": "RampID and other alternative IDs are not configured or not passing to TripleLift",
+      "category": "identity",
+      "subcategory": "rampid_alternative_ids",
+      "impact_score": 3,
+      "impact_rationale": "An alternative ID that is missing or failing to populate removes the addressable signal TripleLift would otherwise carry into the auction, so the impression looks anonymous to demand that prices on identity. The inventory still serves, but it serves at the unaddressable rate, which means the revenue gap is real yet easy to miss because nothing breaks visibly.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "privacy"],
+      "educate": {
+        "base": "TripleLift supports alternative identity solutions so a publisher can keep inventory addressable once a user authenticates, for example through a newsletter sign-in or a registration wall. RampID from LiveRamp and Unified ID 2.0 (UID2) are the two most common. TripleLift is compatible with Prebid, so on a web property these IDs usually flow through the Prebid User ID module, which retrieves each identifier and makes it available to the bidders that participate in the auction. The TripleLift adapter reads those IDs from the same place every other adapter does.<br><br>RampID arrives as an encrypted envelope rather than a raw identifier. LiveRamp's Prebid submodule, configured as the 'identityLink' module, retrieves the envelope and stores it under 'idl_env'. The submodule documentation recommends a refresh interval of 1800 seconds, which is 30 minutes, so that every demand partner receives an envelope encrypted with the current key. If the envelope is not retrieved, has expired, or is never refreshed, the bidder receives no usable RampID and the impression goes to auction without it.<br><br>UID2 works on a similar pattern. The publisher collects an authenticated email or phone number, a UID2 operator turns it into a token, and that token is passed to the supply path during bidding. Each ID solution has its own configuration, its own storage, and its own failure mode, so a publisher running more than one needs each to be checked on its own terms.<br><br>The audit question is whether the alternative IDs a publisher intends to pass to TripleLift are actually configured and populating. A few signs point to an ID that is not passing:<ul><li>The Prebid User ID module is present but the RampID or UID2 submodule was never added to the build, so the identifier is never retrieved</li><li>Inspecting a live auction request shows the user ID fields empty on authenticated sessions where an envelope or token was expected</li><li>The RampID envelope is stored but the refresh interval is unset or far longer than 30 minutes, so demand partners receive a stale envelope</li></ul>You may want to confirm that each alternative ID the publisher relies on is both configured in the bidstream path and populating on authenticated traffic. One approach is to inspect a bid request from an authenticated session and check that the expected ID fields carry a value.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the authenticated audience often comes from newsletter sign-ins, metered registration, or a subscriber login, and that authenticated pool is where RampID and UID2 add the most addressable value. You may want to confirm the ID solutions populate on the logged-in and registered sessions specifically because those are the impressions where an alternative ID changes how demand prices the inventory.",
+          "ecommerce": "On a commerce-content site, account holders and repeat shoppers authenticate at checkout or sign-in, which is exactly the higher-intent traffic an alternative ID can keep addressable. You may want to verify that RampID or UID2 populates on those authenticated commercial sessions rather than assuming a sitewide tag covers them."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "User ID module for header bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userId.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "LiveRamp RampID submodule for header bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/ramp.html"
+          },
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Publisher integration overview",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-publishers"
+          }
+        ],
+        "learn_more_note": "TripleLift's detailed configuration documentation for enabling and mapping alternative IDs on its platform is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which alternative IDs are configured in the bidstream path that reaches TripleLift, then confirm each one populates on authenticated traffic rather than sitting empty.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Prebid User ID configuration",
+              "steps": [
+                "Open the site's Prebid setup and find the 'userSync.userIds' configuration in 'setConfig'.",
+                "Record which submodules are present, looking for 'identityLink' (RampID) and 'uid2', and note that each one was actually included in the Prebid.js build rather than only referenced in config.",
+                "For the RampID 'identityLink' submodule, record the placement ID, the storage name (expected 'idl_env'), and the 'refreshInSeconds' value, and check the refresh against the 1800-second guidance.",
+                "List every alternative ID the publisher says it relies on and confirm each appears in this configuration."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Authenticate on the site the way a real user would, for example by signing in or completing the registration step that triggers ID resolution.",
+                "Open the network panel and inspect an outgoing bid request that includes TripleLift, looking at the user ID or EID fields in the payload.",
+                "Confirm the expected identifiers carry a value on the authenticated session, for example a RampID envelope sourced from 'liveramp.com' and a UID2 token, rather than an empty field.",
+                "Repeat on an unauthenticated session to confirm the difference is expected behavior rather than a tag that never fires."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each alternative ID the publisher relies on, whether the submodule is configured in the bidstream path, whether it populates on authenticated traffic, and for RampID whether the refresh interval matches the 1800-second guidance. A setup where each intended ID is configured and carries a value on authenticated sessions passes. A setup where an intended ID is absent from the build, sits empty on authenticated traffic, or carries a stale RampID envelope is a fail recorded with the specific ID and the symptom.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which alternative IDs are configured and whether each populates on authenticated traffic above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more of the alternative IDs {{site_name}} relies on for TripleLift is not configured or is not passing on authenticated traffic, so those impressions reach the auction without the addressable signal demand prices on. TripleLift is compatible with Prebid, so RampID from LiveRamp and Unified ID 2.0 (UID2) usually flow through the Prebid User ID module, and an ID that is absent from the build, empty on authenticated sessions, or carrying a stale RampID envelope removes that signal without anything breaking visibly. {{voice_recommend}} confirming each intended submodule is in the Prebid build, inspecting a bid request from an authenticated session to verify the ID fields carry a value, and setting the RampID refresh interval to 1800 seconds so demand partners receive a current envelope. After the fix, recheck an authenticated bid request to confirm each ID populates."
+      }
+    },
+    {
+      "id": "triplelift-rampid-alternative-ids-conflicting-or-missing-consent",
+      "title": "Multiple ID solutions conflict, duplicate, or run without their own consent",
+      "category": "identity",
+      "subcategory": "rampid_alternative_ids",
+      "impact_score": 3,
+      "impact_rationale": "Running several alternative IDs without checking that each carries the right legal basis exposes a publisher to a consent gap because an identifier that resolves a user before consent is recorded is processing personal data it has no basis for. Duplicate or overlapping ID solutions add weight and confusion without adding addressability, and a consent gap on any one of them is a compliance risk rather than a yield question.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "A publisher often runs more than one alternative identity solution at once, for example RampID from LiveRamp alongside Unified ID 2.0 (UID2), to reach the demand that supports each. That is a reasonable setup, but each ID is a separate act of processing a user's identity, so each needs its own legal basis and each needs to behave when it sits next to the others. Two questions follow. Are the solutions duplicating effort or conflicting, and does each one carry the consent it requires before it resolves a user.<br><br>On consent, an alternative ID resolves an authenticated identifier such as an email into a pseudonymous token, which is processing personal data under frameworks like the General Data Protection Regulation (GDPR). Prebid reads consent from a consent management platform (CMP) that implements the Interactive Advertising Bureau (IAB) Transparency and Consent Framework (TCF), and the consent management module exposes that signal to the user ID modules. The Prebid guidance is direct, which is that a publisher should not enable a user ID module, and should set 'deviceAccess' to false, when the user has not consented to the purposes that module needs. An ID solution that resolves a user before consent is recorded, or that ignores the CMP signal, is operating without a basis.<br><br>On conflict and duplication, two solutions that resolve the same authenticated identifier in incompatible ways, or two configurations that store an envelope under the same key, can leave one quietly overwriting the other. More commonly, a publisher carries an ID solution it no longer uses, which adds page weight and a consent surface without adding any addressability the active solutions do not already provide.<br><br>A few signs point to an identity setup that needs review:<ul><li>An alternative ID resolves on a session where the CMP recorded no consent for the purposes that ID relies on</li><li>The consent management module is absent or is not wired to gate the user ID modules, so IDs resolve regardless of the consent string</li><li>Two or more ID solutions are configured but one is unused, overlaps another, or writes to a storage key another module also uses</li></ul>You may want to confirm that each active ID solution carries its own consent and that the set as a whole is deliberate rather than accumulated. One approach is to withhold consent in the CMP on a test session and confirm the alternative IDs do not resolve.",
+        "site_type_overlays": {
+          "publishing": "On a media site serving readers across regions, the same identity stack may face GDPR for European Economic Area (EEA) traffic and a United States state framework elsewhere, so the consent gating has to follow the user's region rather than apply one rule everywhere. You may want to confirm the CMP signal gates the alternative IDs per region because a media audience often spans several consent regimes at once.",
+          "ecommerce": "On a commerce-content site, the authenticated identifier frequently comes from a shopping account, so the same email feeds both order fulfillment and the alternative ID resolution. You may want to confirm the advertising use of that identifier carries its own consent, separate from the transactional basis that covers fulfillment, so the ID resolution is not leaning on a basis that does not cover advertising."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent management TCF module for header bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementTcf.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "User ID module for header bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userId.html"
+          }
+        ],
+        "learn_more_note": "TripleLift's platform-side documentation for which alternative IDs it accepts and how it deduplicates them is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the full set of alternative ID solutions configured for TripleLift, check each for duplication or overlap, then confirm the consent management module gates each ID against the recorded consent signal.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Prebid User ID and consent configuration",
+              "steps": [
+                "List every submodule under 'userSync.userIds' and identify which alternative ID each one resolves, noting any that are unused or that resolve the same authenticated identifier.",
+                "Check the storage name each submodule writes to and flag any two modules that share a key.",
+                "Confirm a consent management module is present, for example 'consentManagementTcf', and that it runs before the user ID modules resolve.",
+                "Record whether the user ID configuration honors the consent signal, for example by gating 'deviceAccess' on the relevant TCF purposes, rather than resolving IDs regardless of consent."
+              ]
+            },
+            "cmp_test": {
+              "label": "Consent management platform test",
+              "steps": [
+                "On a test session, withhold or decline consent in the CMP for the purposes the alternative IDs rely on.",
+                "Inspect the bid request and confirm the alternative IDs do not resolve and the ID fields stay empty when consent is absent.",
+                "Grant consent on a second session and confirm the IDs then resolve, which shows the gating responds to the consent signal rather than ignoring it.",
+                "For traffic outside the GDPR scope, confirm the applicable framework's signal, for example a United States privacy string, is read and respected in the same way."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the full set of configured ID solutions, whether any duplicate or overlap, and whether each resolves only when the CMP records the consent that ID requires. A setup where each active ID is distinct, used, and gated on its own consent passes. A setup with an unused or overlapping ID solution, a shared storage key, or any ID that resolves on a session with no recorded consent is a fail recorded with the specific solution and the gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the configured ID solutions, any overlap, and whether each resolves only with recorded consent above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs multiple alternative ID solutions for TripleLift where one is unused or overlapping, or where an ID resolves without the consent it requires. Each alternative ID resolves an authenticated identifier into a token, which is processing personal data under frameworks such as the General Data Protection Regulation (GDPR), and Prebid's own guidance is that a user ID module should not resolve when the consent management platform (CMP) records no consent for the purposes that module needs. {{voice_recommend}} removing any ID solution that adds no addressability the active ones lack, confirming no two modules write to the same storage key, and wiring the consent management module so each ID resolves only when the consent signal supports it. After the change, withhold consent on a test session and confirm the alternative IDs stay empty."
+      }
+    }
+  ]
+}

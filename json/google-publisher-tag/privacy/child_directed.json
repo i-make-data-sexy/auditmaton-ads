@@ -1,0 +1,173 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/admanager/answer/3671211?hl=en",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Child-directed tagging is the signal that tells Google to suppress personalized ads and certain data uses on inventory aimed at children, which is a direct input to Children's Online Privacy Protection Act (COPPA) compliance and the EEA age-of-consent rules. A missing or misapplied tag does not throw an error, so the page keeps serving and the gap stays invisible until a regulator or an advertiser raises it. The check is a review of a few GPT calls and the resulting ad request, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration change the publisher can make.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Google Publisher Tag (GPT) is the JavaScript library a publisher runs on their own pages to request and render ads from Google Ad Manager (GAM). When some or all of that inventory reaches children, or reaches users below the age of consent in the European Economic Area (EEA), GPT carries a privacy signal on the ad request that tells Google to apply the matching age treatment. This subcategory covers whether that signal is set where the content requires it. The signal is configured through the GPT privacy settings before ads are requested, and it is the publisher's implementation choice rather than anything GAM applies on its own. These checks confirm the tag reaches the ad request on child-directed content and on inventory that may include EEA users under the age of consent.",
+  "audit_checks": [
+    {
+      "id": "google-publisher-tag-child-directed-tfcd-not-set",
+      "title": "Child-directed treatment is not tagged on child-directed content",
+      "category": "privacy",
+      "subcategory": "child_directed",
+      "impact_score": 4,
+      "impact_rationale": "Child-directed treatment tells Google to suppress personalized ads and certain data uses on inventory aimed at children, which a publisher relies on to help meet the Children's Online Privacy Protection Act (COPPA). When child-directed content carries no tag at all, the ad request defaults to standard treatment, so personalized ads and remarketing can serve against children with no error to flag it, which is a catastrophic gap in the compliance signal rather than a tuning question.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
+      "educate": {
+        "base": "Google Publisher Tag (GPT) lets a publisher mark an ad request as child-directed so Google applies the matching age treatment. The current mechanism is the Tag for Age Treatment (TFAT), and its child value is functionally equivalent to the legacy Tag for Child-Directed Treatment (TFCD) that it replaces. When the tag is set, Google suppresses personalized ads and remarketing on that inventory, which is the behavior a publisher relies on to help meet COPPA. Google's own guidance is direct that the tag helps facilitate compliance but does not relieve the publisher of their legal obligations.<br><br>The tag is configured in GPT through the privacy settings before any ad is requested. A publisher calls <a href='https://developers.google.com/publisher-tag/samples/configure-privacy' class='tools-link-no-padding' target='_blank'>setPrivacySettings</a> on the publisher ads service and sets the child-directed treatment to true (the legacy property is childDirectedTreatment; TFAT uses the age treatment value). The setting has to run before the slots are displayed, so the order of the GPT calls matters as much as the value itself. A tag set after the ad request has already gone out does not reach that request.<br><br>The risk in this check is the default. When child-directed content carries no tag, the ad request goes out under standard treatment, and standard treatment allows personalized ads and remarketing. Nothing in the page breaks. The ads render, the page looks normal, and the only evidence is in the ad request parameters, which a publisher has to inspect on purpose to see. That is what makes an absent tag on child-directed inventory a serious gap rather than a visible bug.<br><br>Determining whether content is child-directed is a judgment the publisher makes about their audience and subject matter, not something the audit can decide. What the audit can confirm is whether the tag matches that determination. Where the publisher has identified inventory as child-directed, the tag should reach the ad request for that inventory.<br><br>A few signs point to child-directed treatment not being tagged where it is needed:<ul><li>The page or section is aimed at children, but the GPT code includes no setPrivacySettings call for child-directed or age treatment</li><li>The ad request to securepubads carries no child-directed or age-treatment parameter on inventory the publisher has identified as child-directed</li><li>The privacy settings call runs after the slots are displayed, so the tag never reaches the request that went out first</li></ul>You may want to confirm that the tag reaches the ad request on every section the publisher has identified as child-directed. One approach is to open the Google Publisher Console on a child-directed page and read the request parameters to see whether the age-treatment signal is present.",
+        "site_type_overlays": {
+          "publishing": "On a media or content site running GPT, child-directed treatment usually applies to specific sections rather than the whole property, for example a kids' games area or a children's video hub alongside general-audience editorial. You may want to confirm the tag is set on those sections specifically because a privacy settings call placed in a shared header may cover the general pages while missing the child-directed area, or the reverse.",
+          "ecommerce": "On a commerce-content site running GPT, child-directed treatment can apply to product or category pages for children's goods that also carry ad inventory, for example toys or kids' apparel sections. You may want to confirm the tag reaches the ad request on those commercial pages, not only on any editorial content. The privacy settings call has to run on each page template that serves ads to child-directed audiences."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Tag an ad request for age treatment (TFAT)",
+            "source_url": "https://support.google.com/admanager/answer/3671211?hl=en"
+          },
+          {
+            "source_type": "Google Publisher Tag",
+            "source_title": "Configure privacy settings",
+            "source_url": "https://developers.google.com/publisher-tag/samples/configure-privacy"
+          },
+          {
+            "source_type": "Google Publisher Tag",
+            "source_title": "GPT reference (PrivacySettingsConfig)",
+            "source_url": "https://developers.google.com/publisher-tag/reference"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Identify the sections the publisher treats as child-directed, then read the GPT code and the live ad request on those sections to see whether the age-treatment signal is set before the slots are displayed.",
+        "tools": {
+          "free": {
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "On a page the publisher has identified as child-directed, open the Google Publisher Console by appending the googfc query parameter to the URL or by running the googfc bookmarklet.",
+                "Open the 'Page request' or request details view and read the parameters Google Publisher Tag (GPT) sent on the ad request.",
+                "Look for the age-treatment or child-directed parameter on the request and record whether it is present and set for child-directed treatment.",
+                "Repeat on each section the publisher treats as child-directed because the tag is set per page execution and one section may carry it while another does not."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the browser's developer tools on a child-directed page, switch to the 'Network' tab, and reload.",
+                "Filter the requests for securepubads, the host Google Publisher Tag (GPT) uses for ad requests, and open the request.",
+                "Inspect the request payload or query string for the age-treatment or child-directed parameter and record whether it is present.",
+                "View the page source or the Sources tab to confirm the setPrivacySettings call runs before the display call, so the tag reaches the request that goes out."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each section the publisher has identified as child-directed, whether the Google Publisher Tag (GPT) age-treatment or child-directed signal is set and whether it reaches the live ad request before the slots are displayed. A setup where every child-directed section carries the tag on the request passes. A setup where any child-directed section sends an ad request with no age-treatment signal, or sets the tag after the slots are displayed so it never reaches the request, is a fail recorded with the sections affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the age-treatment signal reaches the ad request on each child-directed section above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} serves ads on content identified as child-directed without tagging the ad request for child-directed treatment in Google Publisher Tag (GPT). With no tag, the request defaults to standard treatment, so personalized ads and remarketing can serve against children, which is the behavior the Children's Online Privacy Protection Act (COPPA) tag exists to suppress, and nothing in the page surfaces the gap. {{voice_recommend}} setting the age treatment to the child value through setPrivacySettings before the slots are displayed on every section the publisher treats as child-directed, then confirming in the Google Publisher Console that the signal reaches the live ad request. The tag helps with compliance but does not replace {{site_name}}'s own legal review of which content is child-directed."
+      }
+    },
+    {
+      "id": "google-publisher-tag-child-directed-tfua-not-set-eea",
+      "title": "Under-age-of-consent treatment is not tagged for EEA users below the age of consent",
+      "category": "privacy",
+      "subcategory": "child_directed",
+      "impact_score": 3,
+      "impact_rationale": "Under-age-of-consent treatment tells Google to suppress personalized ads for European Economic Area (EEA) users below the age of consent, which a publisher relies on to help meet EEA data-protection rules. When inventory that may reach those users carries no tag, the ad request defaults to standard treatment, so personalized ads can serve to minors with no error to flag it, which leaves a compliance signal unset on the affected inventory.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
+      "educate": {
+        "base": "Separate from child-directed treatment, Google Publisher Tag (GPT) carries a signal for EEA users who are below the age of consent. The legacy mechanism is the Tag for Under Age of Consent (TFUA), and like the child-directed tag it is now folded into the Tag for Age Treatment (TFAT), whose child value is functionally equivalent to the older TFUA child treatment. When the tag is set, Google suppresses personalized ads for those users, which a publisher relies on to help meet the EEA's data-protection rules for minors. As with the child-directed tag, Google's guidance states the tag helps facilitate compliance but does not relieve the publisher of their legal obligations.<br><br>The distinction between the two tags matters. Child-directed treatment is about whether the content is aimed at children, a judgment that does not depend on where the user is. Under-age-of-consent treatment is about whether the audience may include EEA users below the age of consent, which is a geographic and age question rather than a content question. A publisher whose audience may include EEA minors on general inventory has a reason to set this tag even where the content itself is not child-directed.<br><br>The tag is configured the same way, through setPrivacySettings on the publisher ads service before any ad is requested. The legacy property is underAgeOfConsent, and a publisher can set it alongside the child-directed property in a single call. The same ordering rule applies: the setting has to run before the slots are displayed, or it does not reach the ad request that already went out.<br><br>The default carries the same risk as the child-directed default. Inventory that may reach EEA users below the age of consent, but carries no tag, sends its ad request under standard treatment, and standard treatment allows personalized ads. The page renders normally and the gap shows only in the request parameters.<br><br>A few signs point to under-age-of-consent treatment not being tagged where the audience warrants it:<ul><li>The audience may include EEA users below the age of consent, but the GPT code sets no under-age-of-consent or age treatment value</li><li>The ad request to securepubads carries no under-age-of-consent or age-treatment parameter on inventory that may reach EEA minors</li><li>The privacy settings call runs after the slots are displayed, so the tag never reaches the request</li></ul>You may want to confirm, with the publisher's read of where EEA minors may appear in the audience, that the tag reaches the ad request on that inventory. One approach is to read the request parameters in the Google Publisher Console on the affected sections to see whether the age-treatment signal is set.",
+        "site_type_overlays": {
+          "publishing": "On a media or content site running GPT, the under-age-of-consent question turns on whether EEA users below the age of consent may be in the audience, which can apply across general editorial rather than to a single section. You may want to confirm the tag is set wherever the publisher's read of their audience supports it because this signal is tied to who is viewing rather than to whether the content is child-directed.",
+          "ecommerce": "On a commerce-content site running GPT, EEA users below the age of consent may reach product, category, or editorial pages that serve ads. You may want to confirm the under-age-of-consent tag reaches the ad request on the page templates that may serve those users. The privacy settings call has to run on each template that requests ads."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Tag an ad request for age treatment (TFAT)",
+            "source_url": "https://support.google.com/admanager/answer/3671211?hl=en"
+          },
+          {
+            "source_type": "Google Publisher Tag",
+            "source_title": "Configure privacy settings",
+            "source_url": "https://developers.google.com/publisher-tag/samples/configure-privacy"
+          },
+          {
+            "source_type": "Google Publisher Tag",
+            "source_title": "GPT reference (PrivacySettingsConfig)",
+            "source_url": "https://developers.google.com/publisher-tag/reference"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "With the publisher's read of where European Economic Area (EEA) users below the age of consent may appear, read the GPT code and the live ad request on that inventory to see whether the under-age-of-consent or age-treatment signal is set before the slots are displayed.",
+        "tools": {
+          "free": {
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "On a page that may reach European Economic Area (EEA) users below the age of consent, open the Google Publisher Console by appending the googfc query parameter to the URL or by running the googfc bookmarklet.",
+                "Open the request details view and read the parameters Google Publisher Tag (GPT) sent on the ad request.",
+                "Look for the under-age-of-consent or age-treatment parameter and record whether it is present and set.",
+                "Repeat on each section the publisher's read identifies because the tag is set per page execution rather than once for the whole property."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the browser's developer tools on the affected page, switch to the 'Network' tab, and reload.",
+                "Filter the requests for securepubads, the host Google Publisher Tag (GPT) uses for ad requests, and open the request.",
+                "Inspect the request payload or query string for the under-age-of-consent or age-treatment parameter and record whether it is present.",
+                "View the page source or the Sources tab to confirm the setPrivacySettings call runs before the display call, so the tag reaches the request that goes out."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for the inventory the publisher identifies as possibly reaching European Economic Area (EEA) users below the age of consent, whether the Google Publisher Tag (GPT) under-age-of-consent or age-treatment signal is set and reaches the live ad request before the slots are displayed. A setup where that inventory carries the tag on the request passes. A setup where it sends an ad request with no age-treatment signal, or sets the tag after the slots are displayed, is a fail recorded with the inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the under-age-of-consent signal reaches the ad request on the affected inventory above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} may serve ads to European Economic Area (EEA) users below the age of consent without tagging the ad request for under-age-of-consent treatment in Google Publisher Tag (GPT). With no tag, the request defaults to standard treatment, so personalized ads can serve to those minors, which is the behavior the EEA age-of-consent tag exists to suppress, and the page gives no sign of it. {{voice_recommend}} setting the under-age-of-consent value through setPrivacySettings before the slots are displayed on the inventory that may reach those users, then confirming in the Google Publisher Console that the signal reaches the live ad request. The tag supports compliance but does not replace {{site_name}}'s own assessment of where EEA minors may appear in the audience."
+      }
+    }
+  ]
+}

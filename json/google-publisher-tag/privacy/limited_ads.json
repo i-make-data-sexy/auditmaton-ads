@@ -1,0 +1,167 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/admanager/answer/9882911",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Limited ads decide whether an impression can still serve when a user in a consent region has not consented to cookies, rather than serving nothing at all. The setting is split across two places, a serving mode in Google Ad Manager and the GPT library variant loaded on the page, so a publisher can have one half right and the other half missing. The check is a review of the consent wiring a publisher already has, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Limited ads let Google Ad Manager (GAM) serve an ad that uses limited data, with no cookies or other local identifiers, to a user in a consent region who has not consented. Without limited ads serving, that request returns nothing and the impression is lost. This subcategory is about whether limited ads are wired up correctly on a publisher's site, both the serving mode that allows a limited ad to fill and the Google Publisher Tag (GPT) library variant that can actually request one. These checks confirm that a user who declines consent still sees a compliant ad rather than an empty slot.",
+  "audit_checks": [
+    {
+      "id": "google-publisher-tag-limited-ads-serving-not-enabled",
+      "title": "Limited ads serving is not enabled for consent-region requests without consent",
+      "category": "privacy",
+      "subcategory": "limited_ads",
+      "impact_score": 3,
+      "impact_rationale": "When a user in a consent region declines consent and limited ads serving is not enabled, the ad request returns nothing and the impression goes unfilled. Enabling limited ads lets a compliant ad serve with limited data use instead, so the difference is between earning a limited-data impression and earning none on a slice of traffic that can be sizable in the EEA, the UK, and Switzerland.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
+      "educate": {
+        "base": "Limited ads are how Google Ad Manager (GAM) keeps an impression earning when a user in a consent region has not consented to cookies or other local identifiers. Instead of serving nothing, GAM can serve a limited ad that disables the collection, sharing, and use of personal data for ad personalization. For requests from the European Economic Area (EEA), the United Kingdom (UK), or Switzerland that arrive without a Transparency and Consent (TC) string from a Google-certified consent management platform (CMP), Google will attempt to serve an eligible limited ad. The alternative is an unfilled slot.<br><br>The serving signal can reach GAM in two ways. The first is automatic, through an IAB Transparency and Consent Framework (TCF) v2 CMP whose TC string already carries the relevant signals, so a certified CMP needs no extra action to support limited ads. The second is manual, where the publisher explicitly triggers a limited ads request on the tag. Either path tells GAM that this request should be served in limited ads mode rather than blocked for lack of consent.<br><br>The audit question is whether that path is actually in place. A publisher can have a CMP collecting consent and still leave limited ads off the table, so a user who declines is shown an empty slot rather than a compliant limited ad. The finding is about the gap between collecting a consent decision and acting on the no-consent case.<br><br>A few signs point to limited ads serving not being enabled:<ul><li>Ad requests from the EEA, the UK, or Switzerland without consent return no ad rather than a limited ad</li><li>The CMP is in place, but no limited ads serving signal reaches GAM through either the automatic TCF path or a manual trigger</li><li>Reporting shows unfilled requests concentrated in consent regions among users who declined</li></ul>You may want to confirm that a user who declines consent in a consent region can still receive a limited ad. One approach is to simulate a no-consent request from a consent region and check whether a limited ad serves or the slot comes back empty.",
+        "site_type_overlays": {
+          "publishing": "On a media site running the Google Publisher Tag (GPT), a large share of editorial traffic can come from the EEA, the UK, or Switzerland, so the no-consent case covers real volume. You may want to confirm that declining consent still returns a limited ad across article and section pages rather than leaving those slots empty for every reader who opts out.",
+          "ecommerce": "On a commerce-content site running GPT, product and category pages still carry ad slots alongside the shopping content, and consent-region shoppers who decline can leave those slots unfilled. You may want to verify that limited ads serving is enabled so the ad inventory on commercial pages still earns from no-consent traffic rather than going blank."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Limited ads",
+            "source_url": "https://support.google.com/admanager/answer/9882911"
+          },
+          {
+            "source_type": "Google Publisher Tag",
+            "source_title": "Display a limited ad",
+            "source_url": "https://developers.google.com/publisher-tag/samples/display-limited-ad"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether a limited ads serving signal reaches Google Ad Manager for consent-region requests without consent, either automatically through the consent management platform or manually on the tag, and confirm what serves when a user declines.",
+        "tools": {
+          "free": {
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the page with the Google Publisher Console by appending '?googfc' to the URL or running the Publisher Console bookmarklet, then load the page.",
+                "In the console, open the request details for a slot and confirm whether the request was sent in limited ads mode and what served in response.",
+                "Repeat with a simulated no-consent state from a consent region (for example, decline consent in the CMP) and record whether a limited ad serves or the slot returns empty."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the browser's developer tools, switch to the Network tab, and filter requests to 'securepubads' to find the ad request.",
+                "Decline consent in the consent management platform (CMP), reload the page, and inspect the ad request to confirm whether a limited ads signal is present and whether an ad is returned.",
+                "Note whether the no-consent request results in a limited ad or an empty response."
+              ]
+            },
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "In Google Ad Manager, review the privacy and consent settings that govern serving without consent in the relevant regions.",
+                "Confirm whether limited ads serving is allowed to fill requests that arrive without a Transparency and Consent (TC) string from a certified consent management platform (CMP).",
+                "Record whether the account is configured to serve limited ads for no-consent requests from the European Economic Area (EEA), the United Kingdom (UK), and Switzerland."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a limited ads serving signal reaches Google Ad Manager for consent-region requests without consent, through the automatic IAB Transparency and Consent Framework (TCF) path or a manual trigger, and what serves when a user declines. A setup where a no-consent request from a consent region returns a limited ad passes. A setup where the no-consent request returns an empty slot, with no limited ads signal reaching the ad server, is a fail recorded with the regions and the result observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a no-consent request from a consent region returns a limited ad or an empty slot above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not enable limited ads serving for consent-region requests that arrive without consent, so a user in the European Economic Area (EEA), the United Kingdom (UK), or Switzerland who declines consent receives an empty slot rather than a limited ad. Limited ads in Google Ad Manager (GAM) serve a compliant ad with limited data use in place of nothing, so the gap leaves no-consent impressions unfilled. {{voice_recommend}} confirming that a limited ads serving signal reaches the ad server, either automatically through an IAB Transparency and Consent Framework (TCF) v2 consent management platform or by triggering a limited ads request on the tag, so declined-consent traffic still earns a compliant impression. After the change, simulate a no-consent request from a consent region and confirm a limited ad serves."
+      }
+    },
+    {
+      "id": "google-publisher-tag-limited-ads-library-variant-not-loaded",
+      "title": "The standard GPT library is loaded where limited ads are intended",
+      "category": "privacy",
+      "subcategory": "limited_ads",
+      "impact_score": 3,
+      "impact_rationale": "Manual control of limited ads only works when the page loads the limited ads variant of the Google Publisher Tag library. With the standard library, calls to enable limited ads are ignored, so a publisher that intends to serve limited ads on a no-consent request gets nothing instead, and the privacy wiring fails on the slice of traffic it was meant to protect.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
+      "educate": {
+        "base": "The Google Publisher Tag (GPT) ships in two variants, and the difference matters for limited ads. The standard library, loaded from the usual securepubads endpoint, runs ads the normal way. A separate limited ads variant is loaded from a different URL and carries additional safeguards against accessing client-side storage by default, which is what makes it suitable for serving without consent. Manual limited ads control depends on which variant is on the page.<br><br>The wiring is precise. To manually enable limited ads through the GPT PrivacySettings application programming interface (API), with a call that sets the limited ads flag on, the page must load GPT from the limited ads URL. When the standard library is loaded instead, those calls are ignored. The intent to serve a limited ad is expressed in code, but the library on the page cannot act on it, so the request does not run in limited ads mode and the no-consent impression is lost.<br><br>This failure is quiet. The page looks correct, the API call is present, and nothing throws an error. The only signal is that no-consent requests do not serve limited ads even though the publisher believes they should. The audit question is whether the library variant on the page matches the limited ads behavior the publisher intends.<br><br>One trade-off comes with the limited ads variant. When GPT is loaded from the limited ads URL, certain library operations are delayed until after the first call to display(), which is a slight decrease in performance compared with the standard version. That cost is the reason a publisher would not load the limited ads variant everywhere by default, and the reason the choice should match where limited ads are actually intended.<br><br>A few signs point to a mismatch between the library variant and the limited ads intent:<ul><li>The page loads the standard GPT library from securepubads while the code calls the API to enable limited ads</li><li>Manual limited ads calls run without error, yet no-consent requests never serve a limited ad</li><li>The limited ads URL is not referenced in the tag on pages where limited ads are meant to serve</li></ul>You may want to confirm that the library variant on the page matches the limited ads behavior intended. One approach is to read the GPT script source in the page markup and check it against where manual limited ads control is expected to apply.",
+        "site_type_overlays": {
+          "publishing": "On a media site running GPT, the tag is often shared across many article templates, so a single standard-library include can cover pages where limited ads were meant to apply. You may want to check the script source on the templates that serve consent-region readers and confirm the limited ads variant is loaded where manual limited ads control is intended.",
+          "ecommerce": "On a commerce-content site running GPT, ad slots on product and category pages may load through the same tag as the editorial pages, so the library variant can be uniform when limited ads intent is not. You may want to confirm that the limited ads variant is loaded on the pages where no-consent limited ads are intended rather than assuming the standard include covers them."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag",
+            "source_title": "Display a limited ad",
+            "source_url": "https://developers.google.com/publisher-tag/samples/display-limited-ad"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Limited ads",
+            "source_url": "https://support.google.com/admanager/answer/9882911"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the Google Publisher Tag script source loaded in the page and confirm whether it is the standard library or the limited ads variant on pages where limited ads are intended.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the browser's developer tools and view the page source or the Network tab on a page where limited ads are intended.",
+                "Find the GPT script include and read its source URL, noting whether it loads the standard library from the securepubads endpoint or the separate limited ads URL.",
+                "On the same page, look for a call to the GPT privacy settings that enables limited ads, and record whether the loaded variant can act on that call."
+              ]
+            },
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the page with the Google Publisher Console by appending '?googfc' to the URL or running the Publisher Console bookmarklet.",
+                "Decline consent in the consent management platform (CMP), reload, and inspect a slot's request to confirm whether it ran in limited ads mode.",
+                "Record whether the request served a limited ad, which indicates the correct variant, or returned empty despite a limited ads API call, which points to the standard library being loaded."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the Google Publisher Tag script source on pages where limited ads are intended and whether a manual limited ads call is present. A setup where the limited ads variant is loaded on every page that manually enables limited ads passes. A setup where the standard library is loaded while the code calls the API to enable limited ads, so the call is ignored and no-consent requests do not serve limited ads, is a fail recorded with the pages affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the GPT script source and whether a manual limited ads call is present on the pages where limited ads are intended above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} loads the standard Google Publisher Tag (GPT) library on pages where limited ads are intended, while the code calls the GPT privacy settings to enable limited ads. The standard library ignores those calls, so the request never runs in limited ads mode and the no-consent impression is lost even though the intent is in place. Manual limited ads control works only when the page loads GPT from the limited ads URL, which carries the safeguards that variant requires. {{voice_recommend}} loading the limited ads variant of GPT on the pages where limited ads are meant to serve so the privacy settings call takes effect. After the change, simulate a no-consent request from a consent region and confirm a limited ad serves."
+      }
+    }
+  ]
+}

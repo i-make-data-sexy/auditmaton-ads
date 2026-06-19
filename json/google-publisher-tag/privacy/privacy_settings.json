@@ -1,0 +1,163 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://support.google.com/admanager/answer/9598414?hl=en",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Google Publisher Tag carries privacy flags on every ad request, so whether those flags follow the user's real consent decides whether the ad request is compliant and whether it serves a personalized or a non-personalized ad. A flag that is hardcoded, missing, or wired to a default rather than to the consent management platform sends the wrong signal on every impression, which is both a compliance exposure and a revenue effect. The check reads the privacy settings already in the GPT code against the consent state the page reports, so it costs reading time rather than rebuild time, and the finding points to a concrete wiring fix the publisher can verify in the network request.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Google Publisher Tag (GPT) sends a privacy signal with every ad request through the setPrivacySettings API, which tells Google Ad Manager (GAM) whether to serve a personalized ad, a non-personalized ad, or a restricted ad for that user. This subcategory is about whether those settings reflect the page's actual consent state rather than a fixed default. These checks confirm that the consent management platform drives the privacy flags GPT sends, and that restricted data processing is signaled where US state privacy opt-outs require it.",
+  "audit_checks": [
+    {
+      "id": "google-publisher-tag-privacy-settings-not-wired-to-consent",
+      "title": "setPrivacySettings is hardcoded rather than driven by the consent management platform",
+      "category": "privacy",
+      "subcategory": "privacy_settings",
+      "impact_score": 3,
+      "impact_rationale": "When the privacy flags GPT sends are fixed in the page code rather than read from the consent management platform, every ad request carries the same signal regardless of what the user actually chose. A flag set to allow personalized ads for a user who declined consent sends the wrong signal on each impression, which is a compliance exposure, and a flag set to restrict ads for a user who granted consent suppresses personalized demand the publisher was entitled to serve.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
+      "educate": {
+        "base": "Google Publisher Tag (GPT) carries the page's privacy state to Google Ad Manager (GAM) through the setPrivacySettings method on the pubads service. The config object accepts several flags, each one shaping how the ad request is treated. The flags include 'nonPersonalizedAds' to serve non-personalized ads, 'restrictDataProcessing' to run in restricted processing mode, 'childDirectedTreatment' and 'underAgeOfConsent' for child-directed inventory, and 'limitedAds' to run in limited ads mode where no advertising cookies or identifiers are read or written.<br><br>The value of these flags is only as good as where the value comes from. A consent management platform (CMP) collects the user's choice, whether through the Transparency and Consent Framework in Europe or a US state opt-out mechanism, and exposes that choice to the page. The correct pattern is for the page to read the CMP result and pass it into setPrivacySettings, so the flag GPT sends matches what the user actually decided. When the call instead carries a fixed value written into the page, the flag stays the same for every visitor and no longer represents anyone's consent.<br><br>The two failure directions both carry a cost. A flag hardcoded to allow personalized ads sends a personalized ad request for a user who declined consent, which is a compliance exposure on every such impression. A flag hardcoded to restrict ads, or a 'limitedAds' flag left on for all traffic, suppresses personalized demand for users who granted consent, so the publisher serves lower-value non-personalized ads to an audience it was entitled to monetize fully.<br><br>A few signs point to privacy settings that are not driven by consent:<ul><li>The setPrivacySettings call passes a literal value such as true or false rather than a variable read from the consent management platform</li><li>The call fires before the consent management platform has resolved the user's choice, so it always sends the default</li><li>The network request to securepubads carries the same privacy parameters regardless of whether the test session granted or declined consent</li></ul>You may want to confirm that the privacy flags GPT sends change with the consent state the page reports. One approach is to load the page twice, once granting and once declining consent, and read the ad request each time to see whether the privacy parameters follow the choice.",
+        "site_type_overlays": {
+          "publishing": "On a media site running Google Publisher Tag, consent is usually collected by a sitewide consent banner that loads on every page, and the ad request fires on each article and section page. You may want to confirm that the setPrivacySettings call reads the banner's result on every template. A flag wired correctly on the homepage but hardcoded on article pages would send the wrong signal across most of the site's inventory.",
+          "ecommerce": "On a commerce-content site running Google Publisher Tag, product and category pages often load additional scripts that can race the consent management platform, so the ad request may fire before the user's choice has resolved. You may want to confirm that setPrivacySettings on those commercial templates waits for the consent result before the ad request goes out, rather than sending a default while the platform is still loading."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag Reference",
+            "source_title": "PubAdsService.setPrivacySettings",
+            "source_url": "https://developers.google.com/publisher-tag/reference"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Restricted data processing settings in Google's publisher ad tags",
+            "source_url": "https://support.google.com/admanager/answer/9598414?hl=en"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the setPrivacySettings call in the page code to see whether it reads a value from the consent management platform, then load the page under different consent states and read the ad request to confirm the privacy parameters follow the choice.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the page, open DevTools, and search the page source or the loaded scripts for the 'setPrivacySettings' call.",
+                "Note whether the call passes a literal value, e.g., restrictDataProcessing set to true, or a variable read from the consent management platform.",
+                "Open the Network tab, filter for 'securepubads', and reload the page granting consent, then read the ad request parameters that carry the privacy state, e.g., the 'npa' and 'rdp' parameters.",
+                "Clear the consent choice, reload declining consent, and read the same parameters again to see whether they changed with the choice.",
+                "Record whether the privacy parameters followed the consent state or stayed the same across both loads."
+              ]
+            },
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the page and launch the Google Publisher Console by appending '?googfc' to the URL or using the googfc bookmarklet.",
+                "Open the 'Page request' or page-level settings view and read the privacy settings reported for the page.",
+                "Confirm whether the reported settings match the consent choice made for the session rather than a fixed default."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the setPrivacySettings call reads its values from the consent management platform and whether the ad request privacy parameters changed when consent was granted versus declined. A setup where the flags follow the consent state across both test loads passes. A setup where the call passes hardcoded values, or where the ad request parameters stayed the same regardless of consent, is a fail recorded with the flags affected and the consent states tested.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether setPrivacySettings reads the consent management platform and whether the ad request parameters changed with consent above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sets the Google Publisher Tag (GPT) privacy flags through setPrivacySettings with values fixed in the page code rather than read from the consent management platform, so the same privacy signal goes out regardless of what each user chose. A flag hardcoded to allow personalized ads sends a personalized request for a user who declined consent, which is a compliance exposure, and a flag hardcoded to restrict ads suppresses personalized demand for a user who granted consent. {{voice_recommend}} wiring setPrivacySettings to read the consent result before the ad request fires, then verifying the change by loading the page under granted and declined consent and confirming the ad request privacy parameters follow each choice."
+      }
+    },
+    {
+      "id": "google-publisher-tag-privacy-settings-rdp-not-signaled-for-state-optouts",
+      "title": "Restricted data processing is not signaled where US state privacy opt-outs require it",
+      "category": "privacy",
+      "subcategory": "privacy_settings",
+      "impact_score": 3,
+      "impact_rationale": "Several US state privacy laws require that an opt-out, including a Global Privacy Control signal, stops the sale or sharing of a user's data for targeted advertising. When restricted data processing is not signaled for those users, Google Ad Manager continues to serve ads based on the user's prior behavior, so the opt-out the law requires is not honored on those impressions.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
+      "educate": {
+        "base": "Restricted data processing (RDP) is the signal a publisher sends Google Ad Manager (GAM) to limit how a user's data is used. When RDP is on for an ad request, Google serves only a non-personalized ad for that user, targeted on contextual information rather than the user's prior behavior, and does not record information against user identifiers for personalized targeting or measurement. The signal can be sent per request through the Google Publisher Tag (GPT) 'restrictDataProcessing' flag, and it carries on the ad request as the 'rdp' parameter.<br><br>Several US state privacy laws give residents the right to opt out of the sale or sharing of their data for targeted advertising, and several of those states treat a Global Privacy Control (GPC) browser signal as a valid opt-out that must be honored. The states recognizing a universal opt-out mechanism include California, Colorado, Connecticut, Texas, Montana, and others. For users in applicable states, Google receives the GPC signal directly and triggers RDP for those ad requests. Where the publisher is responsible for detecting the opt-out, the RDP signal needs to be sent through the ad tag so the request reflects the user's choice.<br><br>The gap appears when an opt-out is captured but never reaches the ad request. A user who sends a GPC signal, or who uses an on-page opt-out control, has exercised a right the law protects, yet if RDP is not signaled the ad request still allows personalized serving and the opt-out is not honored on that impression. The audit question is whether the opt-out path connects all the way through to the 'rdp' signal on the GPT request.<br><br>A few signs point to RDP not being signaled where a state opt-out requires it:<ul><li>The ad request to securepubads carries no 'rdp' parameter after the test session sends a Global Privacy Control signal from an applicable state</li><li>An on-page opt-out control records the choice but the setPrivacySettings call never sets restrictDataProcessing in response</li><li>The publisher cannot say which opt-out mechanisms feed the RDP signal or which states the site treats as in scope</li></ul>You may want to confirm that an opt-out from an applicable state reaches the ad request as the RDP signal. One approach is to send a Global Privacy Control signal from a test session in an applicable state, then read the ad request to see whether the 'rdp' parameter is present.",
+        "site_type_overlays": {
+          "publishing": "On a media site running Google Publisher Tag, audience often spans many US states, so the opt-out path needs to cover every state the site treats as in scope rather than a single jurisdiction. You may want to confirm that a Global Privacy Control signal from an applicable state triggers restricted data processing on article and section pages alike. The audience reaches that inventory from across the country, so no template can be left out.",
+          "ecommerce": "On a commerce-content site running Google Publisher Tag, the same opt-out that governs the store's data sale should also govern the ad request, so the restricted data processing signal stays consistent with the rest of the site's privacy handling. You may want to confirm that an opt-out captured at the store level reaches the GPT ad request as the RDP signal on product and category pages, rather than stopping at the store's own scripts."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Helping publishers comply with U.S. states privacy laws",
+            "source_url": "https://support.google.com/admanager/answer/9561023?hl=en"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Restricted data processing settings in Google's publisher ad tags",
+            "source_url": "https://support.google.com/admanager/answer/9598414?hl=en"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Send an opt-out signal from a test session in an applicable US state, then read the Google Publisher Tag ad request to confirm restricted data processing is signaled in response.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Enable a Global Privacy Control signal in the test browser, e.g., through a browser setting or an extension that sends the signal.",
+                "Open the page, open DevTools, and use the Network tab filtered for 'securepubads' to capture the ad request.",
+                "Read the request parameters for 'rdp' and confirm whether restricted data processing is signaled, i.e., 'rdp=1'.",
+                "Exercise any on-page opt-out control the site offers, reload, and read the ad request again to confirm the opt-out reaches the RDP signal.",
+                "Record whether the RDP signal was present after the opt-out and which opt-out mechanisms were tested."
+              ]
+            },
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Admin', then 'Privacy and messaging' or the equivalent privacy settings area, and review how the account is configured for US states privacy.",
+                "Confirm which states are treated as in scope and whether the account relies on Google receiving the Global Privacy Control signal directly or on the publisher sending the RDP signal through the ad tag.",
+                "Record the account-level privacy configuration alongside the page-level finding from the ad request test."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether an opt-out from an applicable US state, including a Global Privacy Control signal, results in restricted data processing being signaled on the Google Publisher Tag ad request. A setup where the ad request carries the RDP signal after the opt-out passes. A setup where the opt-out is captured but the ad request shows no RDP signal is a fail recorded with the opt-out mechanism and the states in scope.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether an opt-out from an applicable state results in the RDP signal on the ad request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not signal restricted data processing (RDP) on the Google Publisher Tag (GPT) ad request when a user from an applicable US state exercises a privacy opt-out. Several state laws treat a Global Privacy Control signal as a valid opt-out from the sale or sharing of data for targeted advertising, and without the RDP signal Google Ad Manager continues to serve ads based on the user's prior behavior, so the opt-out is not honored on those impressions. {{voice_recommend}} connecting the opt-out path through to the restrictDataProcessing flag, then verifying it by sending a Global Privacy Control signal from a test session in an applicable state and confirming the 'rdp' parameter is present on the ad request."
+      }
+    }
+  ]
+}

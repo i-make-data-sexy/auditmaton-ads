@@ -1,0 +1,165 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Creative quality scanning is the layer that keeps malware, forced redirects, and resource-hungry ads off a publisher's pages, and a publisher's reputation and ad-block rate ride on it. The check reads the controls already wired into the Amazon Publisher Services (APS) header-bidding stack and the response process behind them, so it costs reading time rather than rebuild time, and the finding points to a concrete gap a publisher can close before a bad creative reaches a reader.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "APS routes header-bidding demand from many partners into a publisher's pages, and any of those creatives can carry malware, a forced redirect, or behavior that degrades the page. This subcategory is about the scanning and response layer that sits over that demand, the controls that inspect creatives before or as they render and the process that follows when one is flagged. These checks confirm that creative scanning is switched on across the inventory APS fills and that flagged creatives are blocked or removed rather than left to keep serving.",
+  "audit_checks": [
+    {
+      "id": "amazon-publisher-services-ad-quality-scanning-no-creative-scanning",
+      "title": "Creative scanning for malware and forced redirects is not enabled across APS-filled inventory",
+      "category": "brand-safety",
+      "subcategory": "ad_quality_scanning",
+      "impact_score": 4,
+      "impact_rationale": "A creative that carries malware, a 0-click or 1-click redirect, or a drive-by download reaches the reader directly when no scanning layer sits in front of it. The harm lands on the audience and the publisher's reputation at the same time, and it can push readers toward ad blockers, so an unscanned demand path is a direct exposure rather than a hygiene gap.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "ad-experience"],
+      "educate": {
+        "base": "Amazon Publisher Services (APS) brings demand from many bidders into a publisher's pages through its header-bidding products, Transparent Ad Marketplace (TAM) and Unified Ad Marketplace (UAM). Every one of those creatives is code that runs in the reader's browser, and a malicious one can carry a forced redirect that throws the reader onto a scam page, a drive-by download, or a deceptive landing page dressed up as a system warning. The volume and the number of demand sources mean a publisher cannot eyeball each creative, so the defense has to be an automated scanning layer that inspects creatives and blocks the bad ones.<br><br>That scanning can sit in more than one place in the stack. APS and its demand partners apply their own checks on the supply they carry, and a publisher running header bidding can add a real-time scanning layer in the page itself. Prebid, which APS supply runs alongside in most header-bidding setups, supports several such layers. The Confiant ad quality module scans bid responses before the auction resolves, while real-time defense modules from HUMAN Security and The Media Trust block forced redirects, deceptive creatives, and high-risk ad behavior as the page renders. The point of the audit is to confirm that some scanning layer covers the demand APS fills rather than assuming the demand is clean.<br><br>Coverage is the weak point this check looks for. A scanning layer that is enabled on one ad slot but not the rest, or on the open auction but not on direct deals, leaves a path a bad creative can take. The question is not only whether scanning exists but whether it covers every place APS delivers a creative.<br><br>A few signs point to creative scanning that is missing or partial:<ul><li>No real-time ad quality or malware-defense module is present in the Prebid build that runs alongside APS, and no equivalent scanning is documented elsewhere in the stack</li><li>Scanning is enabled on some ad units or some demand paths but not across all of the inventory APS fills</li><li>The publisher cannot say what inspects creatives for malware and forced redirects, or relies on the assumption that the demand partners handle it</li></ul>You may want to confirm that a scanning layer covers every demand path APS fills, including the open auction and any direct or deal-based demand. One approach is to list the ad units and demand paths APS serves, then map each to the scanning that protects it and note any path with no coverage.",
+        "site_type_overlays": {
+          "publishing": "On a media site, high-traffic article and homepage placements deliver a large share of the impressions, so an unscanned slot there exposes the most readers to a malicious creative. You may want to confirm scanning covers the highest-traffic placements first, then extend the same coverage check across the long tail of units APS fills.",
+          "ecommerce": "On a commerce-content site, a forced redirect that pulls a shopper off a product or checkout page can interrupt a purchase as well as expose the shopper to harm. You may want to confirm scanning covers the commercial pages specifically because a bad creative there carries both a safety cost and a lost-sale cost."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Server Confiant Ad Quality Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/prebid-server/pbs-modules/confiant-ad-quality.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "HUMAN Security Malvertising Defense Real-Time Data Submodule for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/humansecurityMalvDefenseRtdProvider.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "The Media Trust Real-Time Ad Defense for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/mediafilterRtdProvider.html"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's detailed configuration documentation for the creative review and ad quality controls in TAM and UAM is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the demand paths APS fills and the scanning that protects each one, looking for any ad unit or demand path that delivers creatives with no scanning layer in front of it.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Prebid configuration review",
+              "steps": [
+                "Open the Prebid build and the page configuration that runs alongside APS, and check the module list for a real-time ad quality or malware-defense module (e.g., Confiant, HUMAN Security, or The Media Trust).",
+                "For each scanning module present, read its configuration to see which ad units and demand paths it covers and in which protection mode it runs.",
+                "Record any ad unit or demand path that APS fills but that no scanning module covers."
+              ]
+            },
+            "stack_inventory_review": {
+              "label": "Stack and inventory review",
+              "steps": [
+                "List the ad units and demand paths APS serves, including the open auction and any direct or deal-based demand carried through TAM or UAM.",
+                "For each path, note what inspects creatives for malware and forced redirects, whether that is a page-level module, a control inside the APS console, or a demand partner's own review.",
+                "Ask the publisher to confirm the response process behind each scanning layer and record any path where no control is identified."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per ad unit and demand path APS fills, which scanning layer inspects creatives for malware and forced redirects. A setup where every demand path APS serves maps to a scanning layer passes. A setup where one or more paths deliver creatives with no scanning in front of them is a fail recorded with the units and paths left uncovered.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the demand paths APS fills and the scanning layer covering each above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} fills inventory through Amazon Publisher Services (APS) without a creative scanning layer covering every demand path, so creatives can reach readers on some units with nothing inspecting them for malware or forced redirects. An unscanned path lets a malicious creative carry a forced redirect, a drive-by download, or a deceptive landing page straight to the audience, which harms readers and the site's reputation at once. {{voice_recommend}} mapping each ad unit and demand path APS fills to a scanning layer, adding a real-time ad quality or malware-defense module across the Prebid build that runs alongside APS where coverage is missing, and confirming the open auction and any direct demand are all covered. After the change, recheck the path map to confirm no demand path delivers creatives unscanned."
+      }
+    },
+    {
+      "id": "amazon-publisher-services-ad-quality-scanning-flagged-creatives-not-actioned",
+      "title": "Flagged creatives are not blocked or removed and keep serving",
+      "category": "brand-safety",
+      "subcategory": "ad_quality_scanning",
+      "impact_score": 3,
+      "impact_rationale": "Scanning that flags a bad creative but does not stop it from serving turns the detection into a record rather than a defense. The flagged creative keeps reaching readers until someone acts, so the gap between detection and response is the window where the harm actually lands, and a process that leaves flags unactioned leaves that window open.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "ad-experience"],
+      "educate": {
+        "base": "A scanning layer earns its value at the moment it acts on what it finds, not at the moment it flags. If a creative running through Amazon Publisher Services (APS) trips a malware or forced-redirect check but keeps serving, the flag is only a note in a report while the harmful creative continues to reach readers. The audit looks past whether scanning exists to whether the response that follows a flag is automatic and fast, or manual and slow, or absent.<br><br>Real-time defense layers are built to block rather than only detect. The HUMAN Security and The Media Trust modules in Prebid block forced redirects and high-risk creatives as the page renders, and they offer protection modes that decide how much of the page they guard, which is itself a setting worth checking because a narrow mode can leave creatives outside its scope serving unblocked. Pre-auction scanning such as the Confiant module can keep a flagged bid from winning in the first place. Where a control only reports rather than blocks, the publisher needs a defined process: who reviews the flags, how quickly, and how a confirmed bad creative or its source is shut off.<br><br>Browser-level interventions sit underneath all of this as a backstop, not a substitute. Chrome's heavy ad intervention unloads an ad frame that burns more than four megabytes of network or holds the main thread past its CPU limits, replacing it with a gray placeholder. That catches a resource-abusing creative the publisher's own scanning missed, but it fires only after the abuse is already happening and only for the heaviest offenders, so a publisher who leans on it as the primary defense is relying on a last resort.<br><br>A few signs point to flagged creatives that keep serving:<ul><li>A scanning layer reports flags but is configured to detect only, with no blocking mode enabled and no process to act on the reports</li><li>A real-time module runs in a narrow protection mode that leaves creatives outside its scope unblocked</li><li>No one owns the response to a flag, so the time between detection and shutoff is undefined or measured in days</li></ul>You may want to confirm that every scanning layer either blocks automatically or feeds a defined response with a named owner and a target response time. One approach is to trace a recent flag from detection through to the action taken and the time it took, then close any step where the creative would have kept serving.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a flagged creative that keeps serving on a high-traffic placement reaches a large audience in the time before anyone acts. You may want to confirm the response to a flag is automatic on the busiest placements rather than a manual review that lets the creative run while it waits in a queue.",
+          "ecommerce": "On a commerce-content site, a flagged creative that forces a redirect off a checkout or product page keeps costing sales as well as exposing shoppers for as long as it serves. You may want to confirm blocking is automatic on the commercial pages so a flagged creative is stopped rather than left running through a manual review."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "HUMAN Security Malvertising Defense Real-Time Data Submodule for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/humansecurityMalvDefenseRtdProvider.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "The Media Trust Real-Time Ad Defense for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/mediafilterRtdProvider.html"
+          },
+          {
+            "source_type": "Chrome for Developers",
+            "source_title": "Understand Chrome's Heavy Ad Interventions",
+            "source_url": "https://developer.chrome.com/docs/web-platform/heavy-ads-intervention"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's detailed documentation for how flagged creatives are reviewed and blocked inside TAM and UAM is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review what happens after a creative is flagged, whether the scanning layer blocks it automatically or hands it to a process, and how long a flagged creative keeps serving before it is stopped.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Prebid configuration review",
+              "steps": [
+                "For each scanning module in the Prebid build that runs alongside APS, read its configuration to confirm whether it runs in a blocking mode or a detect-only mode.",
+                "Note the protection mode each real-time module uses and check whether that mode covers the full page or only a subset of the creatives.",
+                "Record any module that detects without blocking, and any blocking mode narrow enough to leave some creatives unprotected."
+              ]
+            },
+            "response_process_review": {
+              "label": "Response process review",
+              "steps": [
+                "Ask the publisher to walk through what happens when a creative is flagged, who reviews it, what action is taken, and how quickly.",
+                "Trace a recent flag from detection through to the action taken, and record the time between the flag and the creative being stopped.",
+                "Check whether browser-level interventions such as Chrome's heavy ad intervention are being relied on as a primary defense rather than a backstop, and record any step where a flagged creative would keep serving."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each scanning layer, whether a flag results in an automatic block or a defined response with a named owner and a target time, and how long a flagged creative serves before it is stopped. A setup where every flag either blocks automatically or feeds a fast, owned response passes. A setup where flags are recorded but creatives keep serving, or where the response is undefined, is a fail recorded with the layer and the unaddressed gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record what happens after a creative is flagged and how long it serves before it is stopped above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} flags problematic creatives in its Amazon Publisher Services (APS) demand but does not consistently block or remove them, so a flagged creative can keep serving to readers after it is detected. Detection without a fast response turns the scanning into a record rather than a defense because the harmful creative continues to reach the audience until someone acts. {{voice_recommend}} setting every scanning layer to block automatically where it can, defining a response process with a named owner and a target time for the layers that only detect, and treating Chrome's heavy ad intervention as a backstop rather than the primary defense. After the change, trace a flag end to end to confirm the creative is stopped quickly rather than left serving."
+      }
+    }
+  ]
+}

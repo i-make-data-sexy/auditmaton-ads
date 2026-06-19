@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "US state privacy signals decide whether a reader's opt-out of the sale or sharing of their data actually reaches the demand buying through Amazon Publisher Services (APS). A signal that is built by the consent management platform but never reaches APS, or one that APS receives but does not act on, leaves the publisher exposed on the inventory it monetizes through Amazon. This check reads what the consent management platform encodes and what APS is configured to pass and honor, so it costs reading and console time rather than a rebuild, and the finding points to a specific signal that is missing or ignored. APS is Amazon Publisher Services.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "United States state privacy laws give residents the right to opt out of the sale or sharing of their personal data, and the advertising industry carries that choice through the Global Privacy Platform (GPP). For a publisher monetizing through APS, the question is whether the GPP signal the consent management platform builds is passed into the APS request and whether an opt-out in that signal is honored by the demand APS connects to. This subcategory covers the GPP sections that carry US privacy choices, the US national 'usnat' section and the per-state sections, alongside any legacy US Privacy string still in place. These checks confirm the opt-out signal reaches Amazon and that a recorded opt-out changes what happens downstream rather than being collected and then dropped.",
+  "audit_checks": [
+    {
+      "id": "amazon-publisher-services-us-state-privacy-gpp-sections-not-passed",
+      "title": "US national and state GPP sections are not passed into the Amazon Publisher Services request",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "If the consent management platform builds the US national or per-state GPP sections but the signal never reaches Amazon Publisher Services, the demand buying through APS cannot see the reader's opt-out. The publisher has collected a privacy choice and then failed to carry it to the place where it would take effect, which is a compliance gap on the inventory monetized through Amazon rather than a tuning question.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "The Global Privacy Platform (GPP) is the industry signal that carries a reader's privacy choices from a publisher's consent management platform to the ad tech that monetizes the page. A GPP string is a container of sections, and the United States choices live in specific sections. The US national section, identified by the 'usnat' prefix, encodes the Multi-State Privacy Agreement (MSPA) national string, and each covered state has its own section, such as 'usca' for California and 'usva' for Virginia. A reader in California whose choice is recorded produces a 'usca' section inside the GPP string, and a publisher operating under the national framework produces a 'usnat' section.<br><br>Amazon Publisher Services (APS) runs as a server-side header-bidding suite, so the publisher's page builds the GPP string and APS carries it to the demand it connects to. The signal only does its job if it actually reaches APS. When the consent management platform builds the GPP string but the APS integration is configured without passing it, the reader's choice stops at the page. The demand buying through Amazon sees no opt-out, and the publisher has collected a privacy choice that never travels to where it would take effect.<br><br>This is a wiring question rather than a strategy question. The consent management platform encodes the section, and the APS integration has to be set up to read the GPP string and include it in the request. A legacy US Privacy string, the older 'us-privacy' (USP) signal that some setups still carry alongside or instead of GPP, has the same requirement: if it is in use, it has to reach APS too.<br><br>A few signs point to GPP sections not reaching APS:<ul><li>The consent management platform builds a 'usnat' or per-state section, but the APS request shows no GPP string attached</li><li>The integration was set up before GPP support was added and still relies only on a legacy US Privacy string, or on neither</li><li>A reader in a covered state records an opt-out, yet a request inspection shows the APS call carries no privacy signal</li></ul>You may want to confirm that the GPP string the consent management platform produces is present in the APS request for a reader in a covered state. One approach is to record an opt-out as a test reader in a covered state, then inspect the outgoing APS request to see whether the GPP string and its US sections are attached.",
+        "site_type_overlays": {
+          "publishing": "On a media site, traffic spreads across many US states, so the consent management platform may produce a 'usnat' national section or several different per-state sections depending on where readers sit. You may want to test the request from more than one covered state rather than a single location, so the check confirms the relevant section reaches APS regardless of where the reader is.",
+          "ecommerce": "On a commerce-content site, a reader who is mid-purchase generates first-party data that raises the stakes of a dropped opt-out signal. You may want to confirm the GPP string reaches APS on the commercial pages specifically. Those are where the data a state opt-out is meant to govern is most likely to be in play."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab specification",
+            "source_title": "Global Privacy Platform (GPP) specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform"
+          },
+          {
+            "source_type": "Prebid documentation",
+            "source_title": "Consent Management - GPP for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's detailed configuration documentation for passing the GPP string into the APS request is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review what privacy sections the consent management platform builds for a reader in a covered state, then inspect the outgoing Amazon Publisher Services (APS) request to confirm the GPP string and its US sections are attached.",
+        "tools": {
+          "free": {
+            "cmp_inspection": {
+              "label": "Consent management platform inspection",
+              "steps": [
+                "Set the test reader's location to a covered state, such as California, and record an opt-out of the sale or sharing of data.",
+                "Use the consent management platform's debug view or the browser console to read the GPP string it produced, and note which sections are present (e.g., 'usnat' or a per-state section such as 'usca').",
+                "Note whether a legacy US Privacy (USP) string is also produced because some setups still carry it alongside or instead of GPP."
+              ]
+            },
+            "browser_network_inspection": {
+              "label": "Browser network inspection",
+              "steps": [
+                "Open the browser developer tools, switch to the 'Network' tab, and reload the page with ads enabled.",
+                "Find the outgoing Amazon Publisher Services request and inspect its parameters for the GPP string and the GPP section IDs.",
+                "Compare the sections present in the APS request against the sections the consent management platform produced, and record any section the platform built that the request does not carry."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a test reader in a covered state, which US sections the consent management platform builds (e.g., 'usnat' or a per-state section) and whether those sections appear in the outgoing Amazon Publisher Services request. A setup where every section the platform produces is carried into the APS request passes. A setup where the platform builds a US section that the APS request does not carry is a fail recorded with the missing section and the state tested.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which US GPP sections the consent management platform builds and whether they appear in the Amazon Publisher Services request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} builds US privacy sections in its consent management platform that do not reach Amazon Publisher Services (APS). The Global Privacy Platform (GPP) carries a reader's opt-out of the sale or sharing of data through sections such as the national 'usnat' section and the per-state sections, but a request inspection showed the APS call carries no GPP string for a reader in a covered state, so the demand buying through Amazon never sees the opt-out. {{voice_recommend}} wiring the APS integration to read the GPP string the consent management platform produces and include it in the request, then confirming with a request inspection that the US sections are attached for a reader in a covered state. After the change, retest from more than one covered state to confirm the relevant section reaches APS regardless of where the reader sits."
+      }
+    },
+    {
+      "id": "amazon-publisher-services-us-state-privacy-opt-out-not-honored",
+      "title": "An opt-out of sale or sharing is passed but not honored downstream",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "A GPP string can reach Amazon Publisher Services and still leave the reader's choice ignored if the opt-out flag inside it does not change what happens to the data. An opt-out of sale or sharing that is received and then disregarded means user syncs and identifiers continue to flow as if no choice were made, which is a compliance gap rather than a configuration preference.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Passing the Global Privacy Platform (GPP) string into the Amazon Publisher Services (APS) request is the first half of honoring a US state opt-out. The second half is acting on what the string says. A US section such as the national 'usnat' section or a per-state section carries a field for the reader's choice about the sale or sharing of their data. When a reader opts out, that field is set, and the systems reading the string are meant to suppress the activities that the opt-out covers.<br><br>The California Consumer Privacy Act (CCPA), as amended by the California Privacy Rights Act (CPRA), and the parallel laws in other states give residents the right to opt out of the sale or sharing of their personal data. In header bidding, honoring that opt-out usually means suppressing the activities that move identifiers and personal data downstream, such as user-sync pixels and the transmission of user-level first-party data or identifiers to demand. The Global Privacy Control (GPC) browser signal is treated by several states as a valid opt-out, so a GPC=1 signal should produce the same suppression as a recorded opt-out.<br><br>The gap appears when the opt-out flag is present in the string APS receives but the downstream behavior does not change. User syncs still fire, identifiers still travel, and the reader's choice is recorded but not respected. Because APS operates server-side and connects to its own demand, the publisher's check is whether an opt-out actually suppresses the data flows the law covers rather than assuming the presence of the signal is enough.<br><br>A few signs point to an opt-out that is passed but not honored:<ul><li>An opt-out is set in the GPP string, yet user-sync pixels for Amazon's demand still fire for that reader</li><li>A GPC=1 signal is sent but produces no change in syncs or identifier transmission compared with a reader who has not opted out</li><li>The setup carries the opt-out flag but has no configured behavior that suppresses any activity when the flag is set</li></ul>You may want to confirm that a recorded opt-out changes the downstream behavior rather than only setting a flag. One approach is to compare the network activity for an opted-out test reader against a reader who has not opted out and look for syncs or identifier transmission that should have stopped.",
+        "site_type_overlays": {
+          "publishing": "On a media site, returning readers accumulate identifiers across visits, so an opt-out that fails to suppress user syncs keeps building a profile the reader asked to stop. You may want to test the opt-out behavior on a returning-reader session rather than a first visit, so the check reflects the syncs that fire for an audience APS has seen before.",
+          "ecommerce": "On a commerce-content site, an opted-out shopper's behavior is exactly the data a sale-or-share opt-out is meant to govern. You may want to confirm that on the commercial pages an opt-out suppresses the identifier transmission tied to that shopper rather than letting purchase-adjacent data continue to flow to demand."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid documentation",
+            "source_title": "GPP Control Module - USNat string",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/gppControl_usnat.html"
+          },
+          {
+            "source_type": "Prebid documentation",
+            "source_title": "Prebid US Compliance Support for Header Bidding",
+            "source_url": "https://docs.prebid.org/features/mspa-usnat.html"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's documentation on how it acts on a US opt-out signal received in the request is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether a recorded opt-out, including a GPC=1 signal, changes the downstream behavior in the Amazon Publisher Services (APS) integration by comparing the network activity of an opted-out reader against a reader who has not opted out.",
+        "tools": {
+          "free": {
+            "browser_network_inspection": {
+              "label": "Browser network inspection",
+              "steps": [
+                "As a test reader in a covered state, record an opt-out of the sale or sharing of data, then reload the page and capture the network activity in the developer tools 'Network' tab.",
+                "Note which user-sync pixels and identifier-bearing requests tied to Amazon's demand fire while the opt-out is set.",
+                "Repeat the capture as a reader who has not opted out, and compare the two to see whether any syncs or identifier transmission that fired without an opt-out were suppressed when the opt-out was set."
+              ]
+            },
+            "gpc_test": {
+              "label": "Global Privacy Control test",
+              "steps": [
+                "Enable a Global Privacy Control signal in the browser (GPC=1), which several states treat as a valid opt-out, and reload the page.",
+                "Inspect the GPP string to confirm the opt-out is reflected, then capture the network activity as above.",
+                "Compare the syncs and identifier transmission against a session with no GPC signal, and record whether the GPC=1 signal produced the same suppression as a recorded opt-out."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a test reader in a covered state, whether a recorded opt-out and a GPC=1 signal suppress the data flows the opt-out covers, such as user syncs and identifier transmission, compared with a reader who has not opted out. A setup where the opt-out and the GPC signal each produce the expected suppression passes. A setup where the opt-out flag is present in the string but the downstream syncs and identifier transmission continue unchanged is a fail recorded with the activity that did not stop.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether an opt-out and a GPC=1 signal suppress user syncs and identifier transmission compared with a non-opted-out reader above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes a US opt-out into Amazon Publisher Services (APS) but the opt-out is not honored downstream. A US section of the Global Privacy Platform (GPP) string carries the reader's choice about the sale or sharing of their data under the California Consumer Privacy Act (CCPA) and the parallel state laws, but a network comparison showed that an opted-out reader, including one sending a Global Privacy Control (GPC=1) signal, still fired the same user syncs and identifier transmission as a reader who had not opted out. {{voice_recommend}} configuring the APS integration so a recorded opt-out suppresses the user syncs and identifier transmission the opt-out covers, then confirming with a before-and-after network comparison that the suppression takes effect for both a recorded opt-out and a GPC signal. After the change, retest on a returning-reader session to confirm the suppression holds for an audience APS has seen before."
+      }
+    }
+  ]
+}

@@ -1,0 +1,227 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Consent signals decide whether a bid request can carry the data demand partners need to bid, so a gap here either suppresses revenue or passes personal data without a legal basis. Amazon Publisher Services sits between the consent management platform and the demand partners, so a break anywhere along that chain can go unnoticed until a regulator or a partner audit surfaces it. This check reads configuration a publisher already has rather than rebuilding anything, so it costs reading time, and the finding points to a concrete fix in the tag setup or the consent management platform.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Amazon Publisher Services (APS) runs server-side header bidding through Transparent Ad Marketplace and Unified Ad Marketplace, which means it relays a publisher's bid requests to demand partners on the publisher's behalf. For that relay to respect privacy law, the consent signal a user gives has to reach APS and then travel onward to the demand partners. This subcategory covers whether the Transparency and Consent Framework (TCF) string or the Global Privacy Platform (GPP) string is captured and passed into APS, whether APS forwards it to demand, and whether bid requests are held back where consent is absent and a legal basis is required. These checks confirm the consent chain is wired end to end rather than breaking at the handoff into the header-bidding suite.",
+  "audit_checks": [
+    {
+      "id": "amazon-publisher-services-consent-signals-string-not-passed-to-aps",
+      "title": "The consent string is not captured and passed into Amazon Publisher Services",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 4,
+      "impact_rationale": "Amazon Publisher Services relays bid requests to demand partners on the publisher's behalf, so if the consent string never reaches it, the requests it sends carry no record of what the user agreed to. Demand partners then receive requests with no consent basis, which forces them to either drop the request or process data without a legal basis, so the gap costs revenue, creates legal exposure, or both.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "A consent management platform (CMP) on the page collects the user's choice and encodes it into a string. Under the Transparency and Consent Framework (TCF), that string records which purposes and vendors the user agreed to. Under the Global Privacy Platform (GPP), the string is a container that can hold the TCF string alongside US state signals, so one encoded value carries the user's choice across jurisdictions. The string only does its job if every system that acts on the impression can read it.<br><br>Amazon Publisher Services (APS) is a server-side header-bidding suite, so it does not call demand partners from the browser. It receives the publisher's bid request and relays it onward to demand from Amazon's servers. That relay is the reason the consent string matters here. APS has to be handed the string at request time so it can attach the user's choice to the request it forwards. If the page builds a bid request and sends it to APS without the consent string, APS has nothing to forward, and every downstream partner receives a request with no record of consent.<br><br>The handoff usually breaks in one of a few places. The CMP may resolve the string later than APS reads it, so APS fires before the value exists. The tag that calls APS may not be configured to read the CMP, so it never picks the string up. Or a server-side or app setup may collect consent in a way the APS integration was never wired to receive. In each case the bid request still goes out, which is what makes the gap easy to miss because revenue and fill can look normal while the consent signal is absent.<br><br>A few signs point to the consent string not reaching Amazon Publisher Services:<ul><li>The APS bid request fires before the CMP has resolved the consent string, so the value is empty at request time</li><li>The tag that calls APS has no link to the CMP, so it reads no TCF or GPP value</li><li>Bid requests leaving APS toward demand carry no consent parameter when inspected in the browser network panel</li></ul>You may want to confirm that a real consent string is present on the APS request and that it reflects the choice the user made. One approach is to capture the network request to APS in the browser and read whether the TCF or GPP value is attached and populated.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the consent banner often loads alongside heavy editorial content and other tags competing for the first moments of the page, so the CMP can resolve its string after the APS request has already fired. You may want to confirm that APS waits for the CMP signal rather than racing it, so the string is present on every request rather than only on slower page loads.",
+          "ecommerce": "On a commerce-content site, consent collected at one point in a shopping session needs to reach APS on every page where ads serve, including product and category pages. You may want to confirm the consent string is read on those commercial pages and not only on the editorial pages where the CMP was first tested."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - TCF for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementTcf.html"
+          },
+          {
+            "source_type": "IAB Europe",
+            "source_title": "The Transparency & Consent Framework (TCF)",
+            "source_url": "https://iabeurope.eu/transparency-consent-framework/"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's detailed configuration documentation for passing the consent string into its tags is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether the consent string is captured from the CMP and attached to the Amazon Publisher Services bid request, and whether it carries through to the requests APS forwards to demand.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load a page that serves ads, open the browser developer tools, and switch to the 'Network' panel.",
+                "Filter for the Amazon Publisher Services request (commonly the APS endpoint that the page calls before the ad server), and inspect its parameters for a TCF or GPP consent value.",
+                "Record whether the consent value is present and populated, present but empty, or absent, and note the timing relative to when the CMP resolved its string.",
+                "Repeat across a page in a consent-required region and a page where consent was declined, to confirm the string reflects the actual choice rather than a default."
+              ]
+            },
+            "cmp_check": {
+              "label": "Consent management platform check",
+              "steps": [
+                "Confirm which CMP the site runs and whether it exposes the IAB '__tcfapi' or '__gpp' interface that the APS integration reads.",
+                "Check the order in which the CMP and the APS call fire on the page, and record whether APS waits for the CMP signal or races it.",
+                "Ask the publisher how the APS tag is configured to read consent, and record whether that configuration points at the live CMP."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the Amazon Publisher Services bid request carries a populated TCF or GPP consent value, and whether that value reflects the user's actual choice across a consented and a declined session. A setup where the consent string is present, populated, and accurate on the APS request passes. A setup where the APS request carries no consent value, an empty value, or a value that does not change with the user's choice is a fail recorded with the request inspected and the region tested.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the APS request carries a populated and accurate consent value above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the consent string is not reaching Amazon Publisher Services on {{site_name}}, so the bid requests it relays to demand partners carry no record of what the user agreed to. Because Amazon Publisher Services forwards requests on the publisher's behalf, a missing consent string at that handoff strips the signal from every downstream partner, which costs revenue where partners drop the request or creates legal exposure where they process data without a basis. {{voice_recommend}} wiring the Amazon Publisher Services tag to read the consent management platform so the Transparency and Consent Framework (TCF) or Global Privacy Platform (GPP) string is attached at request time, and confirming through the browser network panel that the value is present and reflects the user's choice. After the change, recheck the request across a consented session and a declined session to confirm the string follows the actual choice."
+      }
+    },
+    {
+      "id": "amazon-publisher-services-consent-signals-not-forwarded-to-demand",
+      "title": "Amazon Publisher Services receives the consent string but does not forward it to demand partners",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 4,
+      "impact_rationale": "A consent string that reaches Amazon Publisher Services but stops there leaves demand partners bidding on requests with no consent basis, which is the same legal exposure as never collecting the string, while looking correct at the page level. Because the break is on the server side of the relay, it is invisible in the browser, so a publisher can pass a page-level consent check and still send unconsented requests to every partner.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Capturing the consent string on the page is only the first half of the chain. The second half is forwarding. Amazon Publisher Services (APS) relays a publisher's bid request to demand partners from Amazon's servers, so APS is the party responsible for attaching the consent signal to each onward request. A page can hand APS a correct Transparency and Consent Framework (TCF) or Global Privacy Platform (GPP) string and still end up sending unconsented requests to demand if APS does not pass that string along.<br><br>This break is harder to spot than a missing string on the page because it happens on the server side of the relay where the browser cannot see it. The browser network panel shows the consent value going into APS and looks correct. What it cannot show is the request APS sends to a demand partner from Amazon's servers, so the page-level check passes while the onward requests carry no consent. The signal a publisher worked to collect is dropped at the relay rather than at the source.<br><br>The OpenRTB protocol that header bidding rides on defines where the consent signal belongs on a bid request. The TCF string travels in the regulation fields of the request, and the GPP string travels in its own field alongside a list of which jurisdictions apply. A demand partner reads those fields to decide whether and how it can bid. If APS does not populate them on the onward request, the partner sees a request with no consent basis regardless of what the user chose.<br><br>A few signs point to the consent string not being forwarded past Amazon Publisher Services:<ul><li>The page-level consent value into APS is correct, yet demand partners report receiving requests with no consent signal</li><li>A partner-side or supply-path log shows APS-originated requests missing the TCF or GPP fields</li><li>The APS integration was set up before consent forwarding was configured and has not been revisited</li></ul>You may want to confirm with a demand partner or through a supply-path log that the consent string APS receives is the same string it forwards. One approach is to ask a partner that bids through Amazon Publisher Services whether the consent fields arrive populated on the requests it receives.",
+        "site_type_overlays": {
+          "publishing": "On a media site running several demand partners through Amazon Publisher Services, a forwarding gap affects every partner at once, so a single relay misconfiguration can strip consent from a large share of monetized requests. You may want to confirm forwarding with more than one partner rather than assuming a correct page-level signal means the onward requests are correct.",
+          "ecommerce": "On a commerce-content site, the audiences on product and category pages are the ones demand partners most want to target, so a forwarding gap on that inventory carries the consent risk where the data is most valuable. You may want to confirm the consent fields reach demand on the commercial inventory specifically, not only on editorial pages."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - GPP for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform (GPP)",
+            "source_url": "https://iabtechlab.com/gpp/"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's documentation on how it forwards consent fields to demand partners is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm whether the consent string Amazon Publisher Services receives is the same string it forwards to demand partners, using a partner-side or supply-path view because the onward request is not visible in the browser.",
+        "tools": {
+          "free": {
+            "partner_confirmation": {
+              "label": "Demand partner confirmation",
+              "steps": [
+                "List the demand partners that bid through Amazon Publisher Services for this publisher.",
+                "Ask each partner, or check any partner-side report available to the publisher, whether the TCF or GPP consent fields arrive populated on requests originating from Amazon Publisher Services.",
+                "Record which partners confirm the consent fields arrive and which report them missing, and note the date of the check."
+              ]
+            },
+            "supply_path_log": {
+              "label": "Supply-path or server log review",
+              "steps": [
+                "If a supply-path log or a server-side record of the onward request is available, locate an Amazon Publisher Services request to a demand partner.",
+                "Read whether the OpenRTB regulation fields carry the TCF string and whether the GPP field and its applicable-sections list are populated.",
+                "Compare the forwarded value against the page-level consent value going into APS to confirm they match."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the consent string Amazon Publisher Services receives matches the string it forwards to demand partners, confirmed through a partner-side report or a supply-path log rather than the browser. A setup where the consent fields arrive populated on the onward requests and match the page-level value passes. A setup where the page-level value is correct but partners or logs show the onward requests missing the consent fields is a fail recorded with the partners or logs that show the gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether demand partners or supply-path logs show the consent fields arriving populated on APS-forwarded requests above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes a correct consent string into Amazon Publisher Services, but that string is not reaching the demand partners Amazon Publisher Services relays to. Because the onward request leaves Amazon's servers rather than the browser, the page-level consent check passes while the requests partners receive carry no consent basis, which is the same legal exposure as never collecting the string. {{voice_recommend}} confirming with a demand partner or through a supply-path log that the Transparency and Consent Framework (TCF) and Global Privacy Platform (GPP) fields arrive populated on the requests Amazon Publisher Services forwards, then correcting the forwarding configuration where they do not. After the fix, re-confirm with more than one partner that the onward requests carry the same consent the user chose."
+      }
+    },
+    {
+      "id": "amazon-publisher-services-consent-signals-requests-not-suppressed-without-consent",
+      "title": "Bid requests are not suppressed where consent is absent and a legal basis is required",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 3,
+      "impact_rationale": "Where a user declines consent or no consent string exists in a region that requires one, continuing to send the bid request to demand passes data without a legal basis. The setup is a deliberate fallback rule rather than a wiring break, so the impact is real but bounded to the sessions where consent is absent, which is why this scores below a chain that is broken for every request.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Passing the consent string is the right behavior when consent exists. The harder question is what happens when it does not. A user may decline consent, or a page may load in a consent-required region before any string resolves, or the consent management platform (CMP) may fail to load at all. In each case there is no valid legal basis to process the user's data, and the correct response is to hold the bid request back or to send it stripped of the personal data that the missing consent would have covered.<br><br>Amazon Publisher Services (APS) relays requests on the publisher's behalf, so the decision about what to do when consent is absent has to be made before the request is handed to APS, or built into how APS is configured to behave on an empty signal. A setup that always forwards the request regardless of the consent value treats a decline the same as an approval. That sends the request to demand with no legal basis, which is the outcome the consent chain exists to prevent.<br><br>The fallback behavior is a policy choice, not only a technical one, so it depends on the legal basis a publisher is relying on for a given region. Under the Transparency and Consent Framework (TCF), a vendor may operate on consent or, for some purposes, on legitimate interest, and the correct suppression rule differs between them. The audit question is whether a deliberate rule exists for the no-consent case, applied consistently, rather than a default that forwards everything. Where the rule is uncertain, it is a question for the publisher's privacy counsel rather than a setting to guess at.<br><br>A few signs point to requests not being suppressed when consent is absent:<ul><li>Bid requests fire to Amazon Publisher Services with the same parameters whether the user consented or declined</li><li>No rule exists for the case where the CMP fails to load in a consent-required region, so requests go out with no string</li><li>The publisher cannot state what is meant to happen to a request when consent is declined</li></ul>You may want to confirm that a deliberate rule governs the no-consent case and that it matches the legal basis the publisher relies on for each region. One approach is to load a page with consent declined and confirm whether the APS request is held back or stripped rather than sent unchanged.",
+        "site_type_overlays": {
+          "publishing": "On a media site with readers across many regions, the no-consent case shows up daily as users decline the banner or arrive before it resolves, so the fallback rule runs constantly rather than rarely. You may want to confirm the suppression behavior on a declined session specifically since that is the path most likely to send unconsented requests at volume.",
+          "ecommerce": "On a commerce-content site, a declined-consent session still browses products and categories where ads serve, so the no-consent rule has to hold on the commercial inventory and not only on the editorial pages. You may want to confirm that a declined session on a product page suppresses or strips the APS request the same way it would on an article."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - TCF for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementTcf.html"
+          },
+          {
+            "source_type": "IAB Europe",
+            "source_title": "The Transparency & Consent Framework (TCF)",
+            "source_url": "https://iabeurope.eu/transparency-consent-framework/"
+          }
+        ],
+        "learn_more_note": "Amazon Publisher Services's documentation on its behavior when a consent signal is absent is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm what happens to the Amazon Publisher Services bid request when a user declines consent or when no consent string exists in a region that requires one.",
+        "tools": {
+          "free": {
+            "declined_session_test": {
+              "label": "Declined-consent session test",
+              "steps": [
+                "Load a page that serves ads in a consent-required region and decline consent at the banner.",
+                "Open the browser developer tools 'Network' panel and check whether the Amazon Publisher Services request still fires, and if so whether its parameters change to reflect the decline.",
+                "Repeat the test by blocking the CMP from loading, to simulate a CMP failure, and record whether the APS request is held back or fires with no string.",
+                "Record, per scenario, whether the request was suppressed, sent stripped of personal data, or sent unchanged."
+              ]
+            },
+            "policy_review": {
+              "label": "Fallback policy review",
+              "steps": [
+                "Ask the publisher to state the intended rule for a declined-consent session and for a CMP-failure case in each region that requires consent.",
+                "Note which legal basis the publisher relies on per region because that determines whether suppression or a stripped request is correct, and flag any region where the rule is undecided for privacy counsel.",
+                "Compare the stated rule against the observed behavior from the declined-session test and record any gap."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the observed behavior of the Amazon Publisher Services request across a declined-consent session and a CMP-failure case, alongside the publisher's stated rule for each region. A setup where requests are suppressed or stripped of personal data when consent is absent, matching a deliberate rule tied to the region's legal basis, passes. A setup where requests fire unchanged regardless of the consent choice, or where no rule exists for the no-consent case, is a fail recorded with the scenario tested and the region affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the observed behavior on a declined-consent session and a CMP-failure case against the publisher's stated rule above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sends bid requests to Amazon Publisher Services unchanged even when a user declines consent or when no consent string exists in a region that requires one. Because Amazon Publisher Services relays those requests to demand on the publisher's behalf, forwarding them with no legal basis passes the user's data to demand partners in exactly the case the consent chain exists to prevent. {{voice_recommend}} setting a deliberate rule that suppresses the request, or strips the personal data, when consent is absent, matched to the legal basis relied on for each region under the Transparency and Consent Framework (TCF), and confirming the rule on a declined-consent session in the browser. Where the correct rule for a region is unclear, raise it with the privacy counsel rather than leaving the default in place."
+      }
+    }
+  ]
+}

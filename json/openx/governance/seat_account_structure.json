@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The seat and account structure inside OpenX decides how a publisher's inventory is grouped for reporting, payment, and supply-chain declarations. When inventory is split across more seats than the business actually needs, reporting fragments, payments scatter, and the seller_id a publisher declares in sellers.json no longer maps cleanly to one paid entity. This check is a review of the structure the publisher already has, so it costs reading time rather than rebuild time, and each finding points to a concrete seat or integration the publisher can consolidate or close.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "A publisher monetizing inventory through OpenX sits inside an account and seat structure that determines how impressions are grouped, reported, and paid. OpenX runs Prebid-compatible header bidding, so the seat a publisher transacts under is also the entity that surfaces in the supply chain a buyer sees, through the seller_id in sellers.json and the SupplyChain object. This subcategory checks whether that structure is clean and deliberate, with each active seat tied to a real business need, and whether seats or integrations that no longer carry traffic have been identified and closed rather than left open.",
+  "audit_checks": [
+    {
+      "id": "openx-seat-account-structure-fragmented-duplicate-seats",
+      "title": "Inventory is split across fragmented or duplicate seats",
+      "category": "governance",
+      "subcategory": "seat_account_structure",
+      "impact_score": 3,
+      "impact_rationale": "When the same inventory is split across more seats than the business needs, reporting fragments across multiple accounts and payment scatters across multiple seller entities. The seller_id declared in sellers.json is meant to map to a single paid entity, so duplicate seats for one publisher weaken the supply-chain signal a buyer relies on and make the publisher's own revenue harder to read.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "An OpenX seat is the account entity a publisher's inventory transacts under. It is the unit OpenX reports on, the unit a publisher is paid through, and the unit that surfaces to buyers in the supply chain. Because OpenX runs Prebid-compatible header bidding, the seat also ties to the seller_id a publisher declares in sellers.json, which the OpenRTB SupplyChain object then carries through to the buyer. The IAB Tech Lab sellers.json specification asks that a seller_id represent only a single entity that is paid for inventory transacted under it, so the mapping between a publisher and its seat is meant to be one to one.<br><br>Fragmentation breaks that mapping. A publisher can end up with more than one seat covering the same inventory for reasons that made sense at the time, for example a separate seat opened for a single site section, a second account created during an agency handoff, or a duplicate seat that was never merged after a reorganization. Each extra seat splits the same traffic into its own reporting view and its own payment stream, which makes total revenue harder to read and reconciliation slower at month end.<br><br>The supply-chain cost is the part buyers see. When one publisher transacts under two or more seller_ids, a buyer inspecting sellers.json and the SupplyChain object sees what looks like multiple sellers for inventory that belongs to one entity. That weakens the transparency signal the standard was built to provide and can make the publisher's supply look more fragmented than it is.<br><br>A few signs point to fragmented or duplicate seats:<ul><li>More than one OpenX seat or seller_id maps to the same publisher entity or the same inventory</li><li>Reporting has to be stitched together across multiple accounts to see a single site's total revenue</li><li>Payments arrive split across seller entities that all represent the same business</li><li>The publisher cannot state a business reason for each separate seat beyond it having been created at some point</li></ul>You may want to confirm that each active seat maps to a distinct business need rather than duplicating inventory another seat already covers. One approach is to list every seat and seller_id the publisher transacts under, match each to the inventory and the paid entity behind it, and consolidate any that resolve to the same business.",
+        "site_type_overlays": {
+          "publishing": "A media publisher with several titles or sections may have opened a separate seat per property over time, which is a reasonable structure when each property is a distinct paid entity. You may want to confirm that the split follows real business boundaries rather than leaving two seats covering the same title. A buyer reading sellers.json should see one seller_id per entity that is actually paid.",
+          "ecommerce": "A commerce-content publisher monetizing editorial alongside a storefront audience may have a single business entity even when the content spans several site areas. You may want to check that one seat covers that entity rather than separate seats for the editorial and commercial sections, so reporting and payment stay consolidated under the entity that is paid."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Supply Chain Object for Header Bidding (schain module)",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/schain.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review every OpenX seat and seller_id the publisher transacts under and match each to the inventory and the paid entity behind it, looking for two or more that resolve to the same business.",
+        "tools": {
+          "free": {
+            "openx_ui": {
+              "label": "OpenX publisher console",
+              "steps": [
+                "Open the OpenX publisher console and list every account and seat the publisher transacts under.",
+                "For each seat, record the seller_id it maps to and the inventory it covers.",
+                "Match each seat to the legal entity that is paid for it, and flag any case where two or more seats resolve to the same entity or cover overlapping inventory.",
+                "Ask the publisher for the business reason behind each separate seat and record whether one exists."
+              ]
+            },
+            "sellers_json": {
+              "label": "OpenX sellers.json",
+              "steps": [
+                "Open OpenX's published sellers.json file and find the seller_id entries that belong to the publisher.",
+                "Confirm each seller_id maps to a single paid entity and note its seller_type, for example 'PUBLISHER' or 'RESELLER'.",
+                "Flag any case where the same publisher entity appears under more than one seller_id, which points to fragmented seats."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner lists every seat and seller_id the publisher transacts under and matches each to the inventory and paid entity behind it. A structure where each active seat maps to a distinct entity or a distinct, non-overlapping slice of inventory passes. A structure where two or more seats or seller_ids resolve to the same publisher entity, or split one site's reporting and payment across accounts with no business reason, is a fail recorded with the seats and seller_ids that overlap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each seat, its seller_id, and the entity it maps to above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} transacts under more than one OpenX seat or seller_id that resolves to the same business, so the same inventory is split across duplicate accounts. Fragmented seats scatter reporting and payment across entities that represent one publisher, and because the IAB Tech Lab sellers.json specification asks that each seller_id map to a single paid entity, duplicate seats also weaken the supply-chain signal a buyer reads. {{voice_recommend}} listing every seat and seller_id the account transacts under, matching each to the inventory and paid entity behind it, and consolidating any that resolve to the same business into a single seat. After consolidating, confirm that reporting and payment for each site read from one account and that sellers.json shows one seller_id per entity."
+      }
+    },
+    {
+      "id": "openx-seat-account-structure-orphaned-inactive-seats",
+      "title": "Inactive or orphaned seats and integrations are left open",
+      "category": "governance",
+      "subcategory": "seat_account_structure",
+      "impact_score": 3,
+      "impact_rationale": "A seat or integration that no longer carries traffic but stays open keeps a live seller_id in the supply chain that maps to inventory the publisher no longer sells through it. That leaves a path a buyer can still see and, in the worst case, a path another party could transact under, while also cluttering the publisher's reporting with dormant accounts that obscure the active structure.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "Seats and integrations accumulate over time. A publisher tests a new site section, sets up a seat for a partnership that later ends, or migrates inventory to a new structure and leaves the old seat in place. Each of these can stop carrying traffic while the seat itself stays open, active in OpenX and still declared in the supply chain. An orphaned seat is one that no business still owns or monitors, and an inactive seat is one that carries no meaningful traffic but has not been closed.<br><br>An open seat that no longer sells inventory is not neutral. Its seller_id stays live in OpenX's sellers.json, so a buyer reading the supply chain still sees a valid path that maps to inventory the publisher no longer transacts through it. The publisher's own ads.txt may also still authorize that seat, which the IAB Tech Lab ads.txt standard treats as a public declaration of who is allowed to sell the publisher's inventory. A stale authorization for a dormant seat leaves a gap between what the declaration says and what the publisher actually sells.<br><br>The risk runs from housekeeping to exposure. At the lighter end, dormant seats clutter reporting and make the active structure harder to read. At the more serious end, a live seller_id and a matching ads.txt line for a seat nobody monitors is a path that could be misused. The declaration tells buyers the path is legitimate even though the publisher has stopped watching it. Closing the seat and removing its ads.txt authorization closes that gap.<br><br>A few signs point to inactive or orphaned seats and integrations:<ul><li>A seat or seller_id is still active in OpenX but shows little or no traffic across a recent reporting window</li><li>An ads.txt line still authorizes an OpenX account or seat that the publisher no longer sells through</li><li>An integration was set up for a partnership or test that has since ended but was never removed</li><li>No owner inside the business can say what an active seat is currently used for</li></ul>You may want to confirm that every active seat and authorized integration is one the publisher still uses. One approach is to compare the active seats and ads.txt lines against recent traffic, then close the seats and remove the authorizations that no longer carry inventory.",
+        "site_type_overlays": {
+          "publishing": "A media publisher that has launched and retired site sections or partnerships over time may carry seats set up for properties that no longer exist. You may want to compare each active seat against recent traffic for the property it covers, and close any seat tied to a section or partnership that has ended so its seller_id and ads.txt line do not outlive the inventory.",
+          "ecommerce": "A commerce-content publisher that tested a seat for a seasonal campaign or a short-lived storefront integration may still have it open after the campaign ended. You may want to check each seat against current traffic and close the ones set up for tests or seasonal runs that have finished, so the supply chain reflects only inventory the publisher still sells."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt Authorized Digital Sellers",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each active OpenX seat and authorized integration against recent traffic, and check the publisher's ads.txt for lines authorizing seats that no longer carry inventory.",
+        "tools": {
+          "free": {
+            "openx_ui": {
+              "label": "OpenX publisher console",
+              "steps": [
+                "Open the OpenX publisher console and list every active seat and integration on the account.",
+                "For each seat, pull traffic and revenue across a recent reporting window, for example the last 30 to 90 days.",
+                "Flag any seat or integration that shows little or no traffic over that window as a candidate for closing, and ask the publisher whether a business still owns it.",
+                "Record which seats are active and used, which are dormant, and which have no owner."
+              ]
+            },
+            "ads_txt": {
+              "label": "Publisher ads.txt and app-ads.txt",
+              "steps": [
+                "Open the publisher's ads.txt file (and app-ads.txt if it serves apps) and find the lines that authorize OpenX accounts.",
+                "Match each authorized account against the seats that still carry traffic in OpenX.",
+                "Flag any ads.txt line that authorizes a seat the publisher no longer sells through, which is a stale authorization to remove."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each active seat and integration alongside its recent traffic, and compares the authorized OpenX lines in ads.txt against the seats that still carry inventory. A structure where every active seat carries traffic, has a known owner, and is matched by a current ads.txt authorization passes. A structure with seats or integrations that show no traffic, have no owner, or are authorized in ads.txt despite no longer selling inventory is a fail recorded with the seats, seller_ids, and ads.txt lines to close or remove.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each active seat, its recent traffic, and the matching ads.txt authorization above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} keeps OpenX seats or integrations open that no longer carry traffic, and in some cases an ads.txt line still authorizes a seat the publisher has stopped selling through. A dormant seat keeps a live seller_id in the supply chain that maps to inventory the publisher no longer transacts, and a stale ads.txt authorization tells buyers that path is legitimate even though nobody is watching it. {{voice_recommend}} comparing each active seat and integration against recent traffic, closing the ones that carry no inventory and have no owner, and removing the matching ads.txt authorizations. After the cleanup, confirm that every remaining seat carries traffic, has a known owner, and is matched by a current ads.txt line."
+      }
+    }
+  ]
+}

@@ -1,0 +1,157 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://iabtechlab.com/sellers-json/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Supply-chain transparency records decide whether a buyer can confirm that a bid request from a publisher's inventory traces back to that publisher. Equativ publishes its own sellers.json, and the publisher's seller entry and the SupplyChain (schain) object passed on every request are what link the impression to the publisher of record. A gap in either, such as a seller relationship marked wrong or an schain that drops a node before it reaches the buyer, can make genuine inventory look unverifiable and push buyers to discount or block it. The check is a review of records the publisher and Equativ already publish, so it costs reading time rather than rebuild time, and the finding points to a concrete entry or field a publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "A buyer deciding whether to bid on an impression wants to confirm who is selling it and that the chain of parties between the buyer and the publisher is accounted for. Two records carry that proof. The sellers.json file that Equativ publishes lists each seller it transacts on behalf of, and the SupplyChain (schain) object travels on the bid request to name every party in the payment path. This subcategory covers whether the publisher's seller entry in Equativ's sellers.json is accurate and whether the SupplyChain object is complete and reaches the buyer intact. These checks confirm that a publisher's genuine inventory can be verified rather than discounted because the transparency records do not line up.",
+  "audit_checks": [
+    {
+      "id": "equativ-sellers-json-entry-mismatch",
+      "title": "The publisher's entry in Equativ's sellers.json does not match the seller ID and relationship in use",
+      "category": "supply-chain",
+      "subcategory": "sellers_json",
+      "impact_score": 3,
+      "impact_rationale": "Buyers read Equativ's sellers.json to confirm who is behind a seller ID before they bid. If the publisher's entry names the wrong relationship, such as RESELLER where the publisher sells directly, or the seller ID on the bid request does not appear in the file at all, the impression looks unverifiable and buyers may discount or block it, so accurate inventory can lose demand it should win.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "Equativ (formerly Smart AdServer) publishes a sellers.json file at its own domain, following the Interactive Advertising Bureau (IAB) Tech Lab sellers.json specification. The file lists every seller Equativ transacts on behalf of, and each entry pairs a seller ID with the relationship Equativ has with that seller and, for disclosed sellers, the seller's name and domain. A buyer reads this file to answer a single question. When a bid request carries a seller ID for Equativ, who is the entity behind that ID and how is Equativ connected to them.<br><br>The relationship field is where accuracy matters most. The sellers.json specification defines 'DIRECT' for a seller that owns and controls the inventory it is selling, and 'RESELLER' for an intermediary that is reselling inventory it does not own. A publisher selling its own inventory through Equativ should appear as DIRECT under the seller ID that travels on its bid requests. An entry that names the wrong relationship, or a seller ID on the request that does not appear in the file at all, breaks the link a buyer is trying to confirm.<br><br>There is also a disclosure choice. The specification allows a seller to be listed as confidential, with the name and domain withheld, or disclosed, with both shown. A confidential listing is a legitimate option, but it gives buyers less to verify, so a publisher that wants its inventory recognized by name generally benefits from a disclosed entry. The audit question is not which disclosure setting is right for a given publisher. It is whether the seller ID, relationship, and disclosure in the file match what the publisher intends and what its bid requests actually carry.<br><br>A few signs point to an entry that does not match:<ul><li>The seller ID that appears on the publisher's Equativ bid requests is absent from Equativ's sellers.json file</li><li>The relationship is listed as RESELLER for inventory the publisher owns and sells directly, or as DIRECT for inventory the publisher is reselling</li><li>The publisher expects a disclosed listing but the entry is marked confidential, so buyers cannot match the seller ID to the publisher by name</li></ul>You may want to confirm that the publisher's entry in Equativ's sellers.json carries the correct seller ID, relationship, and disclosure for the inventory it sells. One approach is to read the seller ID off a live bid request, find that ID in Equativ's published sellers.json, and check each field against what the publisher intends.",
+        "site_type_overlays": {
+          "publishing": "A media publisher selling its own inventory through Equativ should appear as a DIRECT seller because it owns the inventory it is selling. You may want to confirm the relationship reads DIRECT and that a disclosed listing shows the publisher's name and domain, so buyers can match the seller ID to the brand they intend to buy.",
+          "ecommerce": "A commerce-content site selling its own ad inventory through Equativ is a DIRECT seller of that inventory. You may want to confirm the entry reflects that direct relationship rather than a RESELLER label inherited from a prior setup, so the inventory is not discounted as intermediated supply it is not."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "learn_more_note": "Equativ's detailed configuration documentation for its sellers.json and seller IDs is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the seller ID that travels on the publisher's Equativ bid requests, find that ID in Equativ's published sellers.json file, and compare the relationship and disclosure against what the publisher intends.",
+        "tools": {
+          "free": {
+            "sellers_json_file": {
+              "label": "Equativ sellers.json file",
+              "steps": [
+                "Open Equativ's sellers.json file at its published location, e.g., the sellers.json path on Equativ's domain.",
+                "Find the entry whose seller_id matches the seller ID used for the publisher's inventory.",
+                "Record the relationship field (DIRECT or RESELLER) and whether the entry is confidential or discloses the name and domain.",
+                "Note whether the seller ID is present at all. A missing entry is the most direct break a buyer would see."
+              ]
+            },
+            "bid_request_inspection": {
+              "label": "Live bid request inspection",
+              "steps": [
+                "Load a page carrying the publisher's Equativ inventory and capture a bid request to Equativ using browser developer tools or a header-bidding debug build.",
+                "Read the seller ID Equativ uses for the publisher off the request, then confirm it is the same ID you looked up in sellers.json.",
+                "Ask the publisher which relationship and disclosure they intend, and record any difference between that intent and what the file shows."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the seller ID on the publisher's Equativ bid requests, whether that ID appears in Equativ's sellers.json, and the relationship and disclosure on the matching entry. An entry that is present, carries the relationship that matches how the publisher sells the inventory, and uses the disclosure the publisher intends passes. A missing seller ID, a relationship that contradicts how the inventory is sold, or a disclosure that differs from the publisher's intent is a fail recorded with the field that does not match.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the seller ID, its presence in sellers.json, and the relationship and disclosure on the entry above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the entry for {{site_name}} in Equativ's sellers.json does not match the seller ID and relationship in use on its bid requests. Buyers read sellers.json to confirm who is behind a seller ID before they bid, so an entry that names the wrong relationship, or a seller ID that is absent from the file, makes genuine inventory look unverifiable and can push buyers to discount or block it. {{voice_recommend}} reading the seller ID off a live Equativ bid request, finding that ID in Equativ's published sellers.json, and correcting the relationship and disclosure with Equativ so the entry reflects how {{site_name}} actually sells the inventory. After the correction, recheck the file against a live request to confirm the seller ID, relationship, and disclosure all line up."
+      }
+    },
+    {
+      "id": "equativ-sellers-json-schain-incomplete",
+      "title": "The SupplyChain object is incomplete or does not reach the buyer intact",
+      "category": "supply-chain",
+      "subcategory": "sellers_json",
+      "impact_score": 3,
+      "impact_rationale": "The SupplyChain object names every party in the payment path so a buyer can trace an impression back to the publisher. An object that drops a node, carries a wrong seller ID, or fails to pass end to end leaves the chain unverifiable, so buyers that require a complete chain may filter the inventory out and the publisher loses that demand.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "The SupplyChain object, often written as schain, travels on the bid request and names every party in the direct flow of payment for an impression, in order, from the publisher to the buyer. It is defined in the Interactive Advertising Bureau (IAB) Tech Lab OpenRTB SupplyChain Object specification, and it works alongside sellers.json. Where sellers.json lets a buyer look up who is behind one seller ID, the SupplyChain object shows the full ordered path of every party in the chain on a single request.<br><br>Each node in the chain carries three required fields. The 'asi' is the domain of the advertising system, such as Equativ's domain. The 'sid' is the seller ID within that system, the same ID that should appear in that system's sellers.json. The 'hp' flag marks whether that node is paid for the inventory. The object also carries a 'complete' flag. A value of 1 declares that every party in the chain is represented, and a value of 0 declares that the chain is partial, which is a signal buyers read directly.<br><br>For a publisher selling through Equativ, the chain should declare itself complete and should reach the buyer with the node for Equativ present and its seller ID matching the publisher's entry in Equativ's sellers.json. Two failures break this. A node can be missing, so the chain skips a party that handled the impression. Or the object can be built correctly inside the publisher's setup but fail to pass through a downstream party, so the buyer never receives it intact. In a Prebid setup, Equativ is Prebid-compatible, the chain is carried as first-party data on the OpenRTB source object and the Prebid supply chain module validates its structure, which is where a malformed or partial chain surfaces.<br><br>A few signs point to a chain that is incomplete or not passing intact:<ul><li>The 'complete' flag reads 0 when every party in the path is in fact known and should be represented</li><li>A node is missing, or a node's seller ID does not match that party's sellers.json entry</li><li>The object is present on the request inside the publisher's stack but absent or altered on the request the buyer receives, which points to a downstream party dropping or rewriting it</li></ul>You may want to confirm that the SupplyChain object on the publisher's Equativ inventory is complete, carries a correct node for each party, and reaches the buyer intact. One approach is to capture the object on a live request, check each node's fields and the complete flag against the parties actually in the path, and compare it against what a downstream buyer endpoint receives.",
+        "site_type_overlays": {
+          "publishing": "A media publisher selling through Equativ should see a SupplyChain object that declares itself complete and names Equativ as a node with a seller ID matching the publisher's sellers.json entry. You may want to confirm the chain passes intact to buyers because a media site running several demand partners has more places where a node can be dropped or rewritten.",
+          "ecommerce": "A commerce-content site monetizing through Equativ should carry a SupplyChain object with a complete flag of 1 and a node for each party in the path. You may want to confirm the object survives any wrapper or downstream party between the site and the buyer, so the chain the buyer reads matches the one the site sends."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB SupplyChain Object specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/openrtb/blob/master/supplychainobject.md"
+          },
+          {
+            "source_type": "Prebid",
+            "source_title": "Supply Chain (schain) Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/schain.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Capture the SupplyChain object on a live Equativ bid request, check each node and the complete flag against the parties in the path, and compare it against what a downstream buyer endpoint receives.",
+        "tools": {
+          "free": {
+            "bid_request_inspection": {
+              "label": "Live bid request inspection",
+              "steps": [
+                "Load a page carrying the publisher's Equativ inventory and capture the bid request using browser developer tools or a header-bidding debug build.",
+                "Find the SupplyChain object on the request, e.g., under the OpenRTB source object, and read the complete flag and the list of nodes.",
+                "For each node, record the asi, sid, and hp fields, and confirm the Equativ node's seller ID matches the publisher's entry in Equativ's sellers.json.",
+                "Note whether the complete flag is 1 and whether every party known to be in the path is represented as a node."
+              ]
+            },
+            "prebid_debug": {
+              "label": "Prebid debug build",
+              "steps": [
+                "On a page using Prebid, enable the debug build and confirm the supply chain module is present because Equativ is Prebid-compatible.",
+                "Read the schain configuration and the validation output to see whether the module accepted the chain or flagged it as malformed or partial.",
+                "Compare the chain the module emits against the object on the outgoing request to confirm the two match and that no downstream party drops or rewrites it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the SupplyChain object on a live Equativ request, the complete flag, each node's asi, sid, and hp fields, and whether the object reaches a downstream buyer endpoint intact. A chain that declares itself complete, carries a correct node for each party in the path with a seller ID matching sellers.json, and passes through unaltered passes. A partial chain that should be complete, a missing or mismatched node, or an object that is dropped or rewritten before the buyer receives it is a fail recorded with the node or field at fault.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the SupplyChain object, its complete flag, each node's fields, and whether it reaches the buyer intact above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the SupplyChain object on {{site_name}}'s Equativ inventory is incomplete or does not reach the buyer intact. The SupplyChain object names every party in the payment path so a buyer can trace the impression back to the publisher, so a dropped node, a wrong seller ID, or an object that fails to pass end to end leaves the chain unverifiable and can cause buyers that require a complete chain to filter the inventory out. {{voice_recommend}} capturing the object on a live request, checking each node's fields and the complete flag against the parties actually in the path, and comparing it against what a downstream buyer endpoint receives so any dropped or rewritten node is found. After the fix, recapture the chain on a live request to confirm it declares itself complete and arrives intact."
+      }
+    }
+  ]
+}

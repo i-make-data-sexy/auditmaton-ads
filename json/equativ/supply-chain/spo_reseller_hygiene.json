@@ -1,0 +1,153 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Supply path hygiene decides how clean a buyer's view of the inventory looks, and a clean path wins more spend at a better price than a path crowded with redundant resellers. This check reviews the seller declarations and path setup a publisher already has on Equativ and in its public files, so it costs reading time rather than rebuild time, and the finding points to a concrete path or declaration the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "A publisher selling inventory through Equativ reaches buyers along supply paths, and buyers increasingly choose which paths to bid through rather than buying every path to the same impression. Supply Path Optimization (SPO) is the buyer-side practice of pruning those paths, so the cleaner and better-declared a publisher's paths are, the more spend they hold. This subcategory covers the paths to a publisher's inventory and the seller declarations that describe them, including reseller entries and the risk that a path leads to made-for-advertising (MFA) or unauthorized resale. These checks confirm that a publisher's paths are deliberate and well-declared rather than a sprawl of redundant intermediaries that a buyer's SPO logic is likely to drop.",
+  "audit_checks": [
+    {
+      "id": "equativ-spo-reseller-hygiene-redundant-paths",
+      "title": "Redundant reseller paths expose the same inventory through more intermediaries than buyers reward",
+      "category": "supply-chain",
+      "subcategory": "spo_reseller_hygiene",
+      "impact_score": 3,
+      "impact_rationale": "When the same impression is offered through several reseller paths, a buyer running Supply Path Optimization (SPO) keeps the cleanest path and drops the rest, so the redundant paths add cost and reconciliation work without adding demand. Worse, a tangle of resellers can read as low-quality supply, which lowers the price a buyer is willing to pay across all paths to that inventory.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["transparency", "fraud"],
+      "educate": {
+        "base": "A single impression from a publisher can reach a buyer along more than one path. The publisher can sell it directly through Equativ, and a reseller can also offer the same impression through its own connection, sometimes through a chain of resellers. Each path is declared in the seller and supply-chain files that buyers read, so a buyer can see how many parties stand between them and the publisher and choose which path to bid through. That buyer-side choice is SPO, and it has become the default way large buyers spend.<br><br>The problem with redundant paths is not that resale itself is wrong. Authorized resale can reach demand a publisher cannot reach directly. The problem is duplication, where the same inventory is offered through several paths that lead back to the same impression. A buyer running SPO compares the paths, keeps the shortest and cleanest one, and drops the rest. The dropped paths still cost the publisher and its partners reconciliation and reporting work, and they win no extra spend because the buyer was only ever going to pay for the impression once.<br><br>A crowded path also carries a reputation cost. When a buyer sees a long chain of intermediaries to a publisher's inventory, the supply can read as lower quality since long chains are associated with arbitrage and resale of questionable provenance. That perception can lower the price a buyer pays across every path to that inventory, including the direct one, so redundant resale can cost a publisher on the path it most wants to protect.<br><br>The declarations that describe these paths live in the IAB Tech Lab standards. The sellers.json file lists the entities Equativ sells or resells through, and the OpenRTB SupplyChain object carried in the bid request names every party in the chain for a given impression. A buyer reads both to evaluate the path. The audit question is whether a publisher's paths to its Equativ inventory are deliberate and minimal, or whether the same inventory is being offered through reseller paths that a buyer's SPO logic is likely to drop.<br><br>A few signs point to redundant reseller paths:<ul><li>The same inventory appears in more than one seller's sellers.json with a long chain back to the publisher</li><li>SupplyChain objects on bid requests for the publisher's inventory show three or more intermediaries on paths that a direct sale could shorten</li><li>The publisher cannot name why a given reseller path exists or what demand it reaches that the direct Equativ path does not</li></ul>You may want to confirm that each reseller path to the inventory reaches demand the direct path does not. One approach is to compare win rate and price across the direct path and each reseller path, then retire the reseller paths that a direct sale already covers.",
+        "site_type_overlays": {
+          "publishing": "On a media site, premium sections sold direct can leak into reseller paths when an older partnership or a network tag was never retired, so the same article-page impression shows up through a chain of intermediaries. You may want to map which sections still flow through resellers and confirm each path reaches demand the direct Equativ connection does not, then close the paths that only duplicate it.",
+          "ecommerce": "On a commerce-content site, affiliate or network arrangements made for the commercial pages can keep reselling that inventory after a direct Equativ path is in place, so the higher-value product and category impressions travel through extra hops. You may want to check whether the commercial inventory is being resold through paths that the direct connection already covers, and retire the redundant ones to keep the path to the high-intent inventory clean."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "Sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Supply Chain Object Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/schain.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Map the paths that reach the publisher's Equativ inventory through the public seller declarations and the SupplyChain objects on bid requests, then compare each reseller path against the direct path for the demand it adds.",
+        "tools": {
+          "free": {
+            "sellers_json": {
+              "label": "Public sellers.json files",
+              "steps": [
+                "Open Equativ's sellers.json and locate the seller entries that map to the publisher's inventory, noting the seller_id and whether each is declared as a publisher or an intermediary.",
+                "Search the sellers.json of any reseller the publisher works with for the same inventory, and record each chain of seller IDs that leads back to the publisher.",
+                "List every distinct path to the inventory and note its length, so duplicate paths to the same impression are visible side by side."
+              ]
+            },
+            "supplychain_object": {
+              "label": "SupplyChain object on bid requests",
+              "steps": [
+                "From a sample of bid requests for the publisher's inventory, read the OpenRTB SupplyChain object and record the ordered list of intermediaries on each path.",
+                "Compare the path length and the parties named across the direct Equativ path and each reseller path to the same inventory.",
+                "Flag any path with three or more intermediaries, and any case where the same impression is reachable through both a short direct path and a longer reseller path."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records every distinct path to the publisher's Equativ inventory, its length, and the demand it adds beyond the direct path. A setup where each reseller path reaches demand the direct path does not, and chains stay short, passes. A setup where the same inventory is offered through redundant reseller paths that duplicate the direct path, or through chains a buyer's Supply Path Optimization (SPO) logic is likely to drop, is a fail recorded with the redundant paths and their lengths.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each path to the inventory, its length, and the demand it adds above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} offers the same inventory through redundant reseller paths that duplicate the direct Equativ path. When the same impression reaches a buyer through several paths, a buyer running Supply Path Optimization (SPO) keeps the cleanest one and drops the rest, so the redundant paths add reconciliation work and reputation risk without adding demand, and a long chain of intermediaries can lower the price across every path including the direct one. {{voice_recommend}} mapping each path through the public sellers.json files and the SupplyChain objects on bid requests, comparing win rate and price across the direct path and each reseller path, and retiring the reseller paths that the direct sale already covers. After the change, recheck the SupplyChain objects to confirm the chains to the inventory are short and deliberate."
+      }
+    },
+    {
+      "id": "equativ-spo-reseller-hygiene-mfa-unauthorized-resale",
+      "title": "Made-for-advertising and unauthorized reseller risk is not monitored on the publisher's paths",
+      "category": "supply-chain",
+      "subcategory": "spo_reseller_hygiene",
+      "impact_score": 4,
+      "impact_rationale": "If a publisher's inventory is resold into made-for-advertising (MFA) placements or sold by a party the publisher never authorized, buyers that screen for MFA and unauthorized resale pull spend from the publisher's supply, and the publisher's own brand can be associated with low-quality inventory. The damage reaches the direct path, not just the offending reseller, so leaving this unmonitored risks demand a publisher depends on.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["transparency", "fraud"],
+      "educate": {
+        "base": "Made-for-advertising inventory is built to win programmatic spend rather than to serve readers, so the pages carry heavy ad clutter, aggressive refresh, and thin or repeated content. Buyers and the agencies behind them increasingly screen MFA out of their supply since spending on it wastes budget on impressions a real audience never values. A publisher's risk here is indirect but real. If the publisher's inventory is resold by a partner into MFA-style placements, or if a party the publisher never authorized is selling that inventory at all, the publisher's supply gets caught in the same screen that buyers apply to MFA, and the resulting loss of demand reaches the direct path too.<br><br>Unauthorized resale is the related failure. The ads.txt and app-ads.txt standards let a publisher declare, in a public file on its own domain, exactly which sellers and reseller relationships are authorized to sell its inventory. When a seller offers a publisher's inventory without a matching authorized entry, that is unauthorized supply, and buyers reading ads.txt will discount or refuse it. A stale or incomplete ads.txt file, or a reseller relationship the publisher forgot it had, can leave the publisher's inventory flowing through paths it never sanctioned.<br><br>The IAB Tech Lab has published guidance on the OpenRTB signals that mark MFA inventory, including ad refresh rates, content quality, and the state of a site's ads.txt file. A publisher can use the same signals in reverse, checking that its own paths do not light up the markers buyers screen against, and that every authorized path is declared cleanly. The audit question is whether a publisher monitors where its inventory ends up and who is authorized to sell it, or whether MFA and unauthorized-resale risk goes unwatched until a buyer's screen removes the demand.<br><br>A few signs point to MFA and unauthorized reseller risk going unmonitored:<ul><li>The publisher does not review which resellers and intermediaries appear in seller declarations against the relationships it actually authorized</li><li>The ads.txt or app-ads.txt file is stale, incomplete, or lists reseller relationships the publisher can no longer account for</li><li>No process exists to spot the publisher's inventory turning up in MFA-style placements or being sold by an unauthorized party</li></ul>You may want to confirm that every party selling the inventory is authorized and that the inventory is not flowing into MFA placements. One approach is to reconcile the seller declarations against the authorized relationships in ads.txt on a set schedule, and to spot-check where the inventory renders for the MFA markers buyers screen against.",
+        "site_type_overlays": {
+          "publishing": "On a media site, syndication and content-network deals can route a publisher's articles onto pages the publisher does not control, where ad clutter and refresh can read as made-for-advertising to a buyer's screen. You may want to confirm that any syndication partner authorized to sell the inventory keeps it on pages that meet the publisher's own quality bar, and that ads.txt names only the partners still in force.",
+          "ecommerce": "On a commerce-content site, affiliate and network arrangements made for the commercial pages can resell that inventory onward, and an unauthorized or low-quality reseller in that chain puts the high-value product and category inventory at risk of an MFA screen. You may want to reconcile the resellers declared against the commercial inventory with the relationships the publisher authorized, and remove any the publisher cannot account for."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Guidance",
+            "source_title": "Using OpenRTB Signals to Identify Made for Advertising",
+            "source_url": "https://iabtechlab.com/using-openrtb-signals-to-identify-made-for-advertising/"
+          },
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "Ads.txt - Authorized Digital Sellers",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Reconcile the parties selling the publisher's inventory against the relationships it authorized in ads.txt, and check where the inventory renders for the markers buyers use to screen out made-for-advertising (MFA) supply.",
+        "tools": {
+          "free": {
+            "ads_txt": {
+              "label": "Publisher ads.txt and app-ads.txt",
+              "steps": [
+                "Open the publisher's ads.txt and app-ads.txt files and list every authorized seller entry with its relationship type, whether direct or reseller.",
+                "Cross-check the seller IDs declared for the publisher in Equativ's sellers.json and any reseller's sellers.json against the authorized entries in ads.txt.",
+                "Record any seller offering the inventory without a matching authorized entry, and any ads.txt entry for a reseller relationship the publisher can no longer account for."
+              ]
+            },
+            "mfa_signal_review": {
+              "label": "MFA signal review",
+              "steps": [
+                "Using the IAB Tech Lab signals, spot-check a sample of the pages where the publisher's resold inventory renders for ad clutter, refresh rates above the publisher's standard, and thin or repeated content.",
+                "Note any path where the inventory ends up on a page that shows the MFA markers buyers screen against.",
+                "Record whether the publisher has any standing process to monitor MFA and unauthorized-resale risk, or whether this review is the first such check."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the sellers offering the publisher's inventory against the relationships authorized in ads.txt, plus any path where the inventory renders in a made-for-advertising (MFA) placement. A setup where every seller is authorized, ads.txt is current, and no path leads to MFA inventory passes. A setup with unauthorized sellers, a stale ads.txt file, or inventory rendering in MFA-style placements is a fail recorded with the unauthorized sellers and the offending paths.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the sellers offering the inventory, their authorization status in ads.txt, and any MFA-flagged paths above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not monitor where its inventory ends up or who is authorized to sell it, so made-for-advertising (MFA) and unauthorized-resale risk goes unwatched. If the inventory is resold into MFA-style placements or sold by a party {{site_name}} never authorized, buyers that screen for MFA and unauthorized supply pull spend from the publisher's inventory, and the loss reaches the direct path, not just the offending reseller. {{voice_recommend}} reconciling the sellers declared in the public sellers.json files against the authorized relationships in ads.txt on a set schedule, spot-checking where the resold inventory renders for the MFA markers buyers screen against, and removing any seller or path {{site_name}} cannot account for. After the cleanup, recheck the declarations and the rendering paths to confirm only authorized, quality supply remains."
+      }
+    }
+  ]
+}

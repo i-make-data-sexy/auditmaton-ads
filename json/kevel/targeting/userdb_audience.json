@@ -1,0 +1,159 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://dev.kevel.com/docs/userdb-1",
+  "worth_it": "Yes",
+  "worth_it_explanation": "UserDB is where Kevel keeps the audience and frequency data that makes targeting work, so the value of every interest segment and frequency cap rests on the UserKey that ties those records together being stable and first-party. When the UserKey changes across sessions or devices, the data fragments into partial records that no longer represent one person, and caps stop holding. The check reads the identity wiring and the write policy a publisher already has in place, so it costs inspection time rather than rebuild time, and the finding points to a concrete decision about how UserKeys are minted and what gets written.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "UserDB is Kevel's server-side, first-party data store, where each user's interests, behavior, demographic properties, and frequency counts are tied to a single persistent UserKey. This subcategory is about how that UserKey is generated and how the records under it are governed, rather than the targeting expressions that read from it at decision time. These checks confirm that UserKeys are stable and first-party so audience and frequency data accrues to one person instead of fragmenting, and that what gets written to UserDB is a deliberate, bounded set of data rather than an open accumulation of personal information.",
+  "audit_checks": [
+    {
+      "id": "kevel-userdb-audience-userkey-unstable-or-fragmented",
+      "title": "UserKeys are unstable or not first-party, so audience and frequency data fragments",
+      "category": "targeting",
+      "subcategory": "userdb_audience",
+      "impact_score": 3,
+      "impact_rationale": "UserDB indexes every record on the UserKey, and frequency capping counts impressions against it. When the key changes across sessions or devices, or when it is derived from an identifier the publisher does not control, one person's data splits across several partial records. Targeting reads thin segments and frequency caps reset, so the audience data the publisher believes they hold does not match what is actually stored.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "inventory",
+        "privacy"
+      ],
+      "educate": {
+        "base": "Kevel's UserDB stores every user-level record against a single identifier called the UserKey, and that key is the join that holds a person's data together. Interests, behavior, demographic properties, and frequency counts all hang off it, and the ad request reads them by passing the same key in the user field. Kevel's documentation is explicit that the key has to be consistent: it states that the UserKey needs to be the same in every request for that user since it is the key Kevel uses to count impression views, and that if the field is blank or the key is not the same, Kevel cannot frequency cap accurately. The same logic applies to interest and segment data, which accrues to whatever key the request carried.<br><br>The UserKey can come from a few places. A publisher can mint and store their own first-party identifier, pass a mobile advertising identifier such as the Identifier for Advertisers (IDFA) or Google Advertising ID (GAID), or let Kevel generate a globally unique identifier (GUID) when none is supplied. The first-party option keeps the key under the publisher's control and stable across sessions. Relying on a Kevel-generated GUID without persisting it, or on a mobile identifier that the user can reset, means the key the publisher reads tomorrow may not be the one written today.<br><br>When the key is not stable, the data does not disappear, it fragments. One person becomes several partial records, each holding a slice of their interests and a separate frequency count. Targeting then reads a thin segment that understates what the publisher actually knows, and a frequency cap that should hold across a week resets every time a new key appears, so an ad the cap meant to limit serves again under a fresh record. The audience the publisher reports on and the audience Kevel can actually act on drift apart.<br><br>A few signs point to UserKeys that are unstable or not first-party:<ul><li>Decision API requests omit the user field, or send it inconsistently, so Kevel mints a fresh GUID it cannot reliably tie back to a returning user</li><li>The UserKey is derived from a resettable device identifier or a third-party cookie rather than a persistent first-party identifier the publisher stores</li><li>Frequency caps appear to reset more often than their configured window, or interest segments stay smaller than the recorded activity would suggest, which points to records splitting across keys</li></ul>You may want to confirm that the UserKey is a stable, first-party identifier that the publisher mints, stores, and reuses across sessions and devices. One approach is to trace a single user through several requests in the Decision API logs and confirm the same key carries through rather than a new one appearing each time.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, a logged-in account identifier makes a strong first-party UserKey because it stays stable across sessions and devices. You may want to map the UserKey to that account identifier where a login exists, and for anonymous visitors persist a first-party value rather than leaning on a resettable device identifier, so a returning reader resolves to one record instead of a new one each visit.",
+          "ecommerce": "On a retailer running sponsored-product ads through Kevel, the shopper's account or loyalty identifier is the natural first-party UserKey because purchase and browse history already accrue to it. You may want to tie the UserKey to that identifier so a shopper's interest and frequency data follows them from product page to checkout and across devices, rather than fragmenting into separate records that understate their intent."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "UserDB",
+            "source_url": "https://dev.kevel.com/docs/userdb-1"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Frequency Capping",
+            "source_url": "https://dev.kevel.com/docs/frequency-capping-1"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Trace how the UserKey is generated and passed, then confirm the same key resolves a returning user across sessions and devices rather than a new key appearing each time.",
+        "tools": {
+          "free": {
+            "kevel_decision_api": {
+              "label": "Kevel Decision API",
+              "steps": [
+                "Capture several Decision API requests for one known test user across separate sessions and, if possible, separate devices, and read the user field in each.",
+                "Confirm the same UserKey value carries through every request rather than a new value appearing, and note any request where the user field is blank.",
+                "Check whether the key looks like a stable first-party identifier the publisher controls or a resettable device identifier such as the Identifier for Advertisers (IDFA) or Google Advertising ID (GAID)."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "Read the UserDB record for the test user's UserKey and note the interests, segments, and frequency counts stored against it.",
+                "Repeat for any alternate UserKey the same user generated, and check whether their data is split across more than one record.",
+                "Record whether a single key holds the user's full history or whether several partial records exist for what should be one person."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records how the UserKey is sourced (a first-party identifier the publisher stores, a resettable device identifier, or a Kevel-generated GUID), and whether one key resolves a returning user across sessions and devices. A setup where the UserKey is a stable, first-party identifier carried consistently in every request passes. A setup where the key is missing, resettable, or changes across sessions so that one user's data fragments into several records is a fail recorded with the requests and records affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record how the UserKey is generated and whether one key follows a returning user above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes UserKeys to Kevel that are not stable or not first-party, so a single user's data fragments across several UserDB records. UserDB indexes every record on the UserKey, and frequency capping counts impressions against it, so when the key changes across sessions or devices the interest segments read thin and the caps reset under each fresh record. {{voice_recommend}} minting a persistent first-party UserKey, tying it to a logged-in account identifier where one exists, and passing the same key in every Decision API request so a returning user resolves to one record. After the change, trace a test user through several requests to confirm the same key carries through and the data accrues to a single record."
+      }
+    },
+    {
+      "id": "kevel-userdb-audience-writes-ungoverned",
+      "title": "What is written to UserDB is not governed by a defined scope or retention",
+      "category": "targeting",
+      "subcategory": "userdb_audience",
+      "impact_score": 3,
+      "impact_rationale": "UserDB will hold whatever interests, segments, and custom properties a publisher writes to it, and Kevel does not impose a retention period, so records grow unbounded unless the publisher sets the boundary. Without a defined scope for what gets written and a process for removing stale or opted-out data, the store accumulates more personal data than the targeting needs and carries it longer than any consent or purpose supports.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "privacy",
+        "inventory"
+      ],
+      "educate": {
+        "base": "UserDB stores the interests, retargeting segments, and custom properties a publisher chooses to write against each UserKey, and it keeps them until the publisher removes them. Kevel's documentation describes the consent object, an opt-out endpoint, and a forget-user endpoint, but it does not specify a retention period or automatic deletion, so the store holds what is written for as long as the publisher leaves it there. That puts the boundary on what UserDB holds, and for how long, in the publisher's hands rather than the platform's.<br><br>The first part of governing UserDB is deciding what gets written. A custom property field accepts up to 8 kilobytes (KB) of demographic data per user, and interests and segments can be added on every interaction, so it is straightforward to write more than the targeting actually uses. The audit question is whether the data written maps to specific targeting the publisher runs, or whether it accumulates because the pipeline writes everything it sees. Personally identifiable information (PII) such as a name, email address, or precise location does not belong in a targeting store, and writing it there extends the data a breach would expose well beyond what an ad decision needs.<br><br>The second part is deciding how long the data lives and how it leaves. Because Kevel sets no retention default, a publisher who never expires or refreshes interest data ends up targeting on signals that may no longer describe the user, and holding personal data past the point any consent or stated purpose supports it. Kevel provides the means to honor a request to stop and a request to be forgotten: the opt-out endpoint stops the record from being used for targeting, and the forget-user endpoint removes the record and unsets the tracking identifier. The audit question is whether those endpoints are wired into the publisher's consent and data-subject-request flows so an opt-out or deletion request actually reaches UserDB.<br><br>A few signs point to UserDB writes that are not governed:<ul><li>The write pipeline adds interests, segments, or custom properties with no documented scope tying each field to specific targeting the publisher runs</li><li>No retention or refresh policy exists, so interest and behavior data accrues indefinitely against the General Data Protection Regulation (GDPR) and similar rules that expect a defined purpose and limit</li><li>The opt-out and forget-user endpoints are not connected to the consent banner or data-subject-request process, so a user's opt-out or deletion request never reaches the UserDB record</li><li>PII such as names, email addresses, or precise location is written into UserDB rather than kept in a system built to hold it</li></ul>You may want to confirm that UserDB holds a defined, bounded set of data and that opt-out and deletion requests reach it. One approach is to inventory the fields the pipeline writes, map each to the targeting that uses it, drop the rest, and confirm the opt-out and forget-user endpoints are called from the publisher's consent and request flows.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, the temptation is to write every section read and every article topic into UserDB as an interest. You may want to limit the written interests to the segments the targeting actually uses, set a refresh or expiry so stale topics drop off, and confirm the consent banner's opt-out and any deletion request reach the UserDB record through the opt-out and forget-user endpoints.",
+          "ecommerce": "On a retailer running sponsored-product ads through Kevel, browse and purchase signals are valuable for retargeting, but writing full order detail or contact information into a targeting store puts PII where it does not belong. You may want to write only the segment-level signals the sponsored-product targeting needs, keep order and contact data in the systems built for it, and wire the forget-user endpoint into the account-deletion flow so a shopper's request clears their UserDB record."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "UserDB",
+            "source_url": "https://dev.kevel.com/docs/userdb-1"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "GDPR Compliance and Consent Settings",
+            "source_url": "https://dev.kevel.com/docs/gdpr-compliance-and-consent-settings"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review what the write pipeline puts into UserDB, whether each field maps to active targeting, and whether opt-out and deletion requests reach the record.",
+        "tools": {
+          "free": {
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "Read several UserDB records and list the interests, segments, and custom properties stored against them.",
+                "For each field, ask the publisher which targeting uses it, and flag any field, including any personally identifiable information (PII), that has no targeting tied to it.",
+                "Ask whether a retention or refresh policy exists for interest and behavior data, and record how stale data is expired or removed."
+              ]
+            },
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open the consent and privacy configuration and confirm the opt-out and forget-user endpoints are wired into the publisher's consent banner and data-subject-request process.",
+                "Trace a test opt-out and a test deletion request end to end, and confirm each reaches and updates the UserDB record.",
+                "Record whether the consent object is set on Decision API requests so that data from users without consent is not used for targeting."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the fields the pipeline writes to UserDB, whether each maps to active targeting, whether a retention or refresh policy exists, and whether the opt-out and forget-user endpoints are connected to the consent and request flows. A setup where the written data is scoped to targeting in use, retention is defined, no personally identifiable information (PII) is stored, and opt-out and deletion requests reach the record passes. A setup where data is written without a defined scope, held with no retention, or where opt-out and deletion requests never reach UserDB is a fail recorded with the fields and gaps found.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the fields written to UserDB, the retention policy, and whether opt-out and deletion requests reach the record above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} writes to UserDB without a defined scope or retention, so the store holds more data, and holds it longer, than the targeting needs. Kevel keeps whatever interests, segments, and properties are written against a UserKey and sets no retention default, so without a boundary the records grow unbounded and may carry data past the point any consent supports it. {{voice_recommend}} inventorying the fields the pipeline writes, mapping each to active targeting and dropping the rest, removing any personally identifiable information (PII), setting a retention or refresh policy, and wiring the opt-out and forget-user endpoints into the consent and data-subject-request flows. After the change, reread a sample of records to confirm the written data is bounded and that opt-out and deletion requests reach UserDB."
+      }
+    }
+  ]
+}

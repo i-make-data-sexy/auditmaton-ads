@@ -1,0 +1,166 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://dev.kevel.com/docs/geo-location",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Geo and keyword targeting decide where a flight is eligible to serve, so a wrong setting either starves a campaign that should be running or spends a campaign's goal against the wrong audience. Both checks read what the flights already have set against what the campaign intended and what the live ad request actually passes, so they cost reading time rather than rebuild time. The findings point to concrete flight settings the operator can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Targeting in Kevel is set at the flight level, so each flight carries its own rules for where and when it is eligible to serve. Geo targeting includes or excludes by country, region, or metro and decides which locations a flight reaches. Keyword targeting serves a flight only where a matching keyword string is passed in the ad code or the Decision API request, so the keyword the flight targets and the keyword the request sends have to agree. This subcategory confirms that the geo settings match the markets the campaign meant to reach and that the keywords a flight targets are the keywords the live request actually passes.",
+  "audit_checks": [
+    {
+      "id": "kevel-geo-keyword-targeting-geo-mismatch-intended-markets",
+      "title": "Flight geo targeting does not match the campaign's intended markets",
+      "category": "targeting",
+      "subcategory": "geo_keyword_targeting",
+      "impact_score": 3,
+      "impact_rationale": "Geo targeting decides which locations a flight is eligible to serve, so a country left out of the include list, or a region caught in an exclude, removes a market the campaign meant to reach. A geo set wider than intended spends the flight's goal against locations the buyer did not pay for. Either way the campaign delivers against the wrong footprint until someone reads the flight settings against the brief.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "inventory",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "Kevel sets geo targeting on the flight. A flight can include or exclude by country, by region within a country, or by metro, which is a Designated Market Area (DMA) and is available for the United States only. Kevel resolves a user's location from the request IP address using MaxMind data, so the location a flight matches against comes from the IP that reaches the Decision API. When the request does not send an explicit IP, Kevel falls back to the IP of the server that made the call, which can resolve to the wrong place for a server-side integration.<br><br>The audit question is whether the geo on each flight matches the markets the campaign was sold to reach. A geo that is too narrow leaves out a market the buyer paid for, so the flight serves nothing in that location and the campaign under-delivers there. A geo that is too wide lets the flight serve in locations outside the brief, so the goal is spent against an audience the buyer did not ask for. A region caught in an exclude list, or a country missing from an include list, produces the same gap without any error showing on the flight.<br><br>Kevel also enforces conflict rules that can reshape a flight's footprint. A flight cannot include and exclude the same country, region, or metro. It cannot include a region while excluding all of that region's metros, and it cannot include a multi-region metro while excluding every region the metro spans. When a setup runs into one of these rules, the resulting footprint may not be the one the operator pictured, so the footprint is worth reading back rather than assumed.<br><br>A few signs point to a geo setting that does not match the intended markets:<ul><li>The flight's include list is missing a country or region named in the campaign brief</li><li>An exclude list removes a location the campaign was meant to reach</li><li>The flight has no geo targeting at all on a campaign that was sold for a specific market, so it serves everywhere</li><li>A server-side integration omits the request IP, so flights resolve location from the calling server rather than the end user</li></ul>You may want to read each flight's geo include and exclude lists against the campaign brief, and confirm the Decision API request sends an explicit IP so location resolves from the end user rather than the server.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, sponsorship and direct-sold campaigns are often sold for a named market, for example a national advertiser buying one country or a regional advertiser buying a metro. You may want to confirm each flight's geo include list matches the market on the insertion order so a sold campaign does not serve outside its footprint or miss part of the region it was bought for.",
+          "ecommerce": "For a retailer running sponsored-product ads on its own site or app through Kevel, geo targeting often follows where the brand ships or where a promotion runs. You may want to confirm a flight tied to a region-specific promotion is limited to the regions where the offer is valid, so the retail-media budget is not spent showing a sponsored placement to shoppers who cannot act on it."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Documentation",
+            "source_title": "Geo-Targeting",
+            "source_url": "https://dev.kevel.com/docs/geo-location"
+          },
+          {
+            "source_type": "Kevel Developer Documentation",
+            "source_title": "Campaign Flights",
+            "source_url": "https://dev.kevel.com/docs/flights"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the geo include and exclude lists on each active flight against the campaign brief, and confirm the Decision API request sends an explicit IP so location resolves from the end user.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open a campaign, then open each active flight, and read its geo-targeting include and exclude lists by country, region, and metro.",
+                "Compare each flight's geo against the markets named in the campaign brief or insertion order, and note any country or region that is missing from an include list or caught in an exclude list.",
+                "Note any flight with no geo targeting on a campaign that was sold for a specific market since that flight is eligible to serve everywhere."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "GET the flights for the campaign and read each flight's geo-targeting settings to list the included and excluded countries, regions, and metros.",
+                "Record the geo footprint for each flight and compare it against the intended markets so a too-narrow or too-wide footprint stands out."
+              ]
+            },
+            "kevel_decision_api": {
+              "label": "Kevel Decision API",
+              "steps": [
+                "Send a Decision API request that sets the 'ip' field to an address in a target market, and confirm the flight returns an ad for that location.",
+                "Send a request with an address outside the intended footprint and confirm the flight does not return, which shows the geo is excluding the right locations.",
+                "Confirm production requests pass an explicit 'ip' rather than letting Kevel fall back to the calling server's IP, especially for any server-side integration."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per active flight, the geo include and exclude lists and the markets named in the campaign brief. A flight whose geo footprint matches the intended markets passes. A flight missing an intended country or region, excluding a location it was meant to reach, or running with no geo on a market-specific campaign is a fail recorded with the flight and the geo gap. A finding that the Decision API request omits the IP, so location resolves from the server, is recorded alongside the affected flights.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each flight's geo include and exclude lists and the campaign's intended markets above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more flights on {{site_name}} carry geo targeting that does not match the campaign's intended markets, for example a country missing from an include list or a region caught in an exclude. Kevel sets geo targeting at the flight level and resolves location from the request IP, so a footprint that is too narrow leaves out a market the buyer paid for and one that is too wide spends the goal against locations outside the brief. {{voice_recommend}} reading each flight's geo include and exclude lists against the campaign brief, correcting any country or region that is missing or wrongly excluded, and confirming the Decision API request sends an explicit IP so location resolves from the end user rather than the calling server. After the change, recheck delivery by location to confirm each flight reaches its intended markets."
+      }
+    },
+    {
+      "id": "kevel-geo-keyword-targeting-keywords-not-passed-at-request",
+      "title": "Flight keywords do not match the keywords passed at request time",
+      "category": "targeting",
+      "subcategory": "geo_keyword_targeting",
+      "impact_score": 3,
+      "impact_rationale": "A keyword-targeted flight serves only where a matching keyword string is passed in the ad code or Decision API request. When the flight's keyword and the request's keyword do not agree, on spelling, on a reserved character, or on the request omitting the keyword entirely, the flight is eligible everywhere except where it was meant to run, so it under-delivers without any error on the flight.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "inventory"
+      ],
+      "educate": {
+        "base": "Keyword targeting in Kevel is a filter. A flight that targets a keyword serves only when that keyword string is passed in the ad code or in the keywords field of the Decision API request. Kevel describes it as a matching exercise: the flight names the strings it wants, and the ad serves only when the request sends one of those strings. If the request never passes the keyword, the flight never serves, no matter how the rest of its targeting is set.<br><br>The matching has rules that decide whether two strings agree. Keywords are case-insensitive, and spaces inside a keyword are allowed while trailing spaces are dropped. A set of reserved characters cannot appear in a keyword, including commas, colons, exclamation points, tildes, newlines, and carriage returns because Kevel uses some of them to separate values in the request. A request carries up to 512 characters of keywords total, and a single keyword can run up to 256 characters. A keyword that relies on a reserved character, or one that drifts in spelling between the flight and the page that builds the request, will not match even though both sides look correct on their own.<br><br>The audit question is whether the keyword a flight targets is the keyword the live request actually passes. This is a two-sided check. One side is the flight setting in Kevel, the other is the ad code or Decision API call on the page or app, and a finding usually lives in the gap between them. A flight can target the right keyword while the request passes a misspelled version, a different casing convention that the page does not normalize, or no keyword at all because the integration was never wired to send it.<br><br>A few signs point to keywords that do not match the request:<ul><li>A flight targets a keyword that the ad code or Decision API request does not pass, so the flight has no place to serve</li><li>The flight keyword and the request keyword differ in spelling or use a value the page builds inconsistently</li><li>A flight keyword contains a reserved character (e.g., a comma or a colon), so it can never match a passed string</li><li>A live ad request returns no keyword-targeted flight even though one should be eligible for that page or context</li></ul>You may want to compare each keyword-targeted flight's keywords against the keywords a live request passes, inspecting an actual Decision API response or the ad code on the page, and correct whichever side is wrong so the two agree.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app, keywords are often built from page metadata, the section, or the article topic and passed into the ad request. You may want to confirm the strings the page sends match the keywords on the flights that should serve there since a flight tied to a content topic will sit idle if the page passes a different topic string or none at all.",
+          "ecommerce": "For a retailer running sponsored-product ads through Kevel, keywords commonly carry the on-site search term, the category, or the product identifier so a sponsored placement matches the shopper's context. You may want to confirm the search and category strings the storefront passes match the keywords on the sponsored-product flights, so a campaign bought against a category actually serves on that category's pages."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Documentation",
+            "source_title": "Keyword Targeting",
+            "source_url": "https://dev.kevel.com/docs/keyword-targeting"
+          },
+          {
+            "source_type": "Kevel Developer Documentation",
+            "source_title": "Campaign Flights",
+            "source_url": "https://dev.kevel.com/docs/flights"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Compare the keywords on each keyword-targeted flight against the keywords a live request passes, by inspecting a Decision API response or the ad code on the page, and check for spelling, casing, and reserved-character mismatches.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open each active flight that uses keyword targeting and record the exact keyword strings it targets.",
+                "Note any keyword that contains a reserved character (e.g., a comma, a colon, or an exclamation point) because such a keyword cannot match a passed string.",
+                "List the keywords the campaign intended to target so the flight settings can be checked against both the intent and the live request."
+              ]
+            },
+            "kevel_decision_api": {
+              "label": "Kevel Decision API",
+              "steps": [
+                "Send a Decision API request that passes the keyword the flight expects in the 'keywords' field, and confirm the flight returns an ad.",
+                "Inspect a real request from the page or app and read the keywords it actually sends, then compare those strings against the flight's targeted keywords for spelling, casing, and length.",
+                "Confirm the request keeps within the limits, up to 512 characters of keywords total and up to 256 characters per keyword because a request that exceeds them can drop keywords."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per keyword-targeted flight, the keywords the flight targets and the keywords a live request passes for the page or context that flight should serve. A flight whose keywords match the strings the request sends passes. A flight whose keyword is misspelled relative to the request, differs in a casing convention the page does not normalize, contains a reserved character, or is never passed by the request is a fail recorded with the flight and the mismatch. A request that exceeds the keyword length limits is recorded alongside the affected flights.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each flight's targeted keywords and the keywords a live request passes above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more keyword-targeted flights on {{site_name}} target keywords that the live ad request does not pass, so those flights have no place to serve. Kevel serves a keyword-targeted flight only where a matching keyword string is sent in the ad code or the Decision API request, and the two sides can drift on spelling, on casing, on a reserved character such as a comma or a colon, or because the request omits the keyword entirely. {{voice_recommend}} comparing each flight's targeted keywords against the keywords a live request actually passes, inspecting a real Decision API response, and correcting whichever side is wrong so the flight keyword and the request keyword agree. After the change, send a test request with the expected keyword to confirm the flight returns."
+      }
+    }
+  ]
+}

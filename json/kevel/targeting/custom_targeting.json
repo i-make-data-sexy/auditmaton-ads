@@ -1,0 +1,159 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://dev.kevel.com/docs/custom-targeting",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Custom targeting decides which ad shows for a given request, so a rule that points at a key the request never carries fails to match and the ad does not serve, or it serves the wrong ad. The check is a review of the targeting rules and the keys the Decision API request actually passes, so it costs reading time rather than a rebuild, and each finding points at a specific rule a team can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Custom targeting in Kevel matches an ad when the value for a key is passed in the Decision API request and that value satisfies the rule the team wrote in the Zerkel query language. This subcategory is about the targeting rules themselves, the keys they reference and the logic that combines them, rather than the inventory or pricing those rules sit inside. These checks confirm that each rule references keys the request actually carries, that reserved keys are not crossed with custom keys, and that the boolean logic resolves to what the team intends.",
+  "audit_checks": [
+    {
+      "id": "kevel-custom-targeting-keys-not-passed-in-request",
+      "title": "Targeting rules reference keys the Decision API request does not pass",
+      "category": "targeting",
+      "subcategory": "custom_targeting",
+      "impact_score": 3,
+      "impact_rationale": "A Zerkel rule matches only when the value for its key is present in the request. If the rule names a key the Decision API request never carries, or names it with a different spelling or case than the request uses, the rule fails to match and the ad does not serve, so a typo or a missing key turns into unfilled inventory with no error to flag it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "inventory",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "Kevel is a headless ad server, so the team writes targeting rules in the Zerkel query language and attaches them to a flight, channel, or creative, then the calling application passes the data those rules read in each Decision API request. Custom targeting works on that handshake. As Kevel's own documentation puts it, you set up rules to target certain combinations of key and value, and the ad shows only if the value for the given key is passed in the request and matches the rule. The rule and the request have to agree on the key, or the match never happens.<br><br>The failure is quiet. A rule that reads <code>genre = \"rock\"</code> matches nothing if the request passes the value under <code>music_genre</code> instead of <code>genre</code>, or passes <code>Rock</code> when the rule expects <code>rock</code>. Zerkel treats keys and values as case-sensitive, so a casing mismatch fails the same way a misspelling does. There is no error in this case. The ad simply does not serve, and the impression either goes to a different ad or goes unfilled, which reads as an inventory or fill problem rather than a targeting one.<br><br>The data reaches Zerkel through the <code>properties</code> field of the Decision API placement request, where each custom value is passed as a key and value pair. Numbers, strings, and arrays are all allowed. The audit question is whether every key a targeting rule references is actually a key the request carries, spelled and cased the same way, so the rule has something to match against.<br><br>A few signs point to rules referencing keys the request does not pass:<ul><li>A flight or creative with custom targeting set serves far below its expected volume, or does not serve at all, while comparable inventory fills normally</li><li>A key named in a Zerkel rule does not appear in the <code>properties</code> of a sampled live Decision API request, or appears under a different name or case</li><li>The application code that builds the request and the targeting rules were written by different people or at different times, so no single source confirms the key names line up</li></ul>You may want to confirm that each key a rule references is present in a real request with the same spelling and case. One approach is to capture a live Decision API request for the placement, list the keys it passes in <code>properties</code>, and check each targeting rule's keys against that list.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, the request properties often carry editorial context such as section, article topic, or content rating, and targeting rules read those keys to place sponsorship or contextual campaigns. You may want to capture a request from a representative page or screen and confirm that the context keys the rules expect, such as <code>section</code> or <code>topic</code>, are actually passed with the spelling and case the rules use.",
+          "ecommerce": "On a retailer running sponsored-product ads through Kevel, the request properties usually carry commerce signals such as category, search term, or product identifier, and targeting rules read those to match a sponsored placement to the page. You may want to capture a request from a category page and a search results page because each can build the request differently, and confirm the rules reference keys both requests actually pass."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Custom Targeting",
+            "source_url": "https://dev.kevel.com/docs/custom-targeting"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Passing Custom Targeting Data",
+            "source_url": "https://dev.kevel.com/docs/passing-custom-targeting"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the keys each Zerkel targeting rule references and compare them against the keys a live Decision API request actually passes in its properties, watching for spelling and case mismatches.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open a flight or creative that has custom targeting set and read its Zerkel query.",
+                "List every key the query references, recording the exact spelling and case of each.",
+                "Repeat across the flights and creatives in scope so you have the full set of keys the targeting rules expect."
+              ]
+            },
+            "kevel_decision_api": {
+              "label": "Kevel Decision API",
+              "steps": [
+                "Capture a live Decision API placement request for the inventory the rule targets, for example by inspecting the network call the application sends.",
+                "Read the 'properties' object and list the keys it passes, with their spelling and case.",
+                "Compare the request keys against the keys the targeting rules reference, and record any key a rule names that the request does not pass, or passes under a different name or case."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per targeting rule, the keys it references and whether each key appears in a sampled live Decision API request with matching spelling and case. A rule whose keys are all present in the request passes. A rule that references a key the request does not pass, or passes under a different name or case, is a fail recorded with the rule and the mismatched key.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the keys each targeting rule references and whether the request passes them above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has custom targeting rules that reference keys the Decision API request does not pass with matching spelling and case. A Zerkel rule matches only when the value for its key is present in the request, and Kevel treats keys as case-sensitive, so a missing or misspelled key fails the match with no error and the ad does not serve. {{voice_recommend}} capturing a live request for each affected placement, listing the keys it passes in its properties, and aligning every targeting rule to reference only keys the request actually carries with the same spelling and case. After the change, recheck serving volume on the affected flights to confirm the rules now match."
+      }
+    },
+    {
+      "id": "kevel-custom-targeting-logic-and-reserved-keys-misconfigured",
+      "title": "Combined targeting logic or reserved keys resolve differently than intended",
+      "category": "targeting",
+      "subcategory": "custom_targeting",
+      "impact_score": 3,
+      "impact_rationale": "Zerkel combines conditions with and, or, and not, and negation requires parentheses. A query that mixes and with or without grouping, or that overloads a reserved key beginning with the dollar sign, can resolve to a broader or narrower audience than the team meant, so the campaign serves to the wrong requests while every rule still looks valid.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "inventory"
+      ],
+      "educate": {
+        "base": "Zerkel supports full boolean logic, so a targeting rule can combine conditions with <code>and</code>, <code>or</code>, and <code>not</code>, compare numbers with operators such as <code>>=</code>, and test whether an array contains a value. The expressive logic is the point of custom targeting, and it is also where a rule drifts away from what the team meant without anything looking broken. The query parses, the flight runs, and the audience it actually reaches is wider or narrower than intended.<br><br>Operator grouping is the first place this happens. A query written as <code>age >= 18 and country = \"US\" or country = \"CA\"</code> does not mean what a quick read suggests because the team has to be explicit about how <code>and</code> and <code>or</code> bind. Zerkel requires parentheses around negation, and grouping the boolean conditions deliberately is how you keep the rule resolving to one intended audience rather than two overlapping ones. A misplaced or missing parenthesis can let the <code>or</code> branch match requests the <code>age</code> condition was supposed to gate.<br><br>Reserved keys are the second place. Kevel bundles reserved keys that read integrated data such as device, geography, and General Data Protection Regulation (GDPR) status, and every reserved key name begins with the dollar sign. The documentation states that any custom property whose name begins with the dollar sign is ignored, so a custom key that borrows a reserved prefix does not behave as a normal custom key. The two namespaces are meant to stay separate. A rule that crosses them, or that assumes a reserved key carries a value the request did not actually trigger, resolves to something other than the team's intent.<br><br>A few signs point to combined logic or reserved keys resolving differently than intended:<ul><li>A Zerkel query mixes <code>and</code> and <code>or</code> with no parentheses grouping the conditions, so the binding is left to the default rather than stated</li><li>A custom property name begins with the dollar sign, which means Kevel ignores it rather than matching it as a custom key</li><li>A flight reaches a noticeably broader or narrower audience than its description implies, and the targeting query is the only thing that explains the gap</li></ul>You may want to confirm that each query resolves to the audience the campaign intends. One approach is to read the query against its plain-language goal, add parentheses so the <code>and</code> and <code>or</code> binding is explicit, and confirm no custom key borrows the reserved dollar sign prefix.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app, a sponsorship rule often combines a content condition with an audience or geography condition, for example a section match joined with a country match, which is where grouping matters most. You may want to read each multi-condition query against the campaign brief and add parentheses so the content and audience branches bind the way the sponsor agreement intends.",
+          "ecommerce": "On a retailer running sponsored-product ads, a rule can combine a category match, a price or inventory condition, and an audience signal, so several conditions stack and the binding between and and or decides which products surface where. You may want to confirm the grouping resolves to the intended product and audience pairing rather than letting an or branch surface a sponsored product outside its intended category."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Zerkel Queries",
+            "source_url": "https://dev.kevel.com/docs/zerkel-queries"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Reserved Keys",
+            "source_url": "https://dev.kevel.com/docs/reserved-keys"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each Zerkel query against its plain-language goal, checking how the and, or, and not conditions are grouped and whether any custom key borrows a reserved dollar sign prefix.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open each flight or creative with custom targeting and read its Zerkel query alongside the campaign's stated intent.",
+                "For any query that uses both 'and' and 'or', note whether parentheses group the conditions explicitly or whether the binding is left to the default.",
+                "Note any custom property name that begins with the dollar sign because Kevel ignores those rather than matching them as custom keys."
+              ]
+            },
+            "kevel_decision_api": {
+              "label": "Kevel Decision API",
+              "steps": [
+                "Send Decision API requests that represent the audiences the rule should and should not match, varying the relevant properties.",
+                "Confirm the flight serves for the requests it should match and does not serve for the requests it should exclude.",
+                "Record any case where the query matched a request it should have excluded, or excluded a request it should have matched, which points to a grouping or reserved-key issue."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per query, whether its and, or, and not conditions are grouped explicitly with parentheses, whether any custom key borrows the reserved dollar sign prefix, and whether test requests served as intended. A query that resolves to the intended audience with explicit grouping and no reserved-key overload passes. A query whose grouping is ambiguous, that overloads a reserved key, or that matched the wrong test requests is a fail recorded with the query and the divergence.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the grouping of each query, any reserved-key overload, and the test request results above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has custom targeting queries whose combined logic or reserved keys resolve differently than the campaign intends. Zerkel binds and and or by its own rules, requires parentheses around negation, and ignores any custom key that borrows the reserved dollar sign prefix, so an ungrouped query or an overloaded reserved key can reach a broader or narrower audience while still parsing cleanly. {{voice_recommend}} reading each query against its plain-language goal, adding parentheses so the and and or branches bind explicitly, and confirming no custom key uses a reserved prefix. After the change, send test Decision API requests for the audiences the rule should and should not match to confirm it resolves as intended."
+      }
+    }
+  ]
+}

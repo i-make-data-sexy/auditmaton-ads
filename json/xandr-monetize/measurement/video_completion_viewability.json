@@ -1,0 +1,166 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Video Through Rate (VTR), quartile events, and viewability are the metrics buyers read to decide what a video impression is worth, so the integrity of those numbers sets the price a publisher can defend. When quartile events drop between the player and the sell-side platform, or when viewability is left unmeasured, the impression carries no proof of its value and buyers discount it. The check is a review of measurement wiring the publisher already has on Microsoft Monetize and its video player, so it costs reading and reconciliation time rather than a rebuild, and the finding points to a concrete gap in the signals a publisher sends to the buy side.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Video Through Rate and viewability are the two measurement signals that tell a buyer whether a video impression was seen and watched, which is what they pay for. This subcategory is about the integrity of those signals on Microsoft Monetize, the formerly Xandr Monetize sell-side platform built on AppNexus, rather than the creative or the deal terms that carry them. These checks confirm that quartile completion events fire and reconcile across the video player and the platform, and that viewability is measured against a recognized standard so the publisher can stand behind the rates it asks.",
+  "audit_checks": [
+    {
+      "id": "xandr-monetize-video-completion-viewability-quartiles-not-reconciled",
+      "title": "Video quartile and completion events are not reconciled across player and platform",
+      "category": "measurement",
+      "subcategory": "video_completion_viewability",
+      "impact_score": 3,
+      "impact_rationale": "Quartile events and Video Through Rate (VTR) are the signals that show a video was watched, and buyers read them to value the impression. When the player reports one completion figure and Microsoft Monetize reports another, the publisher cannot say which number is right, so the rate it asks rests on a metric it cannot defend and the gap goes uninvestigated.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "A video ad reports its progress through tracking events the player fires as the viewer watches. The Video Ad Serving Template (VAST) spec defines these events, and the four quartile markers are the ones that describe completion. The player calls a tracking URL at start, then at 25 percent watched (firstQuartile), 50 percent (midpoint), 75 percent (thirdQuartile), and 100 percent (complete). VTR is the share of starts that reach complete. It is one of the main numbers a buyer reads to judge whether the impression was worth the price.<br><br>The signal only holds if the same events reach both sides of the transaction. The player fires the quartile beacons, and Microsoft Monetize (formerly Xandr Monetize, the sell-side platform built on AppNexus) records what it receives. When the player's count and the platform's count agree, the publisher has one number it can stand behind. When they diverge, the publisher is left with two figures and no way to say which is correct, which weakens any rate built on completion.<br><br>Several wiring problems can break the reconciliation. A player that loads the VAST document but does not register every tracking event will fire some quartiles and skip others. Events lost to a blocked tracking domain, a timeout, or a player that unloads before the beacon sends will undercount completion on one side. A measurement vendor sitting between the player and the platform can also count on a different basis than the platform does, so two correct-looking numbers still disagree.<br><br>A few signs point to quartile events that are not reconciled:<ul><li>The player's completion rate and the Microsoft Monetize completion rate for the same inventory differ by more than the margin the publisher treats as noise</li><li>Quartile counts do not step down in order, e.g., midpoint exceeds firstQuartile, which points to events firing or arriving out of sequence</li><li>No one has compared player-side and platform-side completion figures, so a gap could exist without anyone noticing</li></ul>You may want to confirm that quartile and completion events agree across the player and Microsoft Monetize for the same inventory. One approach is to pull completion figures from both sides for a fixed window, line them up by ad unit, and treat any gap beyond the publisher's noise margin as a measurement issue to trace back to the player or the tracking path.",
+        "site_type_overlays": {
+          "publishing": "On a media site, instream video in editorial content and outstream units in articles often run through different players or wrappers, so completion can reconcile cleanly on one and diverge on the other. You may want to reconcile player-side and platform-side completion separately for each player rather than judging video on a single blended VTR.",
+          "ecommerce": "On a commerce-content site, product-page video and editorial video can sit in different placements with different players, and the higher-value commercial inventory is the one whose completion numbers most need to hold up. You may want to confirm the quartile events reconcile on the product-page video specifically since that is the inventory a buyer scrutinizes most."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js for Video Overview",
+            "source_url": "https://docs.prebid.org/prebid-video/video-overview.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Module - Instream Video Ads Tracking",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/instreamTracking.html"
+          },
+          {
+            "source_type": "IAB Guidelines",
+            "source_title": "Digital Video Impression Measurement Guidelines",
+            "source_url": "https://www.iab.com/wp-content/uploads/2016/12/Digital-Video-Impression-Measurement-Guidelines_1.1.pdf"
+          }
+        ],
+        "learn_more_note": "Microsoft Monetize's detailed configuration documentation for video event tracking and reporting is in the Microsoft Advertising partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Pull completion and quartile figures from both the video player and Microsoft Monetize for the same inventory and window, then line them up to see whether they agree.",
+        "tools": {
+          "free": {
+            "player_reporting": {
+              "label": "Video player reporting or VAST event logs",
+              "steps": [
+                "Identify each video player or wrapper serving Microsoft Monetize demand, and confirm it registers the VAST start, firstQuartile, midpoint, thirdQuartile, and complete events.",
+                "Pull the player-side counts for starts and each quartile for a fixed window, broken out by ad unit or placement.",
+                "Check that the quartile counts step down in order from start through complete, and note any case where they do not, which points to events firing or arriving out of sequence."
+              ]
+            },
+            "monetize_reporting": {
+              "label": "Microsoft Monetize reporting",
+              "steps": [
+                "Build a Microsoft Monetize report covering the same window and the same inventory, with video starts, quartile or completion counts, and Video Through Rate (VTR).",
+                "Line up the platform-side completion figure against the player-side figure for each ad unit and record the difference.",
+                "Note any gap beyond the publisher's noise margin, and whether a measurement vendor sits in the path counting on a different basis than the platform."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per video placement, the player-side and platform-side completion figures for the same window and the gap between them. A placement where the two sides agree within the publisher's noise margin and the quartile counts step down in order passes. A placement where the figures diverge beyond that margin, or where quartiles arrive out of sequence, is a fail recorded with the placement, both figures, and the size of the gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the player-side and platform-side completion figures for each placement above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that video quartile and completion events on {{site_name}} do not reconcile between the player and Microsoft Monetize, so the completion figures the two sides report for the same inventory disagree. Video Through Rate (VTR) and the quartile events behind it are signals a buyer reads to value the impression, and when the player count and the platform count diverge the publisher cannot say which is correct or defend a rate built on either. {{voice_recommend}} pulling completion figures from both the player and Microsoft Monetize for the same window, lining them up by ad unit, and tracing any gap beyond the noise margin back to the player's event registration or the tracking path. After the fix, recheck that the quartile counts step down in order and agree across both sides."
+      }
+    },
+    {
+      "id": "xandr-monetize-video-completion-viewability-measurement-not-integrated",
+      "title": "Video viewability measurement is not integrated against a recognized standard",
+      "category": "measurement",
+      "subcategory": "video_completion_viewability",
+      "impact_score": 3,
+      "impact_rationale": "Viewability is the signal a buyer uses to confirm an ad was on screen long enough to be seen, and it sets what they will pay for a video impression. When a publisher does not measure viewability against a recognized standard, it sends impressions with no proof they were viewable, so buyers discount the inventory and the publisher cannot defend its rates with a number both sides accept.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "Viewability measures whether an ad was actually on screen rather than loaded below the fold or in a hidden tab. The recognized standard comes from the Media Rating Council (MRC) and the Interactive Advertising Bureau (IAB), and for video it sets the bar at 50 percent of the ad's pixels in view for at least two continuous seconds. Buyers read viewability to decide what a video impression is worth, so the rate a publisher can ask depends on being able to show the impression met the standard.<br><br>For the number to carry weight, it has to come from measurement integrated into the video path, not assumed. A player can fire its start and quartile events while the unit sits out of view, so completion alone does not prove the ad was seen. Viewability has to be measured on its own basis, against the MRC and IAB definition, and recorded alongside the impression so a buyer can read it. The IAB and MRC guidance also notes that measuring on the video player's pixels rather than the ad's own pixels is a different basis that has to be disclosed, which matters when a vendor's method and the platform's reporting are compared.<br><br>On Microsoft Monetize (formerly Xandr Monetize, the sell-side platform built on AppNexus), viewability for video inventory comes through measurement wired into the player or supplied by a measurement vendor, then surfaced in reporting. The audit question is whether that measurement exists for video, follows the recognized standard, and reaches the buy side, or whether video impressions go out with viewability left undetermined.<br><br>A few signs point to viewability that is not integrated against a standard:<ul><li>Video reporting shows no viewability rate, or reports a large share of impressions with viewable status undetermined</li><li>The basis of the measurement is unclear, e.g., whether it counts 50 percent of the ad's pixels or the player's pixels, which the IAB and MRC guidance asks to be disclosed</li><li>Buyers ask for viewability figures the publisher cannot supply for its video inventory</li></ul>You may want to confirm that video viewability is measured against the MRC and IAB standard and reaches the buy side. One approach is to read the viewability rate and the undetermined share for video inventory, confirm the measurement basis is stated, and treat a high undetermined share as a gap to close with the player or vendor integration.",
+        "site_type_overlays": {
+          "publishing": "On a media site, instream video inside an article and outstream units that load as the reader scrolls carry different viewability profiles since an outstream unit can render while still below the fold. You may want to read viewability separately for instream and outstream video so a low rate on one is not hidden by a strong rate on the other.",
+          "ecommerce": "On a commerce-content site, product-page video sits near content a shopper is actively reading and can record different viewability than autoplay units elsewhere on the page. You may want to confirm viewability is measured on the product-page video specifically since that higher-intent inventory is where a defensible viewability figure supports the rate most directly."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Guidelines",
+            "source_title": "MRC Viewable Ad Impression Measurement Guidelines",
+            "source_url": "https://www.iab.com/guidelines/mrc-viewable-impression-guidelines/"
+          },
+          {
+            "source_type": "IAB Guidelines",
+            "source_title": "Digital Video Impression Measurement Guidelines",
+            "source_url": "https://www.iab.com/wp-content/uploads/2016/12/Digital-Video-Impression-Measurement-Guidelines_1.1.pdf"
+          }
+        ],
+        "learn_more_note": "Microsoft Monetize's detailed configuration documentation for enabling and reading video viewability is in the Microsoft Advertising partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether video viewability is measured for Microsoft Monetize inventory, against what standard, and whether the figure reaches the buy side rather than going out undetermined.",
+        "tools": {
+          "free": {
+            "monetize_reporting": {
+              "label": "Microsoft Monetize reporting",
+              "steps": [
+                "Build a Microsoft Monetize report for video inventory that includes the viewability rate and the share of impressions with viewable status undetermined.",
+                "Record whether a viewability figure is reported at all, and how large the undetermined share is relative to measured impressions.",
+                "Break the figures out by instream and outstream video, and by placement, so a weak rate on one type does not hide in a blended number."
+              ]
+            },
+            "measurement_basis": {
+              "label": "Measurement basis and vendor check",
+              "steps": [
+                "Confirm whether viewability is measured by the player, by a measurement vendor, or not at all for video inventory.",
+                "Check the basis of the measurement against the MRC and IAB video standard, 50 percent of the ad's pixels in view for at least two continuous seconds, and note whether the basis counts the ad's pixels or the player's pixels.",
+                "Record whether the viewability figure is passed to the buy side or whether buyers have asked for a figure the publisher cannot supply."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for video inventory, whether viewability is measured, the standard and basis it follows, the viewability rate, and the undetermined share. Inventory measured against the MRC and IAB video standard with a stated basis and a low undetermined share passes. Inventory with no viewability measurement, an unstated basis, or a large undetermined share is a fail recorded with the placement and the figures behind it.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether viewability is measured for video inventory, the standard it follows, and the undetermined share above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that video viewability on {{site_name}} is not measured against a recognized standard, so video impressions reach the buy side without proof they were on screen. Viewability is the signal a buyer uses to confirm a video ad was seen, and the MRC and IAB standard sets it at 50 percent of the ad's pixels in view for at least two continuous seconds, so without that measurement the publisher cannot defend its rates with a number both sides accept. {{voice_recommend}} reading the viewability rate and the undetermined share for video inventory in Microsoft Monetize, confirming the measurement follows the MRC and IAB basis, and closing any gap through the player or vendor integration so the figure reaches buyers. After the fix, recheck that the undetermined share is low and the viewability figure is reported on a stated basis."
+      }
+    }
+  ]
+}

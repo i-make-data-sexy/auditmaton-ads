@@ -1,0 +1,164 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://dev.kevel.com/docs/data-shipping",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Decision logging is the only record of what the ad server actually decided for each request, so it is what an operator falls back on when delivery looks wrong and the live response is already gone. A setup that ships and retains these logs can be audited after the fact, and a setup that watches them for unfilled decisions and errored requests catches a delivery problem before it costs a day of revenue. The check reads the logging and monitoring a Kevel operator already has rather than rebuilding anything, so it costs review time and the finding points to a concrete gap a team can close.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Kevel is a headless ad server, so the only durable record of what the Decision API returned for a given request lives in the logs it ships. This subcategory covers two questions about that record. The first is whether the standard logs and UserDB logs are shipped and retained, so delivery can be reconstructed and debugged after the live response has expired. The second is whether those logs and the request-level metrics around them are watched for unfilled decisions and errored requests, rather than collected to a bucket that no one reads. Together they decide whether a Kevel operator can both see what happened and notice when something goes wrong.",
+  "audit_checks": [
+    {
+      "id": "kevel-decision-logging-logs-not-shipped-or-retained",
+      "title": "Decision logs are not shipped and retained for after-the-fact audit",
+      "category": "measurement",
+      "subcategory": "decision_logging",
+      "impact_score": 3,
+      "impact_rationale": "Kevel's native reporting carries aggregate counts, not the per-decision detail needed to debug why a specific request went unfilled or served the wrong ad. Without the standard logs and UserDB logs shipped to durable storage and held long enough to investigate, an operator loses the record once the live response expires, so a delivery problem reported a few days later cannot be reconstructed.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "transparency"
+      ],
+      "educate": {
+        "base": "Kevel serves ads through the Decision Application Programming Interface (API), and the response it returns lives only for the moment of the request. The native reporting interface keeps aggregate counts, such as impressions and clicks by flight, but it does not keep the per-decision detail that explains why one request served a particular creative or returned no ad at all. That detail lives in the logs Kevel ships, which is why shipping and retaining them is what makes delivery auditable after the fact.<br><br>Kevel's Data Shipping feature delivers raw event-level logs to a cloud destination the operator controls, such as Amazon Simple Storage Service (S3), Snowflake, or Google Cloud Storage. The standard logs cover impressions, clicks, conversions, and custom events, written as gzipped JavaScript Object Notation (JSON) files roughly once per minute for impressions and continuously for clicks and events. A separate set of UserDB logs records activity on user records, such as a read or an interest being added, when that beta is enabled. One detail shapes the whole setup. Data Shipping starts from the moment it is configured and offers no backfill of prior data, so logs that were never turned on are gone for that window and cannot be recovered later.<br><br>Shipping the logs is only half the requirement. The files have to be retained long enough that an investigation opened days or weeks after the fact still has data to read. A retention window that expires before a typical reporting or billing dispute lands leaves the operator with the same blind spot as no logs at all because the record is deleted before anyone needs it.<br><br>A few signs point to logs that are not shipped or not retained:<ul><li>Data Shipping is not configured, so no raw event-level logs reach a destination the operator controls</li><li>UserDB logs are needed to explain targeting decisions but the beta was never requested, so user-record activity is not recorded</li><li>The destination bucket applies a short lifecycle expiration that deletes logs before a delivery or billing question would surface</li><li>No one can point to where the logs land or how far back they go</li></ul>You may want to confirm that the standard logs, and the UserDB logs where targeting decisions need explaining, are shipping to a controlled destination and held long enough to support an investigation. One approach is to read the Data Shipping configuration, locate the destination, and check the retention the bucket actually applies.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, the logs are what a yield or ad operations team reads when a direct-sold campaign appears to underdeliver or a house ad shows where a paid one should have. You may want to confirm the standard logs ship to a destination the team controls and are retained at least as long as a campaign reconciliation cycle, so an underdelivery claim raised after a flight ends can still be checked against what the Decision API actually served.",
+          "ecommerce": "For a retailer running sponsored-product ads on its own site or app through Kevel, the logs are the evidence behind what a brand was charged and where its ad ran. You may want to confirm impression, click, and conversion logs ship to a controlled destination and are retained through the advertiser billing and dispute window, so a brand questioning its spend or placement can be answered from the recorded decisions rather than from aggregate reporting alone."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Data Shipping",
+            "source_url": "https://dev.kevel.com/docs/data-shipping"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Standard Logs",
+            "source_url": "https://dev.kevel.com/docs/standard-logs-1"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "UserDB Log",
+            "source_url": "https://dev.kevel.com/docs/userdb-log"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether Data Shipping is configured, where the standard logs and UserDB logs land, and how long the destination retains them.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open 'Settings', then the data or integrations area, and confirm whether Data Shipping is configured with a destination such as Amazon S3, Snowflake, or Google Cloud Storage.",
+                "Ask the operator which log types are shipping, and whether the UserDB beta logs were requested where targeting decisions need to be explained.",
+                "Record the destination, the log types in scope, and the date Data Shipping was first turned on because no data exists before that point."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "Use the Management API to confirm the network identifier and the channels or zones in scope, so the inventory whose decisions should appear in the logs is known.",
+                "Cross-check that the live flights and zones returned by the Management API correspond to activity that should be landing in the shipped logs.",
+                "Record any inventory that is serving but whose decisions are not represented in the shipped log files."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether Data Shipping is configured, which log types ship, where they land, and the retention the destination applies. A setup where the standard logs, and the UserDB logs where targeting decisions need explaining, ship to a controlled destination and are retained at least through a typical reconciliation or dispute window passes. A setup with no Data Shipping configured, or logs retained for a window shorter than an investigation would need, is a fail recorded with the missing log types and the retention gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether Data Shipping is configured, the log types and destination, and the retention window above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not ship and retain its Kevel decision logs in a way that supports an after-the-fact audit. Kevel is a headless ad server, so the per-decision record lives only in the logs Data Shipping delivers, and the native reporting keeps aggregate counts rather than the detail needed to explain a specific decision. Because Data Shipping offers no backfill, any window where the logs were off or already expired cannot be recovered. {{voice_recommend}} configuring Data Shipping to a destination the team controls, including the UserDB logs where targeting decisions need explaining, and setting a retention window that reaches at least through a typical reconciliation or billing dispute. After the change, confirm the standard logs are landing and readable for the inventory that is serving."
+      }
+    },
+    {
+      "id": "kevel-decision-logging-not-monitored-for-errors",
+      "title": "Logs are collected but not monitored for unfilled decisions or errored requests",
+      "category": "measurement",
+      "subcategory": "decision_logging",
+      "impact_score": 3,
+      "impact_rationale": "Shipped logs that no one watches turn a delivery problem into a silent one. A rise in unfilled decisions, or a flow of errored requests from a broken integration, shows in the logs and request-level metrics immediately but goes unnoticed until revenue or a partner surfaces it days later, by which point the lost fill cannot be recovered.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "transparency"
+      ],
+      "educate": {
+        "base": "Shipping the logs answers the question of whether delivery can be reconstructed later. It does not answer whether anyone notices a problem while it is happening. A Kevel operator that collects logs to a bucket and never reads them has a record without a warning system, so a delivery fault sits in the data unobserved until revenue dips or a partner reports a gap.<br><br>Two signals are worth watching. The first is unfilled decisions. In Kevel's terms a decision that selects no ad is a blank, and the fill rate is impressions measured against selections plus blanks. A climb in blanks means requests are arriving but no ad is clearing, which can come from targeting that is too narrow, flights that have ended, or floors set above available demand. The second is errored requests. A Decision API integration that sends malformed requests, or a client firing impression tracking after the 24-hour expiry window, produces errors and lost events that show up as a divergence between requests, decisions, and recorded impressions.<br><br>Kevel surfaces these in two places that a monitoring routine can draw on. Request-level reporting carries blanks, selection requests, bot-filtered counts, and passback figures for inventory-level analysis, which is where a fill problem first appears. The shipped Request, Decision, and Selection logs carry the per-request detail that explains an anomaly once the aggregate flags it. Monitoring means turning those into a watched threshold or a scheduled read, so a change in unfilled decisions or errored requests raises an alert rather than waiting to be discovered.<br><br>A few signs point to logs that are collected but not monitored:<ul><li>No alert or scheduled check watches the blank rate or fill rate for a sudden move</li><li>Errored or malformed Decision API requests are not tracked, so a broken integration runs unnoticed</li><li>The shipped logs are queried only reactively, after someone reports a delivery problem</li><li>No owner is named for watching decision and request metrics day to day</li></ul>You may want to confirm that unfilled decisions and errored requests are watched on a regular cadence rather than read only when a problem is already visible. One approach is to set a threshold on the blank rate and on request errors, drawing on request-level reporting for the signal and the shipped logs for the detail.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, a rise in blanks means inventory is going unfilled and a house ad or empty slot is showing where a paid impression could have. You may want a monitored threshold on the blank rate by zone, so a section that stops filling because a flight ended or targeting narrowed raises an alert the same day rather than surfacing as a revenue dip at month end.",
+          "ecommerce": "For a retailer running sponsored-product ads on its own site or app through Kevel, an unfilled decision is a product slot with no sponsored ad, and an errored request can mean the on-site integration is dropping ad calls on certain pages. You may want to watch blanks and request errors by placement, so a category page that stops returning sponsored ads, or a checkout integration sending malformed requests, is caught before it shows up as missed retail-media revenue or an advertiser complaint."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Request Reporting",
+            "source_url": "https://dev.kevel.com/docs/request-reporting"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Beta Logs",
+            "source_url": "https://dev.kevel.com/docs/beta-logs"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether unfilled decisions and errored requests are watched on a cadence, and whether anyone owns the request and decision metrics day to day.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open the reporting area and build a request-level or inventory report that includes blanks, selection requests, and impressions, then read the fill rate across recent days.",
+                "Ask the operator whether any alert or scheduled report watches the blank rate or request errors, and who reviews it.",
+                "Record whether a sudden move in unfilled decisions or errored requests would be noticed proactively or only after a partner or revenue report flags it."
+              ]
+            },
+            "kevel_decision_api": {
+              "label": "Kevel Decision API",
+              "steps": [
+                "Send a sample Decision API request for a live placement and confirm the response returns an ad rather than a blank for inventory that should be filling.",
+                "Inspect the shipped Request, Decision, and Selection logs for the same window to confirm errored or malformed requests are visible and counted.",
+                "Record any divergence between requests, decisions, and recorded impressions that points to errors going untracked."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether unfilled decisions and errored requests are watched on a regular cadence and who owns the metrics. A setup with a threshold or scheduled check on the blank rate and request errors, drawing on request-level reporting and the shipped logs, with a named owner, passes. A setup where logs ship but no alert or routine read watches for unfilled decisions or errored requests is a fail recorded with the unwatched signals.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether unfilled decisions and errored requests are monitored on a cadence and who owns the metrics above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} ships its Kevel logs but does not monitor them for unfilled decisions or errored requests, so a delivery problem stays silent until revenue or a partner surfaces it. A climb in blanks, which is a decision that selects no ad, points to inventory going unfilled, and errored Decision Application Programming Interface (API) requests point to a broken integration, and both show in request-level reporting and the shipped logs as they happen. {{voice_recommend}} setting a watched threshold on the blank rate and on request errors, drawing on request-level reporting for the signal and the Request, Decision, and Selection logs for the detail, and naming an owner to review it. After the change, confirm a simulated fill or error condition raises the alert as intended."
+      }
+    }
+  ]
+}

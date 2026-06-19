@@ -1,0 +1,160 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://dev.kevel.com/docs/request-reporting",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Kevel is a headless ad server, so the operator owns the systems that read delivery data, and the numbers those systems report are only as trustworthy as the reconciliation behind them. Pulling served impressions, clicks, and revenue out of the Reporting API or the Data Shipping logs and matching them against the operator's own records turns the dashboard total into a verified figure rather than a number taken on faith. The check is a review of reporting configuration and a reconciliation pass against data the operator already has, so it costs analysis time rather than rebuild time, and the finding points to a concrete fix in how reports are pulled or how the logs are read.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Kevel is a headless, API-first ad server, so the operator runs delivery on the Decision API and reads results through the Reporting API and the Data Shipping logs rather than a packaged reporting suite. This subcategory is about how delivery is reconciled, whether served impressions, clicks, and revenue are pulled into the operator's own systems and matched against an independent record, and whether report dimensions and time zones are set so the figures line up across those systems. These checks confirm that the delivery numbers the operator reports are reconciled against an authoritative source rather than trusted from a single dashboard total, and that the way reports are configured does not introduce gaps that make the numbers hard to compare.",
+  "audit_checks": [
+    {
+      "id": "kevel-reporting-api-no-reconciliation-of-delivery",
+      "title": "Served delivery is not reconciled against reporting or the shipped logs",
+      "category": "measurement",
+      "subcategory": "reporting_api",
+      "impact_score": 3,
+      "impact_rationale": "When the operator trusts the dashboard total without reconciling it against the Reporting API or the Data Shipping logs, a discrepancy in served impressions, clicks, or revenue goes undetected. Billing, advertiser reporting, and revenue recognition then rest on a single unverified figure, so an undercount or overcount carries straight through to invoices and payouts with nothing in place to catch it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "transparency"
+      ],
+      "educate": {
+        "base": "Kevel is a headless ad server, so the operator does not get a single packaged report that everyone trusts by default. Delivery data comes out through the Application Programming Interface (API), and there are two paths for it. The Reporting API returns aggregated counts of served impressions, clicks, custom events, conversions, and revenue, and the Data Shipping logs deliver row-level records of the same events to a destination the operator controls, such as a data warehouse. Both describe the same delivery, so each can serve as a check on the other and on whatever number a dashboard or downstream system shows.<br><br>Reconciliation is the act of pulling those numbers and matching them against an independent record. An operator who bills advertisers on impressions, settles revenue with supply partners, or reports performance back to brands needs the figure those processes rest on to be verified, not taken on faith. A single dashboard total carries no second source behind it, so an undercount from a tracking gap, an overcount from duplicate event firing, or a revenue figure pulled before late-arriving data settled all pass through unnoticed.<br><br>The two delivery paths can disagree for legitimate reasons, and knowing why is part of the reconciliation. The Reporting API and the shipped logs can settle at different times, late events can land after a report was pulled, and a custom event counted one way in aggregate may be filtered differently in the logs. A reconciliation pass that expects an exact match without accounting for these will chase differences that are not errors, so the goal is a documented, repeatable comparison with a known tolerance rather than a one-off spot check.<br><br>A few signs point to delivery that is not being reconciled:<ul><li>Billing, advertiser reporting, or revenue recognition reads from one dashboard total with no second source matched against it</li><li>Neither the Reporting API counts nor the Data Shipping logs are pulled into the operator's own systems for comparison</li><li>No documented process exists for matching served impressions, clicks, and revenue across sources, with a tolerance and a cadence</li></ul>You may want to confirm that the delivery figures the business depends on are reconciled against an independent source rather than trusted from a single total. One approach is to pull the same period from the Reporting API and the Data Shipping logs, match served impressions, clicks, and revenue across both and against the downstream system, and document the result with the tolerance you expect.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, the operator usually settles revenue with direct advertisers or supply partners on served impressions and clicks, so the figure those settlements rest on needs a second source behind it. You may want to reconcile the Reporting API counts against the Data Shipping logs for each billing period, so a discrepancy is caught before it reaches an invoice or a partner statement rather than after.",
+          "ecommerce": "For a retailer running sponsored-product ads on its own site or app through Kevel, the retail-media program bills brands on delivered impressions and clicks, and those brands often audit the numbers themselves. You may want to reconcile served delivery across the Reporting API and the shipped logs before reporting back to a brand, so the figures the retailer presents match an independent record and hold up if the brand checks them."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Request Reporting",
+            "source_url": "https://dev.kevel.com/docs/request-reporting"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Data Shipping standard logs",
+            "source_url": "https://dev.kevel.com/docs/standard-logs-1"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether served impressions, clicks, and revenue are pulled from the Reporting API and the Data Shipping logs and matched against the downstream systems the business bills and reports from, and look for a documented reconciliation process with a tolerance and a cadence.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open the reporting section of the Kevel UI and pull a report for a recent settled period broken out by served impressions, clicks, and revenue.",
+                "Record the dashboard totals as the figures the operator currently treats as authoritative, and note which downstream systems read from them.",
+                "Ask the operator whether these totals are matched against any second source before they reach billing, advertiser reporting, or revenue recognition, and record what the process is and how often it runs."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "Pull the same period from the Reporting API as aggregated served impressions, clicks, custom events, conversions, and revenue.",
+                "Read the matching period from the Data Shipping logs (e.g., the impression, click, custom event, and conversion logs) at the destination the operator ships them to.",
+                "Match served impressions, clicks, and revenue across the Reporting API, the shipped logs, and the downstream system, and record the differences with the date range and the tolerance the operator expects.",
+                "Note whether the differences fall within a documented tolerance or whether they point to an undercount, an overcount, or a figure pulled before late-arriving data settled."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether served impressions, clicks, and revenue are pulled from the Reporting API and the Data Shipping logs and matched against the downstream systems the business bills and reports from, along with whether a documented reconciliation process exists with a tolerance and a cadence. A setup where delivery is reconciled across at least two sources on a regular cadence, with differences explained and inside a known tolerance, passes. A setup where billing or reporting rests on a single dashboard total with no second source matched against it is a fail recorded with the figures and the systems affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether served delivery is matched across the Reporting API, the Data Shipping logs, and the downstream systems above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} reads served impressions, clicks, and revenue from a single dashboard total without reconciling that figure against a second source. Kevel is a headless ad server, so delivery data comes out through the Reporting API as aggregated counts and through the Data Shipping logs as row-level records, and each describes the same delivery, so each can verify the other. Trusting one total leaves billing, advertiser reporting, and revenue recognition resting on an unverified figure, so an undercount, an overcount, or a number pulled before late data settled carries straight through. {{voice_recommend}} pulling the same period from the Reporting API and the Data Shipping logs, matching served impressions, clicks, and revenue across both and against the downstream system, and documenting the reconciliation with a tolerance and a regular cadence so a discrepancy is caught before it reaches an invoice."
+      }
+    },
+    {
+      "id": "kevel-reporting-api-dimensions-time-zones-not-aligned",
+      "title": "Report dimensions and time zones are not configured for comparable numbers",
+      "category": "measurement",
+      "subcategory": "reporting_api",
+      "impact_score": 2,
+      "impact_rationale": "When reports are pulled on a non-UTC time zone while the Data Shipping logs record events in GMT, or when reports group by dimensions that exclude data without flagging it, the same period returns different totals across the operator's systems. A reconciliation then shows a gap that is a configuration artifact rather than a real discrepancy, so analysts chase differences that the settings created and lose confidence in figures that were never wrong.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "transparency"
+      ],
+      "educate": {
+        "base": "A reconciliation only works when the numbers being matched describe the same period and the same population. In Kevel, two configuration choices decide whether that holds: the time zone a report is pulled on and the dimensions a report is grouped by. Get either wrong and two systems can describe the same delivery while returning different totals, which reads as a discrepancy even though nothing is actually miscounted.<br><br>Time zone is the first trap. Kevel reports can be pulled on a chosen time zone, but the default is Greenwich Mean Time (GMT), which is the same as Coordinated Universal Time (UTC), and the Data Shipping logs record event times in GMT regardless of any time zone chosen for a report. If a report is pulled on a local time zone while the shipped logs and a downstream warehouse query run on GMT, the day boundaries no longer line up, so a daily comparison shifts a slice of events into the neighboring day on one side. Per Kevel's documentation, some report features also behave differently outside GMT, so the time zone choice carries reporting consequences beyond the day boundary.<br><br>Dimensions are the second trap. The way a report is grouped decides which rows it returns, and some groupings exclude data by design. Kevel's request-level metrics, for example, appear only in inventory reports grouped on inventory dimensions and on the default UTC time zone, and grouping by device dimensions is limited to performance reports, so a report that mixes the wrong dimensions returns a partial picture. A reconciliation built on a report whose grouping drops part of the data will show a gap that the grouping created.<br><br>A few choices keep the numbers comparable across the operator's systems:<ul><li>Pull the Reporting API, the Data Shipping logs, and the downstream warehouse on the same time zone, or convert each to a shared one before matching, with GMT as the common baseline the logs already use</li><li>Confirm the report's groupBy dimensions return the full population for the metric being reconciled rather than a subset the grouping excludes</li><li>Document the time zone and dimensions each report is pulled on, so a difference can be traced to a real discrepancy rather than a setting</li></ul>You may want to confirm that the reports feeding a reconciliation are pulled on a consistent time zone and on dimensions that return the full data. One approach is to standardize on GMT across the Reporting API, the shipped logs, and the warehouse, then verify the groupBy on each report against what Kevel's documentation says that grouping includes.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, daily revenue and impression reports often feed a finance close that runs on a local calendar day, while the Data Shipping logs land in GMT. You may want to fix the time zone for every report and warehouse query that feeds the close to GMT, or convert each to one shared zone, so the daily totals line up across the Reporting API, the logs, and finance rather than splitting events across two days.",
+          "ecommerce": "For a retailer running sponsored-product ads on its own site or app through Kevel, brand-facing reports are usually grouped by campaign and date, and the retail-media team may pull them on the retailer's business time zone. You may want to confirm those reports use a consistent time zone with the shipped logs and that the grouping returns the full delivery for each campaign, so the numbers a brand sees match the reconciliation behind them."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Time Zones in reporting",
+            "source_url": "https://dev.kevel.com/docs/time-zones-1"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Request Reporting",
+            "source_url": "https://dev.kevel.com/docs/request-reporting"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the time zone and the groupBy dimensions each report feeding a reconciliation is pulled on, and check them against the time zone the Data Shipping logs and the downstream warehouse use and against what each grouping is documented to include.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open the reporting section of the Kevel UI and, for each report used in a reconciliation, record the time zone it is set to pull on.",
+                "Record the groupBy dimensions on each report, for example whether it groups by inventory dimensions, by campaign, or by device.",
+                "Note any report pulled on a non-GMT time zone while the Data Shipping logs and the warehouse run on GMT, and any grouping that mixes dimensions Kevel documents as incompatible for the metric in question."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "Submit the same report through the Reporting API with the time zone and the groupBy parameters set explicitly, and record exactly which values are used.",
+                "Compare the returned totals against the Data Shipping logs for the same period, accounting for the GMT basis the logs record on, to see whether a difference traces to the time zone rather than a real discrepancy.",
+                "Confirm the groupBy returns the full population for the metric being reconciled rather than a subset that the grouping excludes, per Kevel's documentation on which dimensions a report supports."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the time zone and the groupBy dimensions each report feeding a reconciliation is pulled on, alongside the time zone the Data Shipping logs and the downstream warehouse use. A setup where the reports, the logs, and the warehouse share a time zone, or are converted to one before matching, and where each report's grouping returns the full population for the metric being reconciled, passes. A setup where reports are pulled on a time zone that differs from the GMT basis of the logs, or grouped on dimensions that exclude data without flagging it, is a fail recorded with the reports and the settings that make the numbers diverge.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the time zone and the groupBy dimensions for each report and the time zone the logs and warehouse use above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} pulls the reports feeding its delivery reconciliation on time zones and dimensions that do not line up across its systems. Kevel reports can be pulled on a chosen time zone, but the Data Shipping logs record events in Greenwich Mean Time (GMT), and some metrics are returned only for specific groupings, so a report on a local time zone or on the wrong dimensions describes a different period or a different population than the source it is matched against. That makes a reconciliation show a gap the settings created rather than a real discrepancy. {{voice_recommend}} standardizing the Reporting API, the Data Shipping logs, and the downstream warehouse on a shared time zone with GMT as the baseline, and confirming each report's groupBy returns the full data for the metric being reconciled, so the numbers stay comparable across {{site_name}}'s systems."
+      }
+    }
+  ]
+}

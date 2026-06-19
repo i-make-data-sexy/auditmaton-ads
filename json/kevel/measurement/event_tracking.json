@@ -1,0 +1,170 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://dev.kevel.com/docs/tracking-overview",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Event tracking is the source of every count in the platform, so an impression that fires twice, a click recorded without context, or a conversion wired to the wrong advertiser corrupts the reporting the whole operation depends on. The check reads the Decision API response, the conversion pixels at the advertiser level, and the shipped logs against what the platform actually serves, so it costs inspection time rather than rebuild time. The finding points to a concrete tracking fix the team can verify in a single live ad request.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Event tracking decides whether the numbers a Kevel-powered ad server reports match what it actually served. The Decision API returns an impression URL and a click URL for each ad it selects, and those URLs have to fire correctly for an impression to count once and a click to count in context. Conversion and custom-event tracking sit on top of that, attributing outcomes back to the advertiser and flight that earned them. This subcategory is about the wiring of those signals, how the trackers fire and where the conversion pixels live, rather than the reports built on the data afterward. These checks confirm the counts are accurate at the source.",
+  "audit_checks": [
+    {
+      "id": "kevel-event-tracking-impression-click-firing",
+      "title": "Impression and click trackers do not fire correctly for accurate counts",
+      "category": "measurement",
+      "subcategory": "event_tracking",
+      "impact_score": 3,
+      "impact_rationale": "The Decision API returns an impression URL and a click URL that must fire for the counts to be accurate, and the platform does not deduplicate impressions on its own. A tracker fired twice, fired from the client where an ad blocker can suppress it, or never fired at all skews fill, eCPM, and click-through across every report, so the data the operation prices and bills against drifts from what was served.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "When the Kevel Decision API selects an ad, its response carries an impression URL and a click URL alongside the creative. The platform records an impression when the impression URL is fired and a click when the click URL is fired, and the click URL also redirects the user to the creative's destination. Nothing is counted until those URLs fire, so the accuracy of every count downstream rests on whether they fire, when they fire, and how many times.<br><br>Two behaviors of the platform make the firing logic worth checking directly. Kevel does not deduplicate impressions, so an impression URL fired twice for a single ad render counts as two impressions, and the inflation flows into fill rate, eCPM, and pacing. Impression tracking URLs also expire after 24 hours, so a tracker queued client-side and fired late, for example after a long-running single-page session, can be dropped entirely. On the click side, a click fired without an associated impression is still tracked as a valid click, which means a broken impression tracker paired with a working click tracker produces a click-through rate above what the inventory really delivered.<br><br>Where the trackers fire matters as much as whether they fire. Firing the impression and click URLs server-side, from the application programming interface (API) integration rather than the browser, keeps an ad blocker or a script failure on the page from suppressing the count, which is the firing method the documentation recommends to reduce reporting discrepancies. A client-side image-tag or fetch approach is supported, but it exposes the count to the same blockers that suppress the ad itself.<br><br>A few signs point to impression and click trackers that may not be firing correctly:<ul><li>Impression counts run noticeably higher than rendered ad requests, which can indicate the impression URL is firing more than once per render</li><li>Click-through rate sits implausibly high, which can indicate clicks are recorded while impressions are being suppressed or dropped</li><li>Trackers fire from the client on a single-page application where renders queue, so some impression URLs fire after the 24-hour expiry and are lost</li></ul>You may want to confirm that each impression and click URL fires exactly once per event and, where the architecture allows, that it fires server-side. One approach is to trace a single live Decision API response through to the recorded counts and compare what fired against what the report shows.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, single-page navigation and infinite-scroll feeds are where impression trackers go wrong because renders queue in the browser and trackers can fire twice on a re-render or fire after the 24-hour expiry on a long session. You may want to confirm that each feed slot fires its impression URL once at the point of view rather than on every scroll redraw.",
+          "ecommerce": "On a retailer running sponsored-product ads on its own site or app through Kevel, a product grid often renders the same sponsored slot across category, search, and recommendation surfaces. You may want to confirm that the impression URL fires once per genuine product-tile view rather than once per surface that includes the tile, so sponsored-product counts billed to the brand match what shoppers actually saw."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Documentation",
+            "source_title": "Tracking Overview",
+            "source_url": "https://dev.kevel.com/docs/tracking-overview"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Trace a live Decision API response through to the recorded counts to see whether the impression and click URLs fire once each, where they fire, and whether the totals in the logs match what was served.",
+        "tools": {
+          "free": {
+            "kevel_decision_api": {
+              "label": "Kevel Decision API",
+              "steps": [
+                "Make a Decision API request for a known zone and inspect the response, noting the impressionUrl and clickUrl returned for the selected ad.",
+                "Follow the integration code that fires those URLs and record whether each is fired server-side from the integration or client-side from the browser.",
+                "Render the same placement in a real page or app and confirm the impression URL fires exactly once per render and the click URL fires only on a genuine click.",
+                "On any single-page or infinite-scroll surface, check whether queued impression URLs could fire more than once on a re-render or fire after the 24-hour expiry."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "GET the recent reporting for the flight under test, with impressions and clicks broken out.",
+                "Compare the recorded impressions against the number of ad renders served for the same window to spot inflation from double-fired trackers.",
+                "Compare clicks against impressions for the same flight and flag a click-through rate that is implausibly high, which can indicate clicks recorded while impressions were suppressed."
+              ]
+            },
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open the flight in the dashboard and review its reported impressions and clicks against the team's own record of what was served.",
+                "Note any flight where the counts diverge from expectation and tie the divergence back to where its trackers fire."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for the placements under test, whether the impression and click URLs fire exactly once per event and whether they fire server-side or client-side. A setup where each tracker fires once per render, fires server-side where the architecture allows, and shows counts that match the renders served passes. A setup where impression URLs fire more than once, fire client-side on a surface where expiry or re-renders drop them, or produce counts that diverge from what was served is a fail recorded with the placements and tracker behavior affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record how each impression and click URL fires and how the recorded counts compare to what was served above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} fires its impression and click trackers in a way that does not count each event once accurately. The Kevel Decision API returns an impression URL and a click URL that record the counts, and the platform does not deduplicate impressions, so a tracker fired twice inflates the totals while a tracker dropped after its 24-hour expiry loses them, and a click recorded without an impression skews click-through. {{voice_recommend}} tracing a live Decision API response through to the recorded counts, confirming each URL fires exactly once per event, and firing the trackers server-side where the architecture allows so an ad blocker or a page-script failure cannot suppress the count. After the change, recheck the recorded impressions and clicks against what was served to confirm the counts match."
+      }
+    },
+    {
+      "id": "kevel-event-tracking-conversion-attribution",
+      "title": "Conversion and custom-event tracking is not wired to the right advertiser and flight",
+      "category": "measurement",
+      "subcategory": "event_tracking",
+      "impact_score": 3,
+      "impact_rationale": "Conversion pixels live at the advertiser level and custom events are requested per Decision API call, so a pixel placed under the wrong advertiser or an event URL never fired attributes outcomes to the wrong flight or drops them entirely. Outcome data is what advertisers renew and pay against, so misattributed or missing conversions undercut both the renewal case and any optimization built on the numbers.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "A conversion in a Kevel-powered ad server is a post-click or post-view outcome, for example a newsletter signup or a purchase, that the platform ties back to the ad that earned it. Conversion pixels live at the advertiser level, so the pixel is created under a specific advertiser and fires on the confirmation page or through a server-to-server call when the outcome happens. The platform stores recent impression and click data in a per-user cookie and associates a triggered conversion with the most recent tracked event, which is how the outcome attributes to the right flight.<br><br>Two wiring decisions decide whether attribution lands correctly. The first is which advertiser the conversion pixel sits under because a pixel created under the wrong advertiser attributes every outcome it records to that advertiser's flights rather than the one that drove the conversion. The second is whether the conversion fires at all on the surface where the outcome happens, given that a pixel present on a web confirmation page but missing from the in-app purchase flow, or a server-to-server call wired for one funnel and not another, leaves real outcomes uncounted. Optional revenue parameters let the platform record a value with the conversion, so a wiring review also covers whether revenue is attached where the advertiser expects to see it.<br><br>Custom events extend the same model beyond impressions, clicks, and conversions. The Decision API returns a tracking URL for each event named in the eventIDs array of the placement request, and the integration fires that URL when the named event happens, for example a video completion or an add-to-cart. An event requested but never fired records nothing, and an event fired without being requested in the placement call has no URL to fire, so custom-event tracking depends on the request and the firing being wired together. Event identifiers in a reserved range are available for outcomes specific to the platform beyond the predefined catalog.<br><br>A few signs point to conversion or custom-event tracking that may be wired to the wrong place:<ul><li>A conversion pixel sits under an advertiser that does not match the campaigns the outcomes belong to, so attribution lands on the wrong flights</li><li>Conversions appear from web confirmation pages but not from the in-app or server-to-server funnel where outcomes also happen, which points to a missing pixel or call</li><li>Custom events are named in the eventIDs of placement requests but the corresponding tracking URLs are never fired, so the events record nothing</li></ul>You may want to confirm that each conversion pixel sits under the correct advertiser, fires on every surface where the outcome happens, and that any custom event requested in a placement call is actually fired. One approach is to complete a real conversion on each funnel and confirm it attributes to the expected advertiser and flight in the reporting.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, conversions are often signups, subscriptions, or lead-form completions that happen on a confirmation page or through a server call after the user leaves the ad surface. You may want to confirm the conversion pixel sits under the advertiser whose flight ran and fires on both the web and the in-app completion path, so a subscription started in the app is not lost while the web one is counted.",
+          "ecommerce": "On a retailer running sponsored-product ads on its own site or app through Kevel, the conversion is usually a purchase of the sponsored product, and the revenue parameter matters because the brand pays against attributed sales. You may want to confirm the purchase conversion fires server-to-server from the order system rather than only from a web confirmation page, and that it carries the order value, so attributed sales and revenue match the retailer's own order records."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Documentation",
+            "source_title": "Conversion Tracking",
+            "source_url": "https://dev.kevel.com/docs/conversion-tracking"
+          },
+          {
+            "source_type": "Kevel Developer Documentation",
+            "source_title": "Custom Event Tracking",
+            "source_url": "https://dev.kevel.com/docs/custom-event-tracking"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which advertiser each conversion pixel sits under, confirm conversions and custom events fire on every surface where the outcome happens, and complete a real outcome to see where it attributes.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open each advertiser and list its conversion pixels, recording which advertiser each pixel sits under and which flights it is meant to support.",
+                "Confirm the advertiser holding each pixel matches the campaigns whose outcomes the pixel should attribute, and flag any pixel under a mismatched advertiser.",
+                "Check whether a revenue value is configured where the advertiser expects attributed revenue rather than counts alone."
+              ]
+            },
+            "kevel_decision_api": {
+              "label": "Kevel Decision API",
+              "steps": [
+                "Make a Decision API request that includes the eventIDs array for the custom events the integration tracks, and confirm the response returns a tracking URL for each named event.",
+                "Trace the integration code to confirm each returned event URL is fired when the named event happens, and flag any requested event whose URL is never fired.",
+                "Complete a real conversion on each funnel, including the in-app or server-to-server path, and confirm the conversion pixel or call fires with any expected revenue value."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "GET the reporting for the flight after completing a test outcome and confirm the conversion or custom event is attributed to the expected advertiser and flight.",
+                "Read the Data Shipping logs for the conversion and custom-event entries to confirm the outcomes are recorded rather than dropped.",
+                "Note any outcome that completed but did not appear against the expected flight, which points to a pixel under the wrong advertiser or a URL that did not fire."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per advertiser, which conversion pixels exist, which advertiser holds each, the surfaces each fires on, and which custom events are requested versus fired. A setup where each conversion pixel sits under the advertiser that owns the outcomes, fires on every funnel including the server-to-server path, carries revenue where expected, and where every requested custom event is fired passes. A setup with a pixel under a mismatched advertiser, a funnel where the conversion does not fire, or a requested event whose URL is never fired is a fail recorded with the advertisers, flights, and events affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which advertiser each conversion pixel sits under, the surfaces each fires on, and which custom events are requested versus fired above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} wires conversion or custom-event tracking so outcomes do not attribute to the right advertiser and flight. Conversion pixels live at the advertiser level and custom events are requested per Decision API call, so a pixel placed under the wrong advertiser attributes outcomes to the wrong flights while a conversion or event URL that never fires drops them entirely. {{voice_recommend}} confirming each conversion pixel sits under the advertiser that owns the outcomes, fires on every funnel including the in-app and server-to-server paths with any expected revenue value, and that each custom event named in a placement request is actually fired. After the change, complete a real outcome on each funnel and confirm it attributes to the expected advertiser and flight in the reporting."
+      }
+    }
+  ]
+}

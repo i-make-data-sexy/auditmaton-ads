@@ -4,7 +4,7 @@
   "subcat_img_credit": "",
   "important_note": "",
   "important_note_url": "",
-  "google_guidance": "",
+  "google_guidance": "https://docs.prebid.org/features/timeouts.html",
   "worth_it": "Yes",
   "worth_it_explanation": "Demand Manager carries the header-bidding auction that runs before the ad server is called, so its two main levers, the wrapper timeout and the set of enabled bidders, sit directly on the line between fill rate, page speed, and the value collected per impression. A timeout set too short cuts bids out of the auction, and one set too long delays the ad server call and slows the page. A bidder list that grew without pruning adds latency for adapters that rarely win. This check is a review of a configuration the publisher already runs in Demand Manager, so it costs reading time rather than rebuild time, and each finding points to a concrete setting the publisher can test against revenue and page-speed data.",
   "worth_it_visible": "Yes",
@@ -24,7 +24,10 @@
       "image_count": 0,
       "conditional": null,
       "column_dependencies": [],
-      "theme_tags": ["yield", "performance"],
+      "theme_tags": [
+        "yield",
+        "performance"
+      ],
       "educate": {
         "base": "Magnite Demand Manager runs on Prebid, so its auction timeout works the same way Prebid's does. The auction timeout sets the amount of time the header-bidding auction is allowed to run before the ad server is called. A bidder that responds inside the window joins the auction, and a bidder that responds after it is cut out. The timeout is the single setting that decides how much of the demand actually competes for each impression.<br><br>Setting the timeout is a balance. Too short, and slower bidders never make it into the auction, so fill rate and competition drop and impressions clear below what they could have. Too long, and the header-bidding auction holds up the ad server call, which delays the ad and slows the page, and a slow page can cost both revenue and the audience's patience. Prebid's own guidance frames the value as a delicate balance for exactly this reason, and notes that the right number depends on the publisher's audience, network conditions, and revenue mix rather than a single figure that fits everyone.<br><br>A managed wrapper such as Demand Manager ships with a default timeout, and a default is a starting point rather than a tuned value. The audit question is whether the publisher arrived at the current timeout by reading their own fill-rate and page-speed data, or whether the default has simply stayed in place. There is also a second timeout to confirm. Where bidders run server-side through Prebid Server, the server timeout should sit below the wrapper auction timeout so server-side bids return in time to join the auction.<br><br>A few signs point to a timeout left at a default rather than tuned:<ul><li>The wrapper auction timeout matches the product default and no record shows it was tested against the publisher's own data</li><li>Bid-response timing data shows a large share of bidders responding just after the timeout cutoff, which suggests the window is too short for the inventory</li><li>Page-speed measurement shows the ad server call waiting on the auction longer than the audience tolerates, which suggests the window is too long</li></ul>You may want to confirm that the timeout was set on evidence rather than inherited from the default. One approach is to read the share of bids arriving before and after the current cutoff alongside page-load timing, then test a shorter or longer timeout and compare fill rate, revenue, and load time across both.",
         "site_type_overlays": {
@@ -89,7 +92,10 @@
       "image_count": 0,
       "conditional": null,
       "column_dependencies": [],
-      "theme_tags": ["yield", "performance"],
+      "theme_tags": [
+        "yield",
+        "performance"
+      ],
       "educate": {
         "base": "Every bidder enabled in Demand Manager adds a request to the header-bidding auction. More bidders mean more competition, and more competition generally lifts yield, so adding bidders is not wrong on its own. The cost is that each bidder also adds time and data weight, and the lift from adding bidders falls off. Prebid's own analysis shows revenue rising as bidders are added, then flattening, and even dropping where the page waits too long for the extra demand to respond. Past a point, another bidder adds latency without adding revenue.<br><br>That makes a bidder list something to justify rather than to grow without limit. A bidder that has been in the configuration for months without winning meaningful revenue is still adding a request to every auction it sits in, slowing the page and, where send-all-bids is on, adding targeting data sent to the ad server for a bidder that rarely clears. The audit question is whether each enabled bidder earns its place on win rate and revenue, or whether the list has accumulated adapters that no longer pull their weight.<br><br>Placement is the second lever. Prebid supports running bidders client-side, where the request runs in the browser, or server-side through Prebid Server, where the requests run server-to-server and the browser carries less of the work. The common pattern is a hybrid, where the highest-value bidders keep a client-side connection and lower-priority or newly-tested bidders run server-side so they compete without burdening the device. The same bidder cannot run on both paths at once, so each bidder's placement is a deliberate choice. A setup that runs every bidder client-side has not made that choice and loads all of the latency onto the browser.<br><br>A few signs point to an unjustified bidder list or undeliberate placement:<ul><li>Bidders sit in the configuration with win rates and revenue near zero, with no record of why they remain enabled</li><li>Every bidder runs client-side with no server-side path, so all of the auction's latency lands on the user's device</li><li>The publisher cannot say which bidders are kept for revenue, which for testing, and why each runs on the path it does</li></ul>You may want to confirm that each enabled bidder is justified and placed on purpose. One approach is to read win rate and revenue per bidder, retire or move the adapters that rarely win, and move low-priority bidders to the server-side path so the browser carries only the highest-value demand.",
         "site_type_overlays": {

@@ -4,7 +4,7 @@
   "subcat_img_credit": "",
   "important_note": "",
   "important_note_url": "",
-  "google_guidance": "",
+  "google_guidance": "https://docs.prebid.org/prebid-server/features/pbs-privacy.html",
   "worth_it": "Yes",
   "worth_it_explanation": "Child-directed treatment decides whether inventory that reaches children carries the right regulatory signal before it goes to buyers. A site or app that should be flagged but is not exposes the publisher to a COPPA violation, and the penalties are set per affected child, so the exposure scales with traffic. The check is a review of how the publisher classifies its inventory in Magnite and what signal Magnite passes downstream, so it costs reading time rather than rebuild time, and the finding points to a concrete classification decision the publisher can correct.",
   "worth_it_visible": "Yes",
@@ -24,7 +24,10 @@
       "image_count": 0,
       "conditional": null,
       "column_dependencies": [],
-      "theme_tags": ["privacy", "compliance"],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
       "educate": {
         "base": "COPPA imposes requirements on operators of websites and online services directed to children under 13 years of age in the United States. For a publisher selling inventory through Magnite, the practical effect is that any property directed to children, or a section of a property that reaches them, has to be flagged as child-directed so the demand side knows to suppress personalized advertising and limit the data it collects.<br><br>Magnite carries this signal in the bid request. A seller designates inventory as directed to children, and Magnite sets 'regs.coppa' on the OpenRTB request to note that the impression falls within COPPA's scope. That flag is how a buyer learns to drop personalization and treat the impression under children's-privacy rules. When the flag is missing, the impression looks like ordinary inventory, and a buyer can bid with personalized targeting on an audience the law protects.<br><br>The signal only works if the classification is correct at the source. Magnite passes downstream what the seller declares, so an unflagged child-directed site or app produces a bid request that says personalization is permitted when it is not. The fix is a classification decision the publisher controls, not a Magnite setting, which is why the audit looks at how the publisher decides which inventory is child-directed and whether that decision reaches the platform.<br><br>A few signs point to child-directed inventory that is not flagged:<ul><li>A site, app, or section that targets or knowingly reaches children under 13 has no child-directed designation in Magnite</li><li>The bid request for that inventory carries no COPPA signal, so 'regs.coppa' is absent or set to 0</li><li>The publisher cannot say which properties were reviewed for child-directed status or when that review last happened</li></ul>You may want to confirm that every property reaching children under 13 is designated as child-directed in Magnite, and that the designation is reviewed when new sites, apps, or sections are added. One approach is to inventory the properties by audience, mark the ones directed to children, and check that the COPPA signal appears on their bid requests.",
         "site_type_overlays": {
@@ -95,7 +98,10 @@
       "image_count": 0,
       "conditional": null,
       "column_dependencies": [],
-      "theme_tags": ["privacy", "compliance"],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
       "educate": {
         "base": "Flagging inventory as child-directed is the first step under COPPA, and restricting the data that travels with it is the second. The flag tells buyers that COPPA applies. The data restriction is what actually keeps the impression compliant, by stripping the identifiers and precise signals that personalized advertising depends on.<br><br>When the COPPA signal is set, the supply chain anonymizes the bid request before it reaches buyers. In a header-bidding setup that runs through Prebid, for example, setting the COPPA flag causes the request to drop device identifiers such as the advertising ID and hashed device IDs, truncate the IP address, and remove precise geolocation and user-level data. Magnite applies its own restrictions on inventory a seller designates as child-directed, limiting the data it collects and the data buyers can access on that inventory. The result is non-personalized advertising on an audience the law protects.<br><br>The gap this check looks for is a flag set in name only. If the inventory carries the child-directed designation but identifiers, precise location, or personalized targeting still flow on its requests, the restriction is not taking effect. That can happen when a header-bidding wrapper passes the COPPA signal to some adapters but not all, when a direct integration sets the flag without enabling the matching data controls, or when a user-ID module continues to attach an identifier the COPPA path should have removed.<br><br>A few signs point to restricted processing that is not applied:<ul><li>Inventory is designated child-directed, but its bid requests still carry a device or user identifier</li><li>Precise geolocation or a full IP address appears on requests that should be truncated under COPPA</li><li>A user-ID or audience module is active on child-directed inventory and continues to attach an identifier to the request</li></ul>You may want to confirm that the data restriction matches the flag on every piece of child-directed inventory. One approach is to capture a sample bid request from child-directed inventory and check that identifiers, precise location, and personalized signals have been removed rather than relying on the flag alone.",
         "site_type_overlays": {

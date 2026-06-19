@@ -4,7 +4,7 @@
   "subcat_img_credit": "",
   "important_note": "",
   "important_note_url": "",
-  "google_guidance": "",
+  "google_guidance": "https://docs.prebid.org/dev-docs/adunit-reference.html",
   "worth_it": "Yes",
   "worth_it_explanation": "Ad slot mapping is the wiring between a placement on the page and the Magnite tag that fills it, so an error here sends the wrong inventory to the wrong tag at every impression. A unit declared with the wrong sizes, or pointed at a stale tag, can keep filling for months while the reporting still looks normal because a filled impression at the wrong price reads the same as a filled impression at the right one. The check reads the ad unit configuration and the Magnite tag setup that a publisher already has, so it costs reading time rather than rebuild time, and each finding points to a specific tag or placement to correct.",
   "worth_it_visible": "Yes",
@@ -24,7 +24,10 @@
       "image_count": 0,
       "conditional": null,
       "column_dependencies": [],
-      "theme_tags": ["inventory", "data-quality"],
+      "theme_tags": [
+        "inventory",
+        "data-quality"
+      ],
       "educate": {
         "base": "Every ad placement on a publisher's page reaches Magnite through a tag, and the mapping between the two is what decides which inventory configuration a request runs under. In a Prebid.js setup, which is the foundation Magnite's Demand Manager builds on, each placement is an ad unit with a 'code' that ties it to the page element, a set of declared sizes and media types, and Magnite bidder parameters that route the request to a specific tag. Prebid's own documentation describes the ad unit 'code' as the identifier you assign, generally set to the ad slot name or the div element ID, so the code is the link between the visible slot and the tag that fills it.<br><br>Two things have to line up for the mapping to be right. The first is the tag itself. The Magnite bidder parameters on the ad unit have to point at the tag ID that represents the inventory the publisher means to sell at that placement, not a tag copied from another unit during setup. The second is the declared sizes and formats. The sizes array on the ad unit tells the demand which creative dimensions the slot can accept, so a slot that physically renders a 300x250 should not declare a 728x90 it cannot display, and a slot meant for display should not carry a video media type it never shows.<br><br>When either side is off, the request still goes out and impressions still fill, which is what makes the mismatch hard to spot. A placement pointed at the wrong tag fills under a configuration meant for different inventory, so its floors, demand, and reporting all describe inventory the publisher did not intend to sell there. A slot declaring sizes it cannot render can win a creative it has no room to show, which produces a broken render or a discarded impression rather than a clean error.<br><br>A few signs point to a mapping that does not match the inventory:<ul><li>An ad unit's Magnite tag ID does not match the placement the unit serves, for example a footer unit pointing at a tag set up for the header slot</li><li>The declared sizes on a unit include dimensions the slot cannot physically render, or omit a size the slot is meant to serve</li><li>A display-only placement declares a video or native media type it never shows, or the reverse</li></ul>You may want to confirm that each ad unit's tag ID and declared sizes match the placement it serves. One approach is to walk the ad unit configuration placement by placement against the Magnite tag setup, checking that the tag ID, sizes, and media types each describe the slot they are attached to.",
         "site_type_overlays": {
@@ -99,7 +102,10 @@
       "image_count": 0,
       "conditional": null,
       "column_dependencies": [],
-      "theme_tags": ["inventory", "data-quality"],
+      "theme_tags": [
+        "inventory",
+        "data-quality"
+      ],
       "educate": {
         "base": "Ad tag setups accumulate. A site redesign retires a placement, a test unit gets deployed and never removed, a section is dropped but its tag stays active, and over time the Magnite tag configuration carries entries that no longer correspond to a live slot. These are orphaned and stale tags, meaning tags still configured and still capable of requesting demand, but no longer tied to the placement they were built for.<br><br>The problem is that an orphaned tag does not announce itself. If it still loads on a page, it keeps sending requests and filling impressions, and that fill is attributed to whatever placement the tag still names. When the placement has been removed or repurposed, the tag passes inventory under a label that no longer describes where the ad actually ran. A buyer reading the supply chain sees a tag and a placement that imply one thing while the impression came from somewhere else. The IAB Tech Lab SupplyChain Object specification exists so that each node in the chain, identified by its system and seller ID, accurately represents the entity passing the impression, and a stale tag passing inventory under a retired placement undermines that accuracy at the source.<br><br>Stale tags also distort the publisher's own view. Reporting rolled up by placement counts impressions against slots that may not exist, so the numbers describe inventory the site no longer sells. Demand routed through a stale tag may target sizes or formats the current page cannot render, which produces discarded or broken impressions rather than revenue.<br><br>A few signs point to orphaned or stale tags:<ul><li>A Magnite tag is configured for a placement that the site no longer serves after a redesign or a section removal</li><li>A test or temporary ad unit was deployed and remains active in the configuration with no live slot behind it</li><li>Reporting attributes impressions to a placement that no longer appears on any page, which means a tag is still filling under that name</li></ul>You may want to confirm that every active Magnite tag still maps to a placement the site actually serves. One approach is to reconcile the list of configured tags against the live placements on the current site, then retire any tag with no slot behind it.",
         "site_type_overlays": {

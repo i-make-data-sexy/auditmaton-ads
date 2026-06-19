@@ -4,7 +4,7 @@
   "subcat_img_credit": "",
   "important_note": "",
   "important_note_url": "",
-  "google_guidance": "",
+  "google_guidance": "https://docs.prebid.org/dev-docs/modules/userId.html",
   "worth_it": "Yes",
   "worth_it_explanation": "Alternative IDs decide whether a logged-in or consented user reaches the open-auction buyers who pay for addressability, so a broken or missing ID drops the price of inventory that the publisher already worked to make addressable. The check reads the identity configuration a publisher already runs through Magnite and the header-bidding wrapper feeding it, so it costs reading time rather than rebuild time, and the finding points to a concrete setup fix the publisher can verify in reporting.",
   "worth_it_visible": "Yes",
@@ -24,7 +24,10 @@
       "image_count": 0,
       "conditional": null,
       "column_dependencies": [],
-      "theme_tags": ["data-quality", "privacy"],
+      "theme_tags": [
+        "data-quality",
+        "privacy"
+      ],
       "educate": {
         "base": "An alternative identifier earns its value only when it reaches the buyers in the auction. A publisher who has authenticated a user, generated a RampID envelope through LiveRamp's Authenticated Traffic Solution (ATS), or minted a Unified ID 2.0 (UID2) token, still has to pass that identifier into the bidstream that Magnite sends to demand. If the ID stops short of the bidstream, the impression reaches buyers looking like anonymous inventory, and the addressability the publisher built is spent for nothing.<br><br>The handoff usually runs through the header-bidding wrapper. In a Prebid setup, each identity solution is a user ID submodule that writes the resolved ID into the shared 'eids' object, which Prebid then attaches to the bid request. The RampID submodule reads the encrypted envelope from storage under the name 'idl_env', and the UID2 submodule reads its token, and both depend on the envelope or token being present, current, and correctly named. A submodule that is enabled but pointed at the wrong storage key, or reading an envelope that expired and never refreshed, populates nothing, so the ID drops out of the request even though the configuration reads as active.<br><br>The way to confirm the handoff is to look at the IDs that actually leave the page rather than the configuration that should produce them. A few checks separate a passing ID from a configured-but-absent one:<ul><li>The wrapper's debugging output shows the resolved ID present in the 'eids' array on live bid requests, not just the submodule listed as enabled</li><li>Magnite's reporting shows a meaningful share of impressions carrying the alternative ID, rather than a near-zero match rate on inventory that should be addressable</li><li>The storage name and refresh interval match what the ID provider requires, so the envelope or token stays current instead of expiring between refreshes</li></ul>You may want to confirm that each alternative ID the publisher relies on is present on live bid requests and reflected in match-rate reporting, not merely switched on in the wrapper. One approach is to inspect a sample of bid requests in the wrapper's debug mode and compare the IDs found there against the solutions the publisher believes are running.",
         "site_type_overlays": {
@@ -93,7 +96,10 @@
       "image_count": 0,
       "conditional": null,
       "column_dependencies": [],
-      "theme_tags": ["data-quality", "privacy"],
+      "theme_tags": [
+        "data-quality",
+        "privacy"
+      ],
       "educate": {
         "base": "Publishers rarely rely on a single identity solution. A site may run RampID from LiveRamp, Unified ID 2.0 (UID2), a publisher-provided first-party ID, and one or more vendor IDs side by side, each adding reach to a different slice of demand. Running several is reasonable. The problem appears when they run without a defined order because more than one submodule can write into the same identifier field, and the bid request then carries whichever value happened to populate last.<br><br>Prebid's user ID module addresses this directly. When two submodules can populate the same identifier, the result is a collision, and Prebid lets a publisher set an 'idPriority' configuration that names which submodule wins for that field. Without it, precedence falls to load order, so a change in how the wrapper bundles its modules can swap which ID a buyer receives with no signal that it changed. Separate from collisions, a publisher running redundant solutions that resolve the same user adds weight to every bid request without adding addressable reach, which slows the auction for no gain.<br><br>The audit question is whether the set of identity solutions is deliberate and ordered, or accumulated. A few signs point to conflict or duplication without clear priority:<ul><li>Two or more submodules can populate the same identifier field and no 'idPriority' is configured to resolve which one wins</li><li>The wrapper carries identity solutions that resolve the same authenticated user, adding redundant IDs to the bid request rather than extending reach</li><li>No one can state why each identity solution is included or which demand it is meant to reach, which suggests the set grew by addition rather than by design</li></ul>You may want to confirm that the identity solutions in place are a deliberate set with a defined priority where fields can collide. One approach is to list every submodule, note which identifier field each writes, and set an explicit priority for any field that more than one submodule can populate.",
         "site_type_overlays": {
@@ -157,7 +163,10 @@
       "image_count": 0,
       "conditional": null,
       "column_dependencies": [],
-      "theme_tags": ["privacy", "data-quality"],
+      "theme_tags": [
+        "privacy",
+        "data-quality"
+      ],
       "educate": {
         "base": "An alternative identifier carries a real-world user, so it is subject to the consent rules that govern personal data. The identity providers build those rules into their solutions. LiveRamp's Authenticated Traffic Solution (ATS) expects a Transparency and Consent Framework (TCF) string in the European Economic Area (EEA) with LiveRamp listed as a vendor for the purposes it claims, and it checks for Do Not Track (DNT) and Global Privacy Control (GPC) signals globally, removing the envelope when either is present. Unified ID 2.0 (UID2) is governed by its own consent requirements before a token is generated. Passing the ID without the signal the provider requires is the failure this check looks for.<br><br>The mechanism that makes this go wrong is timing and gating. The Consent Management Platform (CMP) has to load and resolve the user's choice before the identity submodule decides whether to populate the ID. If the submodule runs ahead of the CMP, or if no consent gate sits between the CMP and the envelope, the ID can pass for a user whose consent was never confirmed, or whose GPC signal should have suppressed it. Because the impression still serves and earns, nothing in the revenue reporting flags the problem, so the only way to find it is to trace the consent path itself.<br><br>The audit question is whether each alternative ID is gated by the consent signal it requires before it reaches the bidstream. A few signs point to a consent mismatch:<ul><li>The CMP does not reliably load before the identity submodules, so the ID can populate before consent is resolved</li><li>RampID passes on EEA traffic without a valid TCF string naming LiveRamp as a vendor for its claimed purposes</li><li>A DNT or GPC signal is present but the envelope or token is still attached to the bid request</li></ul>You may want to confirm that each alternative ID is suppressed wherever its required consent is absent. One approach is to test the identity path under a withheld-consent state and a GPC-on state, and confirm the ID drops out of the bid request in both.",
         "site_type_overlays": {

@@ -4,7 +4,7 @@
   "subcat_img_credit": "",
   "important_note": "",
   "important_note_url": "",
-  "google_guidance": "",
+  "google_guidance": "https://iabeurope.eu/transparency-consent-framework/",
   "worth_it": "Yes",
   "worth_it_explanation": "Consent signals decide whether a bid request carries the legal basis a demand partner needs to process a user's data, so they sit between a publisher's inventory and the revenue that inventory can earn. A consent string that never reaches Magnite, or one Magnite holds but does not forward, can quietly strip demand from bid requests in regulated markets while the publisher reads it as weak fill. The check is a review of how the consent string is captured and passed through Magnite to demand, so it costs reading and testing time rather than rebuild time, and the finding points to a concrete signal-handling fix.",
   "worth_it_visible": "Yes",
@@ -24,7 +24,10 @@
       "image_count": 0,
       "conditional": null,
       "column_dependencies": [],
-      "theme_tags": ["privacy", "compliance"],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
       "educate": {
         "base": "A consent signal only does its job if it travels. The publisher's Consent Management Platform (CMP) collects the user's choices and encodes them into a string, the Transparency and Consent Framework (TCF) string for European users and the Global Privacy Platform (GPP) string for United States state laws and other markets. That string then has to be read off the page and handed to every system that processes the bid, starting with the sell-side platform. For a publisher monetizing through Magnite, that means the string has to be captured at auction time and passed into the Magnite request, whether the integration runs through Magnite's Demand Manager wrapper, a direct Prebid setup, or a server-side path.<br><br>The break usually sits at the handoff rather than the prompt. A CMP can render correctly, collect a valid choice, and still produce a string that never makes it into the request object. The CMP can load after the auction starts, the wrapper can be left unconfigured to read the consent API, or a server-side call can drop the string on the way through. When that happens, the request reaches Magnite with no consent string attached, and Magnite has nothing to forward to demand.<br><br>The order of operations matters. The CMP framework needs to be loaded and the string available before the auction fires. A request built before the string exists carries no consent. Prebid's own guidance, which applies to Magnite's Prebid-based Demand Manager, recommends placing the CMP code ahead of the header-bidding code so the consent data is ready when bidding begins.<br><br>A few signs point to a consent string that is not reaching Magnite:<ul><li>The bid request to Magnite carries no TCF or GPP string when inspected in the browser network log, even though the CMP shows a recorded choice</li><li>The CMP loads after the auction starts, so the first auction on the page fires before the string exists</li><li>The wrapper or server-side configuration has no consent-management module enabled, or the module is present but not wired to the live CMP</li></ul>You may want to confirm that the string the CMP produces is present in the request that reaches Magnite. One approach is to inspect a live auction in a regulated market and trace the consent string from the CMP API into the Magnite bid request.",
         "site_type_overlays": {
@@ -100,7 +103,10 @@
       "image_count": 0,
       "conditional": null,
       "column_dependencies": [],
-      "theme_tags": ["privacy", "compliance"],
+      "theme_tags": [
+        "privacy",
+        "compliance"
+      ],
       "educate": {
         "base": "Passing the consent string into Magnite is the first half of the job. The second half is Magnite forwarding that string onward. The demand partners bidding through Magnite each need the user's recorded choice to decide whether and how they can process the data. The Transparency and Consent Framework (TCF) and the Global Privacy Platform (GPP) are built around this chain. The string is meant to travel from the Consent Management Platform (CMP) to the sell-side platform and then to every demand partner downstream, so each party reads the same signal.<br><br>When the string reaches Magnite but stops there, the demand partners receive a request with no consent attached. A partner that requires a legal basis under the General Data Protection Regulation (GDPR) or a United States state law then has two options, neither good for the publisher. It can decline to bid, which removes its demand from the auction, or it can treat the absence of a string as the absence of consent and bid in a limited, non-personalized mode that clears at a lower price. Either outcome shows up as softer revenue that looks like weak demand rather than a signal that never arrived.<br><br>For Magnite's Prebid-based integrations, the consent-management module is responsible for making the string available to adapters, which then attach it to each outgoing bid request. Prebid's documentation describes how adapters read the TCF string from 'bidderRequest.gdprConsent' and the GPP string from 'bidderRequest.gppConsent' and carry it into their requests. The audit question is whether that forwarding is happening for the demand partners the publisher works with, not only that the string arrived at the wrapper.<br><br>A few signs point to a string that is held but not forwarded:<ul><li>The Magnite request carries a consent string, but the onward calls to demand partners do not, when traced in the network log</li><li>Demand partners that enforce a legal basis show low or no fill in regulated markets while non-regulated traffic fills normally</li><li>A demand partner reports receiving requests with no consent string even though the publisher's CMP and Magnite both show the string present</li></ul>You may want to confirm that the string Magnite receives is the string demand partners receive. One approach is to trace a single auction end to end, from the CMP through Magnite to the demand calls, and check that the same string appears at each step.",
         "site_type_overlays": {
@@ -176,7 +182,10 @@
       "image_count": 0,
       "conditional": null,
       "column_dependencies": [],
-      "theme_tags": ["compliance", "privacy"],
+      "theme_tags": [
+        "compliance",
+        "privacy"
+      ],
       "educate": {
         "base": "Capturing and forwarding the consent string is only useful if the system acts on what the string says. When a user declines consent, or when no string is present in a market that requires a legal basis, the correct behavior is not to keep bidding as normal. Depending on the framework and the legal basis a partner relies on, the request should be suppressed entirely or limited to a non-personalized form that does not process the user's data. Sending a full personalized bid request in that situation is the exact outcome the Transparency and Consent Framework (TCF) and the Global Privacy Platform (GPP) are designed to prevent.<br><br>Prebid's TCF control module, which applies to Magnite's Prebid-based Demand Manager, exists to enforce this at the wrapper level. It can stop activities such as making a bid request, syncing a user, or accessing local storage when the consent string does not permit them. Without enforcement enabled, the wrapper may pass the string along but still fire requests that the string says it should not, leaving the publisher relying on each individual partner to honor the signal correctly.<br><br>The audit looks at the no-consent and declined-consent paths specifically. Those are the cases where doing nothing is the safe outcome and doing the default thing is the risky one. A correctly configured setup treats an absent or negative consent signal as a reason to hold back, and the practitioner can confirm this by recording what the system does when consent is declined rather than only when it is granted.<br><br>A few signs point to requests that are not suppressed or limited when they should be:<ul><li>Declining consent in a regulated market still produces full personalized bid requests to demand partners in the network log</li><li>The wrapper has no enforcement or control module enabled, so consent is passed but never acted on at the wrapper level</li><li>Requests fire with no consent string in a market that requires a legal basis, rather than being held or limited</li></ul>You may want to confirm that an absent or declined consent signal changes what the system sends. One approach is to decline consent in a regulated market and check that requests are suppressed or limited rather than sent in full.",
         "site_type_overlays": {

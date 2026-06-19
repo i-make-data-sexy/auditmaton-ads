@@ -1,0 +1,153 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Inventory that reaches children under 13 carries legal obligations under the Children's Online Privacy Protection Act (COPPA), and the publisher, not the exchange, owns the liability for how that inventory is monetized. A child-directed flag that is missing or applied inconsistently lets personalized ads and identifier-based data uses run on inventory where they are not allowed, which is a compliance breach rather than a yield question. The check is a review of how a publisher flags and restricts the inventory likely to reach minors before it reaches Index Exchange, so it costs reading time rather than rebuild time, and the finding points to a concrete flagging decision the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "COPPA governs how a publisher may collect data from and serve ads to children under 13, and the obligation sits with the publisher who controls the inventory rather than with the exchange that resells it. Index Exchange runs Prebid-compatible header bidding, so the signals a publisher sets in the Prebid wrapper and the OpenRTB request are what tell downstream bidders to suppress personalized ads and identifier-based data uses on inventory directed to children. This subcategory is about whether that inventory is flagged correctly and whether the restriction actually propagates, rather than the broader consent framework that governs adult inventory. These checks confirm that inventory likely to reach minors is identified, flagged, and treated as restricted before it ever reaches a bidder.",
+  "audit_checks": [
+    {
+      "id": "index-exchange-child-directed-inventory-not-flagged",
+      "title": "Child-directed inventory is not flagged to suppress personalized ads",
+      "category": "privacy",
+      "subcategory": "child_directed",
+      "impact_score": 4,
+      "impact_rationale": "When child-directed inventory carries no COPPA flag, personalized ads and identifier-based data uses run on it as they would on any adult inventory, which is a direct breach of a federal law that the publisher, not the exchange, is liable for. The Federal Trade Commission (FTC) enforces COPPA with civil penalties, so the exposure is legal and financial rather than a yield trade-off.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "The Children's Online Privacy Protection Act (COPPA) is a United States law that imposes obligations on operators of sites and services directed to children under 13, and on operators with actual knowledge that they collect personal information from a child under 13. For a publisher monetizing through Index Exchange, the practical effect is that any inventory directed to children cannot carry personalized advertising or the identifier-based data collection that powers it. The obligation belongs to the publisher who controls the inventory because the publisher is the party that knows which pages and apps reach a child audience.<br><br>Index Exchange resells inventory through Prebid-compatible header bidding, so the mechanism that enforces COPPA is the signal the publisher sets before the bid request leaves the page. In Prebid.js, a publisher marks inventory as child-directed by setting the COPPA configuration, for example 'pbjs.setConfig({coppa: true})', which supporting bidder adapters read and honor. In an OpenRTB request, the same intent is carried by the 'regs.coppa' field set to 1. When that signal is set, downstream systems strip the identifiers and limit the data the bid request carries, so the impression clears without the personalized targeting that COPPA forbids.<br><br>The failure this check looks for is inventory that reaches children but carries no flag. With no COPPA signal set, the bid request looks like any other, identifiers flow to bidders, and personalized ads serve on inventory where the law does not allow them. The gap usually appears when a child-directed section of a larger site, or a child-focused app, shares the same ad setup as the rest of the publisher's inventory and inherits the default unflagged behavior.<br><br>A few signs point to child-directed inventory that is not flagged:<ul><li>The site or app has sections aimed at children under 13, yet no pages set the Prebid 'coppa' configuration or the OpenRTB 'regs.coppa' field</li><li>The same ad setup serves both the general-audience and the child-directed inventory with no difference in the signals sent</li><li>The publisher cannot point to where in the wrapper or the ad request the child-directed flag is set for the relevant inventory</li></ul>Whether inventory counts as directed to children is a legal determination, so you may want to confirm the publisher has made that determination with their legal team. One approach is to inspect the bid request on inventory the publisher considers child-directed and verify the COPPA signal is present before it reaches any bidder.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a kids' section, a games hub aimed at young readers, or a homework-help area can be directed to children even when the rest of the site is general-audience. You may want to confirm those sections set the COPPA flag specifically, rather than relying on a single site-wide ad setup that treats every page the same.",
+          "ecommerce": "On a commerce-content site, a toy guide, a children's product category, or a kids' gift section may reach a child audience even though the buyer is usually an adult. You may want to confirm whether any of that inventory is directed to children under the COPPA standard because the determination turns on the audience the content targets rather than who completes the purchase."
+        },
+        "learn_more": [
+          {
+            "source_type": "FTC Business Guidance",
+            "source_title": "Complying with COPPA: Frequently Asked Questions",
+            "source_url": "https://www.ftc.gov/business-guidance/resources/complying-coppa-frequently-asked-questions"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "pbjs.setConfig(options): COPPA configuration",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/setConfig.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Identify the inventory the publisher treats as directed to children, then confirm the COPPA signal is set on it in the Prebid wrapper or the ad request before the bid leaves the page.",
+        "tools": {
+          "free": {
+            "publisher_review": {
+              "label": "Inventory and legal review",
+              "steps": [
+                "Ask the publisher which sections, pages, or apps they have determined are directed to children under 13, and confirm that determination was made with their legal team.",
+                "List the ad units that serve on that inventory and note whether they share an ad setup with general-audience inventory.",
+                "Record whether the publisher can point to where the child-directed flag is set for each piece of that inventory."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open a child-directed page and open the browser developer tools, then watch the network requests as the page loads its ads.",
+                "Inspect the Prebid configuration or the outgoing bid request and check whether the COPPA signal is set, for example the 'coppa' config in Prebid.js or 'regs.coppa' set to 1 in the OpenRTB payload.",
+                "Record, per child-directed unit, whether the flag is present, and flag any unit where personalized ads can run with no COPPA signal."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each piece of inventory the publisher has determined is directed to children, whether the COPPA signal is set before the bid request leaves the page. Inventory where every child-directed unit carries the flag passes. Inventory directed to children that serves bid requests with no COPPA signal is a fail recorded with the units affected and where the flag is missing.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which inventory is directed to children and whether the COPPA flag is set on each unit above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} serves inventory directed to children under 13 without the Children's Online Privacy Protection Act (COPPA) flag set, so personalized ads and identifier-based data uses can run on inventory where the law does not allow them. The obligation sits with the publisher rather than the exchange, and the signal that enforces it is the COPPA flag set in the Prebid wrapper or the 'regs.coppa' field in the bid request. {{voice_recommend}} setting the COPPA signal on every unit serving the child-directed inventory, then inspecting the bid request to confirm the flag is present before it reaches any bidder. Since whether inventory is directed to children is a legal determination, {{voice_recommend}} confirming the scope of the flagged inventory with the publisher's legal team."
+      }
+    },
+    {
+      "id": "index-exchange-child-directed-restricted-data-processing-not-applied",
+      "title": "Restricted data processing is not applied to inventory likely to reach minors",
+      "category": "privacy",
+      "subcategory": "child_directed",
+      "impact_score": 3,
+      "impact_rationale": "Inventory that is likely to reach minors but is not confidently child-directed sits in a gray area where identifiers can still flow to bidders. Without restricted data processing on that inventory, the publisher carries data it may not have a lawful basis to share, which raises the publisher's exposure even where a hard COPPA determination has not been made.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Not all inventory splits cleanly into child-directed and general-audience. A publisher often has inventory that is likely to reach minors without meeting the legal bar for child-directed treatment, such as a general-interest section with a young skew, or a mixed-audience app. For that inventory, the safer posture is to restrict the data the bid request carries rather than to send full identifiers downstream and rely on bidders to sort it out.<br><br>Index Exchange resells through Prebid-compatible header bidding, so the controls that limit data on this inventory are the same signals that enforce the Children's Online Privacy Protection Act (COPPA) on confidently child-directed inventory, applied more broadly. When the COPPA signal is set in Prebid Server, the request is anonymized before it reaches any adapter. Prebid Server removes the device identifier fields, truncates the IP address, removes the precise geolocation fields, and removes user identifier and demographic fields. That same anonymization is a reasonable way to treat inventory likely to reach minors because it prevents the identifiers that drive personalized targeting from leaving the publisher's control.<br><br>The failure this check looks for is inventory that the publisher recognizes as likely to reach minors but treats with the same full-identifier setup as its adult inventory. In that state, the device identifiers, the precise location, and the user identifiers all flow to bidders, so the publisher is sharing data on a young audience that it may have no lawful basis to share. Restricting that data is a control the publisher can apply without making a final legal determination about whether the inventory is child-directed.<br><br>A few signs point to inventory likely to reach minors that has no restricted data processing:<ul><li>The publisher has inventory it acknowledges skews young but has not decided is child-directed, and that inventory sends full identifiers to bidders</li><li>No data-restriction posture exists between the fully personalized adult setup and the fully suppressed child-directed setup</li><li>The bid requests on the young-skewing inventory carry device identifiers, precise geolocation, and user identifiers the same way the adult inventory does</li></ul>You may want to confirm that inventory likely to reach minors carries a restricted data posture rather than the full adult setup. One approach is to apply the same anonymization the COPPA signal triggers, which strips identifiers and precise location before the request reaches a bidder.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a general-interest section such as gaming, sports, or entertainment can draw a younger audience without being directed to children in the legal sense. You may want to apply a restricted data posture on inventory that skews young, so identifiers do not flow to bidders even where a hard child-directed determination has not been made.",
+          "ecommerce": "On a commerce-content site, a section covering games, toys, or family products can reach a mixed audience that includes minors. You may want to restrict the identifiers sent on that inventory rather than sending the full adult payload because the audience there is harder to confirm as adult-only."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Privacy for Header Bidding: COPPA in Prebid Server",
+            "source_url": "https://docs.prebid.org/prebid-server/features/pbs-privacy.html"
+          },
+          {
+            "source_type": "FTC Business Guidance",
+            "source_title": "Complying with COPPA: Frequently Asked Questions",
+            "source_url": "https://www.ftc.gov/business-guidance/resources/complying-coppa-frequently-asked-questions"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Identify the inventory the publisher recognizes as likely to reach minors, then check whether the bid requests on it restrict identifiers and precise location or send the full adult payload.",
+        "tools": {
+          "free": {
+            "publisher_review": {
+              "label": "Inventory and legal review",
+              "steps": [
+                "Ask the publisher which inventory skews young or reaches a mixed audience without being a confirmed child-directed property.",
+                "Record whether any data-restriction posture exists for that inventory, distinct from both the full adult setup and the fully suppressed child-directed setup.",
+                "Note whether the publisher has a stated reason for the posture chosen on that inventory."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open a page on inventory the publisher identifies as likely to reach minors and open the browser developer tools, then watch the bid requests as the ads load.",
+                "Inspect the outgoing request and record whether device identifiers, precise geolocation fields, and user identifier fields are present or stripped.",
+                "Compare that payload against a confirmed adult page to see whether the young-skewing inventory restricts data or sends the same full identifiers."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each piece of inventory the publisher recognizes as likely to reach minors, whether the bid request restricts identifiers and precise location or sends the full adult payload. Inventory that carries a restricted data posture, stripping identifiers and precise location, passes. Young-skewing inventory that sends device identifiers, precise geolocation, and user identifiers the same as adult inventory is a fail recorded with the inventory and the fields that are not restricted.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which inventory is likely to reach minors and whether its bid requests restrict identifiers above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sends full identifiers to bidders on inventory likely to reach minors, with no restricted data processing applied to it. That inventory sits in a gray area where it is not confirmed child-directed but still reaches a young audience, so sending device identifiers, precise location, and user identifiers raises the publisher's exposure. {{voice_recommend}} applying the same anonymization the Children's Online Privacy Protection Act (COPPA) signal triggers in Prebid Server, which strips identifiers and precise location before the request reaches a bidder, to the inventory the publisher recognizes as likely to reach minors. After the change, inspect the bid requests on that inventory to confirm the restricted fields no longer leave the page."
+      }
+    }
+  ]
+}

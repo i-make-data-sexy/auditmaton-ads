@@ -1,0 +1,165 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Consent signals decide whether a bid request to Index Exchange and onward to demand partners carries the legal basis to process a user's data. A consent string that is missing, malformed, or not forwarded can mean two outcomes at once, a legal exposure where data is processed without a basis and a revenue loss where demand partners drop requests they cannot read. The check is a review of how the CMP, the header-bidding wrapper, and Index Exchange already pass the string, so it costs reading and a few test loads rather than a rebuild, and the finding points to a concrete wiring fix.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Index Exchange runs as a demand partner inside a header-bidding wrapper, so the consent signal a publisher collects has to travel from the Consent Management Platform (CMP) to the wrapper, into the bid request sent to Index Exchange, and on to the downstream demand that Index Exchange calls. This subcategory is about that signal path for the Transparency and Consent Framework (TCF) string and the Global Privacy Platform (GPP) string, whether the string is captured, attached to the request, and forwarded intact. These checks confirm that the consent a user gives, or withholds, actually reaches the parties processing the impression rather than being dropped somewhere along the chain.",
+  "audit_checks": [
+    {
+      "id": "index-exchange-consent-signals-string-not-passed",
+      "title": "The TCF or GPP consent string is not passed to Index Exchange and forwarded to demand",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 4,
+      "impact_rationale": "If the consent string never reaches Index Exchange, the bid request and every downstream demand call run without the signal that records the legal basis for processing, which is a compliance exposure under the General Data Protection Regulation (GDPR) and similar laws. The same gap costs revenue because demand partners that require a readable consent string drop requests that arrive without one, so the impression goes unsold or clears below its value.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "A consent signal is only useful if it travels the full length of the request chain. On a header-bidding page, the Consent Management Platform (CMP) collects the user's choice and encodes it as a string, the wrapper reads that string through the CMP API, and each demand partner, Index Exchange among them, receives the string inside the bid request so it can apply the choice and forward it to the demand it calls. If the string drops at any handoff, the parties past that point process the impression with no record of the user's choice.<br><br>Two strings matter here. The Transparency and Consent Framework (TCF) string carries consent and legitimate-interest signals for users in the European Economic Area and the United Kingdom, where the GDPR and the ePrivacy Directive apply. The Global Privacy Platform (GPP) string is a container that carries the TCF signal alongside United States state-law signals, so a single mechanism can transmit the right signal for the right jurisdiction. Index Exchange, like other demand partners in a Prebid-compatible wrapper, reads whichever string the CMP supplies and is expected to pass it on through the SupplyChain so downstream demand sees the same signal.<br><br>The break usually hides in the wiring rather than the CMP itself. The CMP may be present and collecting choices, but the wrapper's consent management module may not be configured, so the string is collected and never attached to the request. Or the module is configured but a timeout fires before the CMP returns, so the auction proceeds with no string. Or the string reaches Index Exchange but is not forwarded to downstream demand, so the chain breaks one hop later.<br><br>A few signs point to a consent string that is not reaching Index Exchange and the demand beyond it:<ul><li>The wrapper has no consent management module configured for TCF or GPP, so the CMP string is collected but never placed on the bid request</li><li>A network trace of a bid request to Index Exchange shows no consent string parameter, or an empty one, on a page load from a region where consent is required</li><li>The CMP loads slowly enough that the consent timeout fires before the string is available, and the auction runs without it</li></ul>You may want to confirm that the consent string is captured by the wrapper, attached to the Index Exchange bid request, and forwarded to downstream demand. One approach is to load the page from a consent-required region, inspect the outgoing bid request in the browser network panel, and verify the TCF or GPP parameter is present and populated.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a large share of traffic can come from European Economic Area and United Kingdom readers, where the TCF string is the signal that records a legal basis. You may want to test a page load from one of those regions specifically, rather than only from a United States location, so the trace shows whether the TCF string reaches Index Exchange for the audience that most needs it.",
+          "ecommerce": "On a commerce-content site, consent choices can change what audience and measurement data flows with the impression, which affects how demand values it. You may want to confirm the consent string reaches Index Exchange on both editorial and product pages, where a wrapper configured per template can attach the string on one page type and miss it on another."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - TCF for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementTcf.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - GPP for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform",
+            "source_url": "https://iabtechlab.com/gpp/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the wrapper is configured to read the consent string and attach it to the Index Exchange bid request, then trace a live request from a consent-required region to confirm the string arrives populated.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Header-bidding wrapper configuration",
+              "steps": [
+                "Open the wrapper's configuration and confirm a consent management module is set for TCF, and for GPP if the publisher serves United States state-law regions.",
+                "Note the consent timeout value and whether the auction is allowed to proceed when the CMP does not return in time.",
+                "Confirm Index Exchange is an active demand partner in the wrapper so the consent string has a request to ride on."
+              ]
+            },
+            "browser_network_panel": {
+              "label": "Browser network panel",
+              "steps": [
+                "Load a page carrying Index Exchange demand from a consent-required region, using a location method that reflects an EEA or UK user, and accept or set a consent choice in the CMP.",
+                "Open the browser network panel and filter for the Index Exchange bid request.",
+                "Inspect the request and confirm the TCF or GPP consent string parameter is present and populated rather than missing or empty.",
+                "Repeat with a withheld consent choice and confirm the string reflects that choice rather than carrying a stale or default value."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the wrapper attaches a TCF or GPP consent string to the Index Exchange bid request, and whether a live trace from a consent-required region shows that string present and populated. A setup where the string is captured, attached, and reflects the user's choice on the outgoing request passes. A setup where the string is missing, empty, or not configured in the wrapper is a fail recorded with the region tested and the request inspected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the consent string is configured in the wrapper and whether the live bid request to Index Exchange carries it above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not pass a populated TCF or GPP consent string to Index Exchange on bid requests from consent-required regions, so the request and the demand beyond it run without the signal that records a legal basis. That gap is a compliance exposure under the General Data Protection Regulation (GDPR) and a revenue loss. Demand partners that require a readable string drop requests that arrive without one. {{voice_recommend}} configuring the wrapper's consent management module for TCF, adding GPP where United States state-law regions apply, and confirming with a live trace that the string reaches Index Exchange populated and is forwarded to downstream demand. After the fix, re-trace a request from a consent-required region to verify the string arrives intact."
+      }
+    },
+    {
+      "id": "index-exchange-consent-signals-no-basis-suppression",
+      "title": "Bid requests are not suppressed where consent is absent and a legal basis is required",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 4,
+      "impact_rationale": "When a user in a consent-required region declines or gives no choice, sending a bid request to Index Exchange and downstream demand anyway processes personal data with no legal basis, which is the exposure the consent framework exists to prevent. Letting the request proceed without enforcement turns a missing choice into active processing, so the risk is a regulatory and contractual breach rather than a configuration nuisance.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Passing the consent string is the first half of the job. The second half is acting on it. When a user in a region governed by the General Data Protection Regulation (GDPR) declines consent, or the Consent Management Platform (CMP) returns no choice at all, a request that still carries personal data to Index Exchange and the demand beyond it processes that data without the basis the law requires. Capturing the choice and then ignoring it is, for the parties downstream, the same as never capturing it.<br><br>Enforcement is what closes that half. In a Prebid-compatible wrapper, the consent framework can withhold or limit a bid request when the signals say a vendor lacks a basis to process. The TCF control layer can stop an auction call to a demand partner that has not received the consent and legitimate-interest signals it needs, and it can strip the identifiers a request would otherwise carry. The point is that the wrapper does not send a full request to Index Exchange when the user's choice does not support it, rather than sending the request and trusting each downstream party to sort the basis out on its own.<br><br>The judgment here belongs to the publisher and its legal counsel. A legal basis can rest on consent or on legitimate interest depending on the purpose and the vendor, and the right enforcement depends on which basis applies. The audit question is narrower. It asks whether some enforcement is wired in at all, so that an absent or declined choice changes what leaves the page, rather than every impression flowing to demand regardless of the signal.<br><br>A few signs point to consent being captured but not enforced:<ul><li>A page load from a consent-required region with consent declined still sends a full bid request, with identifiers, to Index Exchange</li><li>The wrapper has a consent management module but no enforcement or control layer configured, so the string is attached and never acted on</li><li>Reporting shows the same request volume to demand partners whether or not consent is granted, which suggests no suppression is taking place</li></ul>You may want to confirm that an absent or declined consent choice changes the request the page sends. One approach is to load the page from a consent-required region, decline consent, and verify that the Index Exchange request is withheld or stripped of identifiers rather than sent in full.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the share of European Economic Area and United Kingdom readers can be large, so a missing enforcement step touches a meaningful slice of traffic rather than an edge case. You may want to test the declined-consent path from one of those regions and confirm the Index Exchange request changes. This is where an unenforced choice carries the most legal weight.",
+          "ecommerce": "On a commerce-content site, declined consent can mean the audience and behavioral signals a request would carry are no longer permitted, which affects both compliance and how demand values the impression. You may want to verify that a declined choice strips those identifiers from the Index Exchange request rather than passing them through on a contextual-only basis the publisher never intended."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "TCF Control Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/tcfControl.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js CMP Best Practices for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/cmp-best-practices.html"
+          },
+          {
+            "source_type": "IAB Europe",
+            "source_title": "The Transparency and Consent Framework (TCF) v2.2",
+            "source_url": "https://iabeurope.eu/tcf/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the wrapper enforces the consent signal, then test the declined-consent path from a consent-required region to confirm the Index Exchange request is withheld or stripped rather than sent in full.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Header-bidding wrapper configuration",
+              "steps": [
+                "Open the wrapper's consent configuration and note whether an enforcement or control layer is set, separate from the module that merely attaches the string.",
+                "Record which purposes and which vendors the enforcement covers, and confirm Index Exchange is within that scope.",
+                "Ask the publisher which legal basis its counsel relies on for the relevant purposes, so the enforcement can be judged against the basis the publisher intends rather than a generic default."
+              ]
+            },
+            "browser_network_panel": {
+              "label": "Browser network panel",
+              "steps": [
+                "Load a page carrying Index Exchange demand from a consent-required region and decline consent in the CMP.",
+                "Open the browser network panel, filter for the Index Exchange request, and confirm it is withheld, or sent without the identifiers a consented request would carry.",
+                "Repeat with consent granted and confirm the request proceeds normally, so the difference between the two paths is visible.",
+                "Note any case where the declined-consent load sends the same full request as the granted load, which points to enforcement that is not in place."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the wrapper enforces the consent signal for the purposes and vendors the publisher's basis requires, and whether a declined-consent load from a consent-required region changes the Index Exchange request. A setup where an absent or declined choice withholds or strips the request passes. A setup where the same full request is sent regardless of the choice is a fail recorded with the region tested and the request observed, flagged for the publisher's legal counsel to confirm the basis.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the wrapper enforces consent and whether a declined choice changes the Index Exchange request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} captures the consent choice but does not suppress or limit bid requests to Index Exchange when a user in a consent-required region declines or gives no choice. Sending a full request anyway processes personal data without a legal basis, which is the exposure the consent framework exists to prevent, so a captured choice that is never acted on offers no protection. {{voice_recommend}} wiring an enforcement layer in the wrapper that withholds the request, or strips its identifiers, when the signal does not support processing for the relevant purposes and vendors, confirmed against the legal basis the publisher's counsel relies on. After the change, test the declined-consent path from a consent-required region to verify the Index Exchange request responds to the choice."
+      }
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "US state privacy signals decide whether a reader's opt-out of sale or sharing actually reaches Index Exchange and the demand bidding on the publisher's inventory. A consent management platform (CMP) that encodes the wrong Global Privacy Platform (GPP) sections, or a header-bidding wrapper that drops the string before the bid request leaves the page, breaks that chain without any visible error. The check reads configuration the publisher already has, so it costs review time rather than rebuild time, and a finding points to a concrete signaling gap with legal exposure attached.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "US state privacy laws give readers a right to opt out of the sale or sharing of their data, and the digital advertising chain carries that choice as an encoded signal rather than a setting Index Exchange can read on its own. The GPP is the IAB Tech Lab string that carries these signals, with a US national section and per-state sections that the CMP encodes and the header-bidding wrapper passes into each bid request. This subcategory is about whether those signals are produced and delivered intact, not about the legal question of which laws apply to a given publisher. These checks confirm that the right GPP sections reach Index Exchange and that an opt-out, once a reader makes it, travels with the bid request rather than getting lost on the way.",
+  "audit_checks": [
+    {
+      "id": "index-exchange-us-state-privacy-gpp-sections-not-passed",
+      "title": "US national and state GPP sections are not passed to Index Exchange",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "If the GPP string never reaches Index Exchange, or carries the wrong sections, a reader's opt-out cannot be honored by the demand bidding on the inventory because the signal that should carry it is missing. That is a privacy and legal exposure for the publisher since the opt-out right exists in law whether or not the technical signal is delivered.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "US state privacy laws, starting with the California Consumer Privacy Act (CCPA) as amended by the California Privacy Rights Act (CPRA) and continuing through the laws in states like Virginia, Colorado, Connecticut, and Texas, give readers a right to opt out of the sale or sharing of their personal data. Index Exchange and the demand bidding on a publisher's inventory cannot read a reader's choice directly. They read an encoded signal, and that signal is the job of the publisher's setup to produce and deliver.<br><br>The Global Privacy Platform (GPP) is the IAB Tech Lab string that carries these US signals. It is built in sections, and the two that matter for US state privacy are the US national section, which the Multi-State Privacy Agreement (MSPA) uses to signal across many states at once, and the per-state sections for the individual state laws. A consent management platform (CMP) encodes the applicable sections based on the reader's location and choice, and the header-bidding wrapper, which for an Index Exchange publisher is typically Prebid or a Prebid-compatible wrapper, reads that string and attaches it to each bid request. Index Exchange and downstream demand then receive the GPP string and the list of applicable sections alongside the bid.<br><br>The chain breaks in a few concrete ways. The CMP may encode only the legacy US Privacy string and never produce the GPP US national or state sections, so newer state laws have no signal. The wrapper may not have the GPP consent management module configured, so the string the CMP produces never gets onto the bid request. Or the applicable-sections list may be wrong, naming sections that do not match where the reader actually is. In each case the bid request leaves the page without the right signal, and no error surfaces because the auction still runs.<br><br>A few signs point to GPP sections not reaching Index Exchange:<ul><li>The CMP is set to produce only the legacy US Privacy string and not the GPP US national or state sections</li><li>The header-bidding wrapper has no GPP consent management module configured, or it is configured but not firing before the auction</li><li>A check of an outgoing bid request shows no GPP string, or a GPP string whose applicable sections do not match the reader's state</li></ul>You may want to confirm that the CMP encodes the GPP US national and state sections and that the wrapper carries the string into the bid request Index Exchange receives. One approach is to inspect an outgoing auction request from a test session in a covered state and read the GPP string and its applicable sections directly.",
+        "site_type_overlays": {
+          "publishing": "On a media site, traffic spans many states, so a reader in California, Virginia, or Texas may each fall under a different state section. You may want to confirm the CMP encodes the per-state sections rather than only the legacy US Privacy string, so a reader's opt-out carries the right section for their state into the Index Exchange bid request.",
+          "ecommerce": "On a commerce-content site, the same reader may shop and read across sessions, and a logged-in or recognized reader raises the stakes on getting the privacy signal right. You may want to confirm that the GPP string is attached on the content pages that carry Index Exchange demand, not only on the storefront, so the opt-out signal is consistent wherever ads serve."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Protocol (GPP)",
+            "source_url": "https://iabtechlab.com/gpp/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - GPP for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform specification repository",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which GPP sections the CMP encodes and whether the header-bidding wrapper attaches the GPP string to the bid request Index Exchange receives.",
+        "tools": {
+          "free": {
+            "cmp_config": {
+              "label": "Consent management platform configuration",
+              "steps": [
+                "Open the CMP configuration and list which US privacy strings it is set to encode, the legacy US Privacy (CCPA) string, the GPP US national (MSPA) section, and any per-state sections.",
+                "Record whether the GPP US national and state sections are enabled or whether the CMP produces only the legacy US Privacy string.",
+                "Note the CMP's geographic logic, which decides which section applies to a reader based on their state."
+              ]
+            },
+            "wrapper_request": {
+              "label": "Header-bidding wrapper request inspection",
+              "steps": [
+                "Load a page in a test session set to a covered state and open the browser developer tools, then watch the network requests as the auction runs.",
+                "Find the outgoing Index Exchange bid request and read whether it carries a GPP string and an applicable-sections value.",
+                "Compare the applicable sections in the request against the reader's state to confirm the right section is named, and record any request where the GPP string is missing or the sections do not match."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records which GPP sections the CMP encodes and whether the GPP string and its applicable sections reach the Index Exchange bid request for a reader in a covered state. A setup where the CMP encodes the US national and relevant state sections and the wrapper attaches the string to the request passes. A setup where the CMP produces only the legacy US Privacy string, or the wrapper drops the GPP string before the request leaves the page, is a fail recorded with the missing section or the request that lacked it.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which GPP sections the CMP encodes and whether the bid request carries the GPP string above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not pass the Global Privacy Platform (GPP) US national and state sections to Index Exchange, so a reader's opt-out of sale or sharing has no signal to travel on. US state privacy laws give readers that opt-out right whether or not the technical signal is delivered, which makes a missing or wrong GPP string a legal exposure rather than only a configuration gap. {{voice_recommend}} confirming that the consent management platform (CMP) encodes the GPP US national and relevant state sections, and that the header-bidding wrapper attaches the string and its applicable sections to the bid request Index Exchange receives. After the change, inspect an outgoing auction request from a covered state to verify the right sections now reach the request."
+      }
+    },
+    {
+      "id": "index-exchange-us-state-privacy-opt-out-not-honored-in-signal",
+      "title": "Opt-out of sale or sharing is not reflected in the signal sent to Index Exchange",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "A GPP string can be present and still carry the wrong choice, encoding a reader as opted in when they opted out, or attaching a string that was built before the reader made a choice. The demand bidding on the inventory then treats an opted-out reader as available for sale or sharing, which is the exact outcome the opt-out right exists to prevent.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Passing a Global Privacy Platform (GPP) string to Index Exchange is the first half of the job. The second half is that the string carries the reader's actual choice. A bid request can include a well-formed GPP string that still encodes the wrong answer, telling Index Exchange and the demand behind it that the reader is available for sale or sharing when the reader has opted out. The signal arrives, so nothing looks broken, but it says the opposite of what the reader chose.<br><br>This gap shows up in a few places. The consent management platform (CMP) may encode the opt-out fields incorrectly, so a reader who clicked the opt-out control is still represented as opted in within the US national or state section. The header-bidding wrapper may attach a cached or stale string built before the reader interacted with the consent control, so the choice the reader just made is not yet in the string that goes out. Or the wrapper may not be reading the opt-out fields at all, treating the string as a passthrough without honoring what it contains, which leaves user syncing and data transmission running for a reader who opted out.<br><br>The Prebid privacy guidance describes the behavior expected when an opt-out is present in the GPP US national or state sections. Activities such as user syncing, identity enrichment, and first-party data transmission should be suppressed when the reader has opted out of sale or sharing, and a publisher can adjust that default through activity controls if their legal counsel advises a different reading. The audit question is whether the opt-out a reader makes is the opt-out that travels in the string and is acted on, rather than a setting that records the choice on the page but never reaches the auction.<br><br>A few signs point to an opt-out that is not reflected in the signal:<ul><li>A test session where a reader opts out still produces a GPP string that encodes the reader as opted in to sale or sharing</li><li>The GPP string on the bid request is the same before and after the reader interacts with the consent control, which suggests a cached or stale string</li><li>User syncing or identity enrichment continues to fire for a session that has opted out, which suggests the opt-out fields are passed but not honored</li></ul>You may want to confirm that an opt-out a reader makes is encoded into the GPP string and acted on before the bid request reaches Index Exchange. One approach is to opt out in a test session, then inspect the outgoing request and confirm the string reflects the opt-out and that suppressed activities stop firing.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a reader who opts out on one article expects that choice to hold across the rest of the site. You may want to confirm the opt-out persists across page loads and sections, so the GPP string keeps encoding the opt-out rather than reverting to opted in when the reader navigates to a new page.",
+          "ecommerce": "On a commerce-content site, a recognized or logged-in reader makes the opt-out more consequential because more data is tied to them. You may want to confirm that an opt-out suppresses identity enrichment and user syncing for that reader, so a known reader's choice is honored in the signal and not only recorded on the page."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid US Compliance Support for Header Bidding (MSPA / USNat)",
+            "source_url": "https://docs.prebid.org/features/mspa-usnat.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Protocol (GPP)",
+            "source_url": "https://iabtechlab.com/gpp/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether an opt-out a reader makes is encoded into the GPP string and honored in the activities that run for that session.",
+        "tools": {
+          "free": {
+            "test_session": {
+              "label": "Test session opt-out check",
+              "steps": [
+                "Load a page in a test session set to a covered state and use the consent control to opt out of sale and sharing.",
+                "Open the browser developer tools and find the outgoing Index Exchange bid request, then read the GPP string and confirm whether it encodes the opt-out in the US national or state section.",
+                "Compare the GPP string before and after the opt-out to confirm it changes rather than carrying a stale value, and record any case where the string still shows opted in after the reader opted out."
+              ]
+            },
+            "activity_check": {
+              "label": "Suppressed-activity check",
+              "steps": [
+                "In the same opted-out session, watch the network requests for user syncing and identity-enrichment calls.",
+                "Record whether those activities stop firing after the opt-out or continue as though no opt-out was made.",
+                "Note any activity that should be suppressed under an opt-out but keeps running, which points to a string that is passed but not honored."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether an opt-out made in a test session is encoded into the GPP string on the Index Exchange bid request and whether suppressed activities stop firing. A setup where the opt-out updates the string and user syncing and identity enrichment stop passes. A setup where the string still encodes opted in after the reader opts out, or where suppressed activities keep firing, is a fail recorded with the request or the activity that did not honor the choice.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the opt-out is encoded into the GPP string and whether suppressed activities stop above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that an opt-out of sale or sharing on {{site_name}} is not reflected in the signal sent to Index Exchange, so a reader who opted out is still represented as available for sale or sharing. A Global Privacy Platform (GPP) string that encodes the wrong choice, or one cached before the reader interacted with the consent control, tells the demand behind the inventory the opposite of what the reader chose. {{voice_recommend}} confirming that an opt-out updates the GPP string on the bid request and that suppressed activities such as user syncing and identity enrichment stop firing for that session, per the Prebid privacy guidance. After the change, opt out in a test session and confirm the outgoing request and the suppressed activities both reflect the choice."
+      }
+    }
+  ]
+}

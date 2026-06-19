@@ -1,0 +1,174 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Unified ID 2.0 (UID2) and European Unified ID (EUID) tokens carry an addressable signal into the bid stream that third-party cookies once supplied, so a publisher that has authenticated audience but is not passing a token is asking buyers to bid on inventory they cannot match. The check reads the wrapper and identity configuration the publisher already runs, so it costs reading time rather than rebuild time, and a token that generates without a legal basis is a privacy exposure a publisher will want to find before a regulator does. The finding points to a concrete configuration decision the publisher can act on.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "UID2 and EUID give a publisher a deterministic, consent-based identifier built from a logged-in user's email or phone number, which buyers can match without a third-party cookie. On PubMatic, these tokens are usually orchestrated through PubMatic Identity Hub, the publisher-side identity layer that manages UID2, EUID, RampID, and other alternative IDs, often alongside OpenWrap, PubMatic's Prebid-based wrapper. This subcategory covers whether the token integration is generating and passing a usable signal where consent allows, and whether it is gated so a token is never produced without a legal basis. These checks confirm the identity setup adds addressable demand without creating a privacy exposure.",
+  "audit_checks": [
+    {
+      "id": "pubmatic-uid2-euid-token-not-in-bidstream",
+      "title": "UID2 or EUID tokens are not generating or passing in the bid stream where consent allows",
+      "category": "identity",
+      "subcategory": "uid2_euid",
+      "impact_score": 3,
+      "impact_rationale": "A publisher with authenticated traffic but no token reaching the bid stream gives buyers nothing to match on for that inventory, so the impression competes as unaddressable even though the audience signal exists. The lost demand is real but bounded to the share of traffic that is logged in and consented, which is why this sits at a moderate impact rather than a catastrophic one.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "privacy"],
+      "educate": {
+        "base": "Unified ID 2.0 (UID2) and European Unified ID (EUID) turn a logged-in user's email or phone number into an encrypted token that travels in the bid stream, so a buyer can recognize the user and bid against a first-party audience signal without relying on a third-party cookie. EUID is built on the UID2 framework and serves European and UK markets, and the two are separate systems whose tokens are not interchangeable. For a publisher with authenticated traffic, a token in the bid stream is the difference between an impression that buyers can match and one that competes as unaddressable.<br><br>The token is created in a fixed sequence. The publisher normalizes the email or phone number, applies SHA-256 hashing, Base64-encodes the result, and sends it to a UID2 or EUID operator, which adds a secret salt, hashes again, and encrypts the value to produce the token. On PubMatic, this generation and the delivery into the bid stream are usually handled by PubMatic Identity Hub, often running with OpenWrap, PubMatic's Prebid-based wrapper. Because OpenWrap is Prebid-based, the UID2 and EUID user-ID submodules documented for Prebid describe the same wrapper mechanics that carry the token.<br><br>An integration can be present in the account yet pass nothing useful. The module may be enabled but never receive a normalized identifier because the login flow does not hand the email to the operator. The token may generate but fail to populate the bid request that leaves the wrapper. Refresh may be broken, so tokens expire and the signal goes quiet. Each of these leaves a publisher believing the audience is addressable when the bid stream shows no token.<br><br>A few signs point to tokens that are not reaching the bid stream where they should:<ul><li>UID2 or EUID is enabled in Identity Hub or the wrapper, but sampled bid requests from logged-in, consented sessions carry no token in the user identifiers</li><li>The login or single sign-on flow does not pass a normalized email or phone number to the operator, so token generation has no input</li><li>Token refresh is not configured, so tokens expire and the signal drops out between sessions</li><li>Reporting shows little or no match rate or addressable demand lift on authenticated inventory after the integration was turned on</li></ul>You may want to confirm that a token actually generates and appears in the bid stream for logged-in, consented traffic, rather than assuming the enabled module is doing the work. One approach is to inspect a sampled bid request from an authenticated session and trace the token back through the wrapper to the login flow that feeds it.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the registration wall, newsletter sign-up, or subscriber login is the source of the authenticated audience that UID2 and EUID depend on. You may want to confirm that the email captured at those moments flows into token generation. A large logged-in audience that never reaches the operator leaves the addressable signal unused.",
+          "ecommerce": "On a commerce-content site, account login and checkout capture an email tied to purchase intent, which is a high-value signal for buyers. You may want to confirm that the email gathered at account creation or checkout feeds the UID2 or EUID operator, so the higher-intent authenticated inventory carries a token rather than competing as unaddressable."
+        },
+        "learn_more": [
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Publisher Web Integration Overview",
+            "source_url": "https://unifiedid.com/docs/guides/integration-options-publisher-web"
+          },
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "How the UID2 token is created",
+            "source_url": "https://unifiedid.com/docs/ref-info/ref-how-uid-is-created"
+          },
+          {
+            "source_type": "European Unified ID Documentation",
+            "source_title": "Publishers overview",
+            "source_url": "https://euid.eu/docs/overviews/overview-publishers"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Unified ID 2.0 for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/unified2.html"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed configuration documentation for Identity Hub and OpenWrap is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether UID2 or EUID is configured in PubMatic Identity Hub or the wrapper, then confirm a token actually generates and appears in a sampled bid request from a logged-in, consented session.",
+        "tools": {
+          "free": {
+            "identity_hub_ui": {
+              "label": "PubMatic Identity Hub and wrapper configuration",
+              "steps": [
+                "Open PubMatic Identity Hub and list the identity modules enabled for the property, noting whether UID2, EUID, or both are active.",
+                "Confirm the login or single sign-on flow passes a normalized email or phone number into token generation, which the module needs as input.",
+                "Check that token refresh is configured so tokens do not expire and leave the signal quiet between sessions.",
+                "Record which inventory the identity configuration covers and whether any authenticated inventory is left without UID2 or EUID enabled."
+              ]
+            },
+            "bid_request_inspection": {
+              "label": "Bid request inspection",
+              "steps": [
+                "Load a page on the property in an authenticated, consented session and capture an outgoing bid request using the browser network panel.",
+                "Look in the user identifiers section of the bid request for a UID2 or EUID token, and confirm it is present and not empty.",
+                "Repeat on a logged-out session and confirm no token appears, so the difference between authenticated and anonymous traffic is visible.",
+                "Note any case where the module is enabled but the authenticated request still carries no token, which points to a break between the login flow and the operator."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether UID2 or EUID is enabled, whether the login flow feeds a normalized identifier to the operator, whether refresh is configured, and whether a sampled authenticated bid request carries a token. A setup where a token generates and appears in the bid stream for logged-in, consented traffic passes. A setup where the module is enabled but no token reaches the bid request, or where the login flow does not feed the operator, is a fail recorded with the inventory and the break in the chain.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether UID2 or EUID is enabled and whether a sampled authenticated bid request carries a token above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has Unified ID 2.0 (UID2) or European Unified ID (EUID) enabled, but a token is not reaching the bid stream for logged-in, consented traffic, so that inventory competes as unaddressable even though the audience signal exists. The token is created when a normalized email or phone number flows to the operator, and a break anywhere in that chain, whether the login flow, the wrapper, or token refresh, leaves the signal quiet. {{voice_recommend}} tracing a sampled authenticated bid request back through PubMatic Identity Hub and the wrapper to the login flow that feeds it, then fixing the point where the token stops generating or stops populating the request. After the fix, recheck a sampled authenticated bid request to confirm the token now appears."
+      }
+    },
+    {
+      "id": "pubmatic-uid2-euid-not-consent-gated",
+      "title": "Token generation is not gated on a valid consent signal",
+      "category": "identity",
+      "subcategory": "uid2_euid",
+      "impact_score": 4,
+      "impact_rationale": "Generating a UID2 or EUID token from a user's email or phone number without a legal basis processes personal data without consent, which is a privacy and legal exposure rather than a yield question. In EUID's European and UK markets the consent requirement is explicit, so a token produced outside it puts the publisher at regulatory risk across every authenticated session that bypasses the gate.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "Unified ID 2.0 (UID2) and European Unified ID (EUID) are built so that an identifier reaches the bid stream only when the user has consented. The documentation for both states that consent is required before an ID can be added to the bid stream, and that consent can come from a single sign-on provider integrated with the framework or from the publisher's own login and consent mechanism. The token is derived from a user's email or phone number, which is personal data, so the consent gate is what gives the publisher a legal basis to process it.<br><br>EUID exists because European and UK markets need a framework that fits their regulatory requirements, and there the consent signal is not optional. Under the Transparency and Consent Framework (TCF) that governs much of European advertising, the publisher's consent management platform records whether the user has agreed to the relevant purposes. Token generation that runs before that signal is checked, or that ignores it, produces a token without a legal basis on every session that should have been excluded.<br><br>A gate can be missing in ways that are easy to overlook. The integration may generate the token as soon as an email is available, before the consent management platform has resolved the user's choice. It may read a consent string but not for the purposes that cover identity processing. It may apply the gate on the web path but not in a mobile app or a server-side flow that shares the same audience. Each gap means tokens generate for users who did not provide a legal basis.<br><br>A few signs point to token generation that is not properly consent-gated:<ul><li>Tokens generate from a captured email before the consent management platform has resolved the user's choice for the relevant purposes</li><li>The integration does not read a TCF string, or reads it without checking the purposes that cover identity processing</li><li>The consent gate is applied on the web but not on a mobile app or server-side path that handles the same users</li><li>No record exists showing which consent signal the integration checks before it calls the operator</li></ul>You may want to confirm that no token generates without a valid consent signal for the purposes that cover identity processing, across every path that produces one. One approach is to test an unconsented session and verify that no UID2 or EUID token appears in the bid request, then repeat across web, app, and any server-side flow.",
+        "site_type_overlays": {
+          "publishing": "On a media site serving European or UK audiences, the consent management platform on the page records the user's choice under the TCF signal. You may want to confirm that UID2 or EUID generation waits for that signal and checks the purposes covering identity, so a token never generates for a reader who declined.",
+          "ecommerce": "On a commerce-content site, account and checkout flows capture an email that is tempting to send straight to the operator. You may want to confirm that the consent signal is checked before that email is used for UID2 or EUID, so a purchase does not become the moment a token is generated without a legal basis."
+        },
+        "learn_more": [
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Publishers overview",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-publishers"
+          },
+          {
+            "source_type": "European Unified ID Documentation",
+            "source_title": "Publishers overview",
+            "source_url": "https://euid.eu/docs/overviews/overview-publishers"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "European Unified ID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/euid.html"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed configuration documentation for consent settings in Identity Hub is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which consent signal the UID2 or EUID integration checks before it calls the operator, then test an unconsented session across every path that can generate a token to confirm none appears.",
+        "tools": {
+          "free": {
+            "consent_config_review": {
+              "label": "Consent configuration review",
+              "steps": [
+                "Open the identity configuration in PubMatic Identity Hub or the wrapper and record which consent signal it checks before generating a token.",
+                "Confirm the integration reads the Transparency and Consent Framework (TCF) string from the consent management platform and checks the purposes that cover identity processing, not only a generic consent flag.",
+                "Check whether the same gate is applied on the web, in any mobile app, and in any server-side token generation flow that handles the same users.",
+                "Record any path where a token can generate without the consent signal being checked first."
+              ]
+            },
+            "unconsented_session_test": {
+              "label": "Unconsented session test",
+              "steps": [
+                "Load the property in a session where consent for identity purposes has been declined or not yet given, and capture the outgoing bid request.",
+                "Confirm no UID2 or EUID token appears in the user identifiers of that request.",
+                "Repeat the test on any mobile app or server-side flow that produces tokens. A gate present on the web may be absent elsewhere.",
+                "Note any session where a token appears despite consent being absent, recording the path that produced it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records which consent signal the integration checks, whether it reads the relevant purposes, and whether an unconsented session produces a token on each path. A setup where no token generates without a valid consent signal for the purposes covering identity, across web, app, and server-side flows, passes. A setup where a token generates before or without the consent check on any path is a fail recorded with the path and the consent signal that was bypassed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which consent signal the integration checks and whether an unconsented session produces a token above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} generates Unified ID 2.0 (UID2) or European Unified ID (EUID) tokens without gating on a valid consent signal for the purposes that cover identity processing. The token is built from a user's email or phone number, so processing it without a legal basis is a privacy and legal exposure, and in EUID's European and UK markets the consent requirement is explicit. {{voice_recommend}} confirming the integration checks the Transparency and Consent Framework (TCF) signal for the relevant purposes before it calls the operator, and applying the same gate across web, app, and any server-side flow. After the change, test an unconsented session on each path and confirm no token appears."
+      }
+    }
+  ]
+}

@@ -1,0 +1,157 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Third-party cookies have been unreliable in Safari and Firefox for years, and curated demand on PubMatic increasingly targets on first-party signals a publisher passes rather than on a cookie the buyer drops. A Publisher Provided Identifier (PPID) and the first-party audience data attached to it let curated deals and seat-level demand reach the right reader without a third-party cookie, which protects the price of inventory that would otherwise sell as undifferentiated supply. The check reviews what signals the publisher already passes through the OpenWrap wrapper and whether that data stays inside the consent the reader granted, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration the publisher can adjust.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Curated demand and seat-level deals on PubMatic reach an audience through the signals a publisher sends, not only through a cookie the buyer sets. A PPID is a stable, publisher-controlled identifier for a reader, and the first-party audience data a publisher attaches to it lets buyers target a known audience without relying on a third-party cookie. This subcategory covers whether those signals are passed at all and whether the audience data leaving the page stays inside the consent the reader granted. PubMatic's OpenWrap wrapper is built on Prebid, so the mechanics of passing publisher identifiers follow the Prebid user-identity model, and the genuinely public technical reference for that model is the Prebid documentation. These checks confirm the publisher is sending the first-party signals curated demand needs and that the data attached to them respects the reader's privacy choice.",
+  "audit_checks": [
+    {
+      "id": "pubmatic-ppid-audience-signals-not-passed",
+      "title": "First-party audience signals are not passed for cookieless curated demand",
+      "category": "identity",
+      "subcategory": "ppid_audience",
+      "impact_score": 3,
+      "impact_rationale": "Curated deals and seat-level demand increasingly target on first-party signals rather than third-party cookies, which already fail in Safari and Firefox. A publisher that passes no Publisher Provided Identifier or audience data sells the affected impressions as undifferentiated supply, so demand that would have paid more for a known audience either bids lower or does not bid, and the price difference goes uncollected.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "privacy"],
+      "educate": {
+        "base": "A buyer's ability to target a reader has historically leaned on a third-party cookie the buyer set. That cookie no longer reads in Safari or Firefox, and a large share of traffic on most publisher sites comes through those browsers, so demand that depends on it falls away for that traffic. The signal that survives is the one the publisher sends. A Publisher Provided Identifier (PPID) is a stable identifier the publisher controls for a reader, and the first-party audience data a publisher attaches to it (e.g., a content interest, a subscription state, or a registration-derived segment) lets curated demand reach a known audience without a third-party cookie.<br><br>PubMatic's OpenWrap wrapper is built on Prebid and is open source, so the way a publisher attaches these signals to the bid stream follows the Prebid user-identity model. In that model, a publisher-set identifier travels in the bid request as an extended identifier (an 'eid') sourced from the publisher's own domain, and Prebid's PubProvided ID submodule is the path that carries it. When that submodule is configured, curated buyers and PubMatic's own audience products can match against the publisher's audience. When it is not, the impression goes to auction with no first-party signal attached, and the buyer has only context to work with.<br><br>The audit question is whether the publisher passes any first-party identifier and audience data at all, and whether that data reaches the curated demand it is meant to serve. A publisher may have built audience segments in a data tool but never wired them into the wrapper, in which case the segments exist but never reach a buyer. A few signs point to first-party signals not being passed:<ul><li>The OpenWrap or Prebid configuration sets no publisher-provided identifier, so bid requests carry no first-party 'eid' from the publisher's domain</li><li>Audience segments exist in the publisher's data tool but no path connects them to the wrapper or to PubMatic's audience console</li><li>Curated deals are set up on the PubMatic side but report little or no matched audience, which suggests the signal is not arriving</li></ul>You may want to confirm whether the wrapper passes a first-party identifier and audience data, and whether curated demand is actually matching against it. One approach is to inspect a live bid request for a publisher-sourced 'eid' and to read the matched-audience rate on any curated deal that depends on it.",
+        "site_type_overlays": {
+          "publishing": "On a media site, registration and newsletter signups give a publisher first-party audience data that survives the loss of third-party cookies, such as a reader's content interests or subscription tier. You may want to confirm those segments are passed as first-party signals through the wrapper so curated demand can reach a logged-in or known reader, rather than sitting unused in a data tool while the impression sells as anonymous supply.",
+          "ecommerce": "On a commerce-content site, on-site behavior such as categories browsed or a purchase history can form first-party audience segments that buyers value highly. You may want to confirm those segments are attached to a publisher-provided identifier and passed to curated demand, so a high-intent shopper is recognized in the bid stream rather than reaching the auction with no first-party signal."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "PubProvided ID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/pubprovided.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "User ID Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userId.html"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed configuration documentation for OpenWrap identity modules and the audience console is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect a live bid request for a publisher-sourced identifier, and review whether audience segments built in the publisher's data tool are wired into the wrapper and reaching curated demand.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open a page on the site, then open the browser developer tools and load the network tab.",
+                "Reload the page and find the bid requests sent through the OpenWrap or Prebid wrapper, then inspect the user 'eids' carried in the request.",
+                "Record whether any 'eid' is sourced from the publisher's own domain, which indicates a publisher-provided identifier is being passed, or whether no first-party identifier is present.",
+                "Note whether any audience segment values travel with that identifier or whether the request carries only third-party identifiers and context."
+              ]
+            },
+            "prebid_config": {
+              "label": "Prebid or OpenWrap configuration review",
+              "steps": [
+                "Review the wrapper configuration for a publisher-provided identifier module, such as the Prebid PubProvided ID submodule, and record whether it is enabled.",
+                "Trace whether audience segments built in the publisher's data tool are connected to the wrapper or to PubMatic's audience console, or whether they exist only in the data tool.",
+                "Ask the publisher which curated deals depend on first-party audience signals, and read the matched-audience rate on those deals to confirm the signal is arriving."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether bid requests carry a publisher-provided identifier sourced from the publisher's domain, whether first-party audience segments are wired into the wrapper, and whether curated deals that depend on those signals show a matched audience. A setup that passes a first-party identifier with audience data that reaches curated demand passes. A setup where no first-party identifier is passed, or where segments exist in a data tool but never reach the wrapper, is a fail recorded with the signals that are missing and the curated demand affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a publisher-provided identifier and audience segments are passed through the wrapper, and whether curated demand matches against them, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes no first-party audience signal through its OpenWrap wrapper, so curated demand on PubMatic reaches the auction with no publisher-provided identifier attached. Third-party cookies already fail in Safari and Firefox, so the signal a buyer can rely on for that traffic is the one the publisher sends, and without it the affected impressions sell as undifferentiated supply at a lower price. {{voice_recommend}} enabling a publisher-provided identifier in the wrapper (e.g., the Prebid PubProvided ID submodule that OpenWrap is built on), attaching the first-party audience segments {{site_name}} already holds, and confirming that curated deals match against them. After the change, read the matched-audience rate on the curated deals to confirm the signal is arriving."
+      }
+    },
+    {
+      "id": "pubmatic-ppid-audience-consent-scope",
+      "title": "Audience data is passed beyond the consent the reader granted",
+      "category": "identity",
+      "subcategory": "ppid_audience",
+      "impact_score": 4,
+      "impact_rationale": "Passing a publisher-provided identifier or audience segment for a reader who did not consent to it, or in a market where the legal basis does not cover it, is a privacy and legal exposure rather than a yield problem. The publisher is the party sending the signal, so the liability for sending it without a valid basis sits with the publisher, and the exposure scales with every impression where the consent check is skipped.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "Passing first-party audience signals is a privacy decision before it is a revenue one. A Publisher Provided Identifier (PPID) and the audience segments attached to it are personal data about a reader, and sending that data into the bid stream is a processing activity that needs a valid legal basis. The publisher is the party that sends the signal, so the responsibility for sending it only when the reader's consent or another lawful basis allows it sits with the publisher, not with the buyer who receives it.<br><br>The control point is the consent signal the page already carries. Under the IAB Europe Transparency and Consent Framework (TCF), the consent string records which purposes a reader agreed to, and purposes such as creating a profile for personalized advertising or using a profile to select advertising are the ones that govern passing audience data. The IAB Tech Lab Global Privacy Platform (GPP) carries the equivalent signals for the United States and other regions in a single string. The wrapper should read that signal and pass the identifier and audience data only when the relevant purpose is granted, and withhold it when the reader declined or when the applicable framework provides no basis.<br><br>A failure here is a setup that passes the audience signal regardless of the consent state, for example sending the publisher-provided identifier on every impression without gating it on the consent string, or passing audience segments in a region whose privacy framework the wrapper does not check. The signal arrives, the curated buyer matches against it, and the reader's choice was never honored. The audit question is whether the consent signal actually gates what leaves the page. A few signs point to audience data being passed beyond the granted consent:<ul><li>The publisher-provided identifier is passed on every impression with no check against the TCF or GPP consent string</li><li>Audience segments are sent in markets where the wrapper reads no applicable consent or privacy signal</li><li>The wrapper passes the same first-party signals whether the reader consented or declined, which means the consent state changes nothing about what is sent</li></ul>You may want to confirm that the consent signal gates the audience data the wrapper sends. One approach is to test a page under a declined-consent state and an applicable region, then inspect the bid request to confirm the publisher-provided identifier and audience segments are withheld.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a registration wall can collect rich first-party data, which makes the consent gate more important because there is more to pass and more to expose. You may want to confirm the wrapper reads the consent string before sending registration-derived segments, so a reader who declined personalized advertising is not profiled into the bid stream from data the publisher holds.",
+          "ecommerce": "On a commerce-content site, purchase and browsing segments are sensitive first-party data, and a reader in a regulated market may have declined the processing that would let them be passed. You may want to confirm the wrapper gates those segments on the applicable consent or privacy signal, so a high-intent shopper who opted out is not sent into curated demand anyway."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Europe",
+            "source_title": "Transparency and Consent Framework (TCF) v2.2",
+            "source_url": "https://iabeurope.eu/transparency-consent-framework/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform (GPP)",
+            "source_url": "https://iabtechlab.com/gpp/"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed configuration documentation for consent handling in OpenWrap is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Test the page under a declined-consent state in an applicable region and inspect the bid request to confirm the publisher-provided identifier and audience segments are withheld when consent is not granted.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load the site and set the consent management platform to a declined or limited state for personalized-advertising purposes, simulating a region the relevant framework covers.",
+                "Open the browser developer tools network tab, reload the page, and inspect the bid requests sent through the wrapper.",
+                "Record whether the publisher-provided identifier and any audience segment values are still present in the request, or whether they are correctly withheld under the declined state.",
+                "Repeat under a granted-consent state and confirm the signals appear, which shows the wrapper is reading the consent string rather than ignoring it."
+              ]
+            },
+            "consent_string_decode": {
+              "label": "Consent string review",
+              "steps": [
+                "Capture the TCF or GPP consent string the page carries and decode it to read which purposes the test state granted or declined.",
+                "Match the purposes that govern passing audience data (e.g., creating or using a profile for personalized advertising) against what the wrapper actually sent.",
+                "Record any case where audience data was passed for a purpose the string shows as declined, or where the wrapper read no applicable signal for the simulated region."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, under a declined-consent state in an applicable region, whether the publisher-provided identifier and audience segments are withheld, and confirms they reappear under a granted state. A wrapper that gates the audience signal on the TCF or GPP consent string, sending it only when the relevant purpose is granted, passes. A wrapper that passes the identifier or segments regardless of the consent state, or that reads no applicable signal for a covered region, is a fail recorded with the regions and consent states where the data leaks past the granted permission.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the wrapper withholds the publisher-provided identifier and audience segments under a declined-consent state, and passes them under a granted state, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes its publisher-provided identifier and audience segments without gating them on the reader's consent, so first-party data leaves the page even when the reader declined the purposes that would allow it. The audience signal is personal data, {{site_name}} is the party sending it, and sending it without a valid basis under the IAB Europe Transparency and Consent Framework (TCF) or the IAB Tech Lab Global Privacy Platform (GPP) is a privacy and legal exposure rather than a tuning issue. {{voice_recommend}} configuring the wrapper to read the consent string and pass the identifier and audience segments only when the governing purpose is granted, then testing a declined-consent state to confirm the signals are withheld. After the change, recheck the bid request under both a granted and a declined state to confirm the consent signal controls what is sent."
+      }
+    }
+  ]
+}

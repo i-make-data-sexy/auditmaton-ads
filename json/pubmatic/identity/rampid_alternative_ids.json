@@ -1,0 +1,162 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Alternative IDs such as RampID and UID2 let a publisher pass an addressable identifier into the bid stream where third-party cookies have gone away, so the inventory keeps the demand that depends on addressability. A solution that is configured but not passing, or several solutions layered together without the right consent on each, can cost the publisher that demand or expose them to a consent gap. The check is a review of the identity setup the publisher already runs through PubMatic Identity Hub and the OpenWrap wrapper, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration the publisher can fix.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Alternative IDs are the identifiers a publisher passes into the bid stream to stay addressable as third-party cookies fade, and on PubMatic they are usually managed through Identity Hub, the publisher-side identity orchestration that carries RampID, Unified ID 2.0 (UID2), the European Unified ID (EUID), and other alternative IDs, alongside the OpenWrap wrapper, which is open source and Prebid-based. This subcategory is about whether those IDs are configured correctly, actually reaching bidders, and carrying the consent each one requires, rather than the broader question of which demand partners to enable. These checks confirm that the alternative IDs the publisher relies on are passing as intended and that layering several solutions together has not created a conflict or a consent gap.",
+  "audit_checks": [
+    {
+      "id": "pubmatic-rampid-alternative-ids-not-passing",
+      "title": "RampID and other alternative IDs are configured but not reaching bidders",
+      "category": "identity",
+      "subcategory": "rampid_alternative_ids",
+      "impact_score": 3,
+      "impact_rationale": "An alternative ID that is enabled in the configuration but never reaches the bid request adds no addressability, so the publisher carries the setup overhead without the demand it was meant to attract. Bidders that price addressable impressions higher fall back to a lower contextual value, which leaves revenue uncollected on inventory the publisher believed was addressable.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "privacy"],
+      "educate": {
+        "base": "An alternative ID only adds value when it actually arrives in the bid request. RampID from LiveRamp, Unified ID 2.0 (UID2), and similar identifiers are person-based or deterministic IDs that let a buyer recognize an impression as addressable in the spaces where third-party cookies no longer work. A publisher running PubMatic Identity Hub configures which of these IDs to carry, and the OpenWrap wrapper, which is Prebid-based, attaches them to the bid request so bidders can read them. The chain from configuration to bidder has several links, and a break in any one leaves the ID enabled on paper but absent in practice.<br><br>RampID is a worked example of where the chain breaks. The identifier is delivered as an encrypted envelope that LiveRamp rotates on a schedule, so the wrapper has to refresh it on the interval LiveRamp recommends, which Prebid documents as 30 minutes (1800 seconds). A refresh interval set too long lets the envelope expire, and an expired envelope is not the live identifier a bidder expects. UID2 has its own version of the same problem, where the token is generated from a hashed email or phone the user provided and has to be refreshed before it ages out, so a stale token reaches bidders as no token at all.<br><br>The audit question is not whether the IDs are switched on in Identity Hub. The question is whether they reach bidders as live, readable identifiers on real traffic. A bid request inspection answers it directly since the alternative IDs either appear in the user ID section of the request or they do not.<br><br>A few signs point to an alternative ID that is configured but not passing:<ul><li>The ID is enabled in Identity Hub or the wrapper config, but it does not appear in the user ID object of a sampled bid request</li><li>RampID's refresh interval is set longer than the 30 minutes LiveRamp recommends, so the envelope can expire between refreshes</li><li>UID2 tokens are present on some sessions but absent on others, which points to a generation or refresh step that does not run consistently</li><li>Match rates or addressable-impression counts reported by the ID vendor sit far below the share of traffic the publisher expected to be addressable</li></ul>You may want to confirm that each alternative ID the publisher relies on actually reaches the bid request on live traffic. One approach is to inspect a sample of bid requests for the user ID section and check it against the IDs enabled in Identity Hub, then read the vendor's match-rate reporting to see how much of the traffic the ID is covering.",
+        "site_type_overlays": {
+          "publishing": "On a media site, much of the addressable demand a publisher attracts depends on the audience signal these IDs carry, so an ID that is configured but not passing removes the very signal premium buyers pay for. You may want to inspect bid requests on the high-value sections first since those are where a missing alternative ID costs the most demand.",
+          "ecommerce": "On a commerce-content site, RampID and UID2 often build on a logged-in or known audience that is closer to a purchase, which makes the addressable identifier especially valuable to buyers. You may want to confirm the ID is generated and passing on the logged-in sessions specifically since that is where the audience signal is strongest and a gap is most costly."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "LiveRamp RampID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/ramp.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "User ID Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userId.html"
+          },
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Publishers Overview",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-publishers"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed configuration documentation for Identity Hub and OpenWrap identity modules is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect a sample of live bid requests for the alternative IDs enabled in Identity Hub, and check the refresh settings and the vendor match-rate reporting to see whether each ID is reaching bidders.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load a page with the ad units, open the browser network panel, and find the bid request the OpenWrap wrapper sends to PubMatic.",
+                "Inspect the user ID section of the request and record which alternative IDs appear, for example RampID (idl_env) and UID2.",
+                "Compare the IDs present in the request against the IDs enabled in Identity Hub, and record any that are configured but missing from the request.",
+                "Reload after waiting past the configured refresh interval and check whether RampID and UID2 are still present, which tells you whether the refresh is keeping them live."
+              ]
+            },
+            "identity_hub_config": {
+              "label": "PubMatic Identity Hub configuration",
+              "steps": [
+                "Open the Identity Hub configuration and list every alternative ID that is enabled, for example RampID, UID2, and EUID.",
+                "Record the refresh interval set for each ID, and note where RampID's refresh is set longer than the 30 minutes LiveRamp recommends.",
+                "Note any ID enabled in the configuration that did not appear in the sampled bid request, which marks the break in the chain."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per alternative ID, whether it is enabled in Identity Hub, whether it appeared in the sampled bid request, and whether its refresh interval matches the vendor's recommendation. An ID that is enabled, present in the bid request, and refreshed on the recommended interval passes. An ID that is enabled but absent from the bid request, or one whose refresh interval is set long enough to let the identifier expire, is a fail recorded with the ID and the broken link in the chain.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each alternative ID, whether it appeared in the bid request, and its refresh interval above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more alternative IDs are enabled in {{site_name}}'s PubMatic Identity Hub configuration but are not reaching bidders in the live bid request. An alternative ID that is configured but absent from the request adds no addressability, so bidders fall back to a lower contextual value and the inventory loses the demand the ID was meant to attract. {{voice_recommend}} inspecting a sample of live bid requests for the user ID section, confirming each enabled ID appears, and setting RampID's refresh to the 30 minutes LiveRamp recommends so the envelope stays live between refreshes. After the fix, recheck the bid request and the vendor match-rate reporting to confirm each ID is passing as intended."
+      }
+    },
+    {
+      "id": "pubmatic-rampid-alternative-ids-conflicting-or-consent-gap",
+      "title": "Multiple ID solutions conflict or lack the right consent",
+      "category": "identity",
+      "subcategory": "rampid_alternative_ids",
+      "impact_score": 4,
+      "impact_rationale": "An alternative ID generated or passed without the consent it requires creates a privacy and legal exposure since RampID and Unified ID 2.0 are built from personal data that needs a valid legal basis to process. Several ID solutions layered together can also collide on storage or priority, so one overwrites another and the publisher passes a less valuable identifier without knowing it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "Running more than one alternative ID raises two questions a single ID does not. The first is consent, and the value of these identifiers comes from the personal data behind them. Unified ID 2.0 (UID2) is generated from a hashed email or phone the user provided, and the publisher is meant to ask for that data with transparency before any token is created, as the UID2 publisher guidance describes. RampID rests on a similar foundation of person-based data from LiveRamp. Each ID needs the consent its legal basis requires, and in regions governed by the Transparency and Consent Framework (TCF) or the Global Privacy Platform (GPP), the consent signal has to flow through to the point where the ID is generated or passed.<br><br>The second question is conflict. When several ID submodules run together, they can compete for the same storage, the same bidder slot, or the same priority. Prebid's User ID module documents this directly, noting that publishers can set which submodule has priority when more than one populates the same identifier, which exists because collisions happen. Without that priority set, one solution can overwrite another, and the publisher ends up passing a less valuable or stale ID in place of the one they intended. Layering more IDs is not automatically better since each one adds a storage entry, a refresh cycle, and a consent obligation.<br><br>The audit question is whether each alternative ID carries the consent it needs and whether the solutions coexist without overwriting one another. Both are visible in the consent string the consent management platform (CMP) produces and in the wrapper's user ID configuration and priority settings.<br><br>A few signs point to a conflict or a consent gap across ID solutions:<ul><li>UID2 tokens are generated on sessions where the consent string shows the user did not grant the purposes the ID requires</li><li>The wrapper carries several ID submodules with no priority set, so the order in which they resolve is left to chance</li><li>Two solutions write to the same storage key or populate the same identifier, so one overwrites the other between page loads</li><li>The consent signal does not reach the ID generation step, so IDs are created the same way regardless of what the user chose</li></ul>You may want to confirm that each alternative ID is generated only with the consent it requires and that the solutions are ordered so they do not overwrite one another. One approach is to compare the IDs present on a session against the consent string for that session, then review the wrapper's user ID priority settings to confirm a deliberate order is set.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a consent management platform usually gates whether these IDs may be generated at all, so a UID2 token created on a no-consent session is both a privacy exposure and a sign the consent signal is not reaching the ID step. You may want to test a no-consent session and confirm no alternative ID is generated, then a full-consent session and confirm the IDs resolve in the intended order.",
+          "ecommerce": "On a commerce-content site, the email behind a UID2 token often comes from a logged-in account or checkout, so the consent and the privacy notice covering that data have to extend to advertising use. You may want to confirm the consent captured at login or checkout actually permits the UID2 generation, rather than assuming an account relationship covers it."
+        },
+        "learn_more": [
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Publishers Overview",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-publishers"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "User ID Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userId.html"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed configuration documentation for Identity Hub consent handling and ID priority is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Compare the alternative IDs generated on a session against the consent string for that session, and review the wrapper's user ID priority and storage settings for conflicts.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Run a session that declines consent in the consent management platform (CMP), then inspect the bid request and storage to confirm no alternative ID was generated.",
+                "Run a session that grants full consent, then record which IDs resolve and in what order, and whether any share a storage key.",
+                "Read the consent string (TCF or GPP) on each session and check that the purposes granted cover the IDs that were generated.",
+                "Note any case where an ID was generated without the matching consent, which is a consent gap to record."
+              ]
+            },
+            "wrapper_config": {
+              "label": "OpenWrap user ID configuration",
+              "steps": [
+                "Open the wrapper user ID configuration and list every ID submodule enabled alongside its storage name and refresh settings.",
+                "Record whether a priority order is set for submodules that can populate the same identifier, or whether the order is left undefined.",
+                "Note any two submodules that write to the same storage key, which points to a conflict where one can overwrite the other."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per alternative ID, whether it was generated only on sessions with the consent it requires, and whether the wrapper sets a deliberate priority so solutions do not overwrite one another. A setup where every ID matches the consent on its session and the submodules carry a defined priority with no storage collision passes. A setup where an ID is generated without matching consent, or where submodules conflict on storage or priority, is a fail recorded with the ID, the consent state, and the conflict.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each alternative ID against the session consent state and the wrapper priority settings above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs more than one alternative ID solution with either a consent gap or a conflict between them. An identifier such as Unified ID 2.0 (UID2) is built from personal data and needs the consent its legal basis requires, and several ID submodules running without a set priority can overwrite one another so a less valuable identifier is passed. {{voice_recommend}} testing a no-consent and a full-consent session to confirm each ID is generated only with the consent it needs, then setting a deliberate priority in the wrapper so the solutions resolve in a known order without sharing storage. After the change, recheck a sample of sessions to confirm the consent and the ID priority hold."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Seat controls decide which demand partners and buyers are allowed to compete for a publisher's inventory and which are turned away, so they sit directly on the line between revenue and risk. A control set that drifts, with stale blocks no one remembers adding or category and advertiser exclusions written wider than the policy that prompted them, can suppress legitimate demand and lower fill. The check is a review of the buyer allow and block configuration a publisher already runs through Index Exchange and its header-bidding setup, so it costs reading time rather than rebuild time, and the finding points to a concrete control the publisher can keep, narrow, or retire.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Seat controls are the rules that decide which buyers and demand partners compete for a publisher's inventory through Index Exchange. They cover which bidders are sent the bid request, which advertisers or categories are blocked, and which seats are allowed or excluded. This subcategory is about whether those controls are maintained on purpose, set against a stated policy and reviewed, rather than accumulated over time and left in place. The checks confirm that the allow and block configuration reflects current decisions and that the blocks are scoped to what the policy requires rather than written so wide that they turn away demand the publisher would have wanted.",
+  "audit_checks": [
+    {
+      "id": "index-exchange-seat-controls-buyer-lists-not-maintained",
+      "title": "Buyer allow and block lists are not maintained against a stated policy",
+      "category": "buyers",
+      "subcategory": "seat_controls",
+      "impact_score": 3,
+      "impact_rationale": "Allow and block lists that are added to over time and never reviewed drift away from the policy that prompted them. A block added for a one-off complaint stays in place after the reason is gone, and a bidder dropped during a test is never restored, so the control set turns away demand the publisher no longer means to exclude and the publisher cannot say why each entry is there.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "brand-safety"],
+      "educate": {
+        "base": "Index Exchange runs a Prebid-compatible header-bidding auction, so a publisher's seat controls live in more than one place. In the header-bidding wrapper, the set of bidders sent each request decides which demand partners are even invited to compete, and a bidder left out of that set never bids. At the request level, advertiser-domain and category blocks (the OpenRTB 'badv' and 'bcat' fields) tell bidders which advertisers and content categories are off limits, and a Prebid Server deployment can enforce those blocks by rejecting bids that ignore them. Inside the Index Exchange account, buyer-seat allow and block settings decide which seats may transact. Together these form the publisher's buyer allow and block configuration.<br><br>The audit question is not whether blocks exist. It is whether the configuration is maintained against a stated policy or has simply accumulated. Block lists tend to grow in response to specific events, a brand-safety complaint, a payment dispute, a quality concern raised once, and each entry is easy to add and easy to forget. Months later the reason for a block may be gone while the block remains, and a bidder dropped during a test may never be added back. The result is a control set no one can fully account for, where some entries reflect current decisions and others reflect decisions whose context has expired.<br><br>A maintained configuration has a few traits. There is a written policy that says what gets blocked and why, the live settings match that policy, and there is a review on a regular cadence rather than only when something goes wrong. When an entry exists, someone can say which policy line it serves. When the policy changes, the live settings are updated to match rather than left to lag.<br><br>A few signs point to lists that are not maintained against a policy:<ul><li>No written policy states which buyers, advertisers, or categories should be blocked and on what grounds</li><li>Block or allow entries exist that no one can tie to a current reason, such as a block added for a complaint that is long resolved</li><li>The bidder set in the wrapper excludes demand partners with no record of why they were dropped or whether they should return</li><li>No review cadence exists, so the configuration is only ever touched in reaction to an incident</li></ul>You may want to confirm that each allow and block entry maps to a current policy decision and that the configuration is reviewed on a schedule. One approach is to export the live buyer, advertiser, and category controls, set them beside the written policy, and retire any entry that no longer has a reason behind it.",
+        "site_type_overlays": {
+          "publishing": "On a media site, brand-safety blocks added during a sensitive news cycle or after an advertiser complaint can stay in place long after the moment passes. You may want to review category and advertiser blocks against the current editorial and brand-safety policy so the configuration reflects today's standards rather than a stack of past incidents.",
+          "ecommerce": "On a commerce-content site, competitive-separation blocks that keep a rival retailer's ads off the inventory can outlive the merchandising reason behind them. You may want to confirm that each competitor or category block still serves a current commercial decision rather than a partnership or product line that has since changed."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Server ORTB2 Blocking Module",
+            "source_url": "https://docs.prebid.org/prebid-server/pbs-modules/ortb2-blocking.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "pbjs.bidderSettings",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/bidderSettings.html"
+          }
+        ],
+        "learn_more_note": "Index Exchange's detailed configuration documentation for buyer-seat allow and block settings inside the account is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the buyer, advertiser, and category allow and block settings across the Index Exchange account and the header-bidding wrapper, and set each entry beside a written policy to see whether it reflects a current decision.",
+        "tools": {
+          "free": {
+            "ix_account": {
+              "label": "Index Exchange account",
+              "steps": [
+                "Open the buyer or seat controls in the Index Exchange account and list which seats are allowed or blocked.",
+                "Record any advertiser-domain or category blocks set at the account level, along with the reason on record for each, if one exists.",
+                "Note any entry that no one can tie to a current policy decision so it can be reviewed for removal."
+              ]
+            },
+            "wrapper_config": {
+              "label": "Header-bidding wrapper configuration",
+              "steps": [
+                "Open the Prebid wrapper configuration and list the bidders sent on each ad unit, noting which demand partners are included and which are left out.",
+                "Check the request-level advertiser-domain ('badv') and category ('bcat') blocks and whether a Prebid Server deployment enforces them.",
+                "Record which demand partners were dropped over time and whether there is a stated reason or a plan to revisit them."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner lists the live buyer, advertiser, and category allow and block entries across the account and the wrapper, and records whether each maps to a written policy and a current reason. A configuration where the live settings match a stated policy, every entry has a reason on record, and a review cadence exists passes. A configuration where entries cannot be tied to a current reason, no policy is on record, or no review ever happens is a fail recorded with the entries that have no current justification.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the live allow and block entries and whether each maps to a written policy above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the buyer allow and block configuration for {{site_name}} is not maintained against a stated policy, so some entries reflect current decisions while others reflect reasons that have since expired. Block lists in Index Exchange and the header-bidding wrapper tend to grow in response to one-off events, and each entry is easy to add and easy to forget, so the control set drifts and can turn away demand the publisher no longer means to exclude. {{voice_recommend}} exporting the live buyer, advertiser, and category controls, setting them beside a written policy, retiring any entry that no longer has a reason behind it, and putting the configuration on a regular review cadence. After the review, each remaining entry should map to a current policy line."
+      }
+    },
+    {
+      "id": "index-exchange-seat-controls-blocks-too-broad",
+      "title": "Blocks are scoped so wide that they suppress legitimate demand",
+      "category": "buyers",
+      "subcategory": "seat_controls",
+      "impact_score": 3,
+      "impact_rationale": "A block written wider than the policy requires removes more demand than intended. A whole content category blocked to exclude a narrow slice, or a top-level advertiser domain blocked to stop one product line, takes legitimate buyers out of the auction along with the target, which thins competition and lowers fill and clearing price on the affected inventory.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "brand-safety"],
+      "educate": {
+        "base": "A block is a deliberate decision to remove some demand from the auction, and that is the point of it. The cost appears when the block is scoped wider than the decision behind it. Every advertiser, category, or seat removed from competition is one fewer bidder pushing the price up, so a block that reaches past its target thins the auction and lowers both fill rate and clearing price on the inventory it touches. The narrower the block can be while still serving the policy, the less collateral demand it removes.<br><br>Over-broad scope shows up in a few shapes. A category block set at a parent category to exclude one narrow subcategory takes the whole branch out, including advertisers the policy never meant to touch. An advertiser-domain block written at a top-level domain to stop a single product line blocks every campaign under that domain. A seat blocked over a dispute that has since closed keeps a whole demand source out after the reason is gone. Index Exchange runs a Prebid-compatible auction, so these blocks live in the request-level advertiser ('badv') and category ('bcat') controls, in the bidders sent through the wrapper, and in the account's buyer-seat settings, and a wide block in any of them shrinks the pool competing for the impression.<br><br>The audit reads the blocks for scope rather than for existence. The aim is to confirm that each block is as narrow as the policy allows, so it removes the demand the policy targets and leaves the rest competing. Where reporting is available, a drop in bid density or fill on inventory that carries a heavy block is a sign worth following.<br><br>A few signs point to blocks scoped wider than the policy requires:<ul><li>A whole content category is blocked when the concern applies to a narrow subcategory within it</li><li>A top-level advertiser domain is blocked when only one product line or campaign was the issue</li><li>A seat or demand partner is blocked over a reason that has since been resolved</li><li>Inventory carrying a heavy block shows lower bid density or fill than comparable inventory without it</li></ul>You may want to confirm that each block is scoped to its policy reason rather than written wider for convenience. One approach is to narrow category and advertiser blocks to the specific subcategory or product line at issue, then watch bid density and fill on the affected inventory to confirm the legitimate demand returns.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a broad block on a sensitive content category can also exclude mainstream advertisers whose campaigns are categorized nearby, which thins demand on ordinary editorial inventory. You may want to narrow such blocks to the specific subcategory the brand-safety policy targets so the wider category keeps competing.",
+          "ecommerce": "On a commerce-content site, a competitive-separation block written at a rival's top-level domain can exclude that company's unrelated campaigns as well as the product line you meant to separate from. You may want to scope the block to the specific product or campaign at issue so the rest of that advertiser's demand still bids."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Server ORTB2 Blocking Module",
+            "source_url": "https://docs.prebid.org/prebid-server/pbs-modules/ortb2-blocking.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "pbjs.bidderSettings",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/bidderSettings.html"
+          }
+        ],
+        "learn_more_note": "Index Exchange's detailed documentation on the scope of account-level advertiser and category blocks is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the scope of each advertiser, category, and seat block, and where reporting allows, compare bid density and fill on inventory that carries a heavy block against comparable inventory without one.",
+        "tools": {
+          "free": {
+            "ix_account": {
+              "label": "Index Exchange account",
+              "steps": [
+                "Open the advertiser and category blocks in the Index Exchange account and record the scope of each, noting whether it is set at a parent category or a top-level domain.",
+                "For each broad block, ask whether the policy reason applies to the whole scope or only to a subcategory, product line, or campaign within it.",
+                "Record any block whose scope reaches wider than the reason behind it so it can be narrowed."
+              ]
+            },
+            "ix_reporting": {
+              "label": "Index Exchange reporting",
+              "steps": [
+                "Build a report broken out by ad unit or inventory segment, with bid density, fill rate, and average clearing price.",
+                "Compare inventory that carries a heavy block against comparable inventory without one to see whether the block coincides with lower bid density or fill.",
+                "Note any inventory where a broad block lines up with a measurable drop in competition so the block can be reviewed for scope."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the scope of each advertiser, category, and seat block and whether it matches the policy reason behind it. A configuration where every block is scoped to its stated reason, narrowed to the subcategory or product line at issue rather than the parent, passes. A configuration with blocks written wider than their reason, especially where reporting shows lower bid density or fill on the affected inventory, is a fail recorded with the blocks whose scope exceeds their policy reason.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the scope of each block and whether it matches its policy reason above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that some blocks on {{site_name}} are scoped wider than the policy reason behind them, so they remove legitimate demand along with the target. Every advertiser, category, or seat taken out of the auction is one fewer bidder pushing the price up, so a block written at a parent category or a top-level domain when only a subcategory or product line was the concern thins competition and lowers fill and clearing price on the inventory it touches. {{voice_recommend}} narrowing each block to the specific subcategory, product line, or seat its policy reason targets, then watching bid density and fill on the affected inventory to confirm the legitimate demand returns. After the change, each block should reach only as far as the decision behind it."
+      }
+    }
+  ]
+}

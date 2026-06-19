@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Naming is the layer that turns a FreeWheel account into something a person can read and a report can slice. When advertisers, campaigns, line items, and creatives carry consistent, parseable names, a publisher can group revenue by demand partner, format, ad break position, or sales channel without rebuilding the report each time. When names drift, the same demand shows up under three labels and reporting either misses revenue or double-counts it. The check is a review of names already in the system, so it costs reading time rather than rebuild time, and the finding points to a concrete renaming or template decision the publisher can adopt going forward.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "FreeWheel organizes ad serving into a hierarchy of advertisers, campaigns, line items, and creatives, and reporting reads whatever names sit on those records. This subcategory is about the naming itself, whether the names follow a convention a report can parse and a person can recognize, rather than the targeting or delivery rules attached to each record. These checks confirm that supply tags, demand tags, and line items carry a consistent, identifiable naming pattern so revenue can be sliced by the dimensions that matter to the publisher.",
+  "audit_checks": [
+    {
+      "id": "freewheel-naming-conventions-no-parseable-convention",
+      "title": "Names do not follow a consistent, parseable convention",
+      "category": "governance",
+      "subcategory": "naming_conventions",
+      "impact_score": 3,
+      "impact_rationale": "FreeWheel reporting groups and filters on the names attached to advertisers, campaigns, line items, and creatives. When those names follow no shared pattern, a publisher cannot reliably slice revenue by format, ad break position, demand source, or sales channel, so reporting work that a naming convention would make trivial turns into manual cleanup every time, and some breakdowns become impossible to produce at all.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "FreeWheel serves video and Connected TV (CTV) ads through a hierarchy of advertisers, campaigns, line items, and creatives, and the reporting layer reads the names a publisher puts on those records. A report broken out by line item shows line item names. A report grouped by creative shows creative names. The name is not a label sitting beside the data, it is the data the report groups and filters on, so the value of a breakdown depends entirely on whether the names carry the information the breakdown needs.<br><br>A parseable convention encodes the dimensions a publisher reports on into the name itself, in a fixed order, with a consistent separator. A line item named 'CTV_PreRoll_DirectSold_Q1' tells a reader and a filter that the inventory is CTV, the break position is pre-roll, the channel is direct-sold, and the quarter is Q1, all without opening the record. Once that pattern holds across every line item, the publisher can filter on a token, group on a position, or pull every direct-sold pre-roll line in one pass. When the pattern is absent, the same line might be named 'jan campaign', 'CTV preroll new', or a demand partner's order number, and no filter can recover the structure that was never written down.<br><br>The cost lands at report time rather than setup time. A publisher trying to compare pre-roll against mid-roll revenue, or direct-sold against programmatic fill, has to read each name by hand, infer what it means, and bucket it manually. The inference is error-prone, so two analysts produce two different numbers from the same account, and a breakdown the convention would make a one-click filter becomes a spreadsheet exercise that nobody trusts.<br><br>A few signs point to names that lack a parseable convention:<ul><li>Records for similar inventory carry visibly different name formats, such as free-text descriptions next to coded strings next to partner order numbers</li><li>No documented template defines the token order or separator that names should follow</li><li>Reporting on a dimension like format or ad break position requires reading and bucketing names by hand rather than filtering on a token</li></ul>You may want to confirm that names follow a documented convention that encodes the dimensions the publisher reports on. One approach is to define a token order and separator, apply it to new records going forward, and rename the high-volume historical records so the most-used reports parse cleanly.",
+        "site_type_overlays": {
+          "publishing": "For a broadcaster or streaming publisher, the dimensions that drive reporting are usually content genre, ad break position (e.g., pre-roll, mid-roll, post-roll), and device (e.g., CTV, mobile app, web). You may want a line item and creative convention that encodes those tokens in a fixed order so a report can separate mid-roll CTV revenue from pre-roll web revenue without manual bucketing.",
+          "ecommerce": "For a commerce-content publisher running shoppable or product video, the dimensions that matter often include product category, video placement (e.g., product page, category hub), and whether the demand is direct-sold sponsorship or programmatic. You may want names that encode placement and channel so revenue from sponsored product video reads separately from general programmatic video fill."
+        },
+        "learn_more": [
+          {
+            "source_type": "FreeWheel Advertiser API Documentation",
+            "source_title": "Advertisers, Campaigns, Line Items, Creatives",
+            "source_url": "https://api-docs.freewheel.tv/advertiser/docs/advertisers-campaigns-line_items-creatives"
+          },
+          {
+            "source_type": "FreeWheel Advertiser API Documentation",
+            "source_title": "Line Item Configuration",
+            "source_url": "https://api-docs.freewheel.tv/advertiser/v2.0/docs/line-item-configuration"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the names across a sample of advertisers, campaigns, line items, and creatives to see whether they follow a single documented pattern or several inconsistent ones, and check whether reporting on a key dimension can filter on a token.",
+        "tools": {
+          "free": {
+            "freewheel_ui": {
+              "label": "FreeWheel console",
+              "steps": [
+                "Open the advertiser, campaign, line item, and creative lists and pull a sample of records across active demand.",
+                "Compare the name formats within each level and note whether they share a token order and separator or vary from record to record.",
+                "Ask the publisher whether a naming template or convention is documented anywhere, and record what it specifies if one exists.",
+                "Pick a dimension the publisher reports on, such as ad break position or sales channel, and check whether a name token identifies it consistently across records."
+              ]
+            },
+            "freewheel_reporting": {
+              "label": "FreeWheel reporting",
+              "steps": [
+                "Build a report grouped by line item name, then by creative name, for a recent period.",
+                "Try to filter or group on a single dimension, such as pre-roll versus mid-roll, using only the name tokens.",
+                "Note whether the breakdown resolves cleanly from the names or whether records have to be read and bucketed by hand to produce it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, across the sampled records at each level, whether names follow a single documented convention with a consistent token order and separator. A setup where names parse cleanly into the dimensions the publisher reports on, backed by a documented template, passes. A setup where name formats vary across comparable records, no template is documented, or a key reporting dimension cannot be filtered on a token is a fail recorded with the levels and dimensions affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the name formats across advertisers, campaigns, line items, and creatives and whether a documented convention exists above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that names across {{site_name}}'s FreeWheel advertisers, campaigns, line items, and creatives do not follow a single parseable convention, so reporting cannot reliably slice revenue by the dimensions that matter. FreeWheel reporting groups and filters on the names attached to each record, and when those names vary in format or omit the dimensions a publisher reports on, breakdowns by format, ad break position, or sales channel turn into manual bucketing that two analysts can read two ways. {{voice_recommend}} defining a documented naming template with a fixed token order and separator that encodes the reporting dimensions, applying it to new records going forward, and renaming the high-volume historical records so the most-used reports parse cleanly. After the change, rebuild a key report from name tokens alone to confirm it resolves without manual cleanup."
+      }
+    },
+    {
+      "id": "freewheel-naming-conventions-deal-campaign-names-not-identifiable",
+      "title": "Deal and campaign names are not consistent or identifiable",
+      "category": "governance",
+      "subcategory": "naming_conventions",
+      "impact_score": 2,
+      "impact_rationale": "Programmatic deals and campaigns flow through FreeWheel alongside direct-sold demand, and when their names do not identify the buyer, channel, or deal type, a publisher cannot tell which revenue came from which demand source. Reconciling FreeWheel revenue against a demand-side platform or a buyer's report then depends on matching opaque names by hand, so discrepancies are slow to trace and a misnamed deal can sit unreconciled without anyone noticing.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "data-quality"],
+      "educate": {
+        "base": "Alongside direct-sold inventory, a FreeWheel publisher carries programmatic demand that arrives through deals, and each deal and the campaign carrying it needs a name a person can match back to its buyer and its terms. A deal identified only by an internal ID, a demand-side platform's auto-generated string, or a generic label like 'new PMP' is a record nobody can reconcile without opening it and tracing it back through email or a separate spreadsheet. The name is the handle a publisher uses to find the deal in reporting, match it against the buyer's own numbers, and confirm the revenue landed where it should.<br><br>Consistent deal and campaign naming encodes the buyer, the deal type (e.g., a private marketplace deal, a programmatic guaranteed deal, or a preferred deal), and the channel into the name, so a report grouped by campaign already separates one buyer's guaranteed deal from another buyer's open-marketplace fill. That separation is what makes reconciliation tractable. When a buyer reports a spend figure, the publisher can find the matching deal by its name, compare the two numbers, and resolve the difference. When the deal is named opaquely, the publisher first has to figure out which record the buyer is even talking about, and a deal that was misnamed at setup can clear revenue for weeks before anyone connects it to the buyer it belongs to.<br><br>The convention also guards against duplication. If the same buyer's deal gets set up twice under two different free-text names, revenue splits across both records and no single report shows the buyer's true total. A naming pattern that includes a stable buyer token and deal identifier makes the duplicate visible at a glance rather than hiding it behind two unrelated-looking labels.<br><br>A few signs point to deal and campaign names that are not identifiable:<ul><li>Deal or campaign names rely on internal IDs or auto-generated strings that do not name the buyer or the deal type</li><li>The same buyer appears under inconsistent name formats across separate deals or campaigns</li><li>Reconciling FreeWheel revenue against a buyer's report requires tracing records by hand because the names do not match the buyer's reference</li></ul>You may want to confirm that deal and campaign names identify the buyer, deal type, and channel consistently. One approach is to set a naming pattern that pairs a stable buyer token with the deal type and identifier, then rename active programmatic deals so each one reconciles against its buyer's report by name.",
+        "site_type_overlays": {
+          "publishing": "For a broadcaster or streaming publisher, programmatic deals often run against premium CTV inventory where a single private marketplace or programmatic guaranteed deal can carry meaningful spend. You may want deal names that pair the buyer with the deal type and the inventory tier so a CTV guaranteed deal reconciles cleanly against the buyer's report and does not get confused with open-marketplace video fill.",
+          "ecommerce": "For a commerce-content publisher, programmatic deals may tie to a brand sponsoring product-adjacent video or a category-level package. You may want deal and campaign names that identify the sponsoring brand and the package so revenue from a brand's sponsorship deal reads separately from general programmatic demand and reconciles against what the brand or its agency reports."
+        },
+        "learn_more": [
+          {
+            "source_type": "FreeWheel Advertiser API Documentation",
+            "source_title": "Targeting Modules",
+            "source_url": "https://api-docs.freewheel.tv/advertiser/docs/targeting"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the names on active programmatic deals and the campaigns carrying them to see whether each identifies its buyer, deal type, and channel, and check whether a sample reconciles against a buyer's report by name.",
+        "tools": {
+          "free": {
+            "freewheel_ui": {
+              "label": "FreeWheel console",
+              "steps": [
+                "Open the list of active programmatic deals and the campaigns associated with them.",
+                "For each deal, note whether the name identifies the buyer, the deal type, and the channel, or whether it relies on an internal ID or auto-generated string.",
+                "Look for cases where the same buyer appears under inconsistent name formats, or where two records appear to cover the same deal under different names.",
+                "Ask the publisher whether a deal-naming pattern is documented and record what it specifies."
+              ]
+            },
+            "freewheel_reporting": {
+              "label": "FreeWheel reporting",
+              "steps": [
+                "Build a report grouped by deal and by campaign with revenue for a recent period.",
+                "Pick a deal whose buyer also reports its own spend, and try to match the FreeWheel record to that buyer's figure using the name alone.",
+                "Note whether the names support reconciliation directly or whether each record has to be opened and traced back to its buyer by hand."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, across active programmatic deals and their campaigns, whether each name identifies the buyer, deal type, and channel consistently. A setup where deal and campaign names are identifiable and reconcile against buyer reports by name passes. A setup where names rely on opaque IDs, the same buyer appears under inconsistent formats, or reconciliation requires manual tracing is a fail recorded with the deals and buyers affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether each active deal and campaign name identifies its buyer, deal type, and channel above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that programmatic deal and campaign names in {{site_name}}'s FreeWheel account are not consistently identifiable, so revenue cannot be matched to its demand source without manual tracing. When a deal is named with an internal ID or an auto-generated string rather than its buyer, deal type, and channel, reconciling FreeWheel revenue against a buyer's report means figuring out which record the buyer means before the numbers can even be compared, and a misnamed deal can clear revenue unreconciled. {{voice_recommend}} setting a deal-naming pattern that pairs a stable buyer token with the deal type and identifier, then renaming active programmatic deals so each reconciles against its buyer's report by name. After the change, match a sample of deals against buyer reports by name alone to confirm reconciliation no longer needs manual tracing."
+      }
+    }
+  ]
+}

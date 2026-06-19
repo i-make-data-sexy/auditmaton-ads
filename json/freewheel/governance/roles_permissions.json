@@ -1,0 +1,201 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Access governance decides who can change ad serving, pricing, and reporting inside the FreeWheel console, and which automated systems can reach the same controls through the API. A role that grants more than a person needs, an account left active after someone leaves, or an API token shared across tools widens the blast radius of any mistake or compromise. The check is a review of the access list and credential inventory a publisher already maintains, so it costs reading time rather than rebuild time, and the finding points to specific accounts or tokens that can be tightened.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Access control in the FreeWheel console governs who can serve, price, and report on video and Connected TV (CTV) inventory, and who can reach those same functions through the application programming interface (API). This subcategory is about the access list itself, the roles assigned to people and the credentials assigned to systems, rather than the campaign or pricing settings those roles can reach. These checks confirm that human and machine access follows least privilege, that access ends when a person leaves, and that API credentials are scoped and rotated rather than broad and shared.",
+  "audit_checks": [
+    {
+      "id": "freewheel-roles-permissions-least-privilege-not-enforced",
+      "title": "User roles grant more access than the work requires",
+      "category": "governance",
+      "subcategory": "roles_permissions",
+      "impact_score": 3,
+      "impact_rationale": "A FreeWheel console role that grants broad access to a person who needs a narrow slice widens the damage any single mistake or compromised account can do. An over-broad role lets a trafficker change pricing, or a reporting user edit ad serving, so an error or a stolen login reaches systems the person never needed, which turns a small incident into a larger one.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "FreeWheel is a video and Connected TV (CTV) ad server, and the console that runs it controls ad serving, ad pod configuration, pricing, deals with demand partners, and reporting. Access to those functions is granted through roles, and the principle that should govern them is least privilege, meaning each person gets the minimum access the work requires and nothing more. The National Institute of Standards and Technology (NIST) defines the principle as allowing only the access necessary to accomplish assigned tasks, and OWASP frames the same idea as assigning users only the minimum privileges needed to do their job.<br><br>The reason least privilege matters in an ad server is the reach a broad role carries. A trafficker who only needs to schedule line items does not need to edit pricing rules. A reporting analyst who only needs to read performance data does not need to change ad serving. When a role grants more than the work requires, two risks grow at once. An honest mistake can land in a system the person never meant to touch, and a single stolen login can reach controls far beyond that person's job.<br><br>The audit question is whether the roles on the access list match the work each person does. That comparison depends on the publisher being able to say, for each account, what the person's job is and what the assigned role lets them reach. Where the two diverge, the role is doing more than the work needs, and the access can be narrowed without slowing anyone down.<br><br>A few signs point to roles that grant more than the work requires:<ul><li>People hold an administrator or full-access role when their job only touches a narrow slice such as trafficking or reporting</li><li>Roles were assigned by copying an existing user rather than by matching access to the job</li><li>No periodic review of the access list exists, so roles granted for a past project remain after the work ended</li></ul>You may want to confirm that each role matches the work the person actually does. One approach is to list every active account with its role, compare each against the person's current job, and narrow any role that reaches further than the work requires.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcast property, the team around the FreeWheel console often spans ad operations, sales, and reporting, and each group needs a different slice of access. You may want to confirm that sales-facing users who read deal performance do not also hold the ad serving or pricing access that ad operations needs, so a role matches the function rather than the department.",
+          "ecommerce": "On a commerce-content property running video, the people managing video monetization may sit alongside a broader marketing or merchandising team. You may want to confirm that access to the FreeWheel console is limited to the people who actually operate video ad serving and pricing, rather than extended to a wider team for convenience."
+        },
+        "learn_more": [
+          {
+            "source_type": "NIST SP 800-53 Reference",
+            "source_title": "AC-6: Least Privilege",
+            "source_url": "https://csf.tools/reference/nist-sp-800-53/r5/ac/ac-6/"
+          },
+          {
+            "source_type": "OWASP Cheat Sheet Series",
+            "source_title": "Authorization Cheat Sheet",
+            "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the list of active FreeWheel console accounts and the role each one holds, then compare each role against the work the person actually does.",
+        "tools": {
+          "free": {
+            "freewheel_console": {
+              "label": "FreeWheel console",
+              "steps": [
+                "Open the user or access management area of the FreeWheel console and list every active account with the role assigned to it.",
+                "For each account, record the person's current job and the functions their role can reach, such as ad serving, pricing, deals, or reporting.",
+                "Flag any account whose role reaches functions the person's job does not require, and any account that should no longer be active.",
+                "Ask the publisher whether a periodic review of the access list runs, and record when it last happened and what it changed."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each active account with its role and the person's current job, then compares the two. An access list where every role matches the work the person does passes. An access list where one or more roles reach functions the job does not require, or where accounts remain active for people whose role no longer fits, is a fail recorded with the accounts and the gap between role and work.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each active account with its role and the matching job above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more FreeWheel console accounts at {{site_name}} hold roles that reach further than the work requires, which breaks the principle of least privilege. A role that grants broad access to a person who needs a narrow slice widens the damage a mistake or a compromised login can do, so an error or stolen account reaches ad serving, pricing, or reporting the person never needed. {{voice_recommend}} listing every active account with its role, comparing each against the person's current job, and narrowing any role that reaches past the work the person does. After the change, schedule a periodic review of the access list so roles stay matched to current work."
+      }
+    },
+    {
+      "id": "freewheel-roles-permissions-departed-staff-not-removed",
+      "title": "Access remains active for people who have left",
+      "category": "governance",
+      "subcategory": "roles_permissions",
+      "impact_score": 3,
+      "impact_rationale": "An active FreeWheel console account belonging to someone who has left, or to a contractor whose engagement ended, is a login no current employee is watching. A forgotten account is a standing entry point into ad serving and pricing that nobody is accountable for, so a credential that should have been closed becomes an unmonitored way into the system.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "Every account in the FreeWheel console is a way into ad serving, pricing, deals, and reporting, and the access should last only as long as the person needs it. When someone leaves the company, finishes a contract, or moves to a role that no longer touches the ad server, their access should end with them. An account that stays active past that point becomes a login that no current employee owns or watches.<br><br>The risk of a forgotten account is that it is unmonitored by definition. Nobody is logging in to notice unusual activity, nobody is rotating its password, and nobody is accountable for what it can reach. NIST's account management guidance treats removing access when it is no longer needed as part of the same discipline as granting it, and the principle of least privilege extends across time, meaning access that was once appropriate stops being appropriate the moment the work ends.<br><br>The audit question is whether the active account list matches the people who currently need access. That comparison depends on the publisher being able to tie each account to a current person and a current need. An account that cannot be tied to either is a candidate for removal, and a departed-staff account is the clearest case.<br><br>A few signs point to access that has outlived the person:<ul><li>The active account list includes names of people who no longer work on the inventory or have left the company</li><li>Contractor or agency accounts remain active after the engagement that justified them ended</li><li>No process ties account removal to an employee or contractor offboarding step, so closing access depends on someone remembering</li></ul>You may want to confirm that every active account belongs to a current person with a current need. One approach is to reconcile the FreeWheel account list against a current roster of employees and contractors, then close any account that no longer maps to someone who needs it.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcast property, ad operations and sales teams often work with outside agencies and contractors who get console access for a campaign or a season. You may want to confirm that those temporary accounts are closed when the engagement ends, rather than left open against a future need that may never come.",
+          "ecommerce": "On a commerce-content property running video, the people who set up video monetization may be a small team or an outside specialist brought in for the launch. You may want to confirm that any account created for a launch or a project is closed once the work is handed off, so access does not outlive the engagement."
+        },
+        "learn_more": [
+          {
+            "source_type": "NIST SP 800-53 Reference",
+            "source_title": "AC-6: Least Privilege",
+            "source_url": "https://csf.tools/reference/nist-sp-800-53/r5/ac/ac-6/"
+          },
+          {
+            "source_type": "OWASP Cheat Sheet Series",
+            "source_title": "Authorization Cheat Sheet",
+            "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the active FreeWheel console account list against a current roster of employees and contractors, and flag any account that no longer maps to a current person with a current need.",
+        "tools": {
+          "free": {
+            "freewheel_console": {
+              "label": "FreeWheel console",
+              "steps": [
+                "Open the user or access management area of the FreeWheel console and export or list every active account with its owner and the date it was last used, if available.",
+                "Compare the list against a current roster of employees and contractors who work on the video inventory.",
+                "Flag any account belonging to a person who has left, a contractor whose engagement ended, or anyone whose current job no longer touches the ad server.",
+                "Ask the publisher whether account removal is tied to an offboarding step, and record whether closing access depends on a process or on someone remembering."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner reconciles the active FreeWheel account list against a current roster of people who need access. An account list where every active account maps to a current person with a current need passes. An account list that includes departed staff, ended-contractor accounts, or logins that cannot be tied to a current need is a fail recorded with the accounts that should be closed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the active account list reconciled against a current roster of people who need access above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the FreeWheel console at {{site_name}} keeps active accounts for people who have left or whose engagement has ended. A forgotten account is a login no current employee owns or watches, so a credential that should have been closed becomes an unmonitored entry point into ad serving and pricing. {{voice_recommend}} reconciling the active account list against a current roster of employees and contractors, closing any account that no longer maps to a current need, and tying account removal to the offboarding process so access ends when the work does."
+      }
+    },
+    {
+      "id": "freewheel-roles-permissions-api-credentials-broad-or-shared",
+      "title": "API credentials are broad, shared, or never rotated",
+      "category": "governance",
+      "subcategory": "roles_permissions",
+      "impact_score": 3,
+      "impact_rationale": "An application programming interface (API) credential that carries broad access, is shared across tools, or is never rotated is a long-lived key into the FreeWheel platform that is hard to monitor and hard to revoke cleanly. A shared or stale token cannot be tied to a single system, so a leak forces a choice between leaving it active and breaking every tool that uses it, which slows the response when it matters most.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["governance", "compliance"],
+      "educate": {
+        "base": "Beyond people logging in, the FreeWheel platform is reached by automated systems through its API, using credentials such as access tokens or keys. A reporting pipeline, an order management integration, or a data warehouse sync each authenticate with their own credential. The same governance that applies to human accounts applies to these machine credentials, with one difference. A token is usually long-lived and runs without a person watching it, so a credential that is too broad, shared across tools, or never rotated can sit unexamined for a long time.<br><br>OWASP's secrets management guidance sets out the discipline for these credentials. Each credential should be scoped to the least privilege the integration needs, tied to a single known system rather than shared, and rotated on a regular schedule so a leaked token only works for a short window. The same guidance stresses that a credential must be possible to revoke quickly when it is exposed, which only works cleanly when the token belongs to one system and not many.<br><br>The audit question is whether the API credentials in use follow that discipline or whether they are broad, shared, and static. A single token reused across several tools cannot be revoked without breaking all of them, and a token that has never rotated has had a long time to leak. Scoping each credential to one system and one purpose, and rotating it on a schedule, keeps the response to a leak fast and contained.<br><br>A few signs point to API credentials that need attention:<ul><li>One token or key is reused across several integrations rather than each system holding its own</li><li>Credentials carry broad access when the integration only reads reporting data or only writes a narrow slice of configuration</li><li>No rotation schedule exists, so tokens issued at setup remain in use unchanged</li><li>The publisher cannot say which system each credential belongs to or what it is allowed to do</li></ul>You may want to confirm that each API credential is scoped, tied to one system, and rotated on a schedule. One approach is to inventory every active token, record what each one reaches and which integration uses it, then narrow, separate, and schedule rotation for any that fall short.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcast property, FreeWheel often connects to reporting warehouses, order management systems, and yield tools through the API. You may want to confirm that each of those integrations holds its own scoped credential, so a leak in one pipeline can be revoked without taking down the others.",
+          "ecommerce": "On a commerce-content property running video, an API credential may feed a shared analytics or business intelligence platform alongside other data sources. You may want to confirm that the FreeWheel credential is scoped to the data that platform needs and rotated on a schedule, rather than a broad key issued once and left in place."
+        },
+        "learn_more": [
+          {
+            "source_type": "OWASP Cheat Sheet Series",
+            "source_title": "Secrets Management Cheat Sheet",
+            "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html"
+          },
+          {
+            "source_type": "OWASP Cheat Sheet Series",
+            "source_title": "Authorization Cheat Sheet",
+            "source_url": "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the inventory of active API credentials, recording what each one can reach, which system uses it, and when it was last rotated.",
+        "tools": {
+          "free": {
+            "freewheel_console": {
+              "label": "FreeWheel console",
+              "steps": [
+                "Open the API or integration credential area of the FreeWheel console and list every active token or key with the access it carries.",
+                "For each credential, record which integration or system uses it and whether any other tool shares the same token.",
+                "Note the access scope of each credential and whether it is broader than the integration's purpose requires.",
+                "Ask the publisher when each credential was last rotated and whether a rotation schedule exists, and record the answer per credential."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each active API credential with its scope, the system that uses it, whether it is shared, and when it was last rotated. A credential inventory where each token is scoped to one system's least-privilege need and rotated on a schedule passes. An inventory with shared tokens, credentials broader than the integration requires, or tokens with no rotation on record is a fail recorded with the credentials that need scoping, separating, or rotating.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each active API credential with its scope, owning system, and last rotation date above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more application programming interface (API) credentials reaching the FreeWheel platform at {{site_name}} are broad, shared across tools, or never rotated. A shared or stale token cannot be tied to a single system, so a leak forces a choice between leaving it active and breaking every tool that uses it, which slows the response when speed matters most. {{voice_recommend}} inventorying every active credential, scoping each to the least privilege its integration needs, tying each to a single system rather than sharing it, and rotating each on a schedule. After the change, a leaked credential can be revoked on its own without disrupting the other integrations."
+      }
+    }
+  ]
+}

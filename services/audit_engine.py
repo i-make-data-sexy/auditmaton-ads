@@ -749,6 +749,53 @@ CATEGORY_METADATA = {
             "description": "Discrepancy reconciliation, report accuracy, and request counting",
         },
     },
+    "magnite": {
+        "governance": {
+            "display_name": "Governance",
+            "icon_class": "fa-solid fa-scale-balanced",
+            "description": "Seat structure, access roles, and naming conventions",
+        },
+        "inventory": {
+            "display_name": "Inventory",
+            "icon_class": "fa-solid fa-boxes-stacked",
+            "description": "Ad slot mapping, CTV ad pods, and video setup",
+        },
+        "monetization": {
+            "display_name": "Monetization",
+            "icon_class": "fa-solid fa-sack-dollar",
+            "description": "Price floors, Demand Manager, and yield optimization",
+        },
+        "buyers": {
+            "display_name": "Buyers",
+            "icon_class": "fa-solid fa-handshake",
+            "description": "Programmatic deals, ClearLine curation, and seat controls",
+        },
+        "supply-chain": {
+            "display_name": "Supply Chain",
+            "icon_class": "fa-solid fa-file-shield",
+            "description": "ads.txt, sellers.json, and supply path optimization",
+        },
+        "identity": {
+            "display_name": "Identity",
+            "icon_class": "fa-solid fa-fingerprint",
+            "description": "UID2, RampID, and publisher-provided audience signals",
+        },
+        "privacy": {
+            "display_name": "Privacy",
+            "icon_class": "fa-solid fa-user-shield",
+            "description": "Consent signals, US state privacy, and child-directed treatment",
+        },
+        "brand-safety": {
+            "display_name": "Brand Safety",
+            "icon_class": "fa-solid fa-shield-halved",
+            "description": "Ad quality scanning, creative blocking, and content classification",
+        },
+        "measurement": {
+            "display_name": "Measurement",
+            "icon_class": "fa-solid fa-chart-line",
+            "description": "Discrepancy reconciliation, report accuracy, and video metrics",
+        },
+    },
 }
 
 
@@ -834,6 +881,8 @@ DISPLAY_ACRONYMS = {
     # Google Ad Manager (supply side)
     "upr": "UPR", "adx": "AdX", "sra": "SRA", "rdp": "RDP", "ppid": "PPID",
     "mcm": "MCM", "sco": "SCO", "npa": "NPA",
+    # Magnite (supply side)
+    "spo": "SPO", "clearline": "ClearLine",
 }
 
 
@@ -901,6 +950,9 @@ def _format_display_name(file_key):
         "video_seo": "Video SEO",
         "ads_txt": "ads.txt",
         "sellers_json": "sellers.json",
+        "us_state_privacy": "US State Privacy",
+        "uid2_euid": "UID2 / EUID",
+        "rampid_alternative_ids": "RampID Alternative IDs",
     }
 
     if file_key in overrides:

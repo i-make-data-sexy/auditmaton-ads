@@ -1,0 +1,219 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "A bad creative that reaches the viewer is the most visible failure a video ad server can have because a black frame, silent slate, or a clip that blares at double the program volume lands on the screen of a real audience watching real content. The check is a review of the creative-quality controls FreeWheel already exposes and the rules that decide what happens to a flagged asset, so it costs reading time rather than rebuild time. The finding points to a concrete gap a publisher can close, either a scanning step that is missing or a quality rule set to warn rather than block.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Creative quality scanning is the layer that inspects a video ad asset before it serves and decides whether the asset is fit to reach a viewer. In a premium video and Connected TV (CTV) environment, a malformed Video Ad Serving Template (VAST) response, a broken media file, a black or slate frame, or audio that sits far above the program loudness all surface directly in the viewing experience rather than in a banner a user can scroll past. This subcategory looks at whether FreeWheel inspects creatives for those faults and whether a creative that fails inspection is stopped rather than left to run. The checks confirm the scanning is in place and that the response to a flagged asset protects the viewer instead of trusting the asset by default.",
+  "audit_checks": [
+    {
+      "id": "freewheel-ad-quality-scanning-no-creative-inspection",
+      "title": "Video creatives are not inspected for malformed VAST, broken media, or slate frames before they serve",
+      "category": "brand-safety",
+      "subcategory": "ad_quality_scanning",
+      "impact_score": 4,
+      "impact_rationale": "A video ad server that accepts creatives without inspecting them passes faults straight to the viewer. A malformed VAST response can fail to render and leave a black or frozen frame, a broken media file can stall playback, and a slate or black-frame asset can serve as if it were a real ad. On a CTV screen the viewer has no way to skip past the fault, so an uninspected creative becomes a visible break in the program rather than a quiet error in a log.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "ad-experience"],
+      "educate": {
+        "base": "FreeWheel serves video and Connected TV (CTV) ads, where the creative is a media file delivered through a Video Ad Serving Template (VAST) response and played back inside the program stream. Because the ad plays in the same surface as the content, a fault in the creative is not hidden the way a broken banner can be. It renders on the screen as a black frame, a frozen image, a clip that stalls, or a slate placeholder that serves where a real ad should have run.<br><br>Creative quality scanning is the inspection step that catches those faults before the asset reaches a viewer. A scanning layer reads the VAST document and confirms it parses against the spec, checks that the linked media files resolve and are playable rather than dead links or corrupt encodes, and looks for assets that are effectively empty, such as a black frame or a static slate standing in for video. The VAST and VMAP specifications from IAB Tech Lab define the structure the scanner validates against, so a creative that breaks that structure can be identified rather than discovered by a viewer.<br><br>The audit question is whether any inspection happens at all before a creative is eligible to serve. Some demand arrives through direct-sold deals where a creative is uploaded and trafficked, and some arrives programmatically where the VAST is fetched at request time. Both paths can carry a malformed or broken asset, so the scanning needs to cover the way creatives actually enter the system rather than only one path.<br><br>A few signs point to creatives serving without inspection:<ul><li>No creative-review or quality-scan step exists between a creative entering FreeWheel and becoming eligible to serve</li><li>Programmatic VAST is accepted at request time with no validation that the document parses or that its media files resolve</li><li>Reports or viewer complaints describe black frames, frozen video, or silent placeholders during ad breaks with no scanning layer that would have caught them</li></ul>You may want to confirm that creatives are inspected for malformed VAST, broken media, and slate or black-frame content before they are eligible to serve. One approach is to trace a direct-sold creative and a programmatic VAST response through the system and record where, if anywhere, each is validated.",
+        "site_type_overlays": {
+          "publishing": "For a broadcaster or streaming publisher, the ad break runs inside a full-screen program on a living-room device, so a black frame or a stalled clip reads as the channel itself breaking rather than as a single bad ad. You may want to confirm the scanning covers the CTV and live-stream paths specifically since a fault there interrupts a lean-back viewer who cannot click away from it.",
+          "ecommerce": "For a commerce-content publisher running video around product or shopping content, a creative that serves as a black frame or silent slate wastes an ad slot next to inventory the audience came to browse. You may want to confirm that creatives on the shoppable and product-adjacent video are inspected, so the ad that runs beside commercial content is a real, playable asset rather than a placeholder."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Video Multiple Ad Playlist (VMAP)",
+            "source_url": "https://iabtechlab.com/specifications-guidelines/video-multiple-ad-playlist-vmap/"
+          }
+        ],
+        "learn_more_note": "FreeWheel's detailed creative-review and quality-scanning configuration documentation is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Trace how a direct-sold creative and a programmatic VAST response each enter FreeWheel, and record where each is inspected for malformed VAST, broken media files, and slate or black-frame content before it becomes eligible to serve.",
+        "tools": {
+          "free": {
+            "freewheel_ui": {
+              "label": "FreeWheel console",
+              "steps": [
+                "Open the creative management area and identify the path a direct-sold video creative takes from upload to approved-to-serve, noting any quality-review or scan step in that path.",
+                "Identify how programmatic demand enters, and record whether the VAST returned at request time is validated for structure and media before it is allowed to serve.",
+                "List the quality checks that are active, such as VAST parsing, media-file resolution, and slate or black-frame detection, and note any that are absent.",
+                "Ask the publisher whether any creative has reached a viewer as a black frame, frozen clip, or silent slate, and record what was found and when."
+              ]
+            },
+            "vast_validator": {
+              "label": "IAB Tech Lab VAST Tag Validator",
+              "steps": [
+                "Take a sample VAST tag or response used in the account and run it through the IAB Tech Lab VAST Tag Validator to confirm it parses against the spec.",
+                "Note whether the validator surfaces structural errors or unreachable media files that an inspection step would be expected to catch.",
+                "Record whether the faults the validator finds would be caught by FreeWheel's own scanning or would pass through to the viewer."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each path a creative enters by, whether an inspection step validates the VAST structure, confirms media files resolve and play, and detects slate or black-frame content before the creative is eligible to serve. A setup where every entry path runs through a scanning step that covers those faults passes. A setup where a creative can become eligible to serve with no inspection on one or more paths is a fail recorded with the path and the faults that would go undetected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether each creative entry path is inspected for malformed VAST, broken media, and slate frames above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} allows video creatives to become eligible to serve without inspecting them for malformed Video Ad Serving Template (VAST) responses, broken media files, or slate and black-frame content. In a video and Connected TV (CTV) environment the creative plays inside the program, so an uninspected fault reaches the viewer as a black frame, a stalled clip, or a silent placeholder rather than a quiet error. {{voice_recommend}} adding a creative-quality scan on every path a creative enters by, covering VAST parsing, media-file resolution, and slate detection, so a faulty asset is identified before it is eligible to serve. After the scanning is in place, confirm a sample creative from each entry path passes through it before going live."
+      }
+    },
+    {
+      "id": "freewheel-ad-quality-scanning-audio-loudness-not-checked",
+      "title": "Ad audio loudness is not checked against the program, risking CALM Act jumps",
+      "category": "brand-safety",
+      "subcategory": "ad_quality_scanning",
+      "impact_score": 3,
+      "impact_rationale": "An ad that plays far louder than the program it interrupts is the loudness jump the CALM Act and the ATSC A/85 standard exist to prevent. For a publisher serving into broadcast or CTV, a creative that sits well above the program loudness drives viewer complaints and, for content carried by a broadcaster or multichannel provider, sits inside a regulated requirement. A scanning layer that ignores loudness lets those assets serve at the volume they were encoded at.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "ad-experience"],
+      "educate": {
+        "base": "Audio loudness is the part of creative quality a viewer reacts to fastest. An ad that arrives several decibels above the program it interrupts produces the volume jump that drives people to reach for the remote, and in a living-room Connected TV (CTV) setting that jump is sharper because the program and the ad share the same speakers at the same fixed volume. The fault is not in the player. It is in the creative, which was encoded at a loudness the program was not.<br><br>The Commercial Advertisement Loudness Mitigation (CALM) Act in the United States requires commercials carried by television stations and multichannel video providers to match the average loudness of the program they accompany, and it points to the Advanced Television Systems Committee (ATSC) A/85 recommended practice for how to measure and control that loudness. The standard describes loudness measurement and the techniques for keeping program-to-interstitial loudness in line, so an ad and the content around it land at a comparable level rather than the ad spiking above it.<br><br>A creative-quality scan can measure the integrated loudness of an ad asset and compare it against a target that reflects the program loudness, then flag or normalize an asset that sits outside the allowed range. The audit question is whether FreeWheel's quality controls include a loudness measurement at all, or whether creatives serve at whatever level they were delivered at. A publisher that carries third-party demand cannot assume every creative was mastered to the same target, so a check at the ad-server layer is where a mismatch can still be caught.<br><br>A few signs point to loudness going unchecked:<ul><li>No loudness measurement or normalization step exists in the creative-quality controls, so assets serve at their delivered level</li><li>Viewer complaints describe ads that are noticeably louder than the program, with no scanning rule that would have flagged them</li><li>The publisher carries content for a broadcaster or multichannel provider subject to the CALM Act but cannot show that ad loudness is measured against a target</li></ul>You may want to confirm that ad creatives are measured for loudness against a target tied to the program level before they serve. One approach is to sample recent creatives, measure their integrated loudness, and compare the spread against the program target to see how far assets drift.",
+        "site_type_overlays": {
+          "publishing": "For a broadcaster or streaming publisher, the loudness target is tied to the program and, for content carried by a regulated provider, to the CALM Act and the ATSC A/85 standard. You may want to confirm the scanning measures ad loudness against that program target on the broadcast and CTV paths since a jump there reaches a lean-back audience and sits inside a regulated requirement.",
+          "ecommerce": "For a commerce-content publisher running video around shopping or product content, a loud ad breaking into a quiet product walkthrough is jarring even where the CALM Act does not directly apply. You may want to set a loudness target for the video experience and confirm creatives are measured against it, so the ad does not blow past the level the surrounding content was mastered to."
+        },
+        "learn_more": [
+          {
+            "source_type": "ATSC Recommended Practice",
+            "source_title": "A/85: Techniques for Establishing and Maintaining Audio Loudness for Digital Television",
+            "source_url": "https://www.atsc.org/atsc-documents/a85-techniques-for-establishing-and-maintaining-audio-loudness-for-digital-television/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          }
+        ],
+        "learn_more_note": "FreeWheel's detailed creative-quality and loudness-control configuration documentation is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the creative-quality controls for any loudness measurement or normalization step, and sample recent ad creatives to see how their integrated loudness compares against the program target.",
+        "tools": {
+          "free": {
+            "freewheel_ui": {
+              "label": "FreeWheel console",
+              "steps": [
+                "Open the creative-quality settings and record whether any rule measures ad loudness or normalizes it toward a target, or whether creatives serve at their delivered level.",
+                "Identify the loudness target the publisher intends for the program, and note whether the scanning compares creatives against it.",
+                "For content carried on behalf of a broadcaster or multichannel provider, record whether the publisher can show that ad loudness is measured against a CALM Act target."
+              ]
+            },
+            "loudness_meter": {
+              "label": "Loudness measurement tool",
+              "steps": [
+                "Sample a set of recent ad creatives and measure the integrated loudness of each with a meter that reports against the ATSC A/85 method.",
+                "Compare each measurement against the program loudness target and record how far the creatives spread above or below it.",
+                "Note any creative that sits well above the program target, which points to a loudness jump that a scanning rule should have flagged."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the creative-quality controls include a loudness measurement against a target tied to the program level, and how a sample of recent creatives measures against that target. A setup that measures ad loudness against a program target and flags or normalizes assets outside the range passes. A setup where loudness is not measured, or where sampled creatives sit well above the program target with no rule catching them, is a fail recorded with the measurements and the target they miss.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether ad loudness is measured against a program target and how sampled creatives compare above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not measure ad creative loudness against the program level, so creatives serve at whatever loudness they were delivered at. An ad that sits well above the program produces the volume jump the Commercial Advertisement Loudness Mitigation (CALM) Act and the ATSC A/85 standard exist to prevent, and for content carried by a regulated provider that jump sits inside a legal requirement. {{voice_recommend}} adding a loudness measurement to the creative-quality controls that compares each asset against a target tied to the program level and flags or normalizes assets outside the range. After the rule is in place, sample recent creatives and confirm their loudness lands within the target range."
+      }
+    },
+    {
+      "id": "freewheel-ad-quality-scanning-flagged-creatives-not-blocked",
+      "title": "Creatives that fail quality checks are left to run rather than blocked",
+      "category": "brand-safety",
+      "subcategory": "ad_quality_scanning",
+      "impact_score": 3,
+      "impact_rationale": "Scanning that flags a faulty creative but does not stop it from serving catches the problem on paper and lets it reach the viewer anyway. A quality rule set to warn rather than block, or a flag that lands in a report no one acts on, leaves the broken or non-compliant asset eligible to serve. The detection is wasted because the enforcement step that would protect the viewer is missing.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "ad-experience"],
+      "educate": {
+        "base": "Detecting a bad creative only helps if the detection changes what serves. A creative-quality scan can identify a malformed Video Ad Serving Template (VAST) response, a broken media file, a slate frame, or a loudness jump, but the value of that finding depends on what happens next. If the rule blocks the asset, the viewer is protected. If the rule only warns, logs, or flags for later review, the asset stays eligible to serve and the fault reaches the screen while the flag sits in a report.<br><br>This gap shows up in the enforcement setting on each quality rule. A scan can run in a monitoring mode that records faults without acting on them, which is reasonable while a publisher tunes the rules but is a hole if it is left that way in production. The audit looks at whether the rules that detect a serious fault, a creative that will not render or one that violates a loudness requirement, are set to block the asset or merely to note it.<br><br>The response can also be more graded than a single on-off block. A publisher may choose to block a creative that fails to parse outright while routing a borderline asset to manual review, or to suppress a flagged creative on premium inventory while allowing it elsewhere. What matters for the audit is that a clear, serious fault has an enforcement path that stops the asset, rather than every flag resolving to the asset serving anyway.<br><br>A few signs point to flagged creatives running rather than being blocked:<ul><li>Quality rules are set to warn or monitor in production, so a flagged creative stays eligible to serve</li><li>Flags accumulate in a report or dashboard with no action and no link to a block decision</li><li>A creative known to fail a check, such as one that does not render or breaks a loudness target, has continued to serve after being flagged</li></ul>You may want to confirm that creatives failing a serious quality check are blocked from serving rather than only flagged. One approach is to review the enforcement setting on each quality rule and trace a recently flagged creative to see whether it was stopped or allowed to run.",
+        "site_type_overlays": {
+          "publishing": "For a broadcaster or streaming publisher, a flagged creative that keeps serving reaches a full-screen CTV audience that cannot skip it, so a warn-only rule on a serious fault leaves the viewer exposed. You may want to confirm the rules that detect a non-rendering creative or a loudness violation are set to block on the broadcast and CTV paths rather than to log and move on.",
+          "ecommerce": "For a commerce-content publisher, a flagged creative left to run next to product or shopping content wastes the slot and undercuts the experience the audience came for. You may want to confirm that a creative failing a serious quality check on the shoppable and product-adjacent video is blocked, so the inventory beside commercial content is held to the enforcement standard the publisher intends."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "ATSC Recommended Practice",
+            "source_title": "A/85: Techniques for Establishing and Maintaining Audio Loudness for Digital Television",
+            "source_url": "https://www.atsc.org/atsc-documents/a85-techniques-for-establishing-and-maintaining-audio-loudness-for-digital-television/"
+          }
+        ],
+        "learn_more_note": "FreeWheel's detailed creative-quality rule and enforcement-action configuration documentation is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the enforcement setting on each creative-quality rule, and trace a recently flagged creative to record whether it was blocked from serving or left eligible to run.",
+        "tools": {
+          "free": {
+            "freewheel_ui": {
+              "label": "FreeWheel console",
+              "steps": [
+                "Open the creative-quality rules and record, for each, whether its action blocks the creative, routes it to review, or only warns or logs.",
+                "Identify which rules cover serious faults, such as a creative that fails to render or violates a loudness target, and note whether those rules block rather than warn.",
+                "Find a creative that was flagged recently and trace whether it was stopped from serving, sent to review, or allowed to continue.",
+                "Record any rule left in a monitor-only or warn-only mode in production where a block would be expected."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the enforcement action on each quality rule and traces a recently flagged creative to its outcome. A setup where rules covering serious faults block the asset or route it to review, and where flagged creatives are demonstrably stopped, passes. A setup where serious-fault rules warn or monitor in production, or where a flagged creative continued to serve, is a fail recorded with the rule and the creative that ran despite the flag.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the enforcement action on each quality rule and the outcome of a flagged creative above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} flags creatives that fail quality checks but leaves them eligible to serve because the rules covering serious faults are set to warn or monitor rather than block. Detection that does not stop the asset catches the fault on paper while the broken or non-compliant creative still reaches the viewer. {{voice_recommend}} setting the rules that detect a serious fault, such as a creative that fails to render or violates a loudness target, to block the asset or route it to review, and confirming flagged creatives are stopped rather than logged. After the change, trace a newly flagged creative to confirm it is blocked rather than allowed to run."
+      }
+    }
+  ]
+}

@@ -1,0 +1,162 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Supply Path Optimization (SPO) decides which paths to a publisher's video and Connected TV (CTV) inventory carry buyer spend, so reseller and made-for-advertising hygiene controls whether that spend reaches the publisher or leaks to intermediaries who add no value. Redundant reseller paths and unauthorized resellers let buyers route around the publisher's preferred path, dilute the publisher's sellers.json and ads.txt declarations, and invite the kind of misrepresented inventory that buyers steer away from. The check is a review of declarations and reseller relationships the publisher already maintains, so it costs reading time rather than rebuild time, and each finding points to a concrete entry to remove, authorize, or consolidate.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "SPO is the buy side narrowing the routes it uses to reach a publisher's inventory, keeping the short, transparent paths and dropping the long, redundant ones. For a FreeWheel publisher selling premium video and CTV inventory, the supply side of that equation is reseller and made-for-advertising (MFA) hygiene. The authorized-seller declarations have to name only the entities that genuinely sell the inventory, redundant reseller paths to the same impressions need to be minimized, and unauthorized or MFA-style resellers need to be found and removed before buyers route around the publisher or mark its inventory down. These checks confirm the publisher's sellers.json, ads.txt, and app-ads.txt declarations describe a clean, deliberate set of selling paths rather than an accumulated list that buyers cannot trust.",
+  "audit_checks": [
+    {
+      "id": "freewheel-spo-reseller-hygiene-redundant-paths-not-minimized",
+      "title": "Redundant reseller paths to the same inventory are not minimized",
+      "category": "supply-chain",
+      "subcategory": "spo_reseller_hygiene",
+      "impact_score": 3,
+      "impact_rationale": "When the same impression is reachable through several reseller paths, buyers running Supply Path Optimization pick one and treat the rest as noise, and the redundant paths can each take a margin cut on the spend that does flow through them. Long, duplicative paths give a publisher no extra demand while diluting its declarations and lowering the share of buyer spend that reaches it, so trimming them protects revenue rather than adding risk.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["transparency", "fraud"],
+      "educate": {
+        "base": "Supply Path Optimization (SPO) is the process buyers use to choose the cleanest route to a publisher's inventory and stop bidding through the rest. A demand-side platform looks at the paths available to the same impression, keeps the short ones with the fewest intermediaries and the clearest fees, and drops the long, duplicative ones. For a FreeWheel publisher, the question is how many distinct reseller paths reach the same video and Connected TV (CTV) impression because every redundant path is a route a buyer is likely to ignore while it still appears in the publisher's declarations.<br><br>Redundant paths cost the publisher in two ways. Each intermediary in a reseller path takes a margin cut on the spend that flows through it, so a long path returns less to the publisher than a direct or short one for the same impression. The paths a buyer drops during SPO return nothing at all, yet they remain in the sellers.json and ads.txt records that buyers read to judge how clean the supply is. A record listing many reseller entries for inventory that a few direct sellers could carry reads as accumulated rather than deliberate, and accumulated supply is what SPO is built to cut.<br><br>The IAB Tech Lab specifications describe how these paths are declared and validated. The publisher's ads.txt and app-ads.txt files name the entities authorized to sell its inventory and mark each as a direct seller or a reseller. The sellers.json file each intermediary publishes, together with the OpenRTB SupplyChain object passed on the bid request, lets a buyer reconstruct the full chain of sellers behind an impression. Reading those records the way a buyer does shows which paths are short and direct and which are long and redundant.<br><br>A review of reseller paths looks for a few signs that redundancy has built up:<ul><li>The same inventory is reachable through several reseller paths that terminate at the same publisher seller ID</li><li>Reseller relationships in ads.txt or app-ads.txt no longer correspond to demand the publisher can point to</li><li>The SupplyChain object on bid requests for the same impression shows chains of differing length, with the longer ones adding intermediaries but no new demand</li></ul>You may want to confirm that each reseller path returns demand the publisher can identify and that no two paths duplicate the same route to the same impression. One approach is to list every reseller authorized in the declarations, map which inventory each one reaches, and retire the paths that overlap an existing direct or shorter path without adding demand of their own.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, a single live event or on-demand title can be sold through a direct path and through several reseller paths at once, which multiplies the redundant routes to the same CTV avails. You may want to map the reseller paths per content type and retire the ones that duplicate a direct sale of the same avail, so buyers running SPO see one clean path rather than several competing ones.",
+          "ecommerce": "On a commerce-content property running shoppable or product video, the higher-intent inventory is the inventory buyers most want a clean path to, so redundant reseller routes there are the ones most likely to cost spend. You may want to consolidate the reseller paths to that commercial video inventory first, keeping the direct and short paths that carry identifiable demand and dropping the duplicative ones."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json and the SupplyChain Object",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt and app-ads.txt (Authorized Digital Sellers)",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          }
+        ],
+        "learn_more_note": "FreeWheel's detailed configuration documentation for managing reseller relationships and supply paths is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the reseller paths declared for the publisher's inventory and map which paths reach the same impressions, looking for routes that duplicate a direct or shorter path without adding demand.",
+        "tools": {
+          "free": {
+            "ads_txt_files": {
+              "label": "ads.txt and app-ads.txt files",
+              "steps": [
+                "Open the publisher's ads.txt file at the root of each web domain and the app-ads.txt file referenced from each app's developer URL.",
+                "List every authorized entry and note whether each is marked 'DIRECT' or 'RESELLER', along with the seller account ID it points to.",
+                "Group the entries by the inventory they sell, and flag any case where several reseller entries point to the same inventory the publisher could sell directly or through one shorter path.",
+                "Record reseller relationships that the publisher cannot tie to demand it can identify, which makes them candidates to retire."
+              ]
+            },
+            "sellers_json_and_schain": {
+              "label": "sellers.json and SupplyChain object",
+              "steps": [
+                "For each intermediary the ads.txt file authorizes as a reseller, open that intermediary's published sellers.json and confirm the publisher's seller ID and relationship are listed as expected.",
+                "On sample bid requests for the same impression, read the OpenRTB SupplyChain object and record the chain of seller IDs from the publisher to the exchange for each path.",
+                "Compare the chains that reach the same impression and note where a longer chain adds intermediaries without reaching demand a shorter chain does not already reach."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner lists every reseller path declared in ads.txt, app-ads.txt, and the seller IDs they resolve to, then maps which inventory each path reaches and what demand it returns. A setup where each reseller path reaches inventory through a distinct, identifiable route that returns demand the publisher can point to passes. A setup where several reseller paths duplicate the same route to the same inventory, or where reseller entries return no demand the publisher can identify, is a fail recorded with the duplicative paths and the inventory they overlap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the reseller paths, the inventory each reaches, and the demand each returns above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} declares several reseller paths that reach the same video and Connected TV (CTV) inventory without adding demand beyond what a direct or shorter path already carries. Buyers running Supply Path Optimization (SPO) keep the cleanest route to an impression and drop the rest, so each redundant path returns little or nothing while it still appears in the publisher's sellers.json and ads.txt records and reads as accumulated supply. {{voice_recommend}} listing every authorized reseller, mapping the inventory each one reaches, and retiring the paths that duplicate an existing direct or shorter route without returning identifiable demand. After the cleanup, confirm the remaining paths each reach inventory through a distinct route a buyer can trust."
+      }
+    },
+    {
+      "id": "freewheel-spo-reseller-hygiene-mfa-unauthorized-resellers-not-monitored",
+      "title": "Made-for-advertising and unauthorized reseller risk is not monitored",
+      "category": "supply-chain",
+      "subcategory": "spo_reseller_hygiene",
+      "impact_score": 4,
+      "impact_rationale": "An unauthorized reseller or a made-for-advertising site selling under the publisher's name misrepresents the inventory, and buyers who detect it through sellers.json and SupplyChain checks reduce or stop spend across the publisher's paths rather than just the bad one. Because the damage falls on the publisher's reputation with the buy side and not only on a single transaction, leaving this unmonitored risks a broad markdown of the publisher's inventory, which is why it sits higher than a routine hygiene check.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["transparency", "fraud"],
+      "educate": {
+        "base": "Made-for-advertising (MFA) sites carry little genuine content and exist mainly to load ad slots and arbitrage cheap traffic into ad revenue. In a supply chain, the related risk for a premium publisher is two-sided. An MFA operator or an unauthorized reseller can declare itself a seller of the publisher's inventory it has no right to sell, and the publisher can find its own sellers.json or ads.txt listing reseller relationships that have drifted toward MFA-style intermediaries. Either way, buyers running their own supply-chain checks see inventory that does not match what the publisher intends to sell.<br><br>The cost lands on the publisher even though the misrepresentation starts elsewhere. When a buyer's verification finds a path claiming to sell the publisher's video or Connected TV (CTV) inventory that the publisher's ads.txt does not authorize, or finds the publisher's seller ID attached to low-quality MFA inventory, the buyer does not always trace the problem to one path. It can mark down or pause spend across the publisher's supply to avoid the misrepresented inventory entirely. The reputational signal to the buy side is what makes this worth monitoring rather than treating as a single bad transaction.<br><br>The IAB Tech Lab specifications give a publisher the tools to monitor this. The ads.txt and app-ads.txt files are the publisher's own statement of who is authorized to sell its inventory, so any seller claiming the inventory while absent from those files is unauthorized by definition. The sellers.json files of authorized intermediaries, read alongside the SupplyChain object on bid requests, let a publisher check that its seller ID appears only where it should and that the chains carrying its inventory do not pass through entities it does not recognize. The Supply Chain Validation guidance for publishers describes the qualification and continued-validation steps that keep those declarations trustworthy.<br><br>A review of MFA and unauthorized-reseller risk looks for a few signs that monitoring is missing:<ul><li>No regular check compares sellers claiming the publisher's inventory against the entities its ads.txt and app-ads.txt actually authorize</li><li>The publisher cannot say when it last reviewed its authorized resellers for drift toward MFA-style intermediaries</li><li>The publisher's seller ID appears in chains or on domains it does not recognize, with no process to catch and dispute them</li></ul>You may want to confirm that a recurring check reconciles claimed sellers against authorized ones and flags any reseller relationship that has drifted toward MFA inventory. One approach is to crawl the sellers.json records that reference the publisher's seller ID on a schedule, compare them against the publisher's own ads.txt authorizations, and open a dispute or remove an authorization whenever an unauthorized or MFA-style seller appears.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, the brand value of the content is exactly what an MFA operator or unauthorized reseller borrows when it claims to sell the inventory, so the reputational markdown from the buy side can reach the premium CTV avails that matter most. You may want to monitor the sellers.json references to the publisher's seller ID closely for those avails and dispute any path that the broadcaster's ads.txt does not authorize.",
+          "ecommerce": "On a commerce-content property, an unauthorized reseller attaching the publisher's identity to low-quality MFA inventory can undercut the higher prices the genuine commercial video earns by mixing it with arbitraged traffic. You may want to reconcile the sellers claiming the commercial inventory against the authorized list on a schedule, so the higher-intent video keeps a clean supply path that buyers trust."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Supply Chain Validation for Publishers (Version 1.0)",
+            "source_url": "https://iabtechlab.com/wp-content/uploads/2021/05/Supply-Chain-Validation-for-Publishers.pdf"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt and app-ads.txt (Authorized Digital Sellers)",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json and the SupplyChain Object",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "learn_more_note": "FreeWheel's detailed configuration documentation for reviewing and disputing reseller declarations is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Reconcile the sellers claiming the publisher's inventory against the entities its ads.txt and app-ads.txt authorize, and check the publisher's seller ID against the sellers.json records and SupplyChain chains that reference it.",
+        "tools": {
+          "free": {
+            "ads_txt_files": {
+              "label": "ads.txt and app-ads.txt files",
+              "steps": [
+                "Open the publisher's ads.txt and app-ads.txt files and record every authorized seller account ID and whether each is a direct seller or a reseller.",
+                "Treat this authorized list as the reference set. Any seller claiming the publisher's inventory while absent from it is unauthorized by definition.",
+                "Review the authorized resellers for any whose own inventory has drifted toward made-for-advertising (MFA) characteristics, and flag them for a closer look."
+              ]
+            },
+            "sellers_json_and_schain": {
+              "label": "sellers.json and SupplyChain object",
+              "steps": [
+                "Search the sellers.json files of the exchanges and intermediaries the publisher works with for entries that reference the publisher's seller ID.",
+                "Compare each reference against the authorized list from ads.txt, and record any seller ID or domain that claims the publisher's inventory without authorization.",
+                "On sample bid requests, read the OpenRTB SupplyChain object and confirm the chains carrying the publisher's inventory pass only through entities it recognizes, noting any unfamiliar node.",
+                "Record whether a recurring check already performs this reconciliation or whether it is being done for the first time during the audit."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner reconciles the sellers claiming the publisher's inventory against its authorized ads.txt and app-ads.txt list and checks the publisher's seller ID against sellers.json references and SupplyChain chains. A setup where a recurring check reconciles claimed sellers against authorized ones, flags MFA drift, and has a path to dispute or remove unauthorized entries passes. A setup with no recurring reconciliation, or one where unauthorized or MFA-style sellers reference the publisher's seller ID with no process to catch them, is a fail recorded with the unauthorized sellers and the inventory they claim.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the authorized sellers, the sellers claiming the publisher's inventory, and whether a recurring reconciliation exists above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has no recurring check reconciling the sellers claiming its inventory against the entities its ads.txt and app-ads.txt authorize, so unauthorized resellers and made-for-advertising (MFA) drift can go undetected. When a buyer's own verification finds a path selling the publisher's video and Connected TV (CTV) inventory that the publisher never authorized, or finds its seller ID attached to MFA inventory, the buyer can mark down or pause spend across the publisher's supply rather than just the bad path. {{voice_recommend}} crawling the sellers.json records that reference the publisher's seller ID on a schedule, reconciling them against the authorized list, and disputing or removing any unauthorized or MFA-style seller as it appears. After the process is in place, confirm the publisher's seller ID appears only on paths it recognizes and authorizes."
+      }
+    }
+  ]
+}

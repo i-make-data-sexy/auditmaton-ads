@@ -153,6 +153,26 @@ def get_active_side():
 
     return platform_side(get_active_platform())
 
+
+def default_platform_for_side(side):
+    """
+    Returns the default platform slug for a side: the first registry platform
+    of that side that has authored content, falling back to the first of that
+    side, then to DEFAULT_PLATFORM.
+
+    Args:
+        side (str): "demand" or "supply".
+
+    Returns:
+        str: A platform slug for the side.
+    """
+
+    candidates = [p["slug"] for p in PLATFORMS if p.get("side") == side]
+    for slug in candidates:
+        if platform_has_content(slug):
+            return slug
+    return candidates[0] if candidates else DEFAULT_PLATFORM
+
 PLATFORM_COOKIE_NAME = "active_platform"
 PLATFORM_COOKIE_MAX_AGE = 60 * 60 * 24 * 365  # 1 year
 

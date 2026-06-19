@@ -56,8 +56,10 @@ $(document).ready(function() {
 /* Navigate to category page when a kanban card is clicked */
 $(document).on("click", ".kanban-card", function() {
     var categoryKey = $(this).data("category").replace(/_/g, "-");
-    var platform = $(".kanban-board").data("platform") || "";
-    window.location.href = window.APP_ROOT + "/dashboard/" + platform + "/" + categoryKey + "/";
+    var board = $(".kanban-board");
+    var side = board.data("side") || "";
+    var platform = board.data("platform") || "";
+    window.location.href = window.APP_ROOT + "/dashboard/" + side + "/" + platform + "/" + categoryKey + "/";
 });
 
 

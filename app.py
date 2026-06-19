@@ -233,14 +233,22 @@ def create_app(config_class=None):
     def inject_active_platform():
         """
         Injects the active platform into all templates as {{ active_platform }}
-        (slug) and {{ active_platform_label }} (display name). Templates use the
-        slug to build platform-scoped /dashboard/<platform>/ links and to mark
-        the active chip in the platform strip.
+        (slug), {{ active_platform_label }} (display name), and {{ active_side }}
+        (demand/supply). Templates use the side + slug to build the
+        /dashboard/<side>/<platform>/ links and to mark the active chip.
         """
-        from services.audit_engine import get_active_platform, AVAILABLE_PLATFORMS
+        from services.audit_engine import (
+            get_active_platform,
+            AVAILABLE_PLATFORMS,
+            platform_side,
+        )
         slug = get_active_platform()
         label = dict(AVAILABLE_PLATFORMS).get(slug, slug)
-        return {"active_platform": slug, "active_platform_label": label}
+        return {
+            "active_platform": slug,
+            "active_platform_label": label,
+            "active_side": platform_side(slug) or "demand",
+        }
 
     @app.context_processor
     def inject_user_role():
@@ -533,21 +541,42 @@ def create_app(config_class=None):
 
     # Dashboard routes. /dashboard/<platform>/ is the kanban for a platform and
     # doubles as the platform switcher (chip clicks navigate here). The bare
-    # /dashboard/ redirects to the active (or default) platform.
+    # /dashboard/ redirects to the active platform's side-prefixed dashboard.
     @app.route("/dashboard/")
     @login_required
     def dashboard_home():
         """Redirect the bare dashboard URL to the active platform's dashboard."""
-        from services.audit_engine import get_active_platform
-        return redirect(url_for("dashboard", platform=get_active_platform()))
+        from services.audit_engine import get_active_platform, platform_side
+        slug = get_active_platform()
+        return redirect(
+            url_for("dashboard", side=platform_side(slug) or "demand", platform=slug)
+        )
 
-    @app.route("/dashboard/<platform>/")
+    # /dashboard/<side>/ is a side landing: it redirects to that side's
+    # default (first content-bearing) platform. It also accepts a legacy bare
+    # platform slug and redirects it to the side-prefixed form.
+    @app.route("/dashboard/<side>/")
     @login_required
-    def dashboard(platform):
+    def dashboard_side(side):
+        """Redirect a side landing (or legacy bare-platform URL) to the side-prefixed dashboard."""
+        from services.audit_engine import default_platform_for_side, get_platform
+        if side in ("demand", "supply"):
+            return redirect(
+                url_for("dashboard", side=side, platform=default_platform_for_side(side))
+            )
+        p = get_platform(side)
+        if p:
+            return redirect(url_for("dashboard", side=p["side"], platform=side))
+        abort(404)
+
+    @app.route("/dashboard/<side>/<platform>/")
+    @login_required
+    def dashboard(side, platform):
         """
         Renders the Category Dashboard (Level 1 navigation) for a platform.
 
         Args:
+            side (str): "demand" or "supply"; must match the platform's side.
             platform (str): Platform slug. Must match AVAILABLE_PLATFORMS, else 404.
 
         Returns:
@@ -557,13 +586,30 @@ def create_app(config_class=None):
         from services.audit_engine import (
             AVAILABLE_PLATFORMS,
             set_active_platform,
-            get_active_side,
+            platform_side,
+            get_platform,
             platforms_grouped_by_type,
         )
+
+        # A legacy 2-segment URL /dashboard/<platform>/<category>/ lands here as
+        # (side=<platform>, platform=<category>); redirect it to the new shape.
+        if side not in ("demand", "supply"):
+            p = get_platform(side)
+            if p:
+                return redirect(
+                    url_for("audit.category_view", side=p["side"], platform=side, category=platform)
+                )
+            abort(404)
 
         valid_slugs = {s for s, _ in AVAILABLE_PLATFORMS}
         if platform not in valid_slugs:
             abort(404)
+
+        # The side segment must match the platform's real side; if not,
+        # redirect to the correct side so the URL stays truthful.
+        real_side = platform_side(platform)
+        if real_side and real_side != side:
+            return redirect(url_for("dashboard", side=real_side, platform=platform))
 
         # Set the session before building categories so platform-scoped
         # content resolves correctly.
@@ -574,46 +620,19 @@ def create_app(config_class=None):
         # Audit finding #7: Apply intake session data to lock/unlock sections
         categories = apply_intake_overrides(categories)
 
-        # Build the grouped picker for the dashboard chip strip. Use the
-        # side from the intake session if present; fall back to the side of
-        # the active platform, then to demand. Restrict to the platforms the
-        # practitioner selected at intake when a non-empty selection exists.
-        active_side = session.get("intake_side") or get_active_side() or "demand"
-        selected = set(session.get("intake_platforms") or [])
-
-        # Optional ?side= override from the Side dropdown. It rescopes the
-        # platform picker to one side (demand/supply) or to every platform
-        # (all), ignoring the intake selection so the full side is browsable.
-        # With no override the picker keeps the intake-scoped default above.
-        side_param = (request.args.get("side") or "").strip().lower()
-        if side_param == "all":
-            picker_groups = (
-                platforms_grouped_by_type("demand")
-                + platforms_grouped_by_type("supply")
-            )
-            side_selection = "all"
-        elif side_param in ("demand", "supply"):
-            picker_groups = platforms_grouped_by_type(side_param)
-            side_selection = side_param
-        else:
-            picker_groups = platforms_grouped_by_type(
-                active_side,
-                slugs=(selected if selected else None),
-            )
-            side_selection = active_side
-
-        side_label = {"demand": "Demand", "supply": "Supply", "all": "All"}.get(
-            side_selection, "Demand"
-        )
+        # The platform picker is scoped to the side in the URL. The Side
+        # dropdown links to /dashboard/<side>/, so the path is the single
+        # source of truth for the side (no query params).
+        picker_groups = platforms_grouped_by_type(side)
+        side_label = "Supply" if side == "supply" else "Demand"
 
         rendered = render_template(
             "dashboard.html",
             categories=categories,
             active_platform=platform,
+            active_side=side,
             available_platforms=AVAILABLE_PLATFORMS,
             picker_groups=picker_groups,
-            active_side=active_side,
-            side_selection=side_selection,
             side_label=side_label,
         )
 

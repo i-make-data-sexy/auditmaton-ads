@@ -82,8 +82,8 @@ function buildTabPermalink(subcategorySlug, tabSlug) {
         return path;
     }
 
-    /* Keep everything up to "dashboard" + platform + category, then append subcat + tab */
-    var baseParts = parts.slice(0, dashboardIndex + 3);
+    /* Keep everything up to "dashboard" + side + platform + category, then append subcat + tab */
+    var baseParts = parts.slice(0, dashboardIndex + 4);
     var permalink = "/" + baseParts.join("/") + "/" + subcategorySlug + "/" + tabSlug + "/";
 
     /* Preserve any active query string (worth-it filter) so subcategory
@@ -397,10 +397,10 @@ function getCategoryKey() {
     var path = window.location.pathname;
     var parts = path.split("/").filter(Boolean);
 
-    /* Path contains ["dashboard", "<platform>", "<category>", ...] (possibly with an APPLICATION_ROOT prefix) */
+    /* Path contains ["dashboard", "<side>", "<platform>", "<category>", ...] (possibly with an APPLICATION_ROOT prefix) */
     var dashboardIndex = parts.indexOf("dashboard");
-    if (dashboardIndex !== -1 && parts.length > dashboardIndex + 2) {
-        return parts[dashboardIndex + 2];
+    if (dashboardIndex !== -1 && parts.length > dashboardIndex + 3) {
+        return parts[dashboardIndex + 3];
     }
     return null;
 }
@@ -724,7 +724,7 @@ function getCurrentCategoryKey() {
     /**
      * Extracts the current category key from the URL so per-category
      * filter preferences are scoped correctly. URL shape is
-     * /dashboard/<platform>/<category>/<subcat>/<tab>/ (with optional
+     * /dashboard/<side>/<platform>/<category>/<subcat>/<tab>/ (with optional
      * APPLICATION_ROOT prefix).
      *
      * Returns:
@@ -733,7 +733,7 @@ function getCurrentCategoryKey() {
 
     var parts = window.location.pathname.split("/").filter(Boolean);
     var idx = parts.indexOf("dashboard");
-    return (idx !== -1 && parts[idx + 2]) ? parts[idx + 2] : "";
+    return (idx !== -1 && parts[idx + 3]) ? parts[idx + 3] : "";
 }
 
 

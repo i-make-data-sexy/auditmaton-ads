@@ -3,9 +3,9 @@
 
 import re
 
-from flask import Blueprint, session, render_template, request, abort
+from flask import Blueprint, session, render_template, request, abort, redirect, url_for
 from flask_login import login_required
-from services.audit_engine import get_subcategories, get_category_metadata, get_theme_registry, AVAILABLE_PLATFORMS
+from services.audit_engine import get_subcategories, get_category_metadata, get_theme_registry, AVAILABLE_PLATFORMS, platform_side
 
 # Pattern for validating route slugs (letters, digits, hyphens, underscores)
 SLUG_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]{0,63}$")
@@ -145,11 +145,11 @@ def apply_intake_overrides(categories):
 #   Routes
 # ========================================================================
 
-@audit_bp.route("/dashboard/<platform>/<category>/")
-@audit_bp.route("/dashboard/<platform>/<category>/<subcategory>/")
-@audit_bp.route("/dashboard/<platform>/<category>/<subcategory>/<tab>/")
+@audit_bp.route("/dashboard/<side>/<platform>/<category>/")
+@audit_bp.route("/dashboard/<side>/<platform>/<category>/<subcategory>/")
+@audit_bp.route("/dashboard/<side>/<platform>/<category>/<subcategory>/<tab>/")
 @login_required
-def category_view(platform, category, subcategory=None, tab=None):
+def category_view(side, platform, category, subcategory=None, tab=None):
     """
     Renders the subcategory browser for a given audit category (Level 2).
 
@@ -183,6 +183,21 @@ def category_view(platform, category, subcategory=None, tab=None):
     valid_platforms = {s for s, _ in AVAILABLE_PLATFORMS}
     if platform not in valid_platforms:
         abort(404)
+
+    # The side segment must be a real side and must match the platform's side;
+    # redirect to the truthful URL when it does not (the path is the source of
+    # truth for the side, so it never carries a query param).
+    if side not in ("demand", "supply"):
+        abort(404)
+    real_side = platform_side(platform)
+    if real_side and real_side != side:
+        kwargs = {"side": real_side, "platform": platform, "category": category}
+        if subcategory:
+            kwargs["subcategory"] = subcategory
+        if tab:
+            kwargs["tab"] = tab
+        return redirect(url_for("audit.category_view", **kwargs))
+
     session["active_platform"] = platform
 
     # Load category metadata

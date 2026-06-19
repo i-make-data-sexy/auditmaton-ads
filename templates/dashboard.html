@@ -37,9 +37,10 @@
        Content-less platforms render greyed with a 'soon' badge. #}
     {% set ns = namespace(active_name=active_platform) %}
     {% for type_label, group_platforms in picker_groups %}{% for p in group_platforms %}{% if p.slug == active_platform %}{% set ns.active_name = p.name %}{% endif %}{% endfor %}{% endfor %}
-    {# Side filter. Rescopes the Platform dropdown to one side (or all)
-       via a ?side= query param the dashboard route reads. Mirrors the
-       Platform dropdown's structure and reuses platform-filter.js. #}
+    {# Side filter. Each option is a path-based link to that side's landing
+       (/dashboard/<side>/), which the route redirects to the side's default
+       platform. The side lives in the URL path, never a query param. Mirrors
+       the Platform dropdown's structure and reuses platform-filter.js. #}
     <div class="platform-filter" id="side-filter" role="region" aria-label="Audit side filter">
         <span class="platform-filter-label">Side</span>
         <div class="platform-filter-control">
@@ -49,12 +50,10 @@
                 <i class="fa-solid fa-chevron-down platform-filter-chevron"></i>
             </button>
             <div class="platform-filter-menu" role="menu">
-                <a href="{{ app_root }}/dashboard/{{ active_platform }}/?side=demand" role="menuitem"
-                   class="platform-filter-option{% if side_selection == 'demand' %} is-active{% endif %}">Demand</a>
-                <a href="{{ app_root }}/dashboard/{{ active_platform }}/?side=supply" role="menuitem"
-                   class="platform-filter-option{% if side_selection == 'supply' %} is-active{% endif %}">Supply</a>
-                <a href="{{ app_root }}/dashboard/{{ active_platform }}/?side=all" role="menuitem"
-                   class="platform-filter-option{% if side_selection == 'all' %} is-active{% endif %}">All</a>
+                <a href="{{ app_root }}/dashboard/demand/" role="menuitem"
+                   class="platform-filter-option{% if active_side == 'demand' %} is-active{% endif %}">Demand</a>
+                <a href="{{ app_root }}/dashboard/supply/" role="menuitem"
+                   class="platform-filter-option{% if active_side == 'supply' %} is-active{% endif %}">Supply</a>
             </div>
         </div>
     </div>
@@ -72,7 +71,7 @@
                 {% for type_label, group_platforms in picker_groups %}
                 {% for p in group_platforms %}
                 {% if p.has_content %}
-                <a href="{{ app_root }}/dashboard/{{ p.slug }}/" role="menuitem"
+                <a href="{{ app_root }}/dashboard/{{ p.side }}/{{ p.slug }}/" role="menuitem"
                    class="platform-filter-option{% if p.slug == active_platform %} is-active{% endif %}">{{ p.name }}</a>
                 {% else %}
                 <span class="platform-filter-option is-disabled" aria-disabled="true"
@@ -98,7 +97,7 @@
     <!--================================================
          Kanban Board
          ================================================ -->
-    <div class="kanban-board" data-platform="{{ active_platform }}">
+    <div class="kanban-board" data-platform="{{ active_platform }}" data-side="{{ active_side }}">
 
         <!-- Not Started Column -->
         <div class="kanban-column kanban-column-todo">

@@ -10,9 +10,9 @@ import os
 import re
 from datetime import datetime
 
-from flask import Blueprint, render_template, abort, request, jsonify, session
+from flask import Blueprint, render_template, abort, request, jsonify, session, redirect, url_for
 from flask_login import login_required
-from services.audit_engine import get_check_data, get_category_metadata, AVAILABLE_PLATFORMS
+from services.audit_engine import get_check_data, get_category_metadata, AVAILABLE_PLATFORMS, platform_side
 from services.email_service import send_inaccuracy_report_email, send_bug_report_email
 from blueprints.audit.routes import get_mock_active_audit
 
@@ -40,10 +40,10 @@ canvas_bp = Blueprint(
 VALID_STEPS = ["educate", "investigate", "generate", "canvas"]
 
 
-@canvas_bp.route("/dashboard/<platform>/<category>/<subcategory>/<check_id>/")
-@canvas_bp.route("/dashboard/<platform>/<category>/<subcategory>/<check_id>/<step>/")
+@canvas_bp.route("/dashboard/<side>/<platform>/<category>/<subcategory>/<check_id>/")
+@canvas_bp.route("/dashboard/<side>/<platform>/<category>/<subcategory>/<check_id>/<step>/")
 @login_required
-def canvas_view(platform, category, subcategory, check_id, step=None):
+def canvas_view(side, platform, category, subcategory, check_id, step=None):
     """
     Renders the canvas view for a single audit check (Level 3).
 
@@ -83,6 +83,21 @@ def canvas_view(platform, category, subcategory, check_id, step=None):
     valid_platforms = {s for s, _ in AVAILABLE_PLATFORMS}
     if platform not in valid_platforms:
         abort(404)
+
+    # The side segment must be a real side and must match the platform's side;
+    # redirect to the truthful URL when it does not.
+    if side not in ("demand", "supply"):
+        abort(404)
+    real_side = platform_side(platform)
+    if real_side and real_side != side:
+        kwargs = {
+            "side": real_side, "platform": platform, "category": category,
+            "subcategory": subcategory, "check_id": check_id,
+        }
+        if step and step != "educate":
+            kwargs["step"] = step
+        return redirect(url_for("canvas.canvas_view", **kwargs))
+
     session["active_platform"] = platform
 
     # Load category metadata for breadcrumb and context

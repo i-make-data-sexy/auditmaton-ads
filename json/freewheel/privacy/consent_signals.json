@@ -1,0 +1,165 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Consent signals decide whether a video or CTV ad request can carry the data demand partners price against, so a missing or malformed signal both raises legal exposure and depresses the price the impression clears at. The check reviews how the consent string and CTV privacy signals are captured in the player and forwarded through FreeWheel to demand, which is reading and request inspection rather than a rebuild. The finding points at a concrete signal-flow fix the publisher can make in the player and the ad request configuration.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Consent and privacy signals travel with a video or Connected TV (CTV) ad request, and they tell each downstream party what data may be used and on what legal basis. FreeWheel sits between the player and the demand it calls, so the signal a publisher captures has to survive the trip into the ad request and out to demand intact. This subcategory looks at whether the consent string and the CTV privacy signals are captured in the player, forwarded through FreeWheel, and honored when consent is absent, rather than dropped along the way or ignored once they arrive.",
+  "audit_checks": [
+    {
+      "id": "freewheel-consent-signals-not-captured-or-forwarded",
+      "title": "The consent string and CTV privacy signals are not captured and forwarded to demand",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 4,
+      "impact_rationale": "When the consent or privacy signal never reaches demand, two failures happen at once. Demand partners that require a signal to set a legal basis cannot establish one, which raises regulatory exposure for the publisher who originated the request. Demand that prices against the signal sees a blank where consent should be, so it bids lower or not at all, which depresses revenue on impressions that were eligible to sell at a higher price.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "A consent signal is only useful if it travels the whole way from the user to the demand partner that needs it. On the web, a Consent Management Platform (CMP) captures the user's choice and encodes it. Under the Transparency and Consent Framework (TCF), that choice becomes a Transparency and Consent (TC) string. Under the newer Global Privacy Platform (GPP), the CMP produces a GPP string that can carry the TCF section alongside United States state sections in one envelope. On Connected TV (CTV) and in apps, where no cookie banner runs, the privacy signal is passed by the player or the app rather than a web CMP, and the GPP is designed to carry app and CTV signals the same way it carries web ones.<br><br>FreeWheel sits in the middle of this path as the video and CTV ad server. The player hands FreeWheel an ad request, FreeWheel calls its demand, and the consent string has to ride along on both legs. If the player never attaches the string to the ad request, or FreeWheel receives it but does not forward it to demand, the signal is lost at exactly the point where demand partners depend on it. OpenRTB, the request format most programmatic demand reads, carries these signals in defined fields, so a string that reaches the bid request as written can be honored by the partners downstream.<br><br>The cost of a dropped signal lands in two places. A demand partner that needs a TCF or GPP signal to establish a legal basis for processing cannot establish one without it, so the impression either goes unfilled by that partner or, worse, is processed on a basis the publisher cannot stand behind. A demand partner that prices against the signal reads the absence as a worst-case assumption and bids low or abstains, so the impression clears below what an eligible, consented impression would have fetched.<br><br>A few signs point to consent and privacy signals that are not captured and forwarded:<ul><li>Ad requests leaving the player carry no TCF, GPP, or CTV privacy signal where the audience or jurisdiction requires one</li><li>FreeWheel receives a signal from the player but the outbound bid requests to demand show the consent field empty</li><li>Web, app, and CTV are handled inconsistently, so one surface forwards a signal and another sends nothing</li></ul>You may want to confirm that the signal the player captures arrives in the ad request and is forwarded to demand on every surface the publisher serves. One approach is to inspect a sample ad request on web, app, and CTV and trace whether the consent string is present at each hop.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, the same content plays across a website, mobile apps, and CTV apps, and each surface captures the privacy signal differently. The web player relies on a CMP, while the app and CTV players pass the signal themselves. You may want to verify each surface separately rather than assume the web setup covers the living-room app. A working browser signal does not guarantee a working signal on the television where much of the watch time sits.",
+          "ecommerce": "On a commerce-content property running shoppable or product video, the video player may be embedded in pages that already run a web CMP for the surrounding site. You may want to confirm the video ad request actually reads that CMP's consent string rather than firing before consent resolves or ignoring it, so the video inventory carries the same signal the rest of the page respects."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Global Privacy Platform",
+            "source_url": "https://iabtechlab.com/gpp/"
+          },
+          {
+            "source_type": "IAB Europe Standard",
+            "source_title": "Transparency and Consent Framework",
+            "source_url": "https://iabeurope.eu/transparency-consent-framework/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "OpenRTB",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect a sample of ad requests across web, app, and CTV to confirm a consent or privacy signal is attached when the player sends the request to FreeWheel, then confirm FreeWheel forwards it to demand.",
+        "tools": {
+          "free": {
+            "request_inspection": {
+              "label": "Ad request inspection",
+              "steps": [
+                "Load a video on each surface the publisher serves (web, mobile app, and CTV) in a context where a consent or privacy signal is required, and capture the ad request the player sends to FreeWheel.",
+                "On web, confirm a TCF Transparency and Consent (TC) string or a GPP string is present on the request, and that a Consent Management Platform (CMP) produced it before the request fired.",
+                "On app and CTV, confirm the player attaches a GPP string or the platform privacy signal to the request rather than sending the request with no signal.",
+                "Where the outbound bid request to demand is visible, confirm the consent string carried into FreeWheel is present in the request to demand rather than dropped between the two legs."
+              ]
+            },
+            "cmp_check": {
+              "label": "CMP and player configuration review",
+              "steps": [
+                "Confirm a CMP is registered and producing a TCF or GPP string on the web surface, and note which framework the publisher relies on.",
+                "For app and CTV players, review how the privacy signal is set and passed, and confirm the player is configured to attach it to the FreeWheel ad request.",
+                "Record any surface where no signal is captured or where the captured signal is not wired into the ad request."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per surface, whether a consent or privacy signal is captured in the player and whether it is present on the ad request to FreeWheel and on the request FreeWheel sends to demand. A setup where the signal is captured and forwarded on every surface that requires it passes. A surface where the signal is missing on the request, or captured but not forwarded to demand, is a fail recorded with the surface and the hop where the signal is lost.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a consent signal is present on the ad request and forwarded to demand for each surface above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not consistently capture and forward a consent or privacy signal from the player through FreeWheel to demand. A demand partner that needs a Transparency and Consent Framework (TCF) or Global Privacy Platform (GPP) signal to set a legal basis cannot establish one without it, which raises regulatory exposure, and a partner that prices against the signal reads the absence as a worst case and bids low, which depresses revenue on impressions that were eligible to sell higher. {{voice_recommend}} tracing a sample ad request on web, app, and CTV to confirm the signal is captured in the player, attached to the request into FreeWheel, and carried out to demand, then fixing any surface where the signal is dropped. After the fix, re-inspect the same surfaces to confirm the signal reaches demand intact."
+      }
+    },
+    {
+      "id": "freewheel-consent-signals-requests-not-limited-when-consent-absent",
+      "title": "Ad requests are not limited where consent is absent and a legal basis is required",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 3,
+      "impact_rationale": "When a user has declined consent or no valid signal exists, an unrestricted ad request still sends identifiers and context to demand partners that have no legal basis to process them. The exposure sits with the publisher who originated the request. Limiting the request to a non-personalized or signal-restricted form where consent is absent keeps the inventory monetizable while honoring the choice, so the gap is a configuration fix rather than a revenue write-off.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Capturing a consent signal is the first half of the obligation. Acting on it is the second. When a user declines consent, or when no valid Transparency and Consent Framework (TCF) or Global Privacy Platform (GPP) signal exists for a jurisdiction that requires one, the ad request should change shape rather than fire as if consent were given. The request can fall back to a non-personalized form that withholds the identifiers and the per-user signals demand uses for personalization, while still calling demand for a contextual, non-personalized ad. That keeps the impression sellable without processing data the publisher has no basis to share.<br><br>FreeWheel originates the call to demand, so the decision of what to send when consent is absent lives in how the ad request is built. A request that ignores a declined signal and forwards full identifiers anyway puts the publisher in the position of having passed personal data to partners that have no legal basis to receive it, even though the user said no. Under the GDPR and the United States state laws the GPP encodes, that gap is the publisher's exposure because the publisher is the party that originated and sent the request.<br><br>The aim is not to stop monetizing inventory where consent is absent. Demand exists for non-personalized and contextual inventory, and a request restricted to that form still clears. The aim is to make the absence of consent change the request rather than leave it unchanged, so the signal the user gave actually governs what leaves the player.<br><br>A few signs point to requests that are not limited where consent is absent:<ul><li>An ad request fired after a user declined consent still carries the full identifiers and personalization signals it would carry under consent</li><li>No non-personalized or restricted request path exists for sessions where a valid TCF or GPP signal is missing in a jurisdiction that requires one</li><li>The player treats a declined signal and a granted signal the same way, so the consent decision has no effect on what is sent to demand</li></ul>You may want to confirm that a declined or missing consent signal restricts the ad request rather than leaving it unchanged. One approach is to decline consent on a test session, then inspect the resulting ad request to see whether identifiers and personalization signals are withheld.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, audiences in regulated regions sit alongside audiences elsewhere, and the player has to restrict the request only for the sessions that require it. You may want to confirm the request restriction keys off the actual signal for the session rather than a blanket setting, so European Economic Area (EEA) viewers who decline are handled correctly while consented viewers keep full personalization.",
+          "ecommerce": "On a commerce-content property, shoppable video can attach product or audience identifiers that demand uses for personalization. You may want to confirm that a declined or missing signal strips those identifiers from the video ad request, so a viewer who has not consented is not profiled through the video inventory while the surrounding commerce experience honors the same choice."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Europe Standard",
+            "source_title": "Transparency and Consent Framework",
+            "source_url": "https://iabeurope.eu/transparency-consent-framework/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "GDPR Transparency and Consent Framework",
+            "source_url": "https://iabtechlab.com/standards/gdpr-transparency-and-consent-framework/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Global Privacy Platform",
+            "source_url": "https://iabtechlab.com/gpp/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Test a declined or missing consent signal on each surface and inspect the resulting ad request to confirm identifiers and personalization signals are withheld where a legal basis is absent.",
+        "tools": {
+          "free": {
+            "consent_decline_test": {
+              "label": "Consent decline test",
+              "steps": [
+                "On the web surface, decline consent in the Consent Management Platform (CMP), then load a video and capture the ad request the player sends to FreeWheel.",
+                "Confirm the request reflects the declined signal, withholding the identifiers and personalization signals it would carry under granted consent, rather than firing unchanged.",
+                "Repeat on app and CTV by setting the platform privacy signal to a declined or restricted state and inspecting whether the request is limited accordingly.",
+                "Record any surface where a declined or missing signal produces the same full request as a granted signal."
+              ]
+            },
+            "request_path_review": {
+              "label": "Request path review",
+              "steps": [
+                "Review how the player and FreeWheel build the ad request, and confirm a non-personalized or restricted path exists for sessions where consent is declined or no valid signal is present.",
+                "Confirm the restriction keys off the per-session signal rather than a single global toggle, so consented and non-consented sessions are treated differently.",
+                "Note any jurisdiction where a signal is required but no restricted request path is configured."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per surface, whether a declined or missing consent signal restricts the ad request to a non-personalized form or leaves it unchanged. A setup where a declined signal withholds identifiers and personalization signals while still calling demand for non-personalized inventory passes. A surface where a declined or missing signal produces the same full request as a granted one, in a jurisdiction that requires a legal basis, is a fail recorded with the surface and the jurisdiction affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a declined or missing consent signal restricts the ad request for each surface above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not limit ad requests where consent is absent and a legal basis is required, so a declined or missing signal produces the same full request as a granted one. An unrestricted request sends identifiers and personalization signals to demand partners that have no legal basis to process them, and the exposure sits with {{site_name}} as the party that originated the request. {{voice_recommend}} configuring a non-personalized request path that triggers when a valid Transparency and Consent Framework (TCF) or Global Privacy Platform (GPP) signal is declined or missing, so the impression still calls demand for contextual inventory while withholding the data the user did not consent to share. After the change, decline consent on a test session and confirm the resulting request is restricted."
+      }
+    }
+  ]
+}

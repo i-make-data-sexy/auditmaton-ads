@@ -1,0 +1,157 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "US state privacy signals decide whether a viewer's opt-out of sale or share actually reaches the demand that bids on a video or CTV impression. When FreeWheel passes the right GPP sections and the opt-out values inside them, demand-side platforms can apply restricted processing and the publisher stays inside the regulatory line. When the signal is missing or carries the wrong value, the opt-out stops at the ad server and the impression is sold as if no opt-out happened. The check reads configuration the publisher already has in FreeWheel and the strings already leaving it, so it costs reading time rather than rebuild time, and the finding points to a concrete compliance gap with a defined fix.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "US state privacy laws give viewers a right to opt out of the sale or sharing of their personal information, and a video or Connected TV (CTV) publisher serving ads through FreeWheel has to carry that choice to every party that bids on the impression. The Global Privacy Platform (GPP) is the standard FreeWheel uses to encode those choices, so the audit question is whether the right GPP sections are present and whether the opt-out values inside them are correct. This subcategory covers two things, the sections FreeWheel passes downstream and the opt-out of sale or share inside those sections, rather than the consent management platform that collects the choice in the first place.",
+  "audit_checks": [
+    {
+      "id": "freewheel-us-state-privacy-gpp-sections-not-passed",
+      "title": "US national and state GPP sections are not passed to demand",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "If FreeWheel does not pass the GPP string and the applicable section IDs to the demand-side platforms that bid on an impression, those platforms cannot see which US privacy law applies or what the viewer chose. The opt-out stops at the ad server, demand bids as if no opt-out exists, and the publisher is selling impressions in a way the state law was meant to prevent, which is a regulatory exposure rather than a tuning question.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "The Global Privacy Platform (GPP) is the IAB Tech Lab standard for carrying a viewer's privacy choices from a site or app to the ad tech that bids on the impression. A GPP string is built from distinct sections joined on a tilde character, and a header at the front acts as a table of contents that lists which sections are present. For US privacy, the relevant sections are the US National section, registered as Section ID 7 with the API prefix 'usnat', and a set of per-state sections for states whose laws the IAB has interpreted into their own technical specifications.<br><br>For a video or Connected TV (CTV) ad server like FreeWheel, the consent management platform collects the viewer's choice and produces the GPP string, and FreeWheel's job is to carry that string, plus the list of applicable section IDs, to the demand it calls. When the demand is reached server-side through OpenRTB, the GPP string travels in the request's Regs object and the applicable sections travel alongside it. A demand-side platform reads the section list to know which law applies, then reads the matching section to know what the viewer chose.<br><br>The failure this check looks for is the section list never arriving. If FreeWheel sends a bid request with no GPP string, or with a string whose header omits the applicable US section, the downstream platform has nothing to read. It cannot tell that a US state law applies, so it cannot apply restricted processing, and it bids on the impression as though the viewer made no choice at all. The opt-out the viewer expressed stops at the ad server.<br><br>A few signs point to GPP sections not reaching demand:<ul><li>Bid requests leaving FreeWheel carry no GPP string, or carry one whose header lists no US section for viewers in a state with a privacy law</li><li>The applicable section IDs are absent or do not match the viewer's state, so demand cannot identify which law governs the impression</li><li>The consent management platform produces a GPP string for the page or app but FreeWheel is not configured to forward it downstream</li></ul>You may want to confirm that the GPP string and its applicable section IDs leave FreeWheel on impressions from US viewers. One approach is to capture a sample of outgoing bid requests for viewers in a covered state and read whether the GPP string and the matching section ID are present.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, viewers arrive from every state and a single CTV app can serve impressions across all of them, so the GPP section that travels with each request has to match the viewer's own state rather than a default. You may want to confirm that FreeWheel forwards the applicable section IDs the consent management platform sets per viewer, rather than a fixed section that ignores where the viewer is.",
+          "ecommerce": "On a commerce-content video property, the same player can run alongside shoppable content where the audience is closer to a purchase, which raises the stakes on getting the opt-out signal right because the data carries commercial intent. You may want to confirm that the GPP string and its section IDs leave FreeWheel for these impressions as reliably as for editorial video. A missing section here exposes higher-value data to a sale or share the viewer declined."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform (GPP) specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "GPP implementation guide",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/main/implementation.md"
+          }
+        ],
+        "learn_more_note": "FreeWheel's detailed configuration documentation for forwarding GPP sections to demand is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether outgoing bid requests from FreeWheel carry a GPP string and the applicable US section IDs for viewers in states with privacy laws.",
+        "tools": {
+          "free": {
+            "request_capture": {
+              "label": "Outgoing request capture",
+              "steps": [
+                "Capture a sample of outgoing bid requests from FreeWheel for viewers located in a state with a privacy law, e.g., California, Colorado, or Texas.",
+                "In each request, locate the GPP string and the applicable section IDs, which travel in the Regs object for server-side OpenRTB demand.",
+                "Read the GPP header to confirm a US section is listed, either the US National section ('usnat', Section ID 7) or the matching per-state section.",
+                "Record whether the string and the matching section are present for each sampled state, or whether either is missing."
+              ]
+            },
+            "cmp_check": {
+              "label": "Consent management platform check",
+              "steps": [
+                "Confirm the consent management platform on the property produces a GPP string and sets the applicable section IDs for the viewer's state.",
+                "Compare what the consent management platform produces against what leaves FreeWheel, to see whether FreeWheel forwards the string or drops it.",
+                "Record any case where the consent management platform produces a section that FreeWheel does not pass downstream."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a sample of US states, whether the GPP string and the applicable section ID leave FreeWheel on outgoing bid requests. A setup where the GPP string is present and its header lists the section matching the viewer's state passes. A setup where the string is absent, or where the header omits the applicable US section so demand cannot identify the governing law, is a fail recorded with the states and request types affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the GPP string and the applicable section ID are present in outgoing requests for each sampled state above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that bid requests leaving {{site_name}} do not carry the Global Privacy Platform (GPP) sections that US privacy laws require, so demand cannot see which law applies to the impression. Without the applicable section in the GPP string, a demand-side platform reads no US privacy signal and bids as though the viewer made no choice, which means the opt-out stops at the ad server. {{voice_recommend}} confirming that the consent management platform produces a GPP string with the section matching the viewer's state, then verifying that FreeWheel forwards that string and its applicable section IDs on every outgoing request from a covered state. After the change, recapture a sample of outgoing requests to confirm the section is present."
+      }
+    },
+    {
+      "id": "freewheel-us-state-privacy-opt-out-not-honored",
+      "title": "Opt-out of sale or share is passed but not honored in the signal",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "A GPP section can be present yet still carry the wrong value, showing 'did not opt out' for a viewer who did. When the opt-out of sale or share inside the section does not reflect the viewer's actual choice, demand reads a valid-looking signal that says the impression is free to sell, so the opt-out is defeated by a value error rather than a missing section, which is harder to spot and carries the same regulatory exposure.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Carrying the right GPP section is only half of an opt-out. The section also has to hold the correct value. The US National (MSPA) section of the Global Privacy Platform (GPP) defines a SaleOptOut field and a SharingOptOut field, each of which records whether the viewer submitted a request to opt out, with one value meaning 'Opted Out' and another meaning 'Did Not Opt Out'. The per-state sections carry the equivalent fields for the laws the IAB has interpreted. A demand-side platform reads these fields to decide whether to apply restricted processing, so the value inside the section is what actually drives behavior.<br><br>The problem this check looks for is a section that is present but carries 'Did Not Opt Out' for a viewer who opted out. From the outside the request looks compliant because the GPP string is there and the section is listed. Demand reads the SaleOptOut and SharingOptOut fields, sees no opt-out, and treats the impression as free to sell or share. The viewer's choice was collected, encoded into a section, and then lost between the consent management platform and the ad server because the value did not carry through.<br><br>This can happen when the opt-out is captured in one system but not synchronized into the string FreeWheel forwards, when a default value overwrites the viewer's choice, or when a Global Privacy Control (GPC) browser signal that should set the opt-out is ignored. In every case the section exists, so a check that only looks for the section's presence passes while the actual choice is reversed. The audit has to read the value, not just confirm the field is there.<br><br>A few signs point to an opt-out that is not honored in the signal:<ul><li>A viewer who opted out through the consent interface shows 'Did Not Opt Out' in the SaleOptOut or SharingOptOut field of the outgoing GPP section</li><li>A GPC signal is present on the request but the opt-out fields in the GPP section do not reflect it</li><li>The opt-out value is constant across viewers regardless of their choice, which points to a default rather than a real read of consent</li></ul>You may want to confirm that the opt-out of sale or share inside the GPP section matches what the viewer actually chose. One approach is to set an opt-out through the consent interface, then capture the resulting outgoing request and read the SaleOptOut and SharingOptOut fields to confirm they show 'Opted Out'.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, a viewer who opts out on one device expects that choice to hold across the apps and sessions where the same consent platform runs, so a value that resets to 'Did Not Opt Out' between sessions defeats the opt-out quietly. You may want to test the opt-out across a fresh session and a returning one to confirm the SaleOptOut and SharingOptOut fields hold the viewer's choice rather than reverting to a default.",
+          "ecommerce": "On a commerce-content video property, an opt-out that is not honored exposes audience data tied to shopping behavior, which is the kind of data a sale or share opt-out is most meant to protect. You may want to confirm the opt-out value carries through specifically on the shoppable inventory. A default that reads 'Did Not Opt Out' here releases higher-intent data the viewer declined to have sold or shared."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "GPP US National (MSPA) technical specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/main/Sections/US-National/IAB%20Privacy%E2%80%99s%20Multi-State%20Privacy%20Agreement%20(MSPA)%20US%20National%20Technical%20Specification.md"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "GPP Consent String Specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform/blob/main/Core/Consent%20String%20Specification.md"
+          }
+        ],
+        "learn_more_note": "FreeWheel's detailed configuration documentation for synchronizing opt-out values into the GPP signal is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the SaleOptOut and SharingOptOut fields inside the outgoing GPP section reflect the viewer's actual choice rather than a default.",
+        "tools": {
+          "free": {
+            "opt_out_test": {
+              "label": "Opt-out round-trip test",
+              "steps": [
+                "Set an opt-out of sale and share through the consent interface on the property as a test viewer in a covered state.",
+                "Capture the outgoing bid request that follows and locate the GPP string and the applicable US section.",
+                "Decode the section and read the SaleOptOut and SharingOptOut fields, confirming each shows 'Opted Out' rather than 'Did Not Opt Out'.",
+                "Repeat without setting an opt-out and confirm the fields then show 'Did Not Opt Out', which rules out a value that is constant regardless of choice."
+              ]
+            },
+            "gpc_check": {
+              "label": "Global Privacy Control check",
+              "steps": [
+                "Send a request with a Global Privacy Control (GPC) browser signal present from a covered state.",
+                "Read the SaleOptOut and SharingOptOut fields in the resulting GPP section to confirm the GPC signal set the opt-out.",
+                "Record any case where the GPC signal is present but the opt-out fields do not reflect it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a test opt-out and a test non-opt-out, the SaleOptOut and SharingOptOut values inside the outgoing GPP section. A setup where an opt-out produces 'Opted Out' and a non-opt-out produces 'Did Not Opt Out' passes. A setup where an opt-out still shows 'Did Not Opt Out', or where a Global Privacy Control (GPC) signal is ignored, is a fail recorded with the states and the fields where the value did not carry through.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the SaleOptOut and SharingOptOut values for a test opt-out and a test non-opt-out above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Global Privacy Platform (GPP) section leaving {{site_name}} is present but carries 'Did Not Opt Out' for a viewer who opted out of the sale or share of their information. Because the section looks valid, demand reads the SaleOptOut and SharingOptOut fields, sees no opt-out, and treats the impression as free to sell, so the viewer's choice is reversed between the consent platform and the ad server. {{voice_recommend}} setting a test opt-out through the consent interface, capturing the outgoing request, and reading the opt-out fields to confirm they show 'Opted Out', then tracing any gap back to where the value is dropped or defaulted. After the fix, repeat the round-trip test to confirm the opt-out carries through."
+      }
+    }
+  ]
+}

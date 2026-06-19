@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Video impressions clear at higher prices than display, so the parameters a publisher declares about each video opportunity carry real revenue weight. A player size sent as a small value, a placement labeled instream when the slot is outstream, or viewability and content signals left blank all tell demand to value the impression as less than it is. The check is a review of the video configuration Microsoft Monetize already passes to demand, so it costs reading time rather than rebuild time, and the finding points to a specific declaration the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Microsoft Monetize passes a set of signals to demand for every video opportunity, and those signals shape what a buyer is willing to pay. The Video Ad Serving Template (VAST) version, the declared player size, the placement type, and whether the slot is skippable all describe the video opportunity, and viewability and content signals tell demand how much of the impression a buyer can expect to be seen and what it will run against. This subcategory is about whether those declarations are accurate and complete, so demand values the impression on what it actually is rather than on a guess or a default.",
+  "audit_checks": [
+    {
+      "id": "xandr-monetize-video-vast-setup-player-parameters-misdeclared",
+      "title": "Video player parameters are missing or do not match the actual slot",
+      "category": "inventory",
+      "subcategory": "video_vast_setup",
+      "impact_score": 3,
+      "impact_rationale": "Demand prices a video impression partly on the player size, placement type, and skippability the publisher declares. A small or absent player size, a placement labeled instream when the slot is outstream, or a skip flag that contradicts the player all push the bid down or cause buyers to filter the impression out, so an inaccurate declaration suppresses the price on inventory that would otherwise clear higher.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "When Microsoft Monetize offers a video impression to demand, it sends a Video Ad Serving Template (VAST) request that carries a set of parameters describing the opportunity. The player size gives the width and height of the video player in pixels. The placement type says whether the ad runs inside video content as instream, runs outside content as outstream, accompanies content, or stands alone. The skippability flag says whether the player will let the viewer skip the ad and, if so, after how long. Buyers read these parameters to decide what the impression is worth and whether it fits their campaign.<br><br>The price a buyer offers follows what these parameters say, not what the slot really is. A large in-content player declared with a small size looks like a minor outstream unit, and a buyer paying for premium instream will pass it over. A slot declared as instream when it actually runs as outstream below an article invites a buyer expecting a content-adjacent placement to bid on something that does not match, which leads to disputes, lower trust, and over time a lower price. A skip flag that says the ad is non-skippable while the player skips it after five seconds breaks the promise the buyer paid for. Each mismatch either suppresses the bid or erodes the buyer's confidence in the supply.<br><br>VAST also has versions, and the version the publisher's player supports affects which features demand can use. VAST 4.x added support for separating the verification and creative files and improved handling for connected TV, while older creatives may rely on the deprecated Video Player-Ad Interface Definition (VPAID). A player declared on an older VAST version than it supports, or one that advertises features it cannot actually render, leaves demand guessing.<br><br>A few signs point to player parameters that may not match the slot:<ul><li>The declared player size is a small or placeholder value while the slot renders a large in-content player</li><li>The placement type is set to instream on a unit that actually runs as outstream, or the reverse</li><li>The skippability flag in the request contradicts what the player does on the page</li><li>The VAST version declared does not match what the player supports, or VPAID is still relied on where SIMID would serve</li></ul>You may want to confirm that the player size, placement type, skippability, and VAST version Microsoft Monetize sends match what each video slot actually does. One approach is to inspect a live VAST request from a representative video slot and compare each declared parameter against the rendered player.",
+        "site_type_overlays": {
+          "publishing": "On a media site, instream pre-roll inside a news or video player carries a different value from an outstream unit that plays below an article, and a buyer pays accordingly. You may want to confirm that each video slot declares its true placement type and player size, so the premium instream inventory is not labeled as a lesser outstream unit and the outstream inventory is not sold as instream the buyer cannot get.",
+          "ecommerce": "On a commerce-content site, a video review or product demo player usually runs as instream content, while a video unit dropped into a category page often runs as outstream. You may want to confirm that the placement type and player size match each context, so the higher-value content video is declared as instream and the lower-value page unit is not mislabeled."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference (video mediaType parameters)",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Capture a live Video Ad Serving Template (VAST) request from a representative video slot and compare each declared parameter, player size, placement type, skippability, and VAST version, against what the player actually renders.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open a page that runs a video slot and open the browser's developer tools to the 'Network' tab.",
+                "Filter the requests for the VAST or ad request and inspect the parameters sent, recording the declared player size, placement type, and skippability.",
+                "Watch the player render and note its actual size, whether it runs inside content or outside it, and whether it offers a skip control.",
+                "Compare each declared parameter against the rendered behavior and record any mismatch."
+              ]
+            },
+            "vast_inspector": {
+              "label": "VAST tag inspector",
+              "steps": [
+                "Paste the VAST tag URL for a representative video slot into a VAST inspector or validator that parses the response.",
+                "Confirm the VAST version returned and whether the response relies on the deprecated Video Player-Ad Interface Definition (VPAID) or on the Secure Interactive Media Interface Definition (SIMID).",
+                "Record the declared parameters the inspector surfaces and flag any that do not match the slot."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per video slot, the declared player size, placement type, skippability, and VAST version, alongside what the player actually renders. A slot whose declared parameters match its rendered behavior passes. A slot where the player size is understated, the placement type is mislabeled, the skip flag contradicts the player, or the VAST version is wrong is a fail recorded with the parameter that diverges and the slot it affects.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the declared video parameters and the rendered player behavior for each slot above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more video slots on {{site_name}} declare player parameters that do not match the slot, such as an understated player size, a placement type labeled instream where the unit runs outstream, or a skip flag that contradicts the player. Demand prices a video impression on what these parameters say, so a mismatch either suppresses the bid or erodes a buyer's trust in the supply, both of which hold the price below what the inventory is worth. {{voice_recommend}} inspecting a live Video Ad Serving Template (VAST) request from each video slot and correcting the declared player size, placement type, skippability, and VAST version so each matches what the player renders. After the fix, recheck the request from each slot to confirm the declarations are accurate."
+      }
+    },
+    {
+      "id": "xandr-monetize-video-vast-setup-viewability-content-signals-missing",
+      "title": "Viewability and content signals are not passed with the video request",
+      "category": "inventory",
+      "subcategory": "video_vast_setup",
+      "impact_score": 3,
+      "impact_rationale": "Demand pays more for video impressions it can verify as viewable and that carry content context because both reduce the buyer's risk. When a publisher omits the viewability measurement support and the content signals from the video request, buyers value the impression as unverified and unknown, so they bid lower or apply a discount, leaving revenue uncollected on inventory that could have proven its worth.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "A video impression is worth more to a buyer when two things are true. The buyer can verify the ad had a chance to be seen, and the buyer knows something about the content the ad will run against. The Video Ad Serving Template (VAST) and the ad request around it carry the signals that make both possible, and Microsoft Monetize passes them on the publisher's behalf when the player and the configuration support it.<br><br>Viewability rests on measurement support the player has to enable. The Media Rating Council (MRC) defines a viewable video impression by a pixel and duration threshold, and verification vendors confirm it through measurement code the player exposes. VAST 4.x moved verification resources into a dedicated node so that measurement can run without depending on the deprecated Video Player-Ad Interface Definition (VPAID), which improves both accuracy and page performance. When the player does not expose this measurement support, a buyer cannot confirm the impression was viewable and discounts it as unverified, even when the placement is strong.<br><br>Content signals tell demand what the ad will appear next to. These include the content rating, category, language, and length, and on connected TV and full-episode players they extend to the program and genre. A buyer running a brand-safety-sensitive campaign pays more when the content context is known and matches their requirements, and bids cautiously or not at all when the request arrives with no content information. Passing accurate content signals turns an unknown opportunity into one a careful buyer can value.<br><br>A few signs point to viewability and content signals being absent or thin:<ul><li>The video player does not expose viewability measurement support, so verification vendors cannot confirm a viewable impression</li><li>The request relies on VPAID for measurement rather than the verification node in VAST 4.x or the Secure Interactive Media Interface Definition (SIMID)</li><li>Content rating, category, language, and length are missing from the video request</li><li>Buyers report low match rates or apply discounts that track with unverifiable or context-free video supply</li></ul>You may want to confirm that the video player exposes viewability measurement and that accurate content signals travel with each request. One approach is to inspect a live request, check for the verification resources and the content fields, and work with the player vendor to enable any that are missing.",
+        "site_type_overlays": {
+          "publishing": "On a media site, content rating, category, and language describe the article or video the ad runs beside, and a brand-safety-conscious buyer pays more when that context is known. You may want to confirm that the player passes accurate content signals for each video slot and exposes viewability measurement, so the editorial context the publisher can vouch for reaches the buyer rather than arriving blank.",
+          "ecommerce": "On a commerce-content site, the content category and length help a buyer tell a product-review video from a generic page unit, and a known, verifiable context supports a higher bid. You may want to confirm that the commercial video inventory passes its content signals and viewability measurement, so the higher-intent context is visible to demand rather than left for the buyer to guess."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "Media Rating Council",
+            "source_title": "Standards and Guidelines (Viewable Ad Impression Measurement)",
+            "source_url": "https://mediaratingcouncil.org/standards-and-guidelines"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect a live video request from a representative slot and confirm whether viewability measurement support and the content signals, e.g., rating, category, language, and length, travel with it.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open a page with a video slot and open the browser's developer tools to the 'Network' tab.",
+                "Inspect the Video Ad Serving Template (VAST) response and the ad request, looking for the verification node that carries viewability measurement resources.",
+                "Check the request for content fields such as rating, category, language, and length, and record which are present and which are blank.",
+                "Note whether the response relies on the deprecated Video Player-Ad Interface Definition (VPAID) for measurement rather than the verification node or the Secure Interactive Media Interface Definition (SIMID)."
+              ]
+            },
+            "vast_validator": {
+              "label": "VAST validator",
+              "steps": [
+                "Run the slot's VAST tag through a validator that parses the verification and content nodes.",
+                "Confirm whether viewability measurement resources are present and whether the content signals are populated.",
+                "Record any video slot that returns no verification support or arrives without content context."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per video slot, whether viewability measurement support is exposed and whether the content signals, rating, category, language, and length, travel with the request. A slot that passes viewability measurement and accurate content signals passes. A slot whose player exposes no measurement support or whose request arrives without content context is a fail recorded with the missing signal and the inventory it affects.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether viewability measurement and content signals travel with each video request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the video inventory on {{site_name}} sends requests without viewability measurement support, content signals, or both. Demand pays more for video it can verify as viewable and that carries known content context, so a request that arrives unverifiable or context-free is valued as unknown and discounted, leaving revenue uncollected on inventory that could have proven its worth. {{voice_recommend}} working with the player vendor to expose viewability measurement through the verification node in the Video Ad Serving Template (VAST) and to pass accurate content signals such as rating, category, language, and length with each request. After the change, inspect a live request from each slot to confirm the measurement support and the content signals are present."
+      }
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Ad pod settings decide how many ads run back to back in a CTV break and how long that break lasts, so they sit directly on the line between revenue per break and the viewing experience that keeps an audience watching. A pod left on platform defaults, or one with no competitive separation, can stack near-identical ads or run a break long enough that viewers tune out, and neither shows up in a revenue total until churn does. The check reads pod configuration the publisher already has in Microsoft Monetize, so it costs review time rather than rebuild time, and the finding points to a concrete pod decision the publisher can adjust.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "An ad pod is the sequence of ads that plays in a single Connected TV (CTV) break, and its shape, the duration of the break, the number of ads inside it, and the way those ads are spaced, sets how a publisher trades revenue per break against the viewing experience. This subcategory is about the pod configuration in Microsoft Monetize, the settings that govern break length and slot structure and the rules that keep competing or repeated ads apart, rather than the demand sources filling those slots. These checks confirm that pod settings are a deliberate choice rather than platform defaults, and that competitive separation and frequency rules inside the pod protect the audience that the inventory depends on.",
+  "audit_checks": [
+    {
+      "id": "xandr-monetize-ctv-ad-pods-settings-left-on-defaults",
+      "title": "Ad pod settings are left on platform defaults rather than chosen deliberately",
+      "category": "inventory",
+      "subcategory": "ctv_ad_pods",
+      "impact_score": 3,
+      "impact_rationale": "Pod duration, the maximum number of ads per pod, and the slot structure decide both how much revenue a break can carry and how long a viewer sits through it. Defaults are a starting point set without knowledge of the publisher's content or audience, so a pod left on them may run too long for the content it interrupts or too short to monetize a break the audience would tolerate, and the gap between the default and a deliberate setting goes unmeasured.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "ad-experience"],
+      "educate": {
+        "base": "A Connected TV (CTV) ad pod is the group of ads that plays inside one commercial break. Three settings define its shape. Pod duration is how long the whole break runs, for example 90 seconds. The maximum number of ads per pod is how many separate spots can fill that break. The slot structure is how the break is divided, whether it expects a fixed set of slots of known length or fills a total duration with creatives of varying length. Microsoft Monetize, as a full sell-side platform and ad server built on the AppNexus and Xandr lineage, carries these settings on the CTV inventory a publisher configures, and the platform ships them with defaults.<br><br>Defaults exist so a pod works out of the box, not because they fit a given publisher. A default pod duration may be longer than the natural break in a short-form clip or shorter than a viewer would tolerate in a full episode. A default cap on ads per pod may stack more spots into a break than the content can carry, or fewer than the break could monetize. The slot structure default may expect exact-duration creatives when the demand a publisher works with returns variable lengths, which leaves slots unfilled. None of this is visible in a revenue figure on its own because the figure does not say what the pod could have earned at a setting matched to the content.<br><br>The Prebid project, which Microsoft Monetize is compatible with for header-bidding mechanics, documents the same pod concepts a publisher configures here. A long-form video ad unit carries an ad pod duration, a duration range for the creatives, and a flag for whether returned creatives must match an exact duration. Those parameters map to the pod-shaping decisions a publisher makes on any CTV ad server, so the public Prebid documentation is a useful reference for what each setting controls even where the Microsoft Monetize console handles it through its own interface.<br><br>A few signs point to pod settings left on defaults rather than chosen:<ul><li>Pod duration and the maximum ads per pod match the platform's out-of-the-box values with no record of a content-based reason for them</li><li>The same pod shape applies across content of different lengths, for example short clips and full episodes, rather than varying with the break the content allows</li><li>The slot structure expects exact-duration creatives while the demand sources in use return variable lengths, leaving slots unfilled</li></ul>You may want to confirm that pod duration, ads per pod, and slot structure were each set against the content and audience rather than accepted as shipped. One approach is to map each pod's settings to the content it runs on and adjust where the default does not fit the break the content allows.",
+        "site_type_overlays": {
+          "publishing": "On a media property, break length usually follows content length, so a short news clip carries a shorter natural break than a full episode or a live event. You may want to set pod duration and ads per pod per content type rather than applying one pod shape across the catalog, so a short clip is not interrupted by a break built for long-form viewing.",
+          "ecommerce": "On a commerce-driven video property, such as shoppable or product-led content, the audience is closer to a purchase decision and a long interruptive pod can cost more in lost attention than the extra slot earns. You may want to keep pods on this content shorter and capped more tightly than on general entertainment inventory, so the break does not push a near-converting viewer away."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Getting Started with Long-Form Video",
+            "source_url": "https://docs.prebid.org/prebid-video/video-long-form.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Connected TV for Header Bidding",
+            "source_url": "https://docs.prebid.org/formats/ctv.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the pod settings on each CTV ad break, the pod duration, the maximum ads per pod, and the slot structure, and check whether each was set against the content it runs on or left on the platform default.",
+        "tools": {
+          "free": {
+            "monetize_console": {
+              "label": "Microsoft Monetize console",
+              "steps": [
+                "Open the CTV or video inventory and list the ad breaks or pods configured across the content.",
+                "For each pod, record the pod duration, the maximum number of ads per pod, and the slot structure (fixed slots versus a total duration filled by variable-length creatives).",
+                "Note which settings match the platform defaults and which were changed, and whether a content-based reason for each setting is on record.",
+                "Map each pod to the content type it runs on, for example short clip, full episode, or live, and flag any case where one pod shape covers content of very different lengths."
+              ]
+            },
+            "monetize_reporting": {
+              "label": "Microsoft Monetize reporting",
+              "steps": [
+                "Build a report broken out by content type or pod, with break-level revenue, the average number of ads filled per pod, and unfilled slots.",
+                "Compare pods on default settings against any pods that were tuned to see whether the tuned pods fill more slots or carry more revenue per break.",
+                "Note any pod where slots go unfilled, which can point to a slot structure that expects exact durations the available demand does not return."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per pod, the pod duration, the maximum ads per pod, and the slot structure, alongside the content type it runs on and whether a content-based reason for each setting exists. A setup where pod settings vary with the content and each carries a stated reason passes. A setup where pods sit on platform defaults with no content-based reason, or where one pod shape covers content of very different lengths, is a fail recorded with the pods and content affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the pod duration, ads per pod, and slot structure for each pod above, with the content it runs on, to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs Connected TV (CTV) ad pods on platform default settings for pod duration, ads per pod, and slot structure, with no content-based reason on record for those values. Defaults are a starting point set without knowledge of the content or audience, so a default pod may run too long for the break the content allows or leave slots unfilled, and the gap goes unmeasured. {{voice_recommend}} mapping each pod's settings to the content it runs on, then adjusting pod duration, the cap on ads per pod, and the slot structure to fit the break each content type allows rather than leaving them as shipped. After the change, recheck break-level revenue and unfilled slots to confirm the tuned pods fit the content."
+      }
+    },
+    {
+      "id": "xandr-monetize-ctv-ad-pods-competitive-separation-and-frequency-not-configured",
+      "title": "Competitive separation and in-pod frequency rules are not configured",
+      "category": "inventory",
+      "subcategory": "ctv_ad_pods",
+      "impact_score": 3,
+      "impact_rationale": "Without competitive separation, two ads from rival brands can run in the same break, which devalues both placements and gives advertisers a reason to pull spend. Without an in-pod frequency rule, the same ad can repeat inside one break, which wears the viewer down and raises the chance they abandon the session. Both protect the audience and the advertiser relationship the inventory depends on, so leaving them unset risks revenue on both sides of the auction.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["ad-experience", "inventory"],
+      "educate": {
+        "base": "A Connected TV (CTV) ad pod plays several ads in sequence inside one break, which raises two viewer-experience risks that a single-ad placement does not. The first is competitive clash, where two ads from rival brands, for example two car makers or two streaming services, land in the same break. That weakens both placements since neither advertiser wants to share a break with a competitor, and it gives them a reason to discount or withdraw spend. The second is repetition, where the same ad or the same advertiser fills more than one slot in the break, which wears the viewer down inside a single sitting in a way a campaign-level frequency cap does not catch.<br><br>Competitive separation is the rule that keeps ads from competing brands or categories out of the same pod, and in-pod frequency is the rule that limits how many times one ad or advertiser can appear within a break. They operate at the level of the pod, during the auction that fills it, which is why a frequency cap set across a day or a campaign does not substitute for them. A daily cap can be fully satisfied while still allowing the same spot to run twice in one break, and a campaign cap says nothing about which competing brand fills the slot next to it.<br><br>Microsoft Monetize carries the demand and the ad-serving logic that fills these pods, and the separation and in-pod frequency rules are part of that pod configuration. The mechanics align with the wider header-bidding standard. The Prebid adpod module documents a brand-category exclusion flag that requires bidders to return a brand category on each pod bid, which is the signal an ad server uses to keep competing categories out of the same pod. The IAB Tech Lab VAST CTV Addendum likewise treats competitive separation and frequency as core CTV ad-serving features that depend on a consistent creative and brand identifier across the supply chain. The audit question is whether these rules are configured on the pods or whether the break is filled with no separation and no in-pod frequency limit.<br><br>A few signs point to separation and in-pod frequency rules being unset:<ul><li>No competitive-separation or brand-category rule is configured on the CTV pods, so rival brands can share a break</li><li>In-pod frequency relies on a campaign-level or daily cap rather than a limit applied within the single break</li><li>Session or break-level reporting shows repeated ads or competing brands appearing in the same pod</li></ul>You may want to confirm that competitive separation and an in-pod frequency limit are set on the CTV pods rather than left to campaign-level caps. One approach is to review a sample of filled breaks for repeated ads and competing brands, then set the pod rules where those clashes appear.",
+        "site_type_overlays": {
+          "publishing": "On a media property running CTV inventory, a recognizable break experience is part of how the audience judges the content, so a break that repeats an ad or pairs two rival brands reads as a quality drop. You may want to set competitive separation by brand category and an in-pod frequency limit on the high-visibility content first, where a degraded break does the most to push viewers away.",
+          "ecommerce": "On a commerce-driven video property, a viewer near a purchase decision is sensitive to a break that repeats the same spot or stacks competing products, which can break the path to a purchase. You may want to apply tighter in-pod frequency and category separation on this content so the break does not undercut the buying intent the content is building."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Module - Adpod for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/adpod.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "VAST CTV Addendum 2024",
+            "source_url": "https://iabtechlab.com/wp-content/uploads/2024/07/VAST-CTV-Addendum-2024-FINAL.pdf"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether competitive separation and an in-pod frequency limit are configured on the CTV pods, and sample filled breaks for repeated ads or competing brands sharing a pod.",
+        "tools": {
+          "free": {
+            "monetize_console": {
+              "label": "Microsoft Monetize console",
+              "steps": [
+                "Open the CTV or video pod configuration and look for a competitive-separation or brand-category rule applied to the pods.",
+                "Record whether an in-pod frequency limit is set within the break, separate from any campaign-level or daily frequency cap.",
+                "Note whether the demand setup requires a brand category on pod bids, the signal that lets the ad server keep competing categories apart.",
+                "Flag any pod where neither competitive separation nor an in-pod frequency rule is configured."
+              ]
+            },
+            "monetize_reporting": {
+              "label": "Microsoft Monetize reporting",
+              "steps": [
+                "Build a break-level or session-level report that shows the ads and advertisers that filled each pod.",
+                "Review a sample of filled breaks for the same ad appearing more than once in a pod or two competing brands sharing a break.",
+                "Note how often clashes or repeats appear, which indicates whether the pod rules are doing their job or are unset."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether competitive separation and an in-pod frequency limit are configured on the CTV pods, and what a sample of filled breaks shows. A setup with separation by brand category and an in-pod frequency limit, where the sampled breaks show no repeats or competing-brand clashes, passes. A setup where neither rule is configured, or where sampled breaks show repeated ads or competing brands in the same pod, is a fail recorded with the pods and the clashes found.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether competitive separation and an in-pod frequency limit are configured, and what the sampled breaks show, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs Connected TV (CTV) ad pods without competitive separation or an in-pod frequency limit, so rival brands can share a break and the same ad can repeat inside one pod. A campaign-level or daily frequency cap does not cover this since it can be satisfied while the same spot still runs twice in one break and says nothing about which competing brand fills the next slot. {{voice_recommend}} configuring competitive separation by brand category and an in-pod frequency limit on the CTV pods, starting with the highest-visibility content, and confirming the demand setup returns the brand category the ad server needs to keep competing categories apart. After the change, sample filled breaks again to confirm the repeats and clashes are gone."
+      }
+    }
+  ]
+}

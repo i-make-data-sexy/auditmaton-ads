@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Ad slot mapping is the link between a placement on the page and the tag ID Microsoft Monetize uses to request and fill it, so a mistake here sends inventory into the wrong placement or leaves a slot calling a tag that no longer matches it. The check reads the mapping a publisher already has in Microsoft Monetize against the placements live on the site, so it costs reading time rather than a rebuild, and each finding points to a specific tag ID or placement the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Ad slot mapping is how each ad position on a publisher's pages connects to a placement in Microsoft Monetize and the tag ID that requests demand for it. Microsoft Monetize is the sell-side platform formerly named Xandr Monetize, built on the AppNexus ad server, and it is Prebid-compatible, so the same ad unit definitions that drive header bidding also describe the slots being mapped. This subcategory is about that mapping itself, whether each placement points at the right tag ID with the sizes and formats it actually serves, rather than the pricing or yield rules layered on top. These checks confirm that the inventory passing through Microsoft Monetize matches the placements a publisher means to monetize, with no orphaned or mismatched tags in the path.",
+  "audit_checks": [
+    {
+      "id": "xandr-monetize-ad-slot-mapping-sizes-formats-mismatch",
+      "title": "Placements map to tag IDs whose declared sizes or formats do not match the slot",
+      "category": "inventory",
+      "subcategory": "ad_slot_mapping",
+      "impact_score": 3,
+      "impact_rationale": "When a placement requests a tag ID whose declared sizes or formats differ from what the slot can actually display, demand is solicited for creatives that will not render or are blocked from rendering. The result is lower fill on a slot that could have been filled, or a discarded creative that wasted the impression, so the revenue loss lands on inventory that was otherwise sound.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "data-quality"],
+      "educate": {
+        "base": "A placement in Microsoft Monetize, the sell-side platform formerly named Xandr Monetize, carries a declared set of sizes and formats. Those declarations tell the platform what to ask buyers for and what a winning creative is allowed to be. A 300x250 medium rectangle slot should map to a tag whose declaration includes 300x250. A slot that serves both a banner and an outstream video should map to a tag that declares both media types. When the declaration matches the slot, the platform requests the right demand and the winning creative fits the space.<br><br>The mismatch happens when the slot on the page and the tag it maps to drift apart. A designer resizes a unit from 728x90 to a responsive set that includes 970x250, but the tag still declares only the old size, so the larger demand is never requested. A slot is rebuilt to add video, but the mapped tag still declares banner only, so video demand never bids. The reverse also fails. A tag declares a 300x600 half-page when the slot can only show a 300x250, so a half-page creative wins and then has nowhere to render. Microsoft Monetize is Prebid-compatible, so the same ad unit definition that declares mediaTypes and sizes for header bidding describes the slot being mapped, which means a drift in one place shows up in the other.<br><br>The cost is paid on inventory that was otherwise sound. A size the slot supports but the tag does not declare is demand the publisher never collected. A format the tag declares but the slot cannot display is a winning bid that renders to nothing, which spends the impression and returns no revenue. Either way the slot underperforms for a reason that has nothing to do with its audience or its price.<br><br>A few signs point to a sizes or formats mismatch between a slot and its tag:<ul><li>A slot displays a size that does not appear in the declared sizes of the tag ID it maps to</li><li>A tag declares a format, such as video or native, that the slot on the page cannot render</li><li>Reporting shows discarded or unrendered creatives concentrated on a placement, which suggests winning creatives do not fit the slot</li><li>A redesign changed a slot's sizes or added a format, but the mapped tag was not updated to match</li></ul>You may want to confirm that each placement's declared sizes and formats match the slot it serves. One approach is to list the sizes and formats live on the page for each slot, compare them against the declaration on the mapped tag ID, and reconcile any that differ.",
+        "site_type_overlays": {
+          "publishing": "On a media site, article templates often carry responsive units that change size across breakpoints, and a sticky or in-content slot may add an outstream video format over time. You may want to walk each template's slots against their mapped tags so the responsive sizes and any added video format are declared on the tag, not just present on the page.",
+          "ecommerce": "On a commerce-content site, product and category templates reuse a small number of slot definitions across many pages, so a single mismatched mapping repeats at scale. One drift in a shared slot template affects every page built from it, so you may want to confirm the shared slot templates map to tags whose declared sizes and formats match."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Show Multi-Format Ads with Prebid.js",
+            "source_url": "https://docs.prebid.org/dev-docs/show-multi-format-ads.html"
+          }
+        ],
+        "learn_more_note": "Microsoft Monetize's detailed configuration documentation for placement tags, declared sizes, and supported formats is in the Microsoft Advertising partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each placement's declared sizes and formats on its mapped tag ID against the slot that serves it on the page, and look for any size the slot shows but the tag omits, or any format the tag declares but the slot cannot render.",
+        "tools": {
+          "free": {
+            "monetize_ui": {
+              "label": "Microsoft Monetize console",
+              "steps": [
+                "List the active placements and their tag IDs, and record the declared sizes and supported formats for each.",
+                "For each placement, identify the slot it serves on the page and the sizes and formats that slot actually displays.",
+                "Compare the slot's live sizes and formats against the tag declaration, and record any size present on the page but missing from the tag, or any format declared on the tag but not displayable in the slot."
+              ]
+            },
+            "page_inspection": {
+              "label": "Page inspection in the browser",
+              "steps": [
+                "Open a representative page in the browser and use the developer tools to inspect each ad slot's container and rendered creative dimensions.",
+                "Note the sizes the slot is built to display and whether it is meant to carry video or native in addition to banner.",
+                "Match each inspected slot to its placement and tag ID, and record any case where the rendered slot and the declared tag differ in size or format."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per placement, the sizes and formats declared on the mapped tag ID alongside the sizes and formats the slot actually serves on the page. A placement whose tag declaration matches the slot, with every displayable size declared and no format declared that the slot cannot render, passes. A placement where the slot shows a size the tag omits, or the tag declares a format the slot cannot display, is a fail recorded with the placement, the tag ID, and the specific size or format that diverges.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the declared sizes and formats for each mapped tag ID and the sizes and formats the slot actually serves above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that placements on {{site_name}} map to tag IDs whose declared sizes or formats do not match the slots they serve. When a slot shows a size the tag omits, that demand is never requested, and when a tag declares a format the slot cannot render, a winning creative renders to nothing and the impression is spent for no revenue, so the loss falls on inventory that was otherwise sound. {{voice_recommend}} listing the sizes and formats each slot displays on the page, comparing them against the declaration on the mapped tag ID in Microsoft Monetize, and reconciling each one that differs so the tag requests the demand the slot can actually show. After the reconciliation, recheck fill and discarded-creative rates on the affected placements to confirm the mapping fits the slot."
+      }
+    },
+    {
+      "id": "xandr-monetize-ad-slot-mapping-orphaned-stale-tags",
+      "title": "Orphaned or stale tags pass inventory under the wrong placement",
+      "category": "inventory",
+      "subcategory": "ad_slot_mapping",
+      "impact_score": 3,
+      "impact_rationale": "A tag that outlives the slot it was built for, or that was duplicated and pointed at the wrong placement, keeps requesting demand and attributing the resulting inventory to a placement that no longer matches. Reporting then credits revenue to the wrong inventory, demand controls meant for one placement apply to another, and a retired tag may still serve from cached pages, so the publisher loses a clean view of which inventory is earning.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "data-quality"],
+      "educate": {
+        "base": "Tags accumulate. A publisher launches a placement, builds a tag for it in Microsoft Monetize, and ships it. Months later the placement is removed in a redesign, a section is retired, or a slot is rebuilt under a new tag, but the old tag is left in the account rather than deactivated. That leftover tag is orphaned. It no longer corresponds to a live slot, yet it may still appear in the mapping, still carry demand controls, and in some cases still serve from pages that cached the old code or from a feed that was never updated.<br><br>A stale tag is the related problem where a tag is live but points at the wrong placement. This happens when a tag is duplicated to spin up a new slot quickly and the copy keeps the original's placement reference, or when a slot is repurposed and its tag is not renamed or repointed. The tag fills impressions, but it attributes them to a placement that no longer describes where the ad actually ran. Microsoft Monetize is built on the AppNexus ad server, where placements and tags are distinct objects, so a tag can keep its old placement association even after the slot it serves has changed underneath it.<br><br>The damage is to the publisher's view of the account rather than to any single impression. Revenue lands under a placement that is not where it was earned, so reporting points at the wrong inventory when the publisher decides what to invest in or retire. Demand controls and floors set for one placement apply to inventory that belongs to another. An orphaned tag that still serves from a cached page passes inventory the publisher believes is gone, which can keep a retired section earning in a way no one is watching. The mapping stops being a reliable description of what is live.<br><br>A few signs point to orphaned or stale tags in the mapping:<ul><li>A tag ID shows activity but no current slot on the site corresponds to it</li><li>Two tags carry near-identical names or settings, which suggests one was duplicated and not repointed</li><li>Reporting attributes impressions to a placement that was retired or rebuilt</li><li>A tag's placement reference names a section, page type, or unit that no longer exists in its described form</li></ul>You may want to confirm that every active tag maps to a live slot and that every live slot maps to the tag intended for it. One approach is to reconcile the list of active tags against the placements live on the site, deactivating any tag with no matching slot and repointing any tag whose placement reference no longer fits.",
+        "site_type_overlays": {
+          "publishing": "On a media site, sections and article templates are added and retired often, so tags built for a discontinued section or an old template can linger after the slots are gone. You may want to reconcile the active tags against the sections and templates currently live, deactivating tags tied to retired sections so their inventory and reporting stop attributing to placements that no longer exist.",
+          "ecommerce": "On a commerce-content site, seasonal pages and discontinued product categories leave behind slots that get removed while their tags remain, and duplicated template tags can point new pages at an old category's placement. You may want to confirm that tags for removed categories and seasonal pages are deactivated and that template-duplicated tags reference the placement they actually serve."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB (Real-Time Bidding)",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          }
+        ],
+        "learn_more_note": "Microsoft Monetize's documentation for deactivating placements and tags and managing the placement-to-tag relationship is in the Microsoft Advertising partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the list of active tag IDs against the placements live on the site, and look for tags with no matching slot, tags whose placement reference no longer fits, and duplicated tags that may point at the wrong placement.",
+        "tools": {
+          "free": {
+            "monetize_ui": {
+              "label": "Microsoft Monetize console",
+              "steps": [
+                "List the active tags and placements with their names, placement references, and recent activity.",
+                "For each active tag, confirm a live slot on the site corresponds to it, and flag any tag with activity but no matching slot as orphaned.",
+                "Identify near-duplicate tags by name or settings and check whether each one's placement reference matches the slot it serves, flagging any that point at the wrong placement as stale."
+              ]
+            },
+            "monetize_reporting": {
+              "label": "Microsoft Monetize reporting",
+              "steps": [
+                "Build a report broken out by placement and tag with impressions and revenue over a recent period.",
+                "Look for impressions attributed to a placement that was retired or rebuilt, which points to a tag still serving under an old placement reference.",
+                "Note any tag still showing activity that the publisher cannot match to a current slot, and record it alongside the placement it is attributing to."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the active tags alongside the live slots and the placement each tag references. A mapping where every active tag corresponds to a live slot and every tag's placement reference matches the slot it serves passes. A tag with recorded activity but no matching live slot, or a tag whose placement reference does not fit the slot it actually serves, is a fail recorded with the tag ID, its current placement reference, and the slot it should or should not map to.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the active tags, the live slots, and the placement each tag references above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} carries orphaned or stale tags in Microsoft Monetize, where a tag either has no live slot it corresponds to or points at a placement that no longer matches the slot it serves. The impressions still fill, but they attribute to the wrong inventory, so reporting credits revenue to placements that are not where it was earned and demand controls set for one placement apply to another. {{voice_recommend}} reconciling the active tags against the slots live on the site, deactivating any tag with no matching slot, and repointing any tag whose placement reference no longer fits the slot it serves. After the cleanup, confirm that reporting attributes impressions only to placements that are live and correctly mapped."
+      }
+    }
+  ]
+}

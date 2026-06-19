@@ -1,0 +1,161 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Supply Path Optimization decides how many routes a buyer can take to reach the same SpringServe inventory, and reseller hygiene decides who is allowed to carry that inventory along the way. Redundant paths and unauthorized resellers both cost the publisher. A buyer that finds the same impression through several intermediaries favors the cheapest route, and inventory that travels through paths the publisher never authorized invites made-for-advertising (MFA) and counterfeit-inventory risk that buyers eventually block. The check reviews the demand routing, the sellers.json entries, and the ads.txt and app-ads.txt declarations a publisher already controls, so it costs reading time rather than rebuild time, and the finding points to specific paths to consolidate or resellers to remove.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Supply Path Optimization (SPO) is the buyer-side practice of reducing the number of routes used to reach the same inventory, and reseller hygiene is the publisher-side practice of keeping the list of authorized sellers tight and accurate. This subcategory looks at SpringServe supply from the publisher's side. The question is whether a buyer reaching the publisher's video and Connected TV (CTV) inventory through SpringServe finds a short, clean path with authorized resellers, or a thicket of redundant intermediaries and unverified entities that buyers learn to route around. These checks confirm that the demand routing is consolidated where it can be and that the seller declarations match the resellers actually carrying the inventory.",
+  "audit_checks": [
+    {
+      "id": "springserve-spo-reseller-hygiene-redundant-paths",
+      "title": "The same inventory reaches buyers through redundant, low-value supply paths",
+      "category": "supply-chain",
+      "subcategory": "spo_reseller_hygiene",
+      "impact_score": 3,
+      "impact_rationale": "When a buyer can reach the same impression through several intermediaries, the buyer's Supply Path Optimization favors the cheapest route, and the longer paths carry extra fees that lower the publisher's net without adding demand. Redundant paths also dilute the bid density on each route and make the supply chain harder for buyers to trust, so consolidating them can raise net yield without losing genuine demand.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["transparency", "fraud"],
+      "educate": {
+        "base": "Supply Path Optimization (SPO) is the work buyers do to reach a publisher's inventory through fewer, cleaner routes. A demand-side platform (DSP) that sees the same impression arrive through several intermediaries does not value each route equally. It picks the path with the lowest fees and the cleanest supply signals, and it leans away from the rest. For a publisher serving video and Connected TV (CTV) ads through SpringServe, that means the redundant paths are not adding demand. They are splitting the same demand across more routes, each one carrying its own take rate.<br><br>Redundancy builds up in ordinary ways. A reseller or supply-side platform (SSP) gets added to capture a particular buyer, then the buyer later connects more directly and the old path is left in place. Two intermediaries both resell the same inventory to the same DSP, so the DSP sees duplicate bid requests and applies its own deduplication, often keeping the shorter chain. The longer chains stay live, take a cut whenever they happen to win, and lower the publisher's net price without raising the gross demand.<br><br>The supply chain a buyer sees is described by the OpenRTB SupplyChain object, which lists each node between the publisher and the buyer. A clean, short chain reads as more trustworthy and easier to optimize toward. A chain padded with intermediaries that add no unique demand reads as a path to prune. The audit question is whether the routes carrying the publisher's SpringServe inventory each bring demand that the shorter routes do not, or whether several of them resell the same impressions to the same buyers.<br><br>A few signs point to redundant supply paths:<ul><li>The same buyer or DSP wins the same inventory through more than one intermediary, with the longer chains taking a fee on the wins they catch</li><li>Reseller paths exist that route to demand already reachable through a direct connection</li><li>A reseller carries inventory but its win rate, bid density, and net revenue do not justify the take rate it charges on the path</li></ul>You may want to confirm that each supply path carries demand the others do not. One approach is to read win rate, bid density, and net revenue by path, then consolidate or remove the routes that resell the same impressions to the same buyers without adding unique demand.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, the same long-form and live CTV inventory is often offered to several SSPs and resellers at once, so a single ad break can reach one DSP through three or four routes. You may want to read win rate and net revenue by path on the CTV inventory specifically. The fees on a redundant CTV path are larger in absolute terms than on lower-priced web video.",
+          "ecommerce": "On a commerce-content property running product and shopping video, the higher-intent inventory draws more intermediaries hoping to capture that demand, which is where redundant paths accumulate. You may want to compare the demand each reseller brings to the commerce video against the direct connections, and prune the paths that resell the same impressions to buyers already reachable directly."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB SupplyChain Object specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/openrtb/blob/main/supplychainobject.md"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json and supply chain transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for demand routing and supply path setup is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the supply paths carrying the publisher's SpringServe inventory and read win rate, bid density, and net revenue by path to see which routes add unique demand and which resell the same impressions to the same buyers.",
+        "tools": {
+          "free": {
+            "springserve_console": {
+              "label": "SpringServe console",
+              "steps": [
+                "Open the demand objects connected to the publisher's supply, and list the SSPs, exchanges, and resellers that route inventory to buyers.",
+                "For each demand path, note whether it connects to a direct buyer relationship or resells the inventory onward to other intermediaries.",
+                "Pull reporting by demand path with requests, win rate, net revenue, and average price, and record which paths win the same inventory for the same buyers.",
+                "Mark any path whose win rate and net revenue do not justify its take rate as a candidate for consolidation or removal."
+              ]
+            },
+            "supply_chain_inspection": {
+              "label": "OpenRTB SupplyChain inspection",
+              "steps": [
+                "For a sample of bid requests leaving SpringServe, read the OpenRTB SupplyChain object and record the nodes between the publisher and the buyer on each path.",
+                "Compare the chains for the same inventory across paths to see where a longer chain reaches the same buyer that a shorter chain already reaches.",
+                "Note any chain padded with an intermediary that appears on no other unique demand, which points to a redundant path."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per supply path, the buyers reached, the win rate, the bid density, the net revenue, and the take rate, then checks whether each path brings demand the others do not. A setup where every live path carries unique demand or a clearly better net price passes. A setup where two or more paths resell the same impressions to the same buyers, with the longer chains taking a fee without adding demand, is a fail recorded with the redundant paths and the buyers they overlap on.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the buyers reached, win rate, and net revenue for each supply path above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that several supply paths carry {{site_name}}'s SpringServe inventory to the same buyers, so the redundant routes split demand rather than add it. A buyer applying Supply Path Optimization (SPO) favors the cheapest, cleanest route, which means the longer chains take a fee on the wins they catch while lowering the net price and adding no unique demand. {{voice_recommend}} reading win rate, bid density, and net revenue by path, then consolidating or removing the routes that resell the same impressions to buyers already reachable through a shorter chain. After the change, recheck net revenue and fill across the remaining paths to confirm the consolidation kept the genuine demand and dropped only the redundancy."
+      }
+    },
+    {
+      "id": "springserve-spo-reseller-hygiene-unauthorized-mfa-risk",
+      "title": "Reseller declarations are not maintained, leaving unauthorized and MFA risk unmonitored",
+      "category": "supply-chain",
+      "subcategory": "spo_reseller_hygiene",
+      "impact_score": 4,
+      "impact_rationale": "When sellers.json, ads.txt, and app-ads.txt do not match the resellers actually carrying the inventory, buyers cannot verify the supply chain, and unauthorized entities can sell the inventory or pass it through made-for-advertising (MFA) routes that buyers block. Stale or inaccurate declarations let counterfeit and MFA-routed inventory ride on the publisher's name, which can trigger buyer blocklists that suppress demand across all of the publisher's inventory, not only the affected paths.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["transparency", "fraud"],
+      "educate": {
+        "base": "The supply chain only stays trustworthy when the publisher's seller declarations match the resellers actually carrying the inventory. Three files do this work together. The publisher's ads.txt (for web) and app-ads.txt (for apps and Connected TV, abbreviated CTV) declare which sellers and resellers are authorized to sell the inventory. Each SSP's sellers.json lists the seller and reseller accounts it transacts on behalf of. The OpenRTB SupplyChain object then describes the actual path of a given bid request. A buyer cross-checks all three to confirm the inventory is authentic and the chain is authorized.<br><br>The declarations drift out of accuracy over time. A reseller relationship ends but its line stays in ads.txt. A new SSP is connected in SpringServe but never added to app-ads.txt, so its CTV inventory looks unauthorized to buyers. A reseller is listed with the wrong account type, declared as a direct seller when it actually resells, which breaks the chain a buyer tries to verify. Each mismatch gives an unauthorized entity room to sell the inventory, or pass it through a made-for-advertising route, while still appearing to carry the publisher's name.<br><br>Made-for-advertising inventory is content built to win programmatic scale rather than to serve an audience, and buyers increasingly identify and block it using OpenRTB signals such as high ad refresh rates alongside ads.txt and sellers.json checks. If a publisher's inventory is reselling through a path that buyers flag as MFA-adjacent, or through a reseller the publisher cannot verify, the buyer's response is often a blocklist that suppresses demand across the publisher's whole supply, not only the path at fault. Keeping the declarations accurate is what keeps the publisher off those lists.<br><br>A few signs point to reseller declarations that are not maintained:<ul><li>ads.txt or app-ads.txt lists sellers or resellers no longer connected in SpringServe, or omits ones that are</li><li>A reseller's entry in an SSP's sellers.json does not match how the publisher declared it, for example direct versus reseller</li><li>No routine review reconciles the live demand paths in SpringServe against the ads.txt, app-ads.txt, and sellers.json entries</li></ul>You may want to confirm that the seller declarations match the resellers carrying the inventory today. One approach is to reconcile the live SpringServe demand paths against ads.txt, app-ads.txt, and the relevant sellers.json files, then correct or remove any entry that no longer matches.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, the CTV and app inventory depends on app-ads.txt rather than ads.txt, and a missing or stale app-ads.txt entry makes authorized CTV inventory look unauthorized to buyers. You may want to verify that every SSP and reseller connected to the CTV supply in SpringServe appears correctly in app-ads.txt. CTV buyers are strict about supply-chain verification.",
+          "ecommerce": "On a commerce-content property running shopping and product video across web and app, both ads.txt and app-ads.txt apply depending on where the video serves. You may want to reconcile each separately against the SpringServe demand paths, so a reseller authorized for web video is not assumed to be authorized for the app inventory or the reverse."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt: Authorized Digital Sellers specification",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json and supply chain transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Using OpenRTB Signals to Identify Made for Advertising",
+            "source_url": "https://iabtechlab.com/using-openrtb-signals-to-identify-made-for-advertising/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for managing demand connections and seller accounts is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the live demand paths in SpringServe against the publisher's ads.txt, app-ads.txt, and the relevant sellers.json files to confirm the declarations match the resellers carrying the inventory and flag any unauthorized or MFA-adjacent path.",
+        "tools": {
+          "free": {
+            "seller_declarations": {
+              "label": "Seller declaration files",
+              "steps": [
+                "Open the publisher's ads.txt and app-ads.txt files and list each declared seller and reseller with its account identifier and type.",
+                "For each SSP connected in SpringServe, open its sellers.json and find the publisher's seller account, recording the account type and whether it is marked confidential.",
+                "Compare the declarations against the live demand paths in SpringServe and flag any seller listed but not connected, connected but not listed, or declared with the wrong account type."
+              ]
+            },
+            "supply_chain_inspection": {
+              "label": "OpenRTB SupplyChain and MFA signals",
+              "steps": [
+                "For a sample of bid requests leaving SpringServe, read the OpenRTB SupplyChain object and confirm each node matches an authorized entry in the seller declarations.",
+                "Check the inventory on each reseller path for made-for-advertising (MFA) signals such as high ad refresh rates or unusually low-value, high-volume requests.",
+                "Record any path that routes through an entity the declarations do not authorize, or that shows MFA signals, as a risk to investigate."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the live demand paths in SpringServe alongside the ads.txt, app-ads.txt, and sellers.json entries, then checks each path for a matching, correctly typed authorization and for MFA signals. A setup where every live path maps to a current, correctly declared seller and shows no MFA signals passes. A setup with sellers declared but not connected, connected but not declared, declared with the wrong account type, or routing through an MFA-adjacent reseller is a fail recorded with the specific mismatched or risky paths.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the live demand paths and the matching ads.txt, app-ads.txt, and sellers.json entries above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s seller declarations do not match the resellers carrying its SpringServe inventory, leaving unauthorized and made-for-advertising (MFA) risk unmonitored. When ads.txt, app-ads.txt, and the SSPs' sellers.json entries drift out of sync with the live demand paths, buyers cannot verify the supply chain, and unauthorized or MFA-adjacent routes can sell the inventory under the publisher's name and trigger buyer blocklists that suppress demand across all of it. {{voice_recommend}} reconciling the live SpringServe demand paths against ads.txt, app-ads.txt, and the relevant sellers.json files, correcting or removing any entry that no longer matches, and checking each reseller path for MFA signals. After the cleanup, set a routine review so the declarations stay aligned with the resellers actually carrying the inventory."
+      }
+    }
+  ]
+}

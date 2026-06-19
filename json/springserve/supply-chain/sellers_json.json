@@ -1,0 +1,161 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://iabtechlab.com/sellers-json/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "A sellers.json entry and a complete SupplyChain object (schain) are how a buyer confirms that the inventory routed through SpringServe traces back to a real, declared seller. When the seller ID does not match, the relationship type is wrong, or the schain breaks somewhere on the path, buying platforms can filter the bid request out as unverifiable supply, so the impression goes unmonetized. The check reads records and a sample of bid requests the publisher can already see, so it costs review time rather than a rebuild, and the finding points to a specific entry or hop a publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Supply chain transparency tells a buyer where a video or Connected TV (CTV) impression came from and who is authorized to sell it. SpringServe is a video and CTV ad server that routes both direct-sold and programmatic demand, so a publisher's identity has to be declared correctly in the ad server's own sellers.json file and carried intact through the SupplyChain object (schain) on every bid request. This subcategory checks two linked things, that the publisher's sellers.json entry matches the seller ID and relationship SpringServe transacts under, and that the schain is complete and passed end to end so a buyer can verify the path. Both are standards-based mechanics defined by IAB Tech Lab, which makes them auditable against a published reference rather than a vendor opinion.",
+  "audit_checks": [
+    {
+      "id": "springserve-sellers-json-entry-mismatch",
+      "title": "The sellers.json entry does not match the publisher's seller ID and relationship",
+      "category": "supply-chain",
+      "subcategory": "sellers_json",
+      "impact_score": 3,
+      "impact_rationale": "A sellers.json entry is how a buyer confirms that the seller ID on a bid request belongs to a real, declared entity selling under a known relationship. When the seller ID in the entry does not match the ID SpringServe transacts under, or the seller_type misstates whether the publisher is selling its own inventory or reselling another party's, a buyer cannot verify the supply and can drop the bid request as unauthorized. The inventory still serves through direct paths, so the loss is confined to the programmatic demand that enforces verification.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "sellers.json is a public file an advertising system publishes so that buyers can look up who is authorized to sell each piece of inventory flowing through it. SpringServe, as a video and Connected TV (CTV) ad server, carries a seller ID for the publisher whose inventory it serves, and that ID appears in the bid requests SpringServe sends to programmatic demand. A buyer takes the seller ID off the bid request, looks it up in the ad server's sellers.json file, and reads the entry to confirm the seller is real and declared. When the lookup fails or the entry contradicts the request, the buyer has no way to verify the supply.<br><br>The entry carries a small set of fields defined by IAB Tech Lab, and each one has to be accurate. The 'seller_id' has to match the exact ID SpringServe puts on the bid request since a buyer matches on that value and nothing else. The 'seller_type' declares the relationship, where 'PUBLISHER' means the seller owns and monetizes the inventory directly, 'INTERMEDIARY' means the seller is reselling inventory that originated elsewhere, and 'BOTH' covers a seller that does each. The 'name' and 'domain' identify the entity and have to describe the real publisher rather than a placeholder. A seller that asks to stay unnamed is marked with the 'is_confidential' flag rather than left blank, which is a deliberate declaration, not a gap.<br><br>The audit risk is a mismatch between what the entry says and what SpringServe actually transacts. A few patterns produce that mismatch:<ul><li>The seller_id in the entry differs from the ID SpringServe sends on the bid request, so the buyer's lookup returns nothing</li><li>The seller_type reads 'PUBLISHER' while the publisher is reselling another party's inventory, or 'INTERMEDIARY' while it owns the inventory directly</li><li>The name or domain points to a stale entity from a prior setup rather than the current publisher</li><li>The inventory is sold under a confidential arrangement but the entry leaves the seller blank instead of setting is_confidential</li></ul>You may want to pull the publisher's seller ID from a sample SpringServe bid request, look that exact ID up in the relevant sellers.json file, and confirm the entry's seller_type and identity describe the real selling relationship. One approach is to reconcile the entry against a recent bid request rather than against how the setup was described since the request is what a buyer actually verifies against.",
+        "site_type_overlays": {
+          "publishing": "For a streaming service or broadcaster running its own channels through SpringServe, the seller_type is usually 'PUBLISHER' because the publisher owns and monetizes the video inventory directly. You may want to confirm the entry reads 'PUBLISHER' and that the name and domain match the broadcaster's real identity since CTV buyers lean on sellers.json to separate owned-and-operated streaming inventory from resold supply.",
+          "ecommerce": "For a commerce-content property running shoppable or product video through SpringServe, the relationship can shift if some of that video inventory is sold on behalf of a retail or brand partner rather than owned outright. You may want to confirm the seller_type reflects whether the publisher owns the video inventory ('PUBLISHER') or is reselling a partner's ('INTERMEDIARY') because the two describe different selling relationships to a buyer."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "sellers.json Specification",
+            "source_url": "https://iabtechlab.com/wp-content/uploads/2019/07/Sellers.json_Final.pdf"
+          },
+          {
+            "source_type": "IAB Tech Lab Standards",
+            "source_title": "Supply Chain and Foundations",
+            "source_url": "https://iabtechlab.com/standards/supply-chain-foundations/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the publisher's sellers.json entry against the seller ID and relationship SpringServe actually transacts under, drawn from a recent bid request rather than from how the setup was described.",
+        "tools": {
+          "free": {
+            "bid_request_sample": {
+              "label": "SpringServe bid request sample",
+              "steps": [
+                "Pull a recent sample of bid requests SpringServe sends to programmatic demand and read the seller ID carried for the publisher.",
+                "Note the exact seller_id value since a buyer matches on that string and a near-match still fails the lookup.",
+                "Record whether the inventory in the sample is the publisher's own or routed on behalf of another party, which determines the correct seller_type."
+              ]
+            },
+            "sellers_json_file": {
+              "label": "sellers.json lookup",
+              "steps": [
+                "Open the sellers.json file for the advertising system that carries the publisher's inventory and find the entry for the seller_id from the bid request.",
+                "Confirm the entry exists, then read its seller_type, name, and domain and compare them against the real selling relationship and the publisher's identity.",
+                "Where the seller is meant to stay unnamed, confirm the is_confidential flag is set rather than the name and domain left blank.",
+                "Record any field that contradicts the bid request or the real relationship, with the seller_id and the field affected."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the seller_id from a sample SpringServe bid request alongside the matching sellers.json entry's seller_id, seller_type, name, and domain. An entry whose seller_id matches the request, whose seller_type describes the real selling relationship, and whose name and domain identify the current publisher passes. A missing entry, a seller_id that does not match, a seller_type that misstates the relationship, or a stale name or domain is a fail recorded with the seller_id and the field that diverges.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the seller_id from a bid request and the matching sellers.json entry's fields above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the sellers.json entry for {{site_name}} does not match the seller ID and relationship SpringServe transacts under. A buyer verifies supply by looking up the seller ID from the bid request in sellers.json, so an entry whose seller_id does not match, or whose seller_type misstates whether the inventory is owned or resold, leaves the programmatic demand unable to confirm the supply and able to drop the request. {{voice_recommend}} reconciling the entry against a recent SpringServe bid request, correcting the seller_id to the exact value on the request, and setting the seller_type to reflect whether {{site_name}} owns the video inventory or is reselling a partner's. After the correction, recheck a fresh sample of bid requests to confirm the seller ID resolves to the entry."
+      }
+    },
+    {
+      "id": "springserve-sellers-json-schain-incomplete",
+      "title": "The SupplyChain object is incomplete or not passed end to end",
+      "category": "supply-chain",
+      "subcategory": "sellers_json",
+      "impact_score": 3,
+      "impact_rationale": "The SupplyChain object (schain) declares every party that touched a bid request between the publisher and the buyer. When a hop is missing, the node fields are incomplete, or the chain is not marked complete, a buyer cannot trace the path back to the origin and can treat the supply as unverifiable. The impression still serves through paths that do not enforce schain, so the cost falls on the programmatic demand that checks it before bidding.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "The SupplyChain object, written 'schain' in a bid request, is the companion to sellers.json. Where sellers.json lets a buyer verify a single seller, the schain records the ordered list of every party that handled the bid request on its way from the publisher to the buyer. SpringServe, sitting in the video and Connected TV (CTV) path, is one of those parties and either originates the chain when it is the first hop or appends its node to a chain that started upstream. A buyer reads the schain to confirm the path is complete and that each party in it resolves to a real seller.<br><br>Each party in the chain is one node, and a node carries a defined set of fields. The 'asi' is the advertising system identifier, the domain of the system's sellers.json file. The 'sid' is the seller ID that party uses on the request, which the buyer can look up in that system's sellers.json. The 'hp' flag marks whether the node was paid for handling the request. The object also carries a 'complete' flag at the top, set to 1 when every party from the publisher onward is present in the chain and 0 when an upstream hop is missing. A schain is only as useful as it is complete. A chain marked complete with a gap, or marked incomplete, both tell a buyer the path cannot be fully traced.<br><br>The audit risk is a chain that breaks somewhere on the SpringServe path. A few patterns produce that break:<ul><li>SpringServe's node is missing its asi or sid, so a buyer cannot resolve that hop to a sellers.json entry</li><li>An upstream party's node is absent while the complete flag still reads 1, which claims a full chain that is not actually full</li><li>The complete flag reads 0 because a hop genuinely is missing, and the missing party is the publisher's own upstream partner</li><li>The schain is dropped entirely on some demand paths, so those requests carry no chain at all</li></ul>You may want to pull a sample of SpringServe bid requests across the demand paths in use and read the schain on each, confirming every node carries its asi and sid and that the complete flag matches whether the chain truly runs unbroken from the publisher. One approach is to trace each node's asi and sid into the matching sellers.json file, so a node that does not resolve surfaces as the break.",
+        "site_type_overlays": {
+          "publishing": "For a streaming service or broadcaster, CTV demand paths frequently route through multiple intermediaries before reaching a buyer, so the schain on a broadcaster's requests often has several nodes. You may want to confirm each intermediary on the path appears as its own node with a resolvable asi and sid since a CTV buyer enforcing schain on premium video will drop a request whose chain it cannot trace to the broadcaster.",
+          "ecommerce": "For a commerce-content property running product or shoppable video, some of that inventory may be sold through a retail or partner platform that adds its own hop to the chain. You may want to confirm the partner's node is present and resolvable, and that the complete flag reflects the full path, so a buyer can trace the video supply back to the property rather than stopping at the partner."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standards",
+            "source_title": "Supply Chain and Foundations",
+            "source_url": "https://iabtechlab.com/standards/supply-chain-foundations/"
+          },
+          {
+            "source_type": "IAB Tech Lab FAQ",
+            "source_title": "FAQ for sellers.json and SupplyChain Object",
+            "source_url": "https://iabtechlab.com/wp-content/uploads/2019/07/FAQ-for-sellers.json_supplychain-object.pdf"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the SupplyChain object on a sample of SpringServe bid requests across the demand paths in use, checking that each node carries its asi and sid and that the complete flag matches the real path.",
+        "tools": {
+          "free": {
+            "bid_request_sample": {
+              "label": "SpringServe bid request sample",
+              "steps": [
+                "Pull a sample of bid requests SpringServe sends across each programmatic demand path the publisher uses.",
+                "On each request, locate the schain object and confirm it is present rather than dropped on that path.",
+                "Read the ordered list of nodes and record, for each, the asi and sid values and the hp flag.",
+                "Read the top-level complete flag and note whether it claims a full chain or signals a missing hop."
+              ]
+            },
+            "sellers_json_file": {
+              "label": "sellers.json resolution",
+              "steps": [
+                "For each node in the schain, take the asi (the system's sellers.json domain) and the sid and look the sid up in that system's sellers.json file.",
+                "Confirm each node resolves to a real seller entry, and record any node whose asi or sid does not resolve, which marks the break in the chain.",
+                "Compare the chain's coverage against the parties the publisher knows handle its inventory, and note any party that is missing from the chain while the complete flag reads 1."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per sampled bid request, whether the schain is present, the asi and sid for each node, whether each node resolves to a sellers.json entry, and whether the complete flag matches the real path. Requests whose schain is present, whose nodes each resolve, and whose complete flag is 1 only when the chain runs unbroken from the publisher pass. A dropped schain, a node missing its asi or sid, a node that does not resolve, or a complete flag set to 1 over a gap is a fail recorded with the demand path and the node affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the schain nodes, their resolution, and the complete flag for each sampled bid request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the SupplyChain object on bid requests from {{site_name}} is incomplete or not passed end to end. A buyer reads the schain to trace the path from the publisher through every party that handled the request, so a missing node, a node without a resolvable asi or sid, or a complete flag set to 1 over a gap leaves the path unverifiable and lets demand that enforces schain drop the request. {{voice_recommend}} sampling bid requests across each demand path, confirming SpringServe's node and every upstream node carry a resolvable asi and sid, and setting the complete flag to 1 only when the chain runs unbroken from {{site_name}}. After the fix, retrace a fresh sample so each node resolves to its sellers.json entry."
+      }
+    }
+  ]
+}

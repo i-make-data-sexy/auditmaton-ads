@@ -1,0 +1,164 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "SpringServe reports an impression count for every ad it serves, and so does the demand source that paid for the impression and the player that rendered it. When those counts disagree, the gap decides which number the publisher invoices against and which number the demand partner pays against, so an unmeasured gap turns into a revenue dispute. The check reads counts the publisher already has rather than rebuilding anything, so it costs reading time, and the finding points to a concrete number to reconcile rather than a vague worry.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "An impression in a video and Connected TV (CTV) ad server passes through several systems that each count it, and those systems rarely report the exact same total. SpringServe records what it served, the demand source records what it was billed for, and the video player records what actually rendered for the viewer. This subcategory is about measuring the gap between those counts and keeping it inside a tolerance the publisher has agreed to, rather than the upstream pricing or demand setup that produces the impressions. These checks confirm that the discrepancy is measured against a stated tolerance and that out-of-range gaps are traced to a cause rather than written off.",
+  "audit_checks": [
+    {
+      "id": "springserve-discrepancy-reconciliation-not-measured-against-tolerance",
+      "title": "Impression discrepancy is not measured against an agreed tolerance",
+      "category": "measurement",
+      "subcategory": "discrepancy_reconciliation",
+      "impact_score": 3,
+      "impact_rationale": "When the SpringServe count and a downstream or player count are never compared against a stated tolerance, the publisher cannot tell a routine gap from a billing error. The number invoiced and the number paid drift apart with no flag, so revenue that should be collected or disputed sits unexamined until a partner raises it first.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "An impression in a video and Connected TV (CTV) ad server is counted more than once because more than one system handles it. SpringServe counts the impression when it serves the ad. The demand source that bought the impression counts what it was billed for. The video player, or a server-side ad insertion (SSAI) service stitching the ad into a stream, counts what actually rendered for the viewer. Each of those counts is taken at a slightly different moment and under slightly different rules, so a gap between them is expected rather than a sign that something broke.<br><br>The gap matters because money rides on it. The publisher invoices against one count and the demand partner pays against another, so the size of the discrepancy decides whether the two numbers can be reconciled or whether they turn into a dispute. A gap of a percent or two between an ad server and a counted-on-render player count is the kind of difference the industry treats as normal since the player counts later in the serving process than the ad server does. A double-digit gap is a different signal, one that points to lost beacons, timed-out requests, or two systems counting at incompatible points.<br><br>A tolerance is the threshold that separates the two. It is a percentage the publisher agrees on, with the demand partner where a contract sets one, below which a gap is accepted as routine and above which it is investigated. The industry impression-measurement guidelines describe why counts diverge, including the shift to a 'count-on-begin-to-render' model that moved the counting moment later in the process, and that grounding helps a publisher set a tolerance that reflects how the counts are actually taken rather than a number picked from the air.<br><br>The audit question is whether the discrepancy is measured against such a tolerance at all. A few signs point to a discrepancy that is not measured against a tolerance:<ul><li>No regular comparison exists between the SpringServe impression count and the matching demand-source or player count</li><li>A comparison happens informally but no tolerance percentage has been agreed, so there is no line that separates a routine gap from a problem</li><li>Discrepancies surface only when a demand partner disputes an invoice rather than from the publisher's own checks</li></ul>You may want to confirm that the SpringServe count is compared against a downstream count on a regular cadence and judged against a tolerance the publisher has set. One approach is to agree a tolerance with each major demand partner, then read the gap against it each billing period so a number that drifts out of range is caught before it becomes a dispute.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, ads often reach the viewer through an SSAI service that stitches them into the live or on-demand stream, so the player count and the SpringServe count are taken in different systems with their own timing. You may want to agree a tolerance that accounts for the stitching step and read the gap per channel or per stream type since a sports live stream and an on-demand library can show different discrepancy patterns.",
+          "ecommerce": "On a commerce-content video property, such as shoppable product videos or a brand's video library, the player is often embedded in pages alongside other scripts that compete for load time, which can delay or drop the tracking beacon that confirms render. You may want to set a tolerance for these embedded placements and watch whether the gap widens on the heavier commercial pages since a beacon that fires late or not at all shows up as a discrepancy."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Guidelines",
+            "source_title": "Ad Impression Measurement Guidelines (US & Global)",
+            "source_url": "https://www.iab.com/guidelines/ad-impression-measurement-guidelines-us-global/"
+          },
+          {
+            "source_type": "IAB News",
+            "source_title": "IAB, MRC & MMA Propose Updates to Ad Measurement Guidelines, Moving Industry To Count-on-Begin-to-Render Model",
+            "source_url": "https://www.iab.com/news/iab-mrc-mma-propose-updates-to-ad-measurement-guidelines/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed reporting and reconciliation configuration documentation for this is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the SpringServe impression count is compared against a matching demand-source or player count on a regular cadence, and whether a tolerance percentage has been agreed against which the gap is judged.",
+        "tools": {
+          "free": {
+            "springserve_reporting": {
+              "label": "SpringServe reporting",
+              "steps": [
+                "Open the SpringServe reporting section and build an impressions report for a recent billing period, broken out by demand source or supply tag.",
+                "Record the SpringServe impression count for each demand source you want to reconcile.",
+                "Ask the publisher whether a tolerance percentage has been agreed for each demand partner, and record the number where one exists.",
+                "Note whether any regular comparison against a downstream count is run, and on what cadence, or whether comparisons happen only when a dispute is raised."
+              ]
+            },
+            "demand_partner_reporting": {
+              "label": "Demand source and player reporting",
+              "steps": [
+                "Pull the matching impression count from the demand source's own reporting for the same period and the same inventory.",
+                "Pull the player or SSAI-service render count for the same period where that count is available.",
+                "Calculate the percentage gap between the SpringServe count and each of those counts.",
+                "Compare each gap against the agreed tolerance, and record which gaps sit inside the tolerance and which fall outside it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per demand source, the SpringServe impression count, the matching downstream or player count, the percentage gap, and the agreed tolerance. A setup where each major demand source is compared on a regular cadence and every gap is judged against a stated tolerance passes. A setup where no tolerance exists, or where comparisons happen only after a dispute, is a fail recorded with the demand sources that lack a measured reconciliation.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the SpringServe count, the matching downstream count, the percentage gap, and the agreed tolerance per demand source above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not compare its SpringServe impression counts against downstream or player counts on a regular cadence with an agreed tolerance, so routine gaps cannot be told apart from billing errors. Because the publisher invoices against one count and the demand partner pays against another, an unmeasured gap drifts until a partner raises it as a dispute. {{voice_recommend}} agreeing a tolerance percentage with each major demand partner, then reading the gap between the SpringServe count and the matching downstream count each billing period so a number that falls outside the tolerance is caught early. After the comparison runs on a cadence, treat any gap inside the tolerance as routine and trace any gap outside it to a cause."
+      }
+    },
+    {
+      "id": "springserve-discrepancy-reconciliation-out-of-range-not-investigated",
+      "title": "Out-of-range discrepancies are not traced to a cause",
+      "category": "measurement",
+      "subcategory": "discrepancy_reconciliation",
+      "impact_score": 3,
+      "impact_rationale": "A gap that sits outside tolerance has a cause, such as request timeouts, errored media, or two systems counting at different points. When the gap is noticed but never traced, the publisher keeps absorbing lost impressions or paying out on counts it cannot defend since the same cause repeats every period until someone finds it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "A discrepancy that falls outside an agreed tolerance is not a number to accept. It is a symptom with a cause, and in a video and Connected TV (CTV) ad-serving setup the causes fall into a handful of recognizable groups. Tracing the gap to its cause is what turns a flagged discrepancy into a fix rather than a recurring loss.<br><br>Timeouts are one cause. When a video player or a server-side ad insertion (SSAI) service requests an ad and SpringServe responds too slowly, or a downstream demand request takes too long, the request is abandoned and the systems on either side of the timeout disagree about whether an impression happened. Errored media is another. A creative that fails to load, a VAST response that the player rejects, or a wrapper that breaks the redirect chain can leave SpringServe recording a served impression that never rendered for the viewer. Counting method is a third. The industry impression-measurement guidelines moved counting to a 'count-on-begin-to-render' point, and a counting moment is defined by the Video Ad Serving Template (VAST) tracking events the player fires, so an ad server counting at one event and a player counting at another will diverge by design rather than by error.<br><br>Each cause leaves a different fingerprint in the data. A timeout shows up as a gap that widens under load or on slower devices. Errored media shows up alongside elevated VAST error counts or low completion rates. A counting-method gap stays roughly constant as a percentage because it reflects a structural difference rather than a failure. Reading which fingerprint the gap matches is how a publisher knows where to look.<br><br>The audit question is whether out-of-range gaps are traced rather than written off. A few signs point to discrepancies that are flagged but not investigated:<ul><li>A gap outside tolerance recurs period after period with no cause recorded against it</li><li>The discrepancy is adjusted for in billing without anyone identifying why the counts differ</li><li>No one has compared the gap against timeout rates, VAST error counts, or the counting points the two systems use</li></ul>You may want to confirm that each out-of-range gap is traced to a cause before it is accepted or adjusted. One approach is to match the gap against its likely fingerprint, reading timeout rates, VAST error and completion data, and the counting events each system uses, so the fix lands on the cause rather than on the symptom.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, live events drive sharp traffic spikes that push request volume past what the serving path was sized for, so timeouts cluster around those peaks. You may want to trace out-of-range gaps against the timing of live events since a discrepancy that widens during a spike points to capacity or timeout limits rather than to a counting-method difference.",
+          "ecommerce": "On a commerce-content video property, the player usually shares the page with product scripts, analytics, and other tags that compete for the browser's attention, which raises the chance a creative errors out or a tracking beacon is dropped. You may want to trace out-of-range gaps against VAST error and completion data on the embedded placements since errored media there often explains a gap that a counting-method difference cannot."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "IAB Guidelines",
+            "source_title": "Ad Impression Measurement Guidelines (US & Global)",
+            "source_url": "https://www.iab.com/guidelines/ad-impression-measurement-guidelines-us-global/"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed diagnostics and error-reporting documentation for this is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether each discrepancy that falls outside tolerance has a recorded cause, and whether the gap has been matched against timeout rates, VAST error and completion data, and the counting points the two systems use.",
+        "tools": {
+          "free": {
+            "springserve_reporting": {
+              "label": "SpringServe reporting",
+              "steps": [
+                "List the demand sources or supply tags whose discrepancy fell outside tolerance in the period under review.",
+                "For each, pull the SpringServe report metrics that show request volume, timeout or error rates, and VAST error and completion counts where available.",
+                "Check whether the gap widens under traffic spikes, which points to timeouts, or tracks elevated VAST errors, which points to errored media.",
+                "Record the cause matched to each out-of-range gap, or note that no cause has been identified."
+              ]
+            },
+            "counting_method_review": {
+              "label": "Counting method comparison",
+              "steps": [
+                "Identify the VAST tracking event SpringServe uses to count an impression and the event the player or SSAI service uses to count its own.",
+                "Compare the two counting points to see whether a structural difference, such as one system counting at impression and the other at begin-to-render, explains a steady percentage gap.",
+                "Record whether the out-of-range gap is structural and constant, which suggests a counting-method difference, or variable, which suggests timeouts or errored media."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for each out-of-range discrepancy, whether a cause has been identified and what it is, drawn from timeout rates, VAST error and completion data, or a counting-method comparison. A setup where every gap outside tolerance has a recorded cause and a path to address it passes. A setup where out-of-range gaps recur with no cause recorded, or are adjusted in billing without investigation, is a fail recorded with the demand sources whose gaps remain unexplained.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each out-of-range discrepancy and its identified cause, drawn from timeout rates, VAST error data, and counting-method comparison, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} flags discrepancies outside its tolerance but does not trace them to a cause, so the same gap recurs period after period. An out-of-range gap usually comes from request timeouts, errored media, or two systems counting at different points, and without a recorded cause the publisher keeps absorbing lost impressions or paying out on counts it cannot defend. {{voice_recommend}} matching each out-of-range gap against its likely fingerprint, reading timeout rates, Video Ad Serving Template (VAST) error and completion data, and the counting events each system uses, so the fix lands on the cause. After a cause is identified, address it and recheck the gap the following period to confirm it has narrowed back inside the tolerance."
+      }
+    }
+  ]
+}

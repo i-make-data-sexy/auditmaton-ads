@@ -1,0 +1,161 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Completion and viewability are the two metrics buyers read most closely when they decide what a video or Connected TV (CTV) impression is worth, so any gap between what the player fires, what SpringServe records, and what an independent measurement vendor sees lands directly on the price the inventory clears. This check is a reconciliation review of tracking that already runs, so it costs reading and comparison time rather than rebuild time, and the finding points to a concrete event or integration the publisher can fix.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Completion and viewability measure whether a video ad ran to the end and whether it had the chance to be seen, and both feed straight into how a buyer values the impression. This subcategory is about the integrity of those metrics in SpringServe, the quartile and completion events the player and ad server exchange and the viewability measurement integrated alongside them, rather than the demand routing that fills the ad pod. These checks confirm that the numbers SpringServe reports reconcile with what the player fires and what an independent measurement vendor records, so the metrics a buyer reads reflect what actually happened.",
+  "audit_checks": [
+    {
+      "id": "springserve-completion-viewability-quartiles-not-reconciled",
+      "title": "Quartile and completion events do not reconcile between the player and SpringServe",
+      "category": "measurement",
+      "subcategory": "completion_viewability",
+      "impact_score": 3,
+      "impact_rationale": "Quartile and completion events drive the Video Through Rate (VTR) that buyers read and that demand partners optimize against. When the player and SpringServe disagree on how many impressions reached each quartile, the reported VTR no longer matches what played, so the publisher reports a completion rate it cannot stand behind and buyers value the inventory on a number that does not reconcile.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "A video ad fires a defined sequence of tracking events as it plays. The Video Ad Serving Template (VAST) specification names them, and a compliant player calls each one as the ad crosses that point in playback. The sequence runs from 'impression' and 'start' through 'firstQuartile' at 25 percent, 'midpoint' at 50 percent, 'thirdQuartile' at 75 percent, and 'complete' at the end. SpringServe counts those calls to build the VTR, which is the share of started ads that reached completion.<br><br>The reconciliation problem appears when the player and the ad server end up counting different things. The player tracks the events it actually fired during playback. SpringServe tracks the events its tracking URLs received. Those two should agree, but several mechanics pull them apart. A tracking call can be dropped before it reaches the server when a viewer abandons playback mid-ad. A misconfigured or non-compliant player can fire 'complete' without firing the intervening quartiles, or skip an event entirely. Server-side ad insertion (SSAI) can stitch the ad into the content stream in a way that changes which party fires which event. When any of these happen, the VTR SpringServe reports stops matching the completion rate the player saw.<br><br>The audit reconciles the two sides. The check reads the quartile and completion counts SpringServe reports against the same counts measured at the player or in the demand partner's logs for the same inventory and the same window. A few patterns point to events that are not reconciling:<ul><li>The completion count exceeds the 'start' count, or a later quartile exceeds an earlier one, which is not physically possible in a single linear ad</li><li>SpringServe's VTR diverges from the completion rate the player or the demand partner reports for the same inventory and window beyond a small margin</li><li>One or more quartile events show near-zero counts while the surrounding events count normally, which points to an event that is not firing</li></ul>You may want to confirm that the quartile and completion events reconcile across the player and SpringServe before reporting VTR to a buyer. One approach is to pull the per-quartile counts from both sides for a fixed window and compare them event by event.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, the same ad can play across a website player, a mobile app, and a Connected TV (CTV) app, and each environment fires VAST events through its own player. You may want to reconcile quartile and completion counts per environment rather than on a blended total. A player that drops events on one platform can hide inside an aggregate that looks healthy.",
+          "ecommerce": "On a commerce-content property where video sits alongside product pages, ads often run in a small in-page or outstream player that can pause or unload when the viewer scrolls. You may want to check whether abandoned playback in those players leaves quartile events unfired, which would pull the reported completion rate away from what the player actually saw."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "MRC Standard",
+            "source_title": "MRC Standards and Guidelines, including Digital Video Impression Measurement Guidelines",
+            "source_url": "https://mediaratingcouncil.org/standards-and-guidelines"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for quartile and completion event tracking is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Pull the quartile and completion counts SpringServe reports for a fixed window, then compare them against the same counts measured at the player or in the demand partner's logs for the same inventory.",
+        "tools": {
+          "free": {
+            "springserve_reporting": {
+              "label": "SpringServe reporting",
+              "steps": [
+                "In SpringServe reporting, build a report for a fixed window broken out by the inventory or supply tag in question.",
+                "Add the started, first-quartile, midpoint, third-quartile, and completed event counts as metrics, along with the Video Through Rate (VTR).",
+                "Record the per-quartile counts and confirm each later quartile is less than or equal to the one before it and that completions do not exceed starts."
+              ]
+            },
+            "player_and_partner_logs": {
+              "label": "Player and demand-partner logs",
+              "steps": [
+                "Collect the same per-quartile and completion counts from the video player's own analytics or from the demand partner's reporting for the same inventory and the same window.",
+                "Line up each event against the SpringServe count and record the difference per event.",
+                "Note any quartile where the two sides diverge beyond a small margin, and any event that shows near-zero counts on one side while counting normally on the other."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the per-quartile and completion counts from SpringServe alongside the same counts from the player or the demand partner for one window of inventory. A setup where the counts reconcile within a small margin and the quartile sequence is internally consistent, with each later event no greater than the one before and completions no greater than starts, passes. A setup where SpringServe's VTR diverges from the player or partner figure, or where the quartile counts are internally impossible, is a fail recorded with the events and inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the per-quartile and completion counts from SpringServe and from the player or demand partner above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the quartile and completion events for {{site_name}} do not reconcile between the video player and SpringServe, so the Video Through Rate (VTR) reported in SpringServe does not match the completion rate the player recorded. Quartile and completion events drive the VTR that buyers read and that demand partners optimize against, and when the two sides disagree the publisher reports a completion figure it cannot stand behind. {{voice_recommend}} pulling the per-quartile and completion counts from both SpringServe and the player or demand partner for a fixed window, comparing them event by event, and tracing any divergence to a dropped tracking call, a non-compliant player, or a server-side ad insertion path that changes which party fires the event. After the fix, recheck the counts to confirm the reported VTR reconciles with what played."
+      }
+    },
+    {
+      "id": "springserve-completion-viewability-no-independent-measurement",
+      "title": "Viewability is not measured by an independent vendor on served video impressions",
+      "category": "measurement",
+      "subcategory": "completion_viewability",
+      "impact_score": 3,
+      "impact_rationale": "Buyers value a video impression on whether it had the chance to be seen, and they trust viewability that an independent vendor measured rather than a figure the seller reports about its own inventory. Without an integrated measurement vendor on the served impressions, the publisher cannot present a viewability number a buyer will accept, which caps what the inventory clears and shuts it out of buys that require verified viewability.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "performance"
+      ],
+      "educate": {
+        "base": "Viewability records whether an ad had the chance to be seen, measured as a share of the ad's pixels in view for a minimum continuous time. The Media Rating Council (MRC) sets the threshold for a viewable video impression at 50 percent of the ad's pixels in view for at least two continuous seconds. A served impression is one the ad server delivered. A viewable impression is the narrower set of those that met the threshold, so viewability is always a fraction of what was served.<br><br>The reason an independent vendor matters is trust. A buyer reads a viewability figure to decide what an impression is worth, and a figure the seller measures about its own inventory carries less weight than one a third party measured. The Open Measurement SDK (OM SDK) from the IAB Tech Lab exists to settle this. It lets a single VAST tag carry one standardized measurement signal that any certified vendor can read, rather than a separate measurement tag per vendor, and it now covers web video and Connected TV (CTV) alongside in-app. When OM SDK or an equivalent integration runs on the served impressions, the viewability the publisher reports is one a buyer's own vendor can verify.<br><br>The audit checks whether independent measurement is actually present on the served video impressions, not just whether a viewability number appears in a report. A few patterns point to viewability that is not independently measured:<ul><li>The only viewability figure available is one SpringServe reports about its own delivery, with no integrated third-party vendor on the served impressions</li><li>The VAST responses serving through SpringServe carry no OM SDK verification node or equivalent measurement resource for an independent vendor to read</li><li>Demand partners that require verified viewability are buying little or none of the inventory, which can point to measurement they cannot read</li></ul>You may want to confirm that an independent vendor measures viewability on the served video impressions. One approach is to inspect the VAST responses for an OM SDK verification resource and confirm a certified vendor is reporting viewability for the same inventory.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property selling to brand buyers, verified viewability is often a condition of the buy rather than a nice-to-have, and CTV viewability is measured differently from in-page web video. You may want to confirm an independent vendor is integrated across each environment the inventory serves in. A buyer requiring verified viewability will read the vendor's number, not the publisher's.",
+          "ecommerce": "On a commerce-content property running video in small in-page or outstream players, those players can sit partly off screen or unload on scroll, which makes independent viewability measurement more telling than on a full-screen player. You may want to confirm a vendor measures the served impressions in those players so the reported viewability reflects how much of the ad was actually in view."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Open Measurement SDK (OM SDK)",
+            "source_url": "https://iabtechlab.com/standards/open-measurement-sdk/"
+          },
+          {
+            "source_type": "MRC Standard",
+            "source_title": "MRC Standards and Guidelines, including Viewable Ad Impression Measurement Guidelines",
+            "source_url": "https://mediaratingcouncil.org/standards-and-guidelines"
+          }
+        ],
+        "learn_more_note": "SpringServe's detailed configuration documentation for integrating a viewability measurement vendor is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect the VAST responses serving through SpringServe for an independent measurement resource, and confirm whether a certified third-party vendor reports viewability on the same served inventory.",
+        "tools": {
+          "free": {
+            "vast_response_inspection": {
+              "label": "VAST response inspection",
+              "steps": [
+                "Capture a sample of VAST responses serving through SpringServe for the inventory in question, using the browser network panel or a VAST tag tester.",
+                "Look for an AdVerifications node carrying an Open Measurement SDK (OM SDK) verification resource, or another third-party measurement resource, in the response.",
+                "Record whether independent measurement is present in the served responses or whether the only viewability data is SpringServe's own."
+              ]
+            },
+            "springserve_reporting": {
+              "label": "SpringServe reporting",
+              "steps": [
+                "In SpringServe reporting, check which viewability metrics are available for the inventory and note their source.",
+                "Confirm whether any integrated third-party measurement vendor is reporting viewability for the same inventory, or whether the figure is SpringServe's own measurement only.",
+                "Record any demand partner that requires verified viewability and how much of the inventory it is buying."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether an independent measurement resource, such as an Open Measurement SDK (OM SDK) verification node, is present in the served VAST responses and whether a certified third-party vendor reports viewability for the same inventory. A setup where independent measurement runs on the served impressions and a vendor reports a viewability figure a buyer can verify passes. A setup where the only viewability data is SpringServe's own, with no third-party resource in the served responses, is a fail recorded with the inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether an independent measurement resource is present in the served VAST responses and whether a third-party vendor reports viewability above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that viewability on {{site_name}}'s served video impressions is not measured by an independent vendor, so the only viewability figure available is the one SpringServe reports about its own delivery. Buyers value a video impression on whether it had the chance to be seen and trust viewability a third party measured, so a seller-reported figure caps what the inventory clears and can shut it out of buys that require verified viewability. {{voice_recommend}} integrating an independent measurement vendor through the Open Measurement SDK (OM SDK), confirming the served VAST responses carry the verification resource, and validating that a certified vendor reports viewability for the same inventory. After the integration, compare the vendor's viewability against the served impression counts to confirm the measurement is in place and reading correctly."
+      }
+    }
+  ]
+}

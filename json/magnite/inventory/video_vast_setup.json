@@ -1,0 +1,165 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Video clears at higher prices than display, so a video request that reaches Magnite with the wrong player parameters or missing content signals is an expensive request to misconfigure. When the player size, placement, or skippability sent in the request does not match what the player actually shows, demand either bids on the wrong assumption or declines, and the publisher cannot tell which from a fill report alone. The check is a review of the request configuration a publisher already controls, so it costs reading and testing time rather than rebuild time, and the finding points to a concrete value in the player or wrapper setup that the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Video inventory reaches Magnite as a structured request, and the values inside that request tell demand what the impression is. The Video Ad Serving Template (VAST) version the player accepts, the player size, the placement type, and whether the slot is skippable all shape how a buyer values the impression and whether the returned ad can render at all. This subcategory is about the request configuration itself, the parameters declared and whether they match what the player shows, rather than the wrapper timeout or bidder list that carries the request. These checks confirm that the video request describes the real slot accurately and that the signals a buyer needs to value the impression are present.",
+  "audit_checks": [
+    {
+      "id": "magnite-video-vast-setup-player-params-mismatch",
+      "title": "Player parameters in the request do not match the rendered slot",
+      "category": "inventory",
+      "subcategory": "video_vast_setup",
+      "impact_score": 3,
+      "impact_rationale": "When the player size, placement type, or skippability declared in the request differs from what the player actually shows, demand bids on an impression that does not exist as described. A buyer expecting a large in-stream slot may win a small out-stream unit, which can produce a creative that does not fit, a discard, or a bid the buyer would not have made, so the mismatch costs both fill and the value of the impressions that do clear.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "A video ad request carries a description of the slot it is asking demand to fill, and that description has to match the slot the player renders. The player size tells a buyer how large the video area is, which governs which creative dimensions fit. The placement type tells a buyer whether the slot is in-stream, where the ad plays before, during, or after the publisher's own video content, or out-stream, where the video unit sits inside an article with no surrounding video. Skippability tells a buyer whether the viewer can skip the ad and after how long, which changes how the impression is valued. The Video Ad Serving Template (VAST) version the player accepts sets which response features the player can use at all.<br><br>The risk is a description that no longer matches the slot. A player gets resized in a redesign while the declared player size stays at the old value. A unit is moved from an in-stream position into an article, but the placement type still reports in-stream. A skip control is added or removed without the skippability signal changing to follow. Each gap sends demand a picture of the impression that the rendered slot does not deliver, and the buyer values or declines the bid on the wrong assumption.<br><br>The placement signal in particular has tightened. The OpenRTB specification added a 'plcmt' attribute that defines video placement more precisely than the older field it replaces, and buyers increasingly read it to separate genuine in-stream supply from out-stream and standalone units. A publisher whose requests still lean on the deprecated placement field, or that declares in-stream for an out-stream slot, may find demand discounting or filtering the inventory.<br><br>A few signs point to player parameters that do not match the rendered slot:<ul><li>The declared player size differs from the dimensions the player actually renders on the page</li><li>The placement type reports in-stream for a unit that sits inside an article with no surrounding video content</li><li>Skippability declared in the request does not match whether the player shows a skip control</li><li>Requests rely on the deprecated placement field rather than the current 'plcmt' attribute</li></ul>You may want to confirm that the player size, placement type, and skippability sent to Magnite describe the slot the player actually shows. One approach is to inspect a live video request, compare each declared value against the rendered player, and correct any field that has drifted from the real slot.",
+        "site_type_overlays": {
+          "publishing": "On a media site, video is often split between a true in-stream player on video articles and out-stream units dropped into text articles. You may want to check that each context declares the placement type that matches it, so the in-stream supply is not diluted by out-stream units reporting in-stream and the out-stream units are not undervalued by being mislabeled.",
+          "ecommerce": "On a commerce-content site, product-page video and editorial-article video can run through the same player configuration even though one sits beside a product and the other inside an article. You may want to confirm that the placement type and player size reflect each context rather than carrying one configuration across both, so buyers value the product-adjacent slot for what it is."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Demystifying the OpenRTB Video plcmt Attributes",
+            "source_url": "https://iabtechlab.com/demystifying-openrtb-video-plcmt-attributes/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js for Video Overview",
+            "source_url": "https://docs.prebid.org/prebid-video/video-overview.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect a live video ad request and compare the declared player size, placement type, and skippability against what the player renders, then confirm the request uses the current placement attribute.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load a page that runs the video unit and open the browser's network panel.",
+                "Find the outgoing bid request or VAST request for the video slot and read the declared player size, placement type, and skippability values it carries.",
+                "Compare the declared player size against the dimensions the player actually renders on the page, and confirm the placement type matches whether the slot is in-stream or out-stream.",
+                "Check whether the request uses the current 'plcmt' placement attribute or the deprecated placement field, and record any value that has drifted from the rendered slot."
+              ]
+            },
+            "magnite_console": {
+              "label": "Magnite console and Demand Manager",
+              "steps": [
+                "Open the Magnite console and review the video ad unit or placement configuration that feeds the request, including the player size and placement type set there.",
+                "In Demand Manager, review the wrapper configuration for the video slot and note the declared player size, placement, and skippability passed to demand.",
+                "Record where the configured values match the rendered slot and where any value disagrees with what the player shows."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per video unit, the declared player size, placement type, and skippability alongside what the player actually renders, and whether the request uses the current placement attribute. A unit whose declared values match the rendered slot and that uses the current 'plcmt' attribute passes. A unit whose player size, placement type, or skippability disagrees with the rendered slot, or that still relies on the deprecated placement field, is a fail recorded with the field and the unit affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the declared player size, placement type, and skippability against the rendered slot for each video unit above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the video requests on {{site_name}} declare player parameters that do not match the slot the player renders, for example a player size or placement type that has drifted from the current unit. When the declared player size, placement type, or skippability differs from what the player shows, demand values or declines the bid on the wrong assumption, which costs both fill and the value of the impressions that do clear. {{voice_recommend}} inspecting a live video request, comparing the declared player size, placement type, and skippability against the rendered player, and correcting any field that has drifted, including moving requests onto the current 'plcmt' placement attribute. After the change, recheck a live request to confirm the declared values describe the real slot."
+      }
+    },
+    {
+      "id": "magnite-video-vast-setup-content-signals-missing",
+      "title": "Viewability and content signals are missing from the video request",
+      "category": "inventory",
+      "subcategory": "video_vast_setup",
+      "impact_score": 3,
+      "impact_rationale": "Buyers value a video impression partly on whether it will be seen and on what content surrounds it. When the request reaches Magnite without viewability context or content metadata, demand has to price the impression blind, which usually means a lower bid or a pass. The publisher carries inventory that could clear higher with the signals attached, so the gap leaves value uncollected on every video impression sent without them.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "A buyer deciding what a video impression is worth reads more than the player size. Two signals carry much of the value. The first is viewability context, the information that helps a buyer judge whether the ad will actually be on screen, such as whether the player starts in view and whether playback is user-initiated or autoplayed muted. The second is content metadata, the description of the content the ad runs against, carried in the OpenRTB content object and covering the category, title, and similar fields that let a buyer apply brand-suitability and contextual targeting.<br><br>When these signals are absent, the buyer prices the impression with less to go on. A video slot that starts in view against known, suitable content is worth more than an unknown slot, but only if the request says so. A request that omits the content object forces contextual and brand-suitability buyers to either pass or bid low because they cannot confirm the surroundings. A request that omits viewability context leaves a buyer unable to separate a likely-viewable slot from one that may never enter the viewport.<br><br>The video request can carry these signals without the publisher hand-coding each one. A header-bidding wrapper can extract content metadata from the video player and populate the OpenRTB content object on the outgoing request, so demand reads the title, category, and related fields the player already knows. The audit question is whether that enrichment is turned on and whether the viewability-relevant fields, such as playback method and player start position, are present and accurate in the requests reaching Magnite.<br><br>A few signs point to viewability and content signals missing from the request:<ul><li>The outgoing request carries no OpenRTB content object, so category and title are absent for contextual and brand-suitability demand</li><li>Playback method or player start position is missing, so a buyer cannot judge whether the slot is likely to be viewable</li><li>Content enrichment in the wrapper is disabled or was never configured, even though the player holds the metadata</li><li>Contextual buyers fill at noticeably lower rates on video than on comparable inventory that does carry content signals</li></ul>You may want to confirm that the video requests reaching Magnite carry the content object and the viewability-relevant fields a buyer needs. One approach is to inspect a live request, check whether the content metadata and playback signals are present and accurate, and enable wrapper content enrichment where the player already holds the data.",
+        "site_type_overlays": {
+          "publishing": "On a media site, video frequently runs against editorial content whose category and topic are exactly what contextual and brand-suitability buyers want to read. You may want to confirm the content object carries the article category and title so those buyers can value the suitable inventory rather than passing on an unlabeled request.",
+          "ecommerce": "On a commerce-content site, video on product and category pages sits against content with clear commercial context that buyers value when they can see it. You may want to confirm the content metadata reflects the product or category context rather than arriving empty, so demand can price the higher-intent inventory on what surrounds the ad."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Video Module: bid request enrichment",
+            "source_url": "https://docs.prebid.org/prebid-video/video-module.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid.js First Party Data",
+            "source_url": "https://docs.prebid.org/features/firstPartyData.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect a live video request for the OpenRTB content object and the viewability-relevant fields, then confirm whether wrapper content enrichment is enabled where the player holds the metadata.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load a page that runs the video unit and open the browser's network panel.",
+                "Find the outgoing bid request for the video slot and check whether it carries an OpenRTB content object with category, title, and related fields populated.",
+                "Read the playback method and player start position in the request to confirm the viewability-relevant fields are present and reflect how the player actually starts.",
+                "Record which signals are present, which are absent, and whether any present value disagrees with what the player shows."
+              ]
+            },
+            "magnite_console": {
+              "label": "Magnite console and Demand Manager",
+              "steps": [
+                "In Demand Manager, review the video wrapper configuration and check whether content enrichment from the player is enabled for the video slot.",
+                "Confirm whether the player is configured to expose its content metadata to the wrapper, so the content object can be populated on the outgoing request.",
+                "In Magnite reporting, compare contextual fill on the video inventory against comparable inventory that carries content signals to see whether the missing signals show up as lower demand."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per video unit, whether the outgoing request carries the OpenRTB content object, whether the playback method and player start position are present and accurate, and whether wrapper content enrichment is enabled. A unit whose requests carry the content object and accurate viewability fields passes. A unit whose requests omit the content object or the viewability fields, or where enrichment is available but disabled, is a fail recorded with the missing signal and the unit affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the content object and viewability fields are present in the request, and whether wrapper enrichment is enabled, for each video unit above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the video requests on {{site_name}} reach Magnite without the content object or the viewability fields a buyer needs to value the impression, so demand prices the inventory with less to go on. A request that omits content metadata forces contextual and brand-suitability buyers to pass or bid low, and a request without playback and start-position signals leaves a buyer unable to judge whether the slot will be seen, which leaves value uncollected on every impression sent without them. {{voice_recommend}} inspecting a live request, confirming whether the content object and viewability fields are present and accurate, and enabling wrapper content enrichment where the player already holds the metadata. After the change, recheck a live request and watch contextual fill to confirm the signals are reaching demand."
+      }
+    }
+  ]
+}

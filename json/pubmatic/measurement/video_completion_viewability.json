@@ -1,0 +1,155 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Video clears at higher prices than display, so the metrics that describe a video impression carry real money behind them. When the player and PubMatic disagree on completion rate, or when viewability is not measured at all, the publisher cannot tell a buyer what the impression was worth and cannot defend its rates when a buyer's own verification shows a lower number. The check is a review of how Video Through Rate (VTR), quartile events, and viewability are wired through the player and the OpenWrap wrapper, so it costs reading and reconciliation time rather than rebuild time, and the finding points to a concrete tracking gap the publisher can close.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Video monetization on PubMatic rests on metrics that two systems have to agree on. The video player fires quartile and completion events as the ad plays, and PubMatic's reporting counts those same events as they arrive through the OpenWrap wrapper, so a Video Through Rate that reconciles across both is the foundation for pricing video inventory. Viewability sits alongside completion as the second signal a buyer uses to value the impression. This subcategory checks that completion and quartile tracking reconcile between the player and the sell-side platform (SSP), and that viewability is measured through a standard framework so the publisher can defend its video rates with numbers a buyer trusts.",
+  "audit_checks": [
+    {
+      "id": "pubmatic-video-completion-viewability-vtr-quartiles-not-reconciled",
+      "title": "VTR and quartile events are not reconciled between the player and PubMatic",
+      "category": "measurement",
+      "subcategory": "video_completion_viewability",
+      "impact_score": 3,
+      "impact_rationale": "Video Through Rate and quartile completion drive what buyers pay for video, so a gap between the player's count and PubMatic's count means the publisher is pricing inventory on a number it cannot defend. When a buyer's verification shows fewer completions than the publisher reported, the buyer discounts future bids or disputes the billing, which erodes video revenue on a slice of inventory rather than all at once.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "performance"],
+      "educate": {
+        "base": "A video ad reports its own progress as it plays. The Video Ad Serving Template (VAST) response that PubMatic returns carries tracking events for the first quartile, midpoint, third quartile, and completion, and the video player fires each event as the ad reaches that point. Those firings are what produce Video Through Rate (VTR), the share of video impressions that play to the end, along with the quartile completion rates a buyer reads to judge how far through the ad the audience stayed.<br><br>The number only means something if two systems agree on it. The player counts the events it fires, and PubMatic counts the same events as they arrive through the OpenWrap wrapper. When those two counts diverge, the publisher has two different VTRs for the same inventory and no way to say which one a buyer should trust. A buyer running independent verification will count completions a third way, and if the publisher's reported VTR sits above what the buyer measures, the buyer values the impression below the price the publisher set.<br><br>Reconciliation closes that gap. The publisher reads completion and quartile counts from the player or its analytics, reads the same counts from PubMatic's reporting, and confirms the two land within a tolerance that ordinary measurement noise explains. A wide and consistent divergence points to a wiring problem, for example quartile trackers that the player drops on certain ad formats, events that fire on a player error rather than a genuine view, or a wrapper configuration that double-counts.<br><br>A few signs point to VTR and quartile events that are not reconciled:<ul><li>The player or its analytics reports a completion rate that differs widely from PubMatic's reported VTR for the same inventory and period</li><li>Quartile drop-off does not follow a smooth curve, for example a midpoint count higher than the first-quartile count, which signals events firing out of order</li><li>No process exists to compare player-side and SSP-side video counts on a regular cadence</li></ul>You may want to confirm that VTR and quartile completion reconcile between the player and PubMatic within a tolerance that measurement noise explains. One approach is to pull both counts for the same inventory and period, compare them quartile by quartile, and trace any wide gap back to the player configuration or the wrapper.",
+        "site_type_overlays": {
+          "publishing": "On a media site, video often runs in an instream player on article and section pages where editorial content sets the context. You may want to reconcile VTR per player and per placement since a player embedded in a long-form article can show a different completion curve than one in a short news clip, and a blended VTR hides which placements are actually holding the audience to the end.",
+          "ecommerce": "On a commerce-content site, video may run on product and category pages where the audience is closer to a purchase and tolerates a shorter ad. You may want to reconcile completion rates on the commercial placements separately since the higher value of that inventory makes a defensible VTR more important when a buyer questions the price."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Video Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/prebid-video/video-module.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Show Video Ads with Google Ad Manager",
+            "source_url": "https://docs.prebid.org/dev-docs/show-video-with-a-dfp-video-tag.html"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed OpenWrap and reporting configuration documentation for video is in the partner portal (login required). OpenWrap is Prebid-based and open source, so the Prebid video references above cover the wrapper and VAST mechanics that produce these events.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Pull video completion and quartile counts from the player or its analytics and from PubMatic's reporting for the same inventory and period, then compare them quartile by quartile to see whether they reconcile.",
+        "tools": {
+          "free": {
+            "player_analytics": {
+              "label": "Video player analytics",
+              "steps": [
+                "Open the video player's analytics or event log and pull the first-quartile, midpoint, third-quartile, and completion counts for a defined inventory slice and date range.",
+                "Record the resulting Video Through Rate (VTR) and the quartile drop-off curve, noting whether each quartile count is lower than the one before it.",
+                "Flag any point where the curve is not monotonic, for example a midpoint count higher than the first-quartile count, which points to events firing out of order or on error."
+              ]
+            },
+            "pubmatic_reporting": {
+              "label": "PubMatic reporting",
+              "steps": [
+                "Build a PubMatic report for the same inventory slice and date range with video impressions, quartile completions, and VTR.",
+                "Place the PubMatic quartile and completion counts next to the player-side counts and compute the difference at each quartile.",
+                "Record whether the two sources land within a tolerance that ordinary measurement noise explains, or whether a wide and consistent gap points to a wiring problem in the player or the OpenWrap wrapper."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the quartile and completion counts from the player or its analytics alongside the same counts from PubMatic for one inventory slice and period. A setup where the two sources reconcile within a tolerance that measurement noise explains, and where the quartile drop-off follows a smooth descending curve, passes. A setup where the two VTRs diverge widely, or where the quartile curve is not monotonic, is a fail recorded with the inventory and the quartiles where the counts diverge.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the player-side and PubMatic quartile and completion counts for the same inventory and period above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not reconcile Video Through Rate (VTR) and quartile completion between its video player and PubMatic, so the same inventory carries two different completion numbers. Video clears at a higher price than display, and a buyer running independent verification values the impression on the lower count, which means the publisher cannot defend its video rates when its reported VTR sits above what the buyer measures. {{voice_recommend}} pulling the quartile and completion counts from the player and from PubMatic for the same inventory and period, comparing them quartile by quartile, and tracing any wide gap back to the player configuration or the OpenWrap wrapper. After the fix, recheck that the two sources reconcile within a tolerance that measurement noise explains."
+      }
+    },
+    {
+      "id": "pubmatic-video-completion-viewability-not-measured-via-standard",
+      "title": "Video viewability is not measured through a standard framework",
+      "category": "measurement",
+      "subcategory": "video_completion_viewability",
+      "impact_score": 3,
+      "impact_rationale": "Buyers value a video impression on whether it was viewable, and they trust a count produced through the Open Measurement standard far more than a publisher's own claim. When viewability is not measured through that framework, the publisher cannot supply the signal buyers price against, so demand routes to inventory that can, and the publisher's video rates settle lower than the inventory would otherwise command.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "performance"],
+      "educate": {
+        "base": "Viewability tells a buyer whether the audience had a chance to see the ad, and for video the industry standard counts an impression as viewable when at least half the player's pixels stay in view for two continuous seconds while the video plays. Completion answers a different question than viewability. A video can play to the end in a background tab that no one is looking at, so a high Video Through Rate (VTR) on inventory with weak viewability still leaves the buyer paying for an impression no one saw.<br><br>The signal a buyer trusts comes from a standard framework rather than the publisher's own tally. The Open Measurement Software Development Kit (OM SDK), maintained by IAB Tech Lab, provides one collection layer that parses viewability data from the video ad and reports it through the standardized Open Measurement Interface Definition (OMID) so a third-party verification vendor reads the same signal the publisher does. When viewability flows through that framework, the publisher and the buyer measure the impression the same way, and the buyer can value it with confidence.<br><br>The audit question is whether video viewability is measured through a standard framework and surfaced in PubMatic's reporting, or whether the publisher is selling video without a viewability number a buyer can verify. A placement that cannot report standard viewability competes for demand against placements that can, and the demand follows the inventory it can value.<br><br>A few signs point to viewability that is not measured through a standard framework:<ul><li>PubMatic reporting shows no video viewability rate, or shows one the publisher cannot trace to Open Measurement</li><li>The video player or wrapper does not integrate the Open Measurement SDK, so the ad cannot report viewability through OMID</li><li>Buyers ask for viewability data on video inventory that the publisher cannot supply</li></ul>You may want to confirm that video viewability is measured through the Open Measurement framework and surfaced in reporting. One approach is to check whether the player integrates the OM SDK and whether PubMatic reports a viewability rate the publisher can trace to that standard.",
+        "site_type_overlays": {
+          "publishing": "On a media site, instream video in editorial players is where most video inventory sits, and an autoplay unit below the fold can complete while never crossing the viewability threshold. You may want to confirm the editorial players report standard viewability since the gap between a high completion rate and a low viewable rate is where a buyer will discount the inventory.",
+          "ecommerce": "On a commerce-content site, video on product and category pages reaches a higher-intent audience that buyers pay more to reach, which makes a verifiable viewability number more valuable on that inventory. You may want to confirm the commercial placements report standard viewability so the publisher can hold its rates when a buyer asks for the data."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "How OM SDK Signals Power Attention Measurement",
+            "source_url": "https://iabtechlab.com/how-om-sdk-signals-power-attention-measurement/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Video Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/prebid-video/video-module.html"
+          }
+        ],
+        "learn_more_note": "PubMatic's configuration documentation for enabling Open Measurement in OpenWrap and reading video viewability in reporting is in the partner portal (login required). OpenWrap is Prebid-based and open source, so the Prebid video module reference covers how the wrapper carries the viewability signal.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Check whether the video player or OpenWrap wrapper integrates the Open Measurement SDK and whether PubMatic reporting surfaces a video viewability rate the publisher can trace to that standard.",
+        "tools": {
+          "free": {
+            "player_config": {
+              "label": "Video player and wrapper configuration",
+              "steps": [
+                "Inspect the video player and OpenWrap wrapper configuration to confirm whether the Open Measurement SDK (OM SDK) is integrated for the video inventory.",
+                "Confirm that the Video Ad Serving Template (VAST) responses carry the verification node the OM SDK reads, so viewability can report through the Open Measurement Interface Definition (OMID).",
+                "Record whether viewability measurement is wired through the standard framework or whether the inventory has no standard viewability path."
+              ]
+            },
+            "pubmatic_reporting": {
+              "label": "PubMatic reporting",
+              "steps": [
+                "Build a PubMatic report for the video inventory with the video viewability rate alongside impressions and VTR.",
+                "Confirm whether a viewability rate is present and whether the publisher can trace it to the Open Measurement standard rather than an internal estimate.",
+                "Compare viewability against completion on the same inventory to find placements where a high VTR sits next to a low viewable rate, which a buyer will discount."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the video player or wrapper integrates the Open Measurement SDK and whether PubMatic reporting surfaces a viewability rate traceable to that standard. A setup where video viewability is measured through the Open Measurement framework and reported passes. A setup where no standard viewability measurement exists, or where reporting shows no traceable viewability rate, is a fail recorded with the inventory that cannot report a verifiable viewability number.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the Open Measurement SDK is integrated and whether PubMatic reports a traceable video viewability rate above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not measure video viewability through a standard framework, so its video inventory carries no viewability signal a buyer can verify. Buyers value a video impression on whether it was viewable, and they trust a count produced through the Open Measurement standard rather than a publisher's own claim, so inventory without it competes at a disadvantage and settles at a lower rate. {{voice_recommend}} integrating the Open Measurement SDK (OM SDK) in the video player or OpenWrap wrapper so the ad reports viewability through the Open Measurement Interface Definition (OMID), and confirming PubMatic reporting surfaces a viewability rate the publisher can trace to that standard. After the change, compare viewability against completion to find placements where a high completion rate sits next to a low viewable rate."
+      }
+    }
+  ]
+}

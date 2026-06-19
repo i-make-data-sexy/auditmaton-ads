@@ -1,0 +1,153 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "PubMatic and the publisher's ad server count impressions at different points and filter them by different rules, so the two systems rarely report the same number. A gap inside an accepted tolerance is expected. A gap outside it points to revenue that is measured in one system but not the other, which can mean the publisher is billing or forecasting against a number that does not hold. The check reads counts the publisher already has in both systems and lines them up, so it costs reporting time rather than rebuild time, and the finding points to a concrete number to reconcile.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "PubMatic, a sell-side platform (SSP), and the publisher's own ad server each count impressions, and they count them at different moments in the ad delivery sequence and filter them by different rules. The result is that the two systems report different impression totals for the same inventory, and a gap between them is normal rather than a defect. This subcategory is about whether the publisher measures that gap and holds it to an accepted tolerance, and whether an out-of-range gap is traced to a cause rather than left unexplained. These checks confirm that the impression discrepancy between PubMatic and the ad server is a known, monitored number rather than a difference nobody has reconciled.",
+  "audit_checks": [
+    {
+      "id": "pubmatic-discrepancy-reconciliation-not-measured",
+      "title": "The PubMatic-to-ad-server impression discrepancy is not measured against a tolerance",
+      "category": "measurement",
+      "subcategory": "discrepancy_reconciliation",
+      "impact_score": 3,
+      "impact_rationale": "When the impression gap between PubMatic and the ad server is never measured, the publisher cannot tell a normal counting difference from a real loss. Billing, forecasting, and yield decisions then run on whichever number happens to be in front of the person making the call, and a widening gap that signals lost revenue or a tracking fault goes unseen until it shows up somewhere more expensive.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "performance"],
+      "educate": {
+        "base": "An impression discrepancy between PubMatic and a publisher's ad server is the difference between the number of impressions the sell-side platform (SSP) reports and the number the ad server reports for the same inventory over the same period. The two numbers rarely match, and the reason is mechanical rather than a fault. Each system counts an impression at a different point in the delivery sequence, and each applies its own filtering for invalid traffic and its own handling of timeouts, so a gap is the expected state, not the exception.<br><br>Counting method is the largest driver. An ad server such as Google Ad Manager (GAM) counts an impression when the creative is downloaded and has begun to load on the device, a 'begin-to-render' point that sits late in the sequence. PubMatic, as the SSP, records the impression earlier, around the time the winning bid is returned and the ad is served into the page. Because the SSP count happens upstream of the render, the SSP usually reports more impressions than the ad server, and the size of that gap depends on how many of those served impressions never finished rendering.<br><br>The reconciliation question is not whether a gap exists. It is whether the publisher has measured the gap, set an accepted tolerance for it, and checks the live number against that tolerance. A common industry reference point treats a single-digit discrepancy as routine and a gap approaching twenty percent as the edge of what third-party counting differences explain on their own, though the right tolerance for a given publisher depends on their own setup and history. Without a measured baseline, the publisher cannot tell a normal counting difference from a real loss, so a widening gap that signals a tracking fault or unsold inventory passes unnoticed.<br><br>A few signs point to a discrepancy that is not measured against a tolerance:<ul><li>No regular comparison lines up PubMatic's impression count against the ad server's count for the same inventory and period</li><li>No accepted tolerance has been written down, so there is no threshold that separates a routine gap from one worth investigating</li><li>Billing or forecasting uses one system's number without anyone knowing how far it sits from the other</li></ul>You may want to confirm that the impression gap between PubMatic and the ad server is measured on a regular cadence and held to a stated tolerance. One approach is to pull matched-period impression counts from both systems, express the difference as a percentage, and set a tolerance band the publisher reviews each reporting cycle.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the impression gap can differ by section because page weight and user behavior vary, so a long article that loads slowly may lose more begin-to-render impressions than a fast landing page. You may want to measure the discrepancy broken out by a few representative placements rather than as one site-wide number, so a section with an unusually wide gap is visible rather than averaged away.",
+          "ecommerce": "On a commerce-content site, product and category pages often carry heavier templates and more scripts than editorial pages, which can stretch the time between the served impression and the render and widen the gap on exactly the inventory that clears highest. You may want to measure the discrepancy on the commercial pages specifically, so a wide gap on high-value inventory is caught rather than hidden in a blended average."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Investigate report discrepancies",
+            "source_url": "https://support.google.com/admanager/answer/6160380?hl=en"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Counting impressions and clicks",
+            "source_url": "https://support.google.com/admanager/answer/2521337?hl=en"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Pull matched-period impression counts from PubMatic and the publisher's ad server, line them up for the same inventory, and check whether a tolerance has been set and is being reviewed.",
+        "tools": {
+          "free": {
+            "ad_server_reporting": {
+              "label": "Publisher ad server reporting",
+              "steps": [
+                "In the publisher's ad server, build an impressions report for the inventory served through PubMatic over a fixed, recent period, broken out by ad unit if possible.",
+                "Record the ad server's impression count for each slice and the date range used, so the comparison covers the same window in both systems.",
+                "Note how the ad server counts an impression, for example begin-to-render, so the counting method behind the gap is on record."
+              ]
+            },
+            "pubmatic_reporting": {
+              "label": "PubMatic reporting",
+              "steps": [
+                "In PubMatic's reporting, pull the impression count for the same inventory and the same date range used in the ad server report.",
+                "Line up each slice against the ad server count and express the difference as a percentage of the ad server number.",
+                "Ask the publisher whether an accepted tolerance has been set and whether the discrepancy is reviewed on a regular cadence, and record the tolerance and the cadence if they exist."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the PubMatic and ad-server impression counts for the same inventory and period, the resulting discrepancy percentage, and whether a written tolerance and a review cadence exist. A setup where the gap is measured on a regular cadence, sits within a stated tolerance, and is reviewed passes. A setup with no matched comparison, no written tolerance, or a gap that no one reviews against a threshold is a fail recorded with the counts and the period compared.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the PubMatic and ad-server impression counts for the same period and whether a tolerance exists above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not measure the impression discrepancy between PubMatic and the ad server against an accepted tolerance. PubMatic, the sell-side platform (SSP), records an impression earlier in the delivery sequence than the ad server, which counts at begin-to-render, so a gap is expected. Without a measured baseline and a stated tolerance, a routine counting difference cannot be told apart from a real loss, and a widening gap that points to a tracking fault or unsold inventory goes unseen. {{voice_recommend}} pulling matched-period impression counts from both systems, expressing the difference as a percentage, and setting a tolerance band reviewed each reporting cycle. After the baseline is set, track the gap on a regular cadence so a move outside the tolerance surfaces for investigation."
+      }
+    },
+    {
+      "id": "pubmatic-discrepancy-reconciliation-sources-not-investigated",
+      "title": "Out-of-range discrepancies are not traced to a source",
+      "category": "measurement",
+      "subcategory": "discrepancy_reconciliation",
+      "impact_score": 3,
+      "impact_rationale": "A discrepancy that sits outside the accepted tolerance and is never traced leaves the publisher unable to say whether the cause is a benign counting difference or a fixable fault such as a wrapper timeout or a blocked creative. The gap then persists, and any revenue it represents stays unrecovered because no one has named what is producing it.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "performance"],
+      "educate": {
+        "base": "Measuring the discrepancy is the first half of reconciliation. The second half is acting on it. When the gap between PubMatic and the ad server moves outside the accepted tolerance, the publisher needs to trace it to a source rather than note the number and move on. A gap inside tolerance can be left alone because it reflects normal counting differences. A gap outside it carries a cause, and that cause is often something the publisher can change.<br><br>Several sources push the gap wider than counting method alone explains. Timeout and latency are common drivers. PubMatic's OpenWrap header-bidding wrapper is built on Prebid, so the auction runs under a bid timeout, and the gap between an initial ad request and the creative finishing its render gives the user time to navigate away before the impression renders. Prebid's own guidance frames the auction timeout as a balance because too short a timeout cuts off bids that would have responded and too long a timeout delays the ad server call until users have left the page. A timeout set out of balance widens the discrepancy on one side or the other. Blocked creatives are a second source, where an ad blocker or a creative-level block stops the ad from rendering after the upstream system has already counted it. Counting differences for invalid traffic are a third source because the two systems filter invalid activity by their own rules and may disagree on which impressions to drop.<br><br>The reconciliation step is to take an out-of-range gap and work through the likely sources in order. A practitioner can check whether the wrapper timeout is set in a sensible range, read latency and time-on-page for the affected inventory, look at creative blocking and invalid-traffic filtering, and confirm the two reports cover the same inventory and period rather than a mismatched slice. Each source either explains part of the gap or is ruled out, and what remains points to where the revenue is going.<br><br>A few signs point to out-of-range discrepancies that are not being traced:<ul><li>A gap that exceeds the tolerance is logged but no investigation records a cause for it</li><li>The wrapper timeout, latency, creative blocking, and invalid-traffic filtering have not been checked as candidate sources</li><li>The same wide gap recurs across reporting periods with no change made and no source named</li></ul>You may want to confirm that an out-of-range discrepancy triggers an investigation that names a source. One approach is to keep a short checklist of candidate causes, e.g., wrapper timeout, latency, blocked creatives, and invalid-traffic filtering, and work through it whenever the gap crosses the tolerance.",
+        "site_type_overlays": {
+          "publishing": "On a media site, heavy article pages with embedded media and several ad slots can run long enough that the wrapper timeout cuts the auction or the user leaves before the render, which widens the gap on those pages. You may want to start the trace on the slowest, most ad-heavy templates because timeout and latency tend to show up there first.",
+          "ecommerce": "On a commerce-content site, third-party scripts for personalization, reviews, and analytics can compete with the ad auction for load time and stretch the latency that drives the gap. You may want to check the wrapper timeout and page latency on the product and category pages first because those carry the most script weight and the highest-value inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Investigate report discrepancies",
+            "source_url": "https://support.google.com/admanager/answer/6160380?hl=en"
+          },
+          {
+            "source_type": "Prebid.org",
+            "source_title": "Timeouts in Prebid.js",
+            "source_url": "https://docs.prebid.org/features/timeouts.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Take a discrepancy that sits outside the accepted tolerance and work through the candidate sources, recording which explain the gap and which are ruled out.",
+        "tools": {
+          "free": {
+            "openwrap_config": {
+              "label": "PubMatic OpenWrap configuration",
+              "steps": [
+                "In the OpenWrap wrapper configuration, find the auction or bid timeout value and record it.",
+                "Check the timeout against Prebid's guidance that it balances giving bidders time to respond against delaying the ad server call, and note whether the value sits in a sensible range for the publisher's audience and page speed.",
+                "Record whether the timeout could be cutting the auction short or delaying the render in a way that widens the gap on the affected inventory."
+              ]
+            },
+            "ad_server_reporting": {
+              "label": "Publisher ad server reporting",
+              "steps": [
+                "Confirm the PubMatic report and the ad server report cover the same inventory and the same date range because a mismatched slice produces a gap that is not real.",
+                "Read latency and time-on-page or related delivery metrics for the affected inventory to see whether users are leaving before the render completes.",
+                "Check creative blocking and the invalid-traffic filtering each system applies, and record which candidate sources, e.g., timeout, latency, blocked creatives, or invalid-traffic filtering, explain part of the gap and which are ruled out."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a discrepancy that exceeds the tolerance, which candidate sources were checked, e.g., wrapper timeout, latency, blocked creatives, and invalid-traffic filtering, and what each one showed. An out-of-range gap that has been traced to one or more named sources, with the rest ruled out, passes. An out-of-range gap with no investigation on record, or one that recurs with no source named and no action taken, is a fail recorded with the gap size and the inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the out-of-range gap and which candidate sources were checked above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not trace discrepancies that sit outside the accepted tolerance to a source. A gap inside tolerance reflects normal counting differences, but an out-of-range gap carries a cause, often a wrapper timeout set out of balance, latency that lets users leave before the render, a blocked creative, or a difference in how each system filters invalid traffic. PubMatic's OpenWrap wrapper runs on Prebid, so the auction timeout is one of the first values to check. {{voice_recommend}} working an out-of-range gap through a short list of candidate sources, e.g., wrapper timeout, latency, blocked creatives, and invalid-traffic filtering, and confirming the two reports cover the same inventory and period. After a source is named, address what is fixable and keep the gap under review so a recurrence is caught early."
+      }
+    }
+  ]
+}

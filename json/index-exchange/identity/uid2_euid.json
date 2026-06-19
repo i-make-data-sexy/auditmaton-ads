@@ -1,0 +1,164 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Cookieless and consented identity decides how much of a publisher's logged-in and consented audience stays addressable as third-party cookies and platform signals fade. Unified ID 2.0 (UID2) and European Unified ID (EUID) tokens carry that addressability into the bid stream through Index Exchange, so a token that fails to generate, or one generated without a legal basis, either drops revenue on consented inventory or creates a compliance exposure. The check reads an integration the publisher already has in place rather than rebuilding it, so it costs review time, and the finding points to a concrete configuration the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Index Exchange runs Prebid-compatible header bidding and supports alternative identifiers, so a publisher can pass UID2 and EUID tokens through the wrapper into the bid stream where Index Exchange routes the request. This subcategory is about whether those tokens are generated and passing where consent allows, and whether the generation is gated on a legal basis so a token is never created without one. These checks confirm that the identity integration carries addressable signal on consented inventory and that it respects the consent state of each user rather than generating tokens for everyone.",
+  "audit_checks": [
+    {
+      "id": "index-exchange-uid2-euid-tokens-not-passing",
+      "title": "UID2 or EUID tokens are not generating or passing into the bid stream",
+      "category": "identity",
+      "subcategory": "uid2_euid",
+      "impact_score": 3,
+      "impact_rationale": "When the identity module is enabled but tokens are not generating or not reaching the bid request, the publisher loses addressable signal on consented inventory that Index Exchange could otherwise match to demand. The impressions still serve, so the loss is silent, and it shows up as lower match rates and softer bids on the inventory where a token should have been present.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "privacy"],
+      "educate": {
+        "base": "Unified ID 2.0 (UID2) and European Unified ID (EUID) turn a logged-in user's email address or phone number into an encrypted advertising token that can travel through the bid stream without exposing the raw identifier. A publisher generates the token by calling a UID2 or EUID operator, then passes it into the auction so a sell-side platform such as Index Exchange can carry it to demand. Where the token is present and the user is matched, the impression stays addressable as third-party cookies fade. Where the token is missing, that impression falls back to cookieless or contextual demand, which usually clears lower.<br><br>On a Prebid-based wrapper, UID2 and EUID are configured as user ID submodules. The wrapper reads the token from the source the publisher names, a cookie or a JavaScript variable, and attaches it to the bid request so Index Exchange and other bidders receive it. The token generation itself runs server-side for security because the API key and secret used to call the operator must never sit in client-side code. A common failure mode is that the submodule is enabled but the token never arrives, so the wrapper has nothing to attach and the bid request goes out without the identifier.<br><br>The integration can break at several points. The server-side token generation may not run, so no token is produced. The token may be produced but written to a cookie or variable the wrapper is not reading. The submodule may be present but misconfigured, so the wrapper reads an empty value. The token may be expiring without a refresh, so it is valid on the first request and absent after. Any of these leaves the bid request without the identifier even though the publisher believes the integration is live.<br><br>A few signs point to tokens that are not passing:<ul><li>The UID2 or EUID submodule is enabled in the Prebid configuration but the bid request to Index Exchange carries no UID2 or EUID token</li><li>Server-side token generation is not running, or the generated token is written to a source the wrapper does not read</li><li>Match rates on logged-in, consented inventory are low relative to the share of traffic that is logged in</li><li>The token appears on a first request but is absent on later ones, which points to a refresh that is not firing</li></ul>You may want to confirm that a token is actually reaching the bid request on consented, logged-in inventory. One approach is to inspect the outgoing bid request for the UID2 or EUID field on a session where consent is granted and the user is logged in, then trace back from there if the field is empty.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the addressable audience is the logged-in or registered base, so the token only generates where a user has authenticated and consented. You may want to check that the integration fires on the logged-in experience specifically because a token that works in testing on a staff account can still be absent for the bulk of readers who browse logged out.",
+          "ecommerce": "On a commerce-content site, the logged-in shopper is the high-value addressable audience, and the email captured at account creation or checkout is the input the token is built from. You may want to confirm the token generates from the authenticated session rather than only on pages where a shopper has actively signed in during that visit, so returning customers stay addressable."
+        },
+        "learn_more": [
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Publishers",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-publishers"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Unified ID 2.0 for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/unified2.html"
+          },
+          {
+            "source_type": "European Unified ID Documentation",
+            "source_title": "Publishers",
+            "source_url": "https://euid.eu/docs/overviews/overview-publishers"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the Prebid user ID configuration for UID2 and EUID, confirm the token is generating server-side, and inspect an outgoing bid request to Index Exchange to see whether the token is attached on a consented, logged-in session.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Prebid configuration and bid request inspection",
+              "steps": [
+                "In the wrapper's Prebid configuration, locate the user ID module and confirm that the 'uid2' submodule, the 'euid' submodule, or both are enabled, and note the source each reads its token from (a cookie name or a JavaScript variable).",
+                "On a session where the user is logged in and consent is granted, open the browser developer tools, find the outgoing bid request to Index Exchange, and check whether it carries a UID2 or EUID token value.",
+                "If the token field is empty, check whether the source the submodule reads (the named cookie or variable) actually holds a token, which separates a generation problem from a wrapper-read problem.",
+                "Make a second request later in the session to confirm the token persists, which surfaces a refresh that is not firing."
+              ]
+            },
+            "operator_check": {
+              "label": "Token generation review",
+              "steps": [
+                "Confirm with the publisher's engineering team that server-side token generation calls the UID2 or EUID operator and writes the result to the source the wrapper reads.",
+                "Confirm the API key and secret used for generation live server-side and are not present in client-side code.",
+                "Record whether generation runs on the logged-in, consented experience and where, in the page lifecycle, the token becomes available to the wrapper."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the UID2 or EUID submodule is enabled, whether server-side generation produces a token, and whether the outgoing bid request to Index Exchange carries the token on a consented, logged-in session. A setup where the token generates and reaches the bid request on consented inventory passes. A setup where the submodule is enabled but no token reaches the bid request is a fail recorded with the point where the chain breaks, generation, the wrapper read, or refresh.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the submodule is enabled and whether a token reaches the bid request on a consented, logged-in session above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has the Unified ID 2.0 (UID2) or European Unified ID (EUID) submodule enabled, but the bid request to Index Exchange carries no token on consented, logged-in inventory. The impressions still serve, so the gap is silent, but they fall back to cookieless demand that clears lower than addressable demand would. {{voice_recommend}} tracing the integration from server-side token generation through the source the wrapper reads to the outgoing bid request, fixing the point where the token drops out, and confirming the token persists across the session so a missing refresh does not reopen the gap. After the fix, recheck match rates on logged-in, consented inventory to confirm the token is now reaching demand."
+      }
+    },
+    {
+      "id": "index-exchange-uid2-euid-not-consent-gated",
+      "title": "Token generation is not gated on a valid consent signal",
+      "category": "identity",
+      "subcategory": "uid2_euid",
+      "impact_score": 4,
+      "impact_rationale": "Generating a UID2 or EUID token from a user's email or phone number without a legal basis processes personal data with no lawful ground, which is a direct compliance exposure under the General Data Protection Regulation (GDPR) for EUID and under the applicable regime for UID2. The exposure scales with traffic and is hard to detect after the fact, so a generation path that ignores the consent state creates risk on every applicable user.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "A Unified ID 2.0 (UID2) or European Unified ID (EUID) token is built from a user's email address or phone number, which is personal data. Creating the token is an act of processing that personal data, so it needs a legal basis before it happens. The European Unified ID framework is explicit that consent to create an EUID must be freely given, specific, informed, and shown by a clear affirmative action, and that it cannot be bundled into terms and conditions or collected behind a cookie-wall. The practical effect is that token generation has to be conditional on the consent signal, not run by default.<br><br>This makes the order of operations the part that matters. The integration should read the consent state first, then generate a token only for users whose consent (or other applicable legal basis) covers it, and skip generation for everyone else. A setup that generates the token for every logged-in user and relies on downstream systems to suppress it has already processed the personal data at the moment of generation, which is the act consent was meant to authorize. For EUID specifically, the consent signal typically comes from the Transparency and Consent Framework (TCF) through the consent management platform, and the integration should check that signal before calling the operator.<br><br>On a Prebid-based wrapper, the user ID submodules can be configured to respect the consent state, but the server-side generation step is where the gate has to live because that is where the raw email or phone number is turned into a token. The audit question is whether generation is genuinely conditional on a valid signal, or whether the token is produced first and consent is treated as a later filter. The difference is not cosmetic. One processes only consented data, the other processes everyone's and hopes to hide the result.<br><br>A few signs point to generation that is not consent-gated:<ul><li>Server-side token generation runs for every logged-in user with no check of the consent or TCF signal beforehand</li><li>The consent management platform records a denial, yet a token is still generated for that user</li><li>The integration relies on a downstream system to drop the token rather than declining to generate it</li><li>No documented mapping exists between the consent or legal-basis signal and the decision to call the operator</li></ul>You may want to confirm that the consent signal is read before generation and that a denial actually prevents the token from being created. One approach is to test a session that withholds consent and verify that no token is generated for it, not merely that the token is suppressed later.",
+        "site_type_overlays": {
+          "publishing": "On a media site serving European readers, the EUID legal basis is consent through the TCF, gathered at the consent prompt. You may want to confirm the integration reads that TCF signal before generating a token, and that a reader who declines never has a token created, rather than having one created and filtered afterward.",
+          "ecommerce": "On a commerce-content site, the email captured at account creation or checkout is the token input, and a transactional relationship is not by itself consent to build an advertising identifier. You may want to confirm that advertising consent is collected and read separately before generation, so a customer who provided an email to complete a purchase is not turned into an advertising token without that specific consent."
+        },
+        "learn_more": [
+          {
+            "source_type": "European Unified ID Documentation",
+            "source_title": "EUID overview",
+            "source_url": "https://euid.eu/docs/intro"
+          },
+          {
+            "source_type": "European Unified ID Documentation",
+            "source_title": "Consent Examples",
+            "source_url": "https://euid.eu/docs/legal/legal-consent-examples"
+          },
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Integration Approaches",
+            "source_url": "https://unifiedid.com/docs/ref-info/ref-integration-approaches"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review where the consent or legal-basis signal is read in relation to token generation, then test a no-consent session to confirm that a denial prevents the token from being created rather than suppressing it after the fact.",
+        "tools": {
+          "free": {
+            "consent_flow_review": {
+              "label": "Consent flow and generation order review",
+              "steps": [
+                "With the publisher's engineering team, trace the order of operations and confirm that the consent or Transparency and Consent Framework (TCF) signal is read before the server-side call to the UID2 or EUID operator.",
+                "Confirm that a denial or absent legal basis causes the integration to skip generation, rather than generating the token and relying on a downstream system to drop it.",
+                "Record the documented mapping, if one exists, between the consent state and the decision to generate a token."
+              ]
+            },
+            "no_consent_test": {
+              "label": "No-consent session test",
+              "steps": [
+                "In a test session, withhold consent at the consent management platform, then log in as a test user whose email would otherwise produce a token.",
+                "Inspect the server-side behavior and the outgoing bid request to confirm no UID2 or EUID token is generated for that session.",
+                "Repeat with consent granted to confirm the token does generate, which shows the gate responds to the signal in both directions."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the consent or legal-basis signal is read before generation and whether a withheld-consent test session produces no token. A setup where generation is conditional on a valid signal, confirmed by a no-consent session that yields no token, passes. A setup where the token generates regardless of the consent state, or where a denial still produces a token that is filtered later, is a fail recorded with the test result and the point where generation runs ahead of the signal.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the consent signal is read before generation and the result of a withheld-consent test session above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} generates Unified ID 2.0 (UID2) or European Unified ID (EUID) tokens without gating generation on a valid consent signal, so a token can be created from a user's email or phone number with no legal basis. Building the token is an act of processing personal data, and for EUID the framework requires that consent be read before generation rather than treated as a later filter. {{voice_recommend}} moving the consent or Transparency and Consent Framework (TCF) check ahead of the server-side generation call so a denial prevents the token from being created, then verifying the gate with a withheld-consent session that produces no token. After the change, confirm that consented sessions still generate tokens so the gate responds to the signal in both directions."
+      }
+    }
+  ]
+}

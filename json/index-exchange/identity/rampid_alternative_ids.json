@@ -1,0 +1,161 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Alternative IDs decide whether an impression carries an addressable signal into the Index Exchange auction or arrives anonymous, and the gap between the two shows up directly in bid density and clearing price on cookieless and in-app traffic. This check reviews how RampID and any other identity solutions a publisher already runs are configured and consented, so it costs reading time rather than rebuild time. The finding points to a concrete identity setting the publisher can correct, whether that is an ID that is not passing, two solutions colliding, or an ID flowing without the consent it requires.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Index Exchange resolves bids against alternative IDs such as RampID (LiveRamp), Unified ID 2.0 (UID2), and the European Unified ID (EUID), which carry an addressable signal where the third-party cookie no longer does. These IDs are usually delivered through a Prebid User ID submodule on the publisher's page, then read by Index Exchange and other demand partners in the bid request. This subcategory is about whether the IDs a publisher relies on are configured and passing, whether several ID solutions sit side by side without colliding or duplicating, and whether each ID flows only with the consent it requires. The checks confirm that addressability is set up deliberately and lawfully rather than left half-wired.",
+  "audit_checks": [
+    {
+      "id": "index-exchange-rampid-alternative-ids-not-passing",
+      "title": "RampID and other alternative IDs are not configured or not passing into the bid request",
+      "category": "identity",
+      "subcategory": "rampid_alternative_ids",
+      "impact_score": 3,
+      "impact_rationale": "An alternative ID that is not configured, or configured but not resolving, means impressions reach the Index Exchange auction without the addressable signal demand partners bid against. On cookieless browsers and in-app inventory, where these IDs do most of their work, that lowers bid density and clearing price on traffic the publisher could be monetizing at a higher rate.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "privacy"],
+      "educate": {
+        "base": "RampID (LiveRamp), Unified ID 2.0 (UID2), and the European Unified ID (EUID) are alternative identifiers that carry an addressable signal into the auction where the third-party cookie has been removed or restricted. A publisher running Index Exchange usually delivers these IDs through a Prebid User ID submodule on the page. The submodule resolves the ID, stores it, and writes it into the bid request so that Index Exchange and other demand partners can read it and bid against it. When the chain works, an impression that would otherwise arrive anonymous instead carries a person-based or email-derived signal that demand can value.<br><br>The chain has several places it can break. RampID is delivered through the identityLink submodule, which needs a Placement ID from the LiveRamp Console and stores the encrypted envelope under the storage name 'idl_env'. LiveRamp recommends refreshing the envelope every 30 minutes (1800 seconds) so demand partners receive an ID encrypted with the current key and current privacy signals. A missing Placement ID, a wrong storage name, or a refresh interval that lets the envelope go stale can leave the ID configured on paper but absent from the bid request in practice. UID2 and EUID resolve from an encrypted email or phone number and depend on the publisher passing the resolved token, so a broken login or consent step there produces the same empty result.<br><br>The audit question is not whether every possible ID is present. It is whether the IDs the publisher chose to rely on are actually reaching the Index Exchange bid request on the traffic that needs them. An ID that resolves on desktop Chrome but never appears on Safari or in-app, which is exactly where the cookie is gone, is doing the least where it matters most.<br><br>A few signs point to an alternative ID that is not passing:<ul><li>The userId or userIdAsEids object in the Prebid bid request is empty on cookieless browsers and in-app traffic</li><li>RampID is configured without a valid Placement ID, with a storage name other than 'idl_env', or with no refresh so the envelope goes stale</li><li>The publisher names an ID solution they pay for or rely on, but Index Exchange reporting shows little or no matched, ID-bearing inventory from it</li></ul>You may want to confirm that each ID the publisher relies on resolves and reaches the bid request on cookieless and in-app traffic. One approach is to inspect a live bid request on Safari and in-app and check that the expected eids entries are present, then read Index Exchange reporting for matched inventory by ID type.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a large share of traffic arrives on Safari and through in-app webviews where the third-party cookie is already gone, so alternative IDs carry most of the addressable inventory. You may want to verify the IDs resolve specifically on that cookieless traffic rather than judging the setup on desktop Chrome, where the cookie may still be masking a gap.",
+          "ecommerce": "On a commerce-content site, a logged-in or newsletter audience gives the publisher a first-party email that UID2 and EUID can resolve from, which can lift addressability above what a media site reaches. You may want to confirm the login or consent step actually passes the resolved token into the bid request rather than collecting the email and stopping there."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "LiveRamp RampID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/ramp.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "User ID Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userId.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Unified ID 2.0 for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/unified2.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which alternative IDs the publisher relies on, confirm each is configured correctly in the Prebid User ID module, and check that it reaches the bid request on cookieless and in-app traffic.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Prebid User ID configuration",
+              "steps": [
+                "Open the page's Prebid configuration and list the userSync userId submodules in use (e.g., identityLink for RampID, uid2, euid).",
+                "For the identityLink (RampID) module, confirm a valid Placement ID is set, the storage name is 'idl_env', and a refresh interval is configured so the envelope does not go stale.",
+                "For UID2 and EUID, confirm the resolved token is supplied to the module through the documented method and that the login or consent step that produces it is in place.",
+                "Record any ID the publisher names as relied upon that is missing from the configuration."
+              ]
+            },
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load a page on a cookieless browser such as Safari, open the network panel, and inspect a Prebid auction bid request.",
+                "Check the userId and userIdAsEids fields for entries from each ID the publisher relies on, and note which are present and which are empty.",
+                "Repeat on in-app or in-app webview traffic if the publisher monetizes it because that is where the cookie is absent and the alternative ID matters most.",
+                "Record, per ID and per environment, whether the ID reached the bid request."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per alternative ID the publisher relies on, whether it is configured correctly and whether it reaches the bid request on cookieless and in-app traffic. A setup where each relied-upon ID is configured per its documentation and resolves into the bid request on the traffic that needs it passes. A setup where a relied-upon ID is missing, misconfigured (e.g., RampID without a valid Placement ID or with a storage name other than 'idl_env'), or absent from the bid request on cookieless traffic is a fail recorded with the ID and environment affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each alternative ID, its configuration, and whether it reaches the bid request on cookieless and in-app traffic above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} relies on alternative IDs such as RampID, but at least one is not reaching the Index Exchange bid request on cookieless and in-app traffic. On Safari and in-app inventory, where the third-party cookie is already gone, an absent or misconfigured ID means impressions arrive without the addressable signal demand partners bid against, which lowers bid density and clearing price on exactly the traffic the ID was meant to monetize. {{voice_recommend}} confirming each relied-upon ID is configured per its documentation, for example a valid Placement ID and the 'idl_env' storage name for RampID, then inspecting a live bid request on a cookieless browser and in-app to verify the eids entries are present. After the fix, read Index Exchange reporting for matched, ID-bearing inventory by ID type to confirm the signal is flowing."
+      }
+    },
+    {
+      "id": "index-exchange-rampid-alternative-ids-conflicting-or-unconsented",
+      "title": "Multiple ID solutions conflict, duplicate, or pass without the right consent",
+      "category": "identity",
+      "subcategory": "rampid_alternative_ids",
+      "impact_score": 4,
+      "impact_rationale": "When several ID modules run together, collisions and duplicate identifiers can muddy the signal demand reads, and an ID that flows without the consent it requires is a privacy and legal exposure rather than a tuning problem. RampID, UID2, and EUID each gate on consent, so an ID passed where the user did not grant the basis it needs can breach GDPR or state privacy law, which is why this sits above an ordinary configuration check.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "A publisher rarely runs a single alternative ID. RampID, Unified ID 2.0 (UID2), the European Unified ID (EUID), and others often sit side by side in the same Prebid User ID configuration. Running several is reasonable because each reaches a different slice of demand, but several modules in one auction introduce two problems the audit looks for. The first is collision and duplication, where more than one submodule writes the same identifier or near-duplicate entries land in the eids object. Prebid handles this through an 'idPriority' setting that lets the publisher name which submodule wins when two would populate the same ID. Without that prioritization, the signal demand partners read can be muddied by duplicate or conflicting entries.<br><br>The second problem is consent, and it carries more weight than tuning. RampID, UID2, and EUID each require user consent before the ID is added to the bid stream. Prebid enforces part of this itself. When no consent string is available, or the user has not granted Purpose 1 (storage and access of information on a device) under the Transparency and Consent Framework (TCF), the module does not call the external ID vendor. EUID is built for the European and UK market specifically and depends on that consent basis being present. An ID that flows to Index Exchange and downstream demand without the consent it requires is not a missed-revenue issue. It is a privacy exposure that can breach the General Data Protection Regulation (GDPR) or a US state privacy law, and it travels with every impression that carries the ID.<br><br>The two problems interact. A second ID solution added later, wired in without checking how it overlaps the existing ones or what consent basis it assumes, can both duplicate an identifier and pass it under the wrong consent at the same time. The audit question is whether the set of ID solutions is deliberate, deduplicated through prioritization, and gated on the consent each ID requires before it reaches the bid request.<br><br>A few signs point to conflicting or unconsented IDs:<ul><li>Two or more submodules populate the same identifier with no 'idPriority' set to resolve which one wins</li><li>The eids object carries duplicate or near-duplicate entries for the same user</li><li>An ID appears in the bid request for a user with no consent string, or with a TCF string that withholds the purpose the ID depends on, for example Purpose 1</li></ul>You may want to confirm the ID stack is deduplicated and that each ID is gated on the consent it needs. One approach is to test the auction under a consent string that withholds the relevant purpose and confirm the ID does not appear, then review the 'idPriority' configuration against the submodules in use.",
+        "site_type_overlays": {
+          "publishing": "On a media site serving European and UK readers, EUID and the TCF consent basis it depends on are central, so an ID passed without a valid consent string is both a wasted signal and a regulatory exposure. You may want to test the auction under a consent string that withholds Purpose 1 and confirm no alternative ID appears in the bid request for that user.",
+          "ecommerce": "On a commerce-content site that resolves UID2 or EUID from a first-party email, the consent captured at login or newsletter signup has to actually cover passing that ID to advertising partners. You may want to confirm the consent text and the captured signal permit ad-targeting use of the email-derived ID, rather than assuming a marketing opt-in covers it."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "User ID Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userId.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "European Unified ID (EUID) for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/euid.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the full set of ID submodules in use, check for collisions and duplicate identifiers, confirm an 'idPriority' is set where needed, and test that each ID is withheld when the required consent is absent.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Prebid User ID configuration",
+              "steps": [
+                "List every userId submodule configured in userSync and note which identifiers each can populate.",
+                "Identify any identifier that more than one submodule can populate, and confirm an 'idPriority' entry resolves which submodule wins for it.",
+                "Record any submodule added without a stated reason or without a check of how it overlaps the existing IDs."
+              ]
+            },
+            "consent_testing": {
+              "label": "Consent and bid request testing",
+              "steps": [
+                "Inspect a live bid request and look at the userIdAsEids object for duplicate or near-duplicate entries for the same user.",
+                "Load the page under a Transparency and Consent Framework (TCF) string that withholds Purpose 1, or with no consent string at all, and confirm the alternative IDs do not appear in the bid request.",
+                "For UID2 and EUID resolved from a first-party email, confirm the consent captured at login or signup permits passing the resulting ID to advertising partners.",
+                "Record any ID that appears without the consent it requires, along with the consent state under which it appeared."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the set of ID submodules in use, whether collisions are resolved through 'idPriority', whether the eids object is free of duplicate entries, and whether each ID is withheld when the required consent is absent. A stack that is deduplicated, prioritized where IDs overlap, and gated so no ID appears without its consent basis passes. A stack with unresolved collisions, duplicate eids entries, or any ID appearing without the consent it requires is a fail, recorded with the ID and the consent state involved, and any consent failure is flagged as the priority to fix.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the ID submodules in use, any collisions or duplicates, and whether each ID is withheld without consent above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs multiple alternative ID solutions that either collide and duplicate in the bid request or pass without the consent each one requires. Duplicate or conflicting identifiers muddy the signal demand partners read, and an ID flowing without its consent basis is a privacy exposure under the General Data Protection Regulation (GDPR) or a US state privacy law rather than a tuning issue. {{voice_recommend}} setting an 'idPriority' in the Prebid User ID configuration to resolve which submodule wins where IDs overlap, then testing the auction under a consent string that withholds the required purpose to confirm each ID is withheld when consent is absent. Treat any ID that appears without consent as the first item to correct because it travels with every impression that carries the ID."
+      }
+    }
+  ]
+}

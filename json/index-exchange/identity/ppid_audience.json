@@ -1,0 +1,160 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "First-party audience signals are the addressability a publisher still controls once third-party cookies are gone, so whether they reach the auction sets how much curated, cookieless demand can target the inventory. A PPID that never enters the bid stream, or audience data that travels past the consent the user granted, both turn a revenue lever into either silence or legal exposure. The check is a review of the identity and audience signals already configured in the header-bidding wrapper and the consent layer that gates them, so it costs reading time rather than rebuild time, and the finding points to a concrete signal the publisher can wire up or scope down.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "As third-party cookies fall away, a publisher's first-party audience signals become the addressability that curated and deal-based demand can still target. On an Index Exchange (IX) wrapper, those signals reach the auction through a Publisher Provided Identifier (PPID) and through seller-defined audience and content taxonomy IDs carried in the bid request. This subcategory is about whether those signals are passed at all, whether they are structured so buyers can act on them, and whether the audience data leaving the page stays inside the consent the user granted. These checks confirm that the publisher's first-party data is working as a monetization signal rather than sitting unused, and that it is not traveling past the legal basis that permits it.",
+  "audit_checks": [
+    {
+      "id": "index-exchange-ppid-audience-not-passed",
+      "title": "Publisher provided ID and first-party audience signals are not passed to the auction",
+      "category": "identity",
+      "subcategory": "ppid_audience",
+      "impact_score": 3,
+      "impact_rationale": "Without a Publisher Provided Identifier (PPID) or seller-defined audience signal in the bid request, curated and deal-based demand has no first-party signal to target once third-party cookies are gone, so impressions that could clear at a curated price clear at open-auction prices instead. The revenue sits unrealized rather than lost outright, which keeps this below the top of the scale, but it forgoes the addressability the publisher already owns.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "A PPID is a first-party identifier the publisher mints for its own users, and it does work that a third-party cookie used to do. It lets buyers recognize a user across requests for frequency capping and targeting without depending on a cross-site cookie that browsers are removing. On a header-bidding wrapper, the identifier is injected into the bid stream so that every demand partner, including a sell-side platform (SSP) such as Index Exchange (IX), receives it in the bid request.<br><br>The identifier travels through the wrapper's user ID layer. In a Prebid-based or Prebid-compatible setup, the publisher's own identifier is carried by the PubProvided ID module, which places the value into the extended identifiers (EIDs) array in the OpenRTB request so adapters receive it after consent is validated. The same identifier can also be set as the Google Ad Manager PPID for frequency capping and reporting, though that is a separate field with its own format rules. The point shared across both is that the signal has to be wired into the request because a value that lives only in the publisher's own database never reaches a buyer.<br><br>Audience signals work alongside the identifier. Rather than passing a raw identifier and hoping a buyer recognizes it, a publisher can describe the user with seller-defined audience or content taxonomy IDs, which let buyers target a cohort by its standardized description rather than by a matched identity. The Interactive Advertising Bureau (IAB) Tech Lab Seller Defined Audiences (SDA) standard carries those IDs through OpenRTB so curated demand can buy the audience the publisher names.<br><br>The audit question is whether any of this reaches the auction. A few signs point to first-party signals that are not being passed:<ul><li>No PubProvided ID or equivalent first-party identifier is configured in the wrapper, so the EIDs array carries no publisher identifier</li><li>The bid request contains no seller-defined audience or content taxonomy IDs describing the user or the page</li><li>Curated deals and private marketplace (PMP) packages rely entirely on third-party identifiers that are degrading as cookies are removed</li></ul>You may want to confirm that at least one durable first-party signal, an identifier, an audience taxonomy ID, or both, reaches the bid request. One approach is to inspect a live bid request and check whether the EIDs array and the audience fields carry the publisher's own signals or arrive empty.",
+        "site_type_overlays": {
+          "publishing": "On a media site, registration, newsletter sign-ups, and logged-in sessions give the publisher a durable first-party identifier for a meaningful share of the audience. You may want to confirm that the logged-in identifier is minted as a PPID and passed through the wrapper. That authenticated audience is the inventory curated demand will pay a premium to reach.",
+          "ecommerce": "On a commerce-content site, account holders and repeat purchasers carry strong first-party signals tied to intent. You may want to confirm that the identifier for those known users, along with any audience taxonomy ID describing their purchase interest, reaches the bid request, so the higher-intent inventory can be curated rather than sold blind in the open auction."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "PubProvided ID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/pubprovided.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "User ID Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userId.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Tech Lab Releases Seller Defined Audiences",
+            "source_url": "https://iabtechlab.com/tech-lab-releases-seller-defined-audiences/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect the wrapper configuration and a live bid request to see whether a publisher provided identifier and any audience signals are present in the request that reaches Index Exchange.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load a page carrying Index Exchange demand and open the browser's developer tools to the 'Network' tab.",
+                "Filter for the header-bidding requests and inspect the outgoing bid request payload for the EIDs array and any audience or content taxonomy fields.",
+                "Record whether the EIDs array carries a publisher-minted identifier and whether seller-defined audience or content IDs are present, or whether both arrive empty.",
+                "Repeat on a logged-in session if the site has one. The authenticated identifier is the signal most likely to be expected in the request."
+              ]
+            },
+            "wrapper_config": {
+              "label": "Header-bidding wrapper configuration",
+              "steps": [
+                "Review the wrapper's user ID configuration for a PubProvided ID submodule or an equivalent first-party identifier source.",
+                "Check whether any seller-defined audience or content taxonomy signaling is configured to populate the request.",
+                "Ask the publisher whether curated deals or private marketplace packages are meant to target a first-party audience, and record whether the signal those deals rely on is actually being passed."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a publisher provided identifier reaches the bid request, whether any seller-defined audience or content taxonomy IDs are present, and whether the curated deals the publisher runs depend on a signal that is being passed. A setup that carries at least one durable first-party signal into the request, matched to how the inventory is curated, passes. A setup where no first-party identifier or audience signal reaches the request, while curated demand is expected to target one, is a fail recorded with the signals that are missing.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a publisher provided identifier and any audience signals reach the bid request above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes no publisher provided identifier or first-party audience signal into the bid request reaching Index Exchange (IX), so curated and deal-based demand has no durable first-party signal to target as third-party cookies are removed. The addressability the site already owns through its logged-in and known users is sitting unused rather than working as a monetization signal. {{voice_recommend}} minting a Publisher Provided Identifier (PPID) for the authenticated audience, passing it through the wrapper's user ID layer so it lands in the extended identifiers array, and adding seller-defined audience or content taxonomy IDs where curated demand is meant to target a cohort. After wiring the signals in, confirm against a live bid request that they reach the auction."
+      }
+    },
+    {
+      "id": "index-exchange-ppid-audience-exceeds-consent",
+      "title": "Audience data is passed beyond the consent the user granted",
+      "category": "identity",
+      "subcategory": "ppid_audience",
+      "impact_score": 4,
+      "impact_rationale": "Passing a first-party identifier or audience segment into the bid stream when the user has not consented to the relevant purpose processes personal data without a legal basis, which creates regulatory and contractual exposure rather than a tuning problem. Because the failure is a compliance breach that can carry enforcement and partner liability, it sits near the top of the scale.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "A first-party audience signal is only an asset while it stays inside the consent the user granted. A Publisher Provided Identifier (PPID) and an audience segment are both personal data in the jurisdictions that govern them, so passing them into the bid stream is a processing act that needs a legal basis. When the identifier or the segment travels past that basis, the signal stops being a monetization lever and becomes regulatory and contractual exposure.<br><br>The consent layer is what enforces the boundary. Under the Interactive Advertising Bureau (IAB) Europe Transparency and Consent Framework (TCF), a consent management platform (CMP) records the user's choices as a consent string, and downstream systems read that string before they act. The mechanism is concrete in a Prebid-based or Prebid-compatible wrapper. The user ID layer checks the consent string, and if no string is present or the user has not consented to Purpose 1, which covers storing and accessing information on the device, calls to an external user ID vendor are not made and nothing is written to cookies or local storage. That same gate has to govern the publisher's own identifier and audience signals, not only third-party vendors.<br><br>The risk appears when the identifier or audience data is injected ahead of, or independent of, that gate. A PPID set from a logged-in session can reach the EIDs array even when the user declined the purpose that would permit it. An audience segment can be attached to the request from a data layer that never consulted the consent string. In both cases the signal leaves the page for a user who did not agree to it, and the publisher, not only the buyers downstream, carries the liability.<br><br>The audit question is whether the consent signal actually scopes what is passed. A few signs point to audience data exceeding consent:<ul><li>The publisher identifier or audience segments populate the bid request regardless of the consent string the CMP returns</li><li>Consent gating is applied to third-party user ID vendors but not to the publisher's own first-party signals</li><li>No record shows which purposes or legal bases the audience signaling relies on, so the scope of what is permitted is undefined</li></ul>You may want to confirm that the consent string gates the first-party identifier and audience signals the same way it gates third-party vendors. One approach is to decline the relevant purpose in the CMP, then inspect the bid request and verify that the publisher identifier and audience fields are withheld.",
+        "site_type_overlays": {
+          "publishing": "On a media site serving readers across regions, the same logged-in identifier may be permitted for one user and withheld for another depending on the consent each granted. You may want to confirm that the gating is evaluated per user against the consent string, rather than passing the authenticated identifier for everyone because the site has a login.",
+          "ecommerce": "On a commerce-content site, audience segments built from purchase behavior are valuable and tempting to attach to every request. You may want to confirm that those segments are gated by the consent the shopper granted. A purchase-intent segment passed without a legal basis carries the same exposure as any other unconsented audience signal."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management TCF for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementTcf.html"
+          },
+          {
+            "source_type": "IAB Europe",
+            "source_title": "The Transparency and Consent Framework (TCF)",
+            "source_url": "https://iabeurope.eu/transparency-consent-framework/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Test whether declining consent in the consent management platform actually withholds the publisher identifier and audience signals from the bid request, and review where in the wrapper the gating is applied.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the consent management platform on the site and decline the purpose that governs storing and accessing information on the device, then capture the consent string the CMP returns.",
+                "Reload with the developer tools 'Network' tab open and inspect the outgoing bid request for the EIDs array and any audience or content taxonomy fields.",
+                "Record whether the publisher identifier and audience signals are withheld when consent is declined, or whether they still populate the request.",
+                "Repeat with consent granted to confirm the signals appear only in the consented state, which shows the gate is working in both directions."
+              ]
+            },
+            "wrapper_config": {
+              "label": "Header-bidding wrapper configuration",
+              "steps": [
+                "Review where the publisher identifier and audience signals are set in the wrapper relative to the consent management module.",
+                "Check whether the first-party signals pass through the same consent gate that governs third-party user ID vendors, or whether they are injected ahead of it.",
+                "Ask the publisher which purposes or legal bases the audience signaling relies on, and record whether that scope is documented."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the publisher identifier and audience signals are withheld when the relevant consent is declined and present only when it is granted, and whether the first-party signals pass through the same gate as third-party vendors. A setup where declining consent removes the identifier and audience data from the request passes. A setup where the first-party signals populate the request regardless of the consent string, or bypass the gate that governs third-party vendors, is a fail recorded with the signals that exceed consent.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the publisher identifier and audience signals are withheld when consent is declined above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes its publisher provided identifier and audience signals into the bid request reaching Index Exchange (IX) regardless of the consent the user granted, so first-party data is leaving the page without a legal basis for some users. A Publisher Provided Identifier (PPID) and an audience segment are both personal data, and processing them outside consent under the Transparency and Consent Framework (TCF) creates regulatory and contractual exposure that the publisher carries directly. {{voice_recommend}} routing the first-party identifier and audience signals through the same consent gate that governs third-party vendors, so the consent string withholds them when the user declines the relevant purpose. After the change, decline consent in the consent management platform and confirm against a live bid request that the signals are withheld."
+      }
+    }
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://dev.kevel.com/docs/general-set-up-guide",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Naming hygiene decides whether a report can be sliced reliably, so it controls how much of the data in Kevel a team can actually trust when it makes a pricing or pacing decision. Advertisers, campaigns, flights, and zones named ad hoc force a reader to guess what each row means, and inconsistent custom targeting keys fragment the data that should roll up into one number. The check reviews names and keys that already exist in the Kevel network, so it costs reading time rather than rebuild time, and the finding points to a concrete convention the team can adopt and backfill.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Kevel is a headless, Application Programming Interface (API) first ad server, so the advertisers, campaigns, flights, zones, and custom targeting keys a team creates through the Management API or the Kevel UI become the only labels that reporting has to work with. This subcategory is about the naming itself, whether the names are consistent and parseable rather than ad hoc, so a report can be grouped by advertiser, campaign, or placement without a reader guessing what each row means. These checks confirm that the campaign hierarchy and the targeting keys follow a deliberate convention the whole team applies, not a set of one-off labels that each person invented as they went.",
+  "audit_checks": [
+    {
+      "id": "kevel-naming-conventions-hierarchy-inconsistent",
+      "title": "Advertisers, campaigns, flights, and zones do not follow a consistent naming convention",
+      "category": "governance",
+      "subcategory": "naming_conventions",
+      "impact_score": 2,
+      "impact_rationale": "Kevel reporting groups by the advertiser, campaign, flight, and zone names a team gives, so names invented one at a time leave a report that cannot be sliced reliably. A reader cannot tell a self-serve flight from a direct-sold one, or a homepage zone from a footer zone, when the names carry no shared structure, so the data behind a pricing or pacing decision is harder to trust.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "Kevel organizes delivery as a hierarchy of advertisers, campaigns, flights, and ads, with zones describing the placements an ad can serve into. A team creates each of these objects through the Management API or the Kevel UI, and the name it gives is what every report later groups by. Because Kevel is a headless ad server with no fixed account template, nothing forces those names into a shape. A team that names objects as it goes ends up with labels that each person invented in the moment, which a report cannot slice cleanly.<br><br>The cost shows up at reporting time. A revenue report grouped by campaign is only as readable as the campaign names, and a placement report grouped by zone is only as readable as the zone names. When one flight is called 'Q3 promo', another 'summer-sale-flight-2', and a third 'JD test', a reader has to open each one to learn what it is, and a roll-up by any naming pattern becomes guesswork. The names that looked fine while a single person built the campaigns become a liability the moment a second person, or a quarterly report, has to read them.<br><br>A consistent convention fixes this by encoding the facts a reader needs directly in the name. A common pattern packs the advertiser or line of business, the objective or product, and a date or quarter into a delimited string, for example 'acme | sponsored-product | 2026-Q3', so the name parses into fields a report can filter and group on. Zones follow the same idea, with self-describing names such as 'homepage-atf' or 'article-inline-1' rather than a bare number or a placeholder.<br><br>A few signs point to a hierarchy named ad hoc:<ul><li>Flights or campaigns under the same advertiser carry no shared structure, so two objects of the same kind read nothing alike</li><li>Zone names are bare numbers, placeholders such as 'zone 1', or labels that do not say where the placement sits</li><li>Reporting grouped by campaign or zone produces rows a reader cannot interpret without opening each object</li><li>No written convention exists, so each person names objects in their own style</li></ul>You may want to confirm that a single naming convention is written down and applied across advertisers, campaigns, flights, and zones. One approach is to agree on a delimited pattern that encodes the fields reporting needs, then backfill the existing objects to match so historical reports stay readable.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, zones map to real placements such as a homepage above-the-fold slot or an in-article unit, and flights map to the direct-sold and house campaigns that fill them. You may want zone names that say where the placement sits and flight names that say which advertiser and objective they serve, so a placement-level revenue report reads without opening each zone.",
+          "ecommerce": "On a retail media setup, where a retailer runs sponsored-product ads on its own site or app through Kevel, advertisers map to the brands buying placement and flights map to their sponsored-product campaigns. You may want a convention that encodes the brand and the product or category in the flight name, so a report you share back with a brand groups cleanly by that brand's campaigns rather than by labels only the ad-ops team can decode."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Getting Started Guide",
+            "source_url": "https://dev.kevel.com/docs/general-set-up-guide"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Campaign Flights",
+            "source_url": "https://dev.kevel.com/docs/flights"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Zones",
+            "source_url": "https://dev.kevel.com/docs/zones-overview"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the names on the advertisers, campaigns, flights, and zones in the network to see whether they share a parseable convention or whether each was named ad hoc.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open the campaigns area and list the advertisers, then the campaigns and flights under a sample of them, recording each object's name.",
+                "Open the inventory area and list the zones with their names, noting any that are bare numbers or placeholders rather than self-describing labels.",
+                "Compare names of the same object kind, for example two flights under one advertiser, and record whether they share a structure or read nothing alike.",
+                "Ask whether a written naming convention exists, and record whether the names in the UI actually match it."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "GET the advertisers, then the campaigns and flights for a sample of advertisers, and the zones, capturing the 'Name' field on each object.",
+                "Scan the captured names for a shared delimiter or field order that a report could parse, and flag objects whose names carry no structure.",
+                "Record which object kinds (advertiser, campaign, flight, zone) follow a convention and which are named inconsistently."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per object kind, whether the names follow a single written convention that encodes the fields reporting needs and whether the live objects actually match it. A network where advertisers, campaigns, flights, and zones share a parseable convention that the objects follow passes. A network where objects of the same kind read nothing alike, zones are bare numbers or placeholders, or no convention is written down is a fail recorded with the object kinds affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the naming convention and whether the live advertisers, campaigns, flights, and zones match it above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the advertisers, campaigns, flights, and zones in {{site_name}}'s Kevel network do not follow a consistent naming convention, so objects of the same kind read nothing alike. Kevel reporting groups by the names a team gives each object, so ad hoc labels leave a report that cannot be sliced reliably, and a reader has to open each object to learn what it is. {{voice_recommend}} agreeing on a delimited convention that encodes the fields reporting needs, for example the advertiser, objective, and quarter, then backfilling the existing advertisers, campaigns, flights, and zones to match so historical reports stay readable. After the change, group a sample report by campaign and by zone to confirm the names parse cleanly."
+      }
+    },
+    {
+      "id": "kevel-naming-conventions-custom-targeting-keys-ad-hoc",
+      "title": "Custom targeting keys and zone names are inconsistent and not self-describing",
+      "category": "governance",
+      "subcategory": "naming_conventions",
+      "impact_score": 3,
+      "impact_rationale": "Custom targeting keys are the labels a flight targets on and a report segments by, so keys invented ad hoc fragment data that should roll up into one number, for example 'category' on one flight and 'cat' on another. Inconsistent keys make targeting rules error-prone and reporting unreliable, and because a Kevel custom targeting key cannot contain a hyphen, a key chosen without that rule in mind can fail to apply as intended.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "governance"
+      ],
+      "educate": {
+        "base": "Custom targeting in Kevel works on key and value pairs that a team defines, where a key is a string such as 'Age' and a value can be a string, an integer, or an array. A flight targets on those keys through a Zerkel query, and reporting can segment on the same keys, so a key is both a targeting input and a reporting dimension. The keys carry that weight only when they are consistent because Kevel does not maintain a fixed vocabulary of its own. The team's keys are the vocabulary.<br><br>The trouble starts when the same concept is keyed more than one way. A flight that targets 'category' and another that targets 'cat' are targeting two different keys as far as Kevel is concerned, so a value set on one does not match a rule written against the other. A report segmented by 'category' then misses everything tagged under 'cat', and the data that should have rolled up into one number sits split across two. The values have the same problem, where 'mobile' and 'Mobile' and 'mob' fragment the same audience into three.<br><br>Kevel also enforces a concrete rule on keys that a convention has to respect. A custom targeting key cannot contain a hyphen, so a key chosen as 'product-type' will not behave as intended and the underscore or camelCase form has to be used instead. A written convention that fixes the casing, the word separator, and the canonical spelling of each key heads off both the fragmentation and the hyphen trap, and it lets a new team member reuse an existing key rather than coin a near-duplicate.<br><br>A few signs point to custom targeting keys and zone names that are ad hoc:<ul><li>The same concept appears under more than one key, for example 'category' and 'cat', so targeting and reporting split across both</li><li>Values for one key are spelled or cased inconsistently, such as 'Mobile' and 'mobile', so a segment fragments</li><li>A key contains a hyphen, which Kevel does not allow in a key, so the targeting does not apply as written</li><li>Zone names do not say where the placement sits, so a report grouped by zone needs a lookup to read</li><li>No documented list of approved keys, value formats, and zone names exists for the team to draw from</li></ul>You may want to confirm that a documented list of custom targeting keys, value formats, and zone names exists and that the live flights and zones use it. One approach is to pull the keys and values in use, collapse the near-duplicates onto a canonical key, and record the approved set so the next flight reuses a key rather than inventing one.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, custom targeting keys often describe content, for example a section or topic key the editorial team also uses. You may want the targeting keys to match the vocabulary the content already uses and the zone names to say where each placement sits, so a content-level report reads against keys the whole team recognizes rather than ad-ops shorthand.",
+          "ecommerce": "On a retail media setup, where a retailer runs sponsored-product ads on its own site or app through Kevel, custom targeting keys often carry product attributes such as category, brand, or stock-keeping unit. You may want those keys to match the canonical attribute names from the product catalog, so a sponsored-product flight targets the same category key the catalog uses and a report you share with a brand segments cleanly by it."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Custom Targeting",
+            "source_url": "https://dev.kevel.com/docs/custom-targeting"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Setting Up Custom Targeting",
+            "source_url": "https://dev.kevel.com/docs/enabling-custom-targeting"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Zones",
+            "source_url": "https://dev.kevel.com/docs/zones-overview"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the custom targeting keys and values in use across flights and the zone names in inventory to see whether they are consistent and self-describing or whether near-duplicates and placeholders exist.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open a sample of flights and read each flight's custom targeting query, recording the keys and values it references.",
+                "List the keys side by side and flag near-duplicates that mean the same thing, for example 'category' and 'cat', or values cased inconsistently such as 'Mobile' and 'mobile'.",
+                "Open the inventory area and read the zone names, flagging any that are bare numbers or placeholders rather than self-describing labels.",
+                "Check whether any key contains a hyphen, which Kevel does not allow in a custom targeting key, and ask whether a documented list of approved keys and zone names exists."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "GET a sample of flights and capture the 'CustomTargeting' field on each, extracting the keys and values from the Zerkel query.",
+                "GET the zones and capture each zone's 'Name' field.",
+                "Aggregate the keys and values across the captured flights, then count distinct keys that map to the same concept and distinct value spellings under one key to size the fragmentation."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the custom targeting keys and value formats in use, the zone names, and whether a documented approved list exists that the live objects follow. A setup where each concept maps to one canonical key, values follow a fixed format, zone names are self-describing, and no key contains a hyphen passes. A setup where the same concept appears under more than one key, values fragment by casing or spelling, a key contains a hyphen, or zone names are placeholders is a fail recorded with the keys and zones affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the custom targeting keys, value formats, and zone names above, along with whether a documented approved list exists, to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s custom targeting keys and zone names are inconsistent, with the same concept keyed more than one way and zone names that do not say where the placement sits. In Kevel, a custom targeting key is both a targeting input and a reporting dimension, so near-duplicate keys such as 'category' and 'cat' split targeting and reporting across both, and because a key cannot contain a hyphen a key chosen with one can fail to apply as intended. {{voice_recommend}} pulling the keys and values in use, collapsing the near-duplicates onto one canonical key per concept, fixing the value formats, and recording the approved keys and zone names so the next flight reuses them. After the cleanup, segment a sample report by the canonical keys to confirm the data rolls up into one number rather than splitting."
+      }
+    }
+  ]
+}

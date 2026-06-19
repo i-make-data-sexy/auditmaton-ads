@@ -1,0 +1,160 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://dev.kevel.com/docs/manage-api-keys",
+  "worth_it": "Yes",
+  "worth_it_explanation": "An API key on Kevel is the credential that controls a network, so how those keys are scoped, stored, and rotated decides who can change campaigns, read reports, and serve ads. A Management API key grants full control of the network, and a key left in client-side code or shared without rotation hands that control to anyone who can read the request. The check is a review of the keys and access controls a team already has in place, so it costs reading time rather than rebuild time, and the finding points to a concrete access decision the team can act on.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Kevel is a headless ad server, so a publisher or retail-media team runs its own ad platform on Kevel's Management Application Programming Interface (API) and Decision API. The API key is the credential that authenticates those calls, and on Kevel a Management API key is not tied to a single user, so it grants access to the whole network. This subcategory is about how those keys are scoped, stored, and rotated, and whether Decision API requests expose a key where a browser or app can read it. These checks confirm that key handling is a deliberate access-control decision rather than a default carried over from early development.",
+  "audit_checks": [
+    {
+      "id": "kevel-api-keys-access-management-key-server-side-scoped-rotated",
+      "title": "Management API keys are kept server-side, scoped, and rotated",
+      "category": "governance",
+      "subcategory": "api_keys_access",
+      "impact_score": 4,
+      "impact_rationale": "A Kevel Management API key is not user specific and grants access to any endpoint for the whole network, so a single exposed key lets anyone create, edit, or delete campaigns, advertisers, and creatives and read reporting. A Management key embedded in client-side code or shared widely without rotation is a catastrophic access gap since recovery means rotating the key and auditing every change made while it was exposed.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "On Kevel, the Management Application Programming Interface (API) is the control plane for the network. It creates and edits advertisers, campaigns, flights, creatives, and channels, and it reads reporting. The credential that authorizes those calls is the Management API key, passed in the X-Kevel-ApiKey request header. Kevel's own documentation is direct about what that key is worth, stating that API keys are not user specific and grant access to any API to any user in the account, and that a key should be treated the same as a username and password.<br><br>Because the key carries full network control, where it lives matters as much as the value itself. A Management API key belongs on a server, used by backend code that talks to Kevel on the team's behalf. A key that ends up in a browser bundle, a mobile app binary, a public repository, or a shared document is readable by anyone who can reach that surface, and a key that authorizes the entire network in the hands of an outsider is the worst case. Kevel requires Transport Layer Security (TLS) on every request so the key is protected in transit, but TLS does nothing for a key that was placed somewhere it can be read at rest.<br><br>Scope and lifecycle are the other half of the control. Kevel lets a team create more than one key, give each a nickname, and activate or deactivate keys from the dashboard. That makes it possible to separate keys by purpose, for example one key per integration or environment, so a single leak can be deactivated without taking down every system. Rotation follows the same logic: a key that has lived unchanged for a long time, or that a departed contractor once held, is worth replacing on a schedule the team sets rather than only after an incident.<br><br>A few signs point to Management API key handling that needs attention:<ul><li>One Management API key is shared across every integration, environment, and person rather than separated by purpose</li><li>A Management API key appears in client-side code, an app binary, a public repository, or a shared document where it can be read</li><li>No rotation schedule exists, so keys are replaced only after a suspected leak rather than on a regular cadence</li><li>Deactivated or unused keys are left active in the dashboard rather than turned off</li></ul>You may want to confirm that every Management API key lives server-side, is scoped to a clear purpose, and is on a rotation schedule. One approach is to list the active keys in the Kevel dashboard, trace where each one is used, and deactivate any key that cannot be tied to a current, server-side integration.",
+        "site_type_overlays": {
+          "publishing": "For a media site or app running a Kevel-powered ad server, the Management API key usually sits in the backend that syncs campaigns and pulls reporting, so it should never reach the page template or the app bundle that ships to readers. You may want to confirm the key is read from a server-side secret store rather than hardcoded, and that any key once shared with an external development partner has been rotated.",
+          "ecommerce": "For a retailer running sponsored-product ads on its own site or app through Kevel, the Management API key drives the systems that onboard advertisers and book campaigns, which are higher-stakes operations because they touch billing and advertiser relationships. You may want to scope keys by environment so the production network key is separate from staging, and confirm no key reaches the shopper-facing storefront code."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Manage API Keys",
+            "source_url": "https://dev.kevel.com/docs/manage-api-keys"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Getting Started with Kevel",
+            "source_url": "https://dev.kevel.com/reference/getting-started-with-kevel"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the active API keys in the Kevel dashboard, trace where each one is used, and confirm that Management API keys live server-side and follow a rotation schedule.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open 'Settings', then 'API Keys', and list every active key with its nickname.",
+                "For each key, ask the team which integration or environment uses it, and record any key that cannot be tied to a current server-side system.",
+                "Deactivate keys that are unused or that belong to a departed contractor or a retired integration, and note which were turned off.",
+                "Ask whether a rotation schedule exists for Management API keys, and record the cadence and the date of the most recent rotation."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "Confirm where the X-Kevel-ApiKey header value is read from in the calling code, and verify it comes from a server-side secret store rather than a hardcoded string.",
+                "Search the client-side codebase, app binaries, and public repositories for the key value or the X-Kevel-ApiKey header to confirm no Management key is exposed where a browser or app can read it.",
+                "Record whether every Management API call originates from backend code rather than from a browser or mobile client."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per active API key, where it is stored, which integration or environment uses it, and whether a rotation schedule is in place. A setup where every Management API key lives server-side, is scoped to a clear purpose, and is rotated on a stated cadence passes. A setup where a Management API key appears in client-side code, an app binary, or a public repository, or where one key is shared across everything with no rotation, is a fail recorded with the keys and surfaces affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record where each Management API key is stored, what uses it, and whether it is rotated above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} handles its Kevel Management Application Programming Interface (API) keys in a way that leaves network access wider than it needs to be. A Management API key is not user specific and grants full control of the network, so a key shared across every system, left without rotation, or placed where a browser or app can read it gives that control to anyone who can reach it. {{voice_recommend}} keeping every Management API key server-side, scoping keys by integration or environment so a single leak can be deactivated in isolation, and setting a rotation schedule rather than replacing keys only after a suspected leak. After the change, recheck the active keys in the Kevel dashboard and deactivate any that cannot be tied to a current server-side system."
+      }
+    },
+    {
+      "id": "kevel-api-keys-access-decision-api-key-not-exposed-client-side",
+      "title": "Decision API key authentication is configured without exposing the key client-side",
+      "category": "governance",
+      "subcategory": "api_keys_access",
+      "impact_score": 3,
+      "impact_rationale": "Kevel lets a network require API key authentication on the Decision API so requests without a valid key return no decision, which limits who can pull ad decisions from the network. A network that needs that protection but has not enabled it accepts unauthenticated decision requests, while a network that enables it and then ships the key in client-side requests defeats the control since the same key is readable in the page or app and offers no real gate.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "The Decision Application Programming Interface (API) is the endpoint that returns an ad decision in response to a live request, and it behaves differently from the Management API on authentication. By default, the Decision API does not require an API key because decision requests usually originate from a browser or app where a secret cannot be kept. For networks that need a tighter gate, Kevel offers an option to require API key authentication on the Decision API. Once enabled, a request without a valid key in the header returns no decision. Enabling it is handled by Kevel rather than self-serve, so a team contacts its customer success manager (CSM) or Kevel support to turn it on.<br><br>Whether a network needs that gate depends on how decisions are requested. A server-side decision integration, where the team's own backend calls the Decision API and then passes the result to the client, can hold a key safely and benefit from requiring it. A purely client-side integration, where the browser or app calls the Decision API directly, cannot hide a key, so requiring one there places a credential in a request that anyone can read. The audit question is twofold: whether the network requires Decision API authentication where its integration model supports it, and whether enabling it has put a key somewhere it should not be.<br><br>The failure mode to watch for is a key meant to gate access being shipped in client-side code. If the Decision API requires a key and that key is hardcoded into a browser bundle or an app binary, the gate is open to anyone who reads the request, and the same key may be a higher-privilege credential reused from elsewhere. Where decisions must run client-side, the protection belongs in mechanisms suited to public surfaces, such as restricting by origin or moving the decision call server-side, rather than embedding a secret in the client.<br><br>A few signs point to Decision API authentication that needs review:<ul><li>The network's integration is server-side, yet Decision API authentication has never been enabled, so decision requests are accepted without any key</li><li>Decision API authentication is enabled, but the key travels in a client-side request where a browser or app can read it</li><li>The key used on the Decision API is the same high-privilege key used for Management API calls rather than a key scoped for decisioning</li><li>Decision requests run over plain Hypertext Transfer Protocol (HTTP) rather than TLS, so any key in the request is readable in transit</li></ul>You may want to confirm that Decision API authentication matches the integration model and that no key is exposed in a client-side request. One approach is to inspect a live Decision API request to see whether a key is present and where it travels, then decide whether to enable, move, or scope it based on whether the call runs server-side or client-side.",
+        "site_type_overlays": {
+          "publishing": "For a media site or app running a Kevel-powered ad server, decision requests often fire from the page or the app directly, where a key cannot be hidden. You may want to confirm that any key required on the Decision API is not hardcoded into the page template or app bundle, and consider moving the decision call server-side or restricting requests by origin if a gate is needed.",
+          "ecommerce": "For a retailer running sponsored-product ads on its own site or app through Kevel, sponsored-product decisions often run through the retailer's own backend so results can be merged with the product grid, which makes a server-side Decision API integration a natural fit for requiring a key. You may want to confirm that the key sits in the backend rather than the storefront code, and that it is scoped for decisioning rather than reusing the Management API key."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Getting Started with Kevel",
+            "source_url": "https://dev.kevel.com/reference/getting-started-with-kevel"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Decision API",
+            "source_url": "https://dev.kevel.com/reference/request"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the Decision API requires a key, inspect a live decision request to see where any key travels, and confirm the integration model matches the authentication choice.",
+        "tools": {
+          "free": {
+            "kevel_decision_api": {
+              "label": "Kevel Decision API",
+              "steps": [
+                "Capture a live Decision API request from the site or app, and record whether an API key is present in the request and which header carries it.",
+                "Trace where that key is set in the calling code, and note whether it is read from a browser bundle or app binary versus a server-side store.",
+                "Confirm the request runs over TLS rather than plain HTTP, so any key in the request is protected in transit."
+              ]
+            },
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Confirm with the team whether Decision API authentication has been enabled on the network since enabling it is handled by Kevel rather than self-serve.",
+                "Record whether the decision integration is server-side or client-side, which determines whether requiring a key is appropriate.",
+                "Note whether the key used on decision requests is scoped for decisioning or is the same key used for Management API calls."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether Decision API authentication is enabled, whether the integration is server-side or client-side, and where any key in a decision request travels. A server-side integration that requires a key held in the backend passes, as does a client-side integration that uses origin restrictions rather than embedding a secret. A server-side network that has never enabled authentication, or any setup that ships a key in a client-side request, is a fail recorded with the integration model and the surface where the key is exposed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether Decision API authentication is enabled, the integration model, and where any key travels above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has a gap in how it authenticates the Kevel Decision Application Programming Interface (API). The Decision API does not require a key by default, and Kevel can enable a requirement for networks that need it, but a server-side integration left unauthenticated accepts decision requests from anyone, while a key shipped in a client-side request is readable in the page or app and offers no real gate. {{voice_recommend}} matching the authentication choice to the integration model, requiring a key only where the decision call runs server-side and holding it in the backend, and protecting client-side decisions with origin restrictions rather than an embedded secret. After the change, inspect a live Decision API request to confirm no key is exposed where a browser or app can read it."
+      }
+    }
+  ]
+}

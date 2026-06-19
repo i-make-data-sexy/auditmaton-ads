@@ -1,0 +1,173 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://dev.kevel.com/docs/general-set-up-guide",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Network structure is the spine every report, permission, and serving decision hangs off, so a tangle here spreads quietly into pricing reads, ownership disputes, and ads that serve when no one meant them to. Kevel organizes the network as Advertisers, then Campaigns, then Flights, then Ads, alongside Sites, Zones, and Channels, and the audit reads that organization rather than rebuilding it. The check costs reading time across the Kevel UI and a few Management API calls, and the finding points to concrete cleanup, retiring stale objects and tightening how the hierarchy maps to reporting and ownership, that the operator can act on without touching serving code.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Kevel is a headless ad server, so the publisher or retail-media operator running it owns the network structure end to end through the Management API and the Kevel UI. That structure is Advertisers, then Campaigns, then Flights, then Ads, sitting alongside the inventory model of Sites, Zones, and Channels. This subcategory is about whether that structure is organized so reporting lines up with ownership and whether objects that should no longer serve have actually been retired. These checks confirm the hierarchy is a deliberate map of who runs what rather than an accumulation that nobody has pruned.",
+  "audit_checks": [
+    {
+      "id": "kevel-network-account-structure-hierarchy-not-organized-for-reporting",
+      "title": "The advertiser, campaign, and flight hierarchy is not organized for clear reporting and ownership",
+      "category": "governance",
+      "subcategory": "network_account_structure",
+      "impact_score": 3,
+      "impact_rationale": "Reporting in Kevel rolls up along the Advertiser, Campaign, and Flight hierarchy, so when that hierarchy does not match how the operator actually thinks about its business, the numbers cannot be sliced cleanly and no one can say which team or partner owns a given line. A structure that mixes unrelated demand under one advertiser, or scatters one partner's flights across several campaigns with no naming pattern, turns every report and every ownership question into manual reconciliation.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "Kevel organizes a network as a four-level hierarchy. Advertisers sit at the top and represent who is advertising. Campaigns group an advertiser's work, Flights carry the targeting and delivery rules, and Ads are the creatives tied to a Flight so they become eligible to serve. Reporting rolls up along these levels, so the way the hierarchy is built decides how cleanly the operator can read revenue, delivery, and performance by partner, by team, or by line of business.<br><br>The structure does double duty. It is the reporting backbone, and it is the ownership map. When an advertiser maps to one real demand partner or one internal team, a report grouped by advertiser answers who is spending and how their flights are pacing. When a campaign groups flights that belong together, the campaign-level rollup means something. The Management API exposes every level, so the operator can read the whole tree and confirm it reflects how the business actually divides its demand.<br><br>The structure drifts when objects are created faster than anyone maintains the pattern. A single advertiser can end up holding demand from several unrelated partners because it was convenient at the time. One partner's flights can scatter across several campaigns with no naming convention tying them together. Flights can sit directly under a campaign that no longer describes them. Each shortcut is small, and together they make the rollups unreliable and the ownership ambiguous.<br><br>A few signs point to a hierarchy that is not organized for reporting and ownership:<ul><li>One advertiser holds demand from several unrelated partners or internal teams, so an advertiser-level report mixes them together</li><li>Flights that belong to one partner are scattered across campaigns with no naming convention linking them</li><li>No one can name the owner of a given campaign or flight without tracing it back manually</li><li>Reports have to be exported and re-grouped by hand because the in-platform rollups do not match how the business is divided</li></ul>You may want to confirm that the Advertiser, Campaign, and Flight tree maps cleanly to how the operator divides demand and assigns ownership. One approach is to read the full hierarchy through the Management API, group it the way the business is actually run, and note every place the structure and the business diverge.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, demand usually comes from a mix of direct-sold sponsorships, house promotions, and partner deals. You may want each of those to map to its own advertiser so a report grouped by advertiser separates direct revenue from house fill, rather than blending them under a catch-all advertiser that hides which demand is actually paying.",
+          "ecommerce": "On a retail-media setup where a retailer runs sponsored-product ads on its own site or app through Kevel, each brand or supplier buying placement is usually its own advertiser, and that mapping is what lets the retailer report and bill per brand. You may want to confirm one advertiser equals one brand so spend, delivery, and performance roll up per brand cleanly for the reports those brands receive."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "General Set-Up Guide",
+            "source_url": "https://dev.kevel.com/docs/general-set-up-guide"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Campaigns",
+            "source_url": "https://dev.kevel.com/docs/campaigns"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Flights",
+            "source_url": "https://dev.kevel.com/docs/flights"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the Advertiser, Campaign, and Flight hierarchy through the Kevel UI and the Management API, then check whether it maps to how the operator divides demand and assigns ownership.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open the advertiser list and note how many advertisers exist and whether each maps to one real demand partner or internal team.",
+                "Open a sample of advertisers and review the campaigns under each, checking whether the campaigns group flights that belong together.",
+                "For a sample of campaigns, open the flights and note whether a naming convention ties a partner's flights together or whether they are scattered without a pattern.",
+                "For three or four campaigns, ask the operator who owns each and record whether the owner is clear from the structure or only knowable by tracing it manually."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "GET the full advertiser list, then GET the campaigns and flights under a representative sample to read the hierarchy as data rather than screen by screen.",
+                "Group the returned objects the way the business is actually divided, by partner, team, or line of business, and note every advertiser that mixes unrelated demand.",
+                "Record flights that share an owner but sit under different campaigns with no naming pattern linking them. Those flights break the campaign-level rollup."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether each advertiser maps to one real demand partner or team, whether campaigns group related flights, and whether ownership is clear from the structure. A hierarchy where advertisers, campaigns, and flights line up with how the business is divided and ownership reads off the structure passes. A hierarchy where advertisers mix unrelated demand, flights scatter across campaigns with no naming pattern, or ownership can only be traced by hand is a fail recorded with the advertisers and campaigns affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether each advertiser maps to one partner or team, whether campaigns group related flights, and whether ownership is clear from the structure above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Advertiser, Campaign, and Flight hierarchy in {{site_name}}'s Kevel network does not map cleanly to how the business divides its demand. Kevel rolls up reporting along that hierarchy, so when advertisers mix unrelated partners or one partner's flights scatter across campaigns with no naming pattern, the in-platform reports cannot be sliced by partner or team and ownership of a given campaign cannot be read off the structure. {{voice_recommend}} restructuring so each advertiser maps to one real partner or internal team, each campaign groups the flights that belong together, and a naming convention ties a partner's flights across the tree. After the change, confirm that an advertiser-level and campaign-level report each answer who is spending and who owns the work without manual regrouping."
+      }
+    },
+    {
+      "id": "kevel-network-account-structure-test-and-inactive-objects-can-still-serve",
+      "title": "Test or inactive advertisers, campaigns, and flights are left able to serve rather than retired",
+      "category": "governance",
+      "subcategory": "network_account_structure",
+      "impact_score": 3,
+      "impact_rationale": "In Kevel a flight serves when it is active, within its date window, and tied to ads and inventory, so a test or abandoned flight that was never deactivated or archived can keep returning ads from the Decision API into live placements. Stale objects also inflate reporting and obscure which demand is real, so leaving them able to serve risks both unintended creatives in production and numbers that no longer describe the network.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "governance",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "Whether an ad serves in Kevel comes down to the flight. A flight serves when it is active, inside its start and end window, and tied to ads and to inventory through its targeting. Kevel gives an operator two ways to take a flight out of rotation. Deactivating it toggles it inactive so it stops serving, and archiving it sets it aside once it is complete, with the option to unarchive while the end date has not passed. Campaigns can be toggled active or inactive the same way, and their dates derive from the flights they contain.<br><br>The risk is the object that was meant to be temporary but was never retired. A flight built to test a creative or a targeting rule, an advertiser stood up for a trial that ended, a campaign from a deal that lapsed. If the flight stays active and its date window has not closed, the Decision API can still return its ads into live placements, so a test creative can surface on a real page or screen long after anyone expected it to. Even when an object no longer serves, leaving it in place inflates the counts in reporting and makes it harder to tell which advertisers and campaigns describe real, current demand.<br><br>Kevel exposes status on every object, so the cleanup is readable rather than guesswork. The Management API returns each flight's active state and its dates, which is enough to separate what is genuinely live from what is stale. A flight that is active with an open or absent end date is a candidate to serve, so any test or abandoned object in that state is the one to look at first.<br><br>A few signs point to test or inactive objects left able to serve:<ul><li>Flights with names like 'test', 'temp', or a person's name are still active with an open or future end date</li><li>Advertisers or campaigns created for a trial or a lapsed deal remain active rather than archived</li><li>The Decision API returns a creative that no one recognizes as current, which traces back to a flight that should have been retired</li><li>Reporting includes advertisers and campaigns that the operator cannot account for as live demand</li></ul>You may want to confirm that anything built for a test or no longer in use has been deactivated or archived. One approach is to list active flights through the Management API, flag any whose name or dates mark them as test or abandoned, and retire them so only current demand can serve.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, test flights built while wiring up a new placement or format can be left active after launch, and a leftover test creative surfacing on a live page is the visible cost. You may want to sweep active flights after each launch and archive the ones used only for testing so the Decision API can return current demand alone.",
+          "ecommerce": "On a retail-media setup where a retailer runs sponsored-product ads through Kevel, advertisers and campaigns are created per brand and per deal, so a lapsed brand deal can leave an active campaign that still counts in the reports a brand sees. You may want to confirm that campaigns from ended deals are archived so per-brand reporting and billing reflect only the brands currently buying placement."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Flights",
+            "source_url": "https://dev.kevel.com/docs/flights"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Campaigns",
+            "source_url": "https://dev.kevel.com/docs/campaigns"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "List the active advertisers, campaigns, and flights and separate the ones that describe current demand from test or abandoned objects that were never deactivated or archived.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open the campaign and flight lists and filter for active objects, noting any whose names mark them as test, temporary, or tied to a person rather than a partner.",
+                "Open a sample of those flights and check their start and end dates, recording any that are active with an open or future end date and so still able to serve.",
+                "Review the advertiser list for accounts created for a trial or a lapsed deal that remain active rather than archived.",
+                "Confirm with the operator which flagged advertisers, campaigns, and flights are genuinely current and which should be deactivated or archived."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "GET the flight list and read each flight's active state and its start and end dates to separate what can serve from what cannot.",
+                "Flag every flight that is active with an open or future end date, then narrow to those whose names or owners mark them as test or abandoned.",
+                "GET the campaign and advertiser lists and record any that are active but no longer map to current demand. Those objects should be archived."
+              ]
+            },
+            "kevel_decision_api": {
+              "label": "Kevel Decision API",
+              "steps": [
+                "Send a Decision API request against a live placement and inspect the returned ads to confirm none trace back to a test or abandoned flight.",
+                "Where a returned creative is not recognized as current, record the flight it came from so it can be deactivated or archived."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records which active advertisers, campaigns, and flights describe current demand and which are test or abandoned objects still able to serve. A network where every active object maps to current demand and test or completed work has been deactivated or archived passes. A network that holds active flights marked as test, or active advertisers and campaigns from lapsed deals, with open or future end dates that let them serve, is a fail recorded with the objects that should be retired.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which active advertisers, campaigns, and flights are current demand and which are test or abandoned objects still able to serve above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s Kevel network holds test or inactive advertisers, campaigns, and flights that were left able to serve rather than retired. In Kevel a flight serves when it is active and inside its date window, so a test or abandoned flight that was never deactivated or archived can still return ads from the Decision API into live placements, and stale objects also inflate reporting and obscure which demand is real. {{voice_recommend}} listing active flights through the Management API, flagging any whose names or dates mark them as test or abandoned, and deactivating or archiving them along with any advertiser or campaign from a lapsed deal. After the cleanup, confirm that every active object maps to current demand and that a Decision API request against a live placement returns only creatives that belong there."
+      }
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://dev.kevel.com/docs/creative-templates",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Ad types and creative templates are the structure every creative in a Kevel-powered ad server is built on, so they decide whether a format renders the same way each time or whether each creative is assembled by hand and drifts. A template that defines its fields and macros, validates its inputs, and escapes them turns creative entry into a repeatable, safe step. This check is a review of the Application Programming Interface (API) configuration and the templates a team already has, so it costs reading time rather than rebuild time, and the finding points to a concrete fix in the template definition.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Kevel is a headless, API first ad server, so a team running their own ad platform on it defines ad types and creative templates rather than picking from a fixed menu of formats. An ad type maps to an ad size through its AdTypeID, and a creative template is a predefined structure that presents the fields, macros, and validation a creative is built from. This subcategory is about whether those building blocks exist for each format the network serves and whether the templates validate and escape their inputs. These checks confirm that creatives are assembled from defined templates rather than ad hoc, and that a malformed input cannot break rendering or inject unsafe markup.",
+  "audit_checks": [
+    {
+      "id": "kevel-ad-types-templates-no-template-per-format",
+      "title": "Formats are served without a defined ad type and creative template",
+      "category": "inventory",
+      "subcategory": "ad_types_templates",
+      "impact_score": 3,
+      "impact_rationale": "When a format has no ad type and creative template behind it, each creative is built ad hoc, so required fields and macros depend on whoever entered the creative rather than a defined structure. That leads to creatives that render inconsistently or miss a field a downstream system expects, and the gap is hard to see until a creative serves wrong on live inventory.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "inventory",
+        "creative"
+      ],
+      "educate": {
+        "base": "Kevel is a headless ad server, so the formats a network serves are not a fixed menu the platform hands over. A team defines them. An ad type ties a creative to an ad size through its AdTypeID, and a creative template is a predefined structure that presents a set of optional and required fields when someone adds a creative to a flight as an ad. The template is where the format lives. It names the fields a creative carries, the macros that inject those field values into the served markup, and the rules each field follows.<br><br>When a format has a template behind it, every creative built for that format starts from the same structure. The required fields are required, the macros resolve the same way, and the creative cannot ship missing a piece a downstream system expects. When a format has no template, each creative is assembled by hand. One creative carries a field another skips, the macro a publisher's page reads on one creative is absent on the next, and the format drifts because nothing holds it to a shape. The cost shows up on live inventory, where a creative renders wrong or a field a header-bidding wrapper or a reporting system expected is simply not there.<br><br>Kevel lets a team build these templates through the Creative Templates API or through the Kevel Studio interface, with field types covering file uploads, external URLs, strings, arrays, numbers, and JavaScript Object Notation (JSON) objects. Fields can be visible for a creative author to fill or hidden and populated automatically. The audit question is whether an ad type and a creative template exist for each format the network serves, carrying the fields and macros that format needs, rather than each creative being built ad hoc.<br><br>A few signs point to formats running without a defined template:<ul><li>Creatives for a format are entered as raw HyperText Markup Language (HTML) or hand-built metadata rather than through a creative template</li><li>The same format shows different field sets across creatives, so a macro present on one creative is missing on another</li><li>No ad type or template exists for a format the network is actively serving, so AdTypeID values are reused loosely or chosen by hand per creative</li></ul>You may want to confirm that each format the network serves has an ad type and a creative template defining its fields and macros. One approach is to list the formats in use, then check that a template exists for each, with the required fields and macros the format depends on.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, formats like a sponsored article card, a newsletter unit, or an in-feed native slot each carry their own fields, for example a headline, an image, and a click URL. You may want to confirm a creative template exists for each of those formats so the fields and macros are defined once rather than rebuilt per creative, which keeps the rendered unit consistent across the site.",
+          "ecommerce": "On a retail media setup where a retailer runs sponsored-product ads on its own site or app through Kevel, the sponsored-product format usually needs structured fields such as a product identifier, a price, and a destination URL. You may want to confirm a creative template defines those fields and the macros that inject them, so every sponsored product is built from the same structure rather than assembled ad hoc and risking a missing product identifier on live inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Creative Templates",
+            "source_url": "https://dev.kevel.com/docs/creative-templates"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Ad Sizes / Types",
+            "source_url": "https://dev.kevel.com/docs/ad-sizes"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Creatives",
+            "source_url": "https://dev.kevel.com/docs/creatives"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the ad types and creative templates defined in the Kevel setup against the formats the network actually serves, and confirm a template exists for each with the fields and macros that format needs.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open the Kevel UI and go to the creative templates list to see which templates are defined and what fields and macros each one carries.",
+                "List the formats the network serves and match each one to a creative template, noting any format that has no template behind it.",
+                "Open a sample of creatives for a given format and check whether they were built from a template or entered as raw markup or hand-built metadata.",
+                "Record, per format, whether an ad type and a creative template exist and whether the required fields and macros are present."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "Use the Kevel Management API to GET the list of ad types and their AdTypeID values, and confirm each format the network serves maps to a defined ad type.",
+                "GET the creative templates and inspect each template's fields and macros to confirm the required fields a format depends on are defined.",
+                "GET a sample of creatives and check whether each references a creative template rather than carrying ad hoc markup, recording any format with no template."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per format the network serves, whether an ad type and a creative template exist and whether the template carries the required fields and macros that format depends on. A setup where each served format maps to an ad type and a template with its fields and macros defined passes. A setup where a format is served with no template, so creatives are built ad hoc, is a fail recorded with the formats and creatives affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether an ad type and creative template exist for each served format, with the required fields and macros, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} serves one or more formats with no ad type and creative template behind them, so creatives for those formats are built ad hoc rather than from a defined structure. In Kevel a creative template names the fields and macros a format carries, and without it the required fields depend on whoever entered the creative, which lets a creative ship missing a field a downstream system expects or render inconsistently across the format. {{voice_recommend}} defining a creative template for each format the network serves through the Creative Templates Application Programming Interface (API) or Kevel Studio, with the required fields and macros that format depends on, then building new creatives from those templates. After the change, confirm each served format maps to an ad type and a template before relying on it on live inventory."
+      }
+    },
+    {
+      "id": "kevel-ad-types-templates-inputs-not-validated-escaped",
+      "title": "Creative templates do not validate and escape their inputs",
+      "category": "inventory",
+      "subcategory": "ad_types_templates",
+      "impact_score": 3,
+      "impact_rationale": "A creative template injects its field values into the served markup through macros, so a field that is neither validated nor escaped lets a malformed or hostile input reach the page as written. That can break rendering when an input contains characters the markup cannot hold, or inject unsafe markup such as a script through a field meant to hold plain text, which is a cross-site scripting risk on the publisher's own inventory.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "creative",
+        "inventory"
+      ],
+      "educate": {
+        "base": "A creative template in Kevel injects its field values into the served markup through macros, using a syntax like a double-brace reference to a field. Whatever a creative author types into that field is what the macro expands to on the page. That is the point of the template, and it is also where the risk sits. If a field accepts any input and the macro drops it into the markup as written, a malformed value can break rendering and a hostile value can inject markup the template never intended to serve.<br><br>Two controls keep that from happening. The first is validation, which limits what a field can hold before it is ever stored. Kevel supports restricting a field to a set of allowed values through a dropdown or to a pattern through a regular expression, so a field meant to hold a hex color, a numeric identifier, or one of a fixed set of labels rejects anything outside that shape at entry. The second is escaping, which converts characters that carry meaning in the output context, for example the angle brackets that open a tag, into a form the browser renders as text rather than markup. A field meant to hold a plain-text headline that is escaped on the way out cannot open a script tag even if someone types one into it.<br><br>Without these, a field is an open door into the served markup. A string field that allows up to a large character count and is neither pattern-restricted nor escaped can carry a script that runs on every page the creative serves on, which is a cross-site scripting (XSS) risk on the publisher's own inventory, not the advertiser's. A numeric field with no validation can carry text that breaks a calculation downstream. The audit question is whether each template's fields are validated to the shape they should hold and escaped where their values land in markup.<br><br>A few signs point to inputs that are neither validated nor escaped:<ul><li>String fields accept free text with no allowed-value list and no regular expression pattern, even where the field should hold a fixed shape such as a color or an identifier</li><li>Field values are injected through macros into HyperText Markup Language (HTML) with no escaping, so a value containing markup reaches the page as markup</li><li>A field meant to hold plain text can carry a script tag or other active markup without being rejected at entry or neutralized on output</li></ul>You may want to confirm that each template field is validated to the shape it should hold and escaped where its value lands in markup. One approach is to review the fields on each template, add an allowed-value list or a regular expression where the field has a fixed shape, and confirm values that land in HTML are escaped rather than injected raw.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, a sponsored unit often carries a headline or a description field that a creative author fills. You may want to confirm those text fields are escaped where their values land in the page markup and pattern-restricted where they should hold a fixed shape, so a malformed or hostile value cannot break the page or run a script on the publisher's own inventory.",
+          "ecommerce": "On a retail media setup where a retailer runs sponsored-product ads through Kevel, fields like a product identifier or a price should hold a fixed shape, and a destination URL should be a valid Uniform Resource Locator (URL). You may want to validate those fields with a regular expression or an allowed-value list at entry and escape any text field that lands in markup, so a malformed product feed value cannot break rendering on the retailer's own pages."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Creative Templates",
+            "source_url": "https://dev.kevel.com/docs/creative-templates"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Ads",
+            "source_url": "https://dev.kevel.com/docs/ads"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each creative template's fields for validation and escaping, and confirm that fields with a fixed shape are pattern-restricted and that values landing in markup are escaped rather than injected raw.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open the Kevel UI and go to the creative templates list, then open each template and review its fields.",
+                "For each field, note whether it restricts input through an allowed-value dropdown or a regular expression pattern, and whether a field that should hold a fixed shape allows free text instead.",
+                "Find where each field value is injected through a macro and note whether the value lands in markup escaped or raw.",
+                "Record, per template, which fields lack validation or escaping and where a value could reach the page as markup."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "Use the Kevel Management API to GET each creative template and read its field definitions, including any allowed-value lists or regular expression patterns set on the fields.",
+                "Identify fields that accept free text with no pattern where the field should hold a fixed shape such as a color, an identifier, or a Uniform Resource Locator (URL).",
+                "Inspect how field macros are placed in the template body to confirm whether values that land in markup are escaped, and record any field that is neither validated nor escaped."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per creative template field, whether the field is validated to the shape it should hold through an allowed-value list or a regular expression, and whether its value is escaped where it lands in markup. A setup where fields with a fixed shape are pattern-restricted and values landing in markup are escaped passes. A setup where a field meant for plain text or a fixed shape accepts free text and reaches the page raw is a fail recorded with the template and field affected. It is a cross-site scripting (XSS) risk on the publisher's inventory.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether each template field is validated and escaped where its value lands in markup above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more creative templates on {{site_name}} inject field values into the served markup without validating or escaping them. A creative template macro expands a field's value into the page, so a field that is neither restricted to its shape at entry nor escaped on output can break rendering when the value carries characters the markup cannot hold, or inject unsafe markup such as a script, which is a cross-site scripting (XSS) risk on the publisher's own inventory. {{voice_recommend}} restricting each field to its shape with an allowed-value list or a regular expression where it has a fixed form, and escaping values that land in HyperText Markup Language (HTML) rather than injecting them raw. After the change, confirm that a field meant for plain text or a fixed shape cannot carry active markup to the page."
+      }
+    }
+  ]
+}

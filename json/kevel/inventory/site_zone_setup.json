@@ -1,0 +1,159 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://dev.kevel.com/docs/zones-overview",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Sites and Zones are the structure every flight targets against, so a placement defined incorrectly affects every campaign that serves through it. A zone that includes or excludes the wrong flights, or a duplicate zone that passes inventory under the wrong placement, sends ads to the wrong page area and skews the reporting that pricing and yield decisions rely on. The check reads the Site and Zone configuration a publisher already has, so it costs reading time rather than rebuild time, and each finding points to a concrete placement to correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "In Kevel, inventory is defined as Sites and Zones. A Site differentiates a website, domain, or platform within the ad network, and a Zone is a placement inside a Site that can include or exclude specific flights and creatives. Because every flight targets against this structure through the Decision Application Programming Interface (API), a Zone whose include and exclude rules do not match the real page area sends ads where they were not meant to serve. This subcategory confirms that Sites and Zones map to real placements with correct rules, and that no orphaned or duplicate zone passes inventory under the wrong placement.",
+  "audit_checks": [
+    {
+      "id": "kevel-site-zone-setup-include-exclude-rules-mismatch",
+      "title": "Sites and Zones do not map to real placements with correct include and exclude rules",
+      "category": "inventory",
+      "subcategory": "site_zone_setup",
+      "impact_score": 3,
+      "impact_rationale": "A Zone is the placement a flight targets against, so when its include and exclude rules do not match the real page area, flights serve where they were not intended. An ad meant for an above-the-fold slot that clears through a below-the-fold zone, or a flight excluded from a placement it should reach, distorts both delivery and the reporting that pricing decisions read, which makes this a configuration gap worth correcting rather than a catastrophic break.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "inventory",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "In Kevel, a Site differentiates a website, domain, or platform within the ad network, and a Zone is a placement inside a Site that can include or exclude specific flights and creatives. Every Kevel account starts with three default Sites for Web, iOS, and Android, and a publisher adds Sites and Zones to model the real surfaces and page areas where ads serve. A flight reaches a placement through the Decision Application Programming Interface (API), which passes the Site and Zone in the ad request, so the structure a publisher defines is the structure every campaign targets against.<br><br>The accuracy of that mapping is what this check examines. A Zone named for an above-the-fold slot only behaves like one if its include and exclude rules and the ad request that fires it line up with the actual page area. When the name and the rules drift apart, a flight meant for a premium slot can clear through a lower-value placement, or a flight that should reach a placement can be excluded from it. By default, flights and ads target all Sites and Zones unless targeting is set, so a placement that relies on exclusion rather than explicit inclusion is easy to get wrong.<br><br>Targeting can be set at the flight level through the SiteZoneTargeting object and at the ad level through the siteID and zoneID parameters, so the same placement can be governed from more than one layer. An audit reads both layers together rather than trusting the Zone name because a Zone that looks correct in the dashboard can still serve the wrong inventory once the flight-level and ad-level targeting are accounted for.<br><br>A few signs point to Site and Zone rules that do not match the real placements:<ul><li>A Zone's include and exclude rules do not match the page area its name implies, so flights serve in the wrong slot</li><li>The Decision API request fires a Site or Zone that differs from the one the placement on the page is meant to call</li><li>A flight is excluded from a placement it should reach, or reaches a placement it should be held out of because targeting was set by exclusion rather than explicit inclusion</li></ul>You may want to confirm that each Site and Zone maps to a real placement and that its include and exclude rules serve the flights intended for it. One approach is to read the Zone configuration in Kevel, then fire a live Decision API request for each placement and check that the Site and Zone returned match the page area.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, page areas such as a homepage takeover, an in-article slot, and a footer unit each map to their own Zone, and the value differs across them. You may want to confirm that the premium placements have include and exclude rules that hold their intended flights, so a sponsorship flight meant for the homepage does not clear through a lower-value in-article zone because the targeting was set loosely.",
+          "ecommerce": "For a retailer running sponsored-product ads on its own site or app through Kevel, Zones often map to search results, category pages, and product detail pages, each of which reaches an audience at a different point toward a purchase. You may want to confirm that a sponsored-product flight targets the Zone for the surface it was sold against, so a placement sold for search results does not also serve on category pages because an exclude rule was missing."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Documentation",
+            "source_title": "Sites",
+            "source_url": "https://dev.kevel.com/docs/sites"
+          },
+          {
+            "source_type": "Kevel Developer Documentation",
+            "source_title": "Zones Overview",
+            "source_url": "https://dev.kevel.com/docs/zones-overview"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each Site and Zone against the real placement it represents, then confirm the include and exclude rules and a live ad request serve the flights intended for that placement.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open the Sites and Zones section and list every Site with its Zones, noting the page area each Zone is meant to represent.",
+                "For each Zone, open its configuration and record which flights it includes and which it excludes, alongside the placement on the page it is named for.",
+                "Flag any Zone whose include and exclude rules do not match the page area its name implies, or any placement on the page that has no Zone mapped to it."
+              ]
+            },
+            "kevel_decision_api": {
+              "label": "Kevel Decision API",
+              "steps": [
+                "Fire a live Decision API request for each placement, passing the siteId and zoneIds the page is meant to call.",
+                "Inspect the response and confirm the Site and Zone returned match the page area, and that the flight served is one the placement is intended to carry.",
+                "Record any case where the Decision API returns a flight the placement should have excluded, or omits a flight the placement should include."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per Zone, the page area it represents, its include and exclude rules, and the result of a live Decision API request for that placement. A Zone whose rules and live response match the page area and serve the intended flights passes. A Zone whose include and exclude rules contradict its placement, or whose Decision API response serves a flight the placement should exclude or omits one it should include, is a fail recorded with the Site, the Zone, and the flight affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each Zone's page area, its include and exclude rules, and the live Decision API response above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more Zones on {{site_name}} do not map to the placements they represent, so their include and exclude rules send flights to the wrong page area. In Kevel, a Zone is the placement a flight targets against through the Decision Application Programming Interface (API), and when the rules and the live ad request drift apart from the page area the Zone is named for, a flight can clear through a slot it was never meant to serve, which distorts both delivery and the reporting behind pricing decisions. {{voice_recommend}} reading each Zone's include and exclude rules against the placement it represents, firing a live Decision API request per placement to confirm the Site and Zone returned match the page area, and correcting any Zone whose rules or response serve the wrong flights. After the change, refire the placements to confirm each Zone carries only its intended inventory."
+      }
+    },
+    {
+      "id": "kevel-site-zone-setup-orphaned-duplicate-zones",
+      "title": "Orphaned or duplicate zones pass inventory under the wrong placement",
+      "category": "inventory",
+      "subcategory": "site_zone_setup",
+      "impact_score": 2,
+      "impact_rationale": "An orphaned Zone that no page area calls, or a duplicate Zone that overlaps an existing placement, lets inventory pass under the wrong placement, which splits reporting and lets flights serve where the publisher did not intend. The revenue is rarely lost outright, but the placement data that pricing and yield decisions read becomes harder to trust, so this is a hygiene gap to clean up rather than a serving failure.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "inventory",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "Zones accumulate as a Kevel setup grows. A placement gets renamed, a test Zone is created and never removed, or a second Zone is added for a page area that already had one, and over time the Site holds more Zones than the live pages actually call. An orphaned Zone is one that no current placement requests through the Decision Application Programming Interface (API). A duplicate Zone is a second placement that overlaps an existing one, so two Zones compete to represent the same page area.<br><br>Neither is a serving failure on its own because by default flights and ads target all Sites and Zones unless targeting narrows them, and Kevel records one impression per zone per placement when a flight lacks zone-specific targeting. The cost is in the data and the control. Inventory that passes under a duplicate zone splits the reporting for one page area across two placements, so the average price and fill for that surface look thinner than they are. An orphaned zone that a forgotten flight still targets can serve ads to a page area the publisher believes is retired.<br><br>Network Zones add a layer worth checking here because a Network Zone can span multiple Sites and can only be created through the Management API rather than the dashboard. A Network Zone created for a test and left in place can carry inventory across Sites in a way that is easy to miss when reviewing one Site at a time.<br><br>A few signs point to orphaned or duplicate zones:<ul><li>A Zone exists in Kevel that no live placement requests, yet a flight still targets it</li><li>Two Zones represent the same page area, so reporting for that surface splits across both</li><li>A Network Zone created through the Management API spans Sites and carries inventory the publisher cannot account for</li></ul>You may want to confirm that every Zone maps to a live placement and that no two Zones represent the same page area. One approach is to list all Zones through the Management API, match each against the placements the live pages call, and retire any Zone that no placement requests or that duplicates an existing one.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, a site redesign or a section rename can leave Zones behind that the new pages no longer call, while the flights that targeted them keep serving. You may want to match each Zone against the live page areas and retire the ones no placement requests, so reporting reflects the placements that actually run.",
+          "ecommerce": "For a retailer running sponsored-product ads on its own site or app through Kevel, duplicate Zones for the same surface, for example two Zones both representing the search results placement, split the sponsored-product reporting across both and make the surface look less valuable than it is. You may want to consolidate duplicate Zones so each retail surface maps to a single placement that carries all of its inventory."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Documentation",
+            "source_title": "Zones Overview",
+            "source_url": "https://dev.kevel.com/docs/zones-overview"
+          },
+          {
+            "source_type": "Kevel Developer Documentation",
+            "source_title": "Sites",
+            "source_url": "https://dev.kevel.com/docs/sites"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the full list of Zones against the placements the live pages call, and flag any Zone that no placement requests or that duplicates an existing one.",
+        "tools": {
+          "free": {
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "Use the Management API to list every Zone across all Sites, including any Network Zones that span Sites.",
+                "Record each Zone's Site, name, and the page area it is meant to represent.",
+                "Flag any Zone that two or more entries represent the same page area, and note any Network Zone that carries inventory across Sites."
+              ]
+            },
+            "kevel_decision_api": {
+              "label": "Kevel Decision API",
+              "steps": [
+                "For each live placement on the pages, fire a Decision API request and record the siteId and zoneIds it calls.",
+                "Compare the Zones the live placements call against the full Zone list from the Management API to find Zones that no placement requests.",
+                "Record any Zone with no matching placement as orphaned, and any page area called by more than one Zone as a duplicate."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the full Zone list from the Management API alongside the Zones the live placements call through the Decision API. A setup where every Zone maps to a live placement and each page area maps to a single Zone passes. A Zone that no placement requests, two Zones that represent the same page area, or a Network Zone carrying unaccounted inventory across Sites is a fail recorded with the Zone and the placement affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the full Zone list and the Zones the live placements call above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} carries orphaned or duplicate Zones, so inventory passes under placements the live pages do not represent. In Kevel, an orphaned Zone is one no current placement requests through the Decision Application Programming Interface (API), and a duplicate Zone overlaps an existing placement, which splits the reporting for a page area across two Zones and lets flights serve where they were not intended. {{voice_recommend}} listing every Zone through the Management API, matching each against the placements the live pages call, and retiring any Zone that no placement requests or that duplicates an existing one, including any Network Zone that spans Sites. After the cleanup, confirm that each live page area maps to a single Zone that carries all of its inventory."
+      }
+    }
+  ]
+}

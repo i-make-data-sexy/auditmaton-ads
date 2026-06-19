@@ -1,0 +1,172 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://dev.kevel.com/docs/ad-sizes",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Ad sizes and placements are the contract between what a zone can hold and what the demand trafficked against it is built to fill, so a mismatch between the two is a quiet source of blank ads, low fill, and creatives that overflow their slot. The check reads the ad types, zones, and the ads eligible for them in a Kevel setup the operator already runs, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration the operator can correct. Because Kevel is API-first, these relationships live in the data rather than on a rendered page, which makes a deliberate review the only way to see them.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "In Kevel, an ad request is decided by matching the ad types a zone accepts against the ads that are eligible to serve there, where eligibility turns on the ad size among other factors. This subcategory is about whether those sizes line up, so that the ad types declared on zones match the placements and the demand trafficked against them, and whether each placement is isolated enough that a creative cannot overflow its zone or disturb the page or app it renders on. These checks read the zone, ad type, and ad configuration in the Management API and a live Decision API response rather than judging a rendered page because in a headless ad server the size contract lives in the data.",
+  "audit_checks": [
+    {
+      "id": "kevel-ad-sizes-placements-types-mismatch-demand",
+      "title": "Zone ad types do not match the placement or the demand trafficked against them",
+      "category": "inventory",
+      "subcategory": "ad_sizes_placements",
+      "impact_score": 3,
+      "impact_rationale": "When the ad types a zone accepts do not match the sizes the demand was built for, the Decision Application Programming Interface (API) returns no eligible ad and the placement renders blank, so impressions that should have filled go unsold. The reverse case, demand built for a size the placement cannot display cleanly, lets a flight win a placement it cannot fill correctly, which wastes the impression and can break the layout.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "inventory",
+        "ad-experience"
+      ],
+      "educate": {
+        "base": "Kevel decides an ad request by matching what a zone accepts against the ads eligible to serve there, and ad size is one of the factors that decides eligibility. Each unique dimension in Kevel carries an AdTypeID, and the Decision API request names the ad types a given placement will accept. An ad becomes eligible for that placement only when its size, along with the site, zone, keywords, and the caps and goals of its flight, lines up with what the request asks for. If nothing matches, the placement returns a blank ad, which is the signal that no eligible creative fit the request.<br><br>The mismatch shows up in two directions. In the first, a zone accepts a set of ad types but the demand trafficked against it was built for a different size, so no ad is eligible and the slot returns blank. The page or app has a placement that never fills, and the lost revenue is invisible unless someone reads the eligibility chain. In the second direction, demand is built for a size the placement was not designed to show, yet the flight is still eligible, so a creative wins a slot it does not fit. The impression is spent on an ad that cannot render cleanly in that space.<br><br>Because Kevel is headless, the operator controls the request, so the ad types named in the Decision API call have to agree with the ad types declared on the zone in the Management API and with the sizes of the creatives on the flights. Three places have to tell the same story, and they are configured independently. A few signs point to a size mismatch:<ul><li>A placement returns blank ads while flights are active and within their caps, which suggests no eligible size matched the request</li><li>The ad types named in the Decision API request differ from the ad types the zone or channel is set up to accept</li><li>Flights aimed at a zone carry creatives whose sizes are not among the ad types that zone accepts</li></ul>You may want to confirm that the ad types on the zone, the ad types in the Decision API request, and the sizes of the trafficked creatives all agree for each placement. One approach is to list the ad types per zone in the Management API, read a live Decision API response for that placement, and check that the eligible demand carries a matching size.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, a placement such as an in-article unit or an above-the-fold banner is defined by the ad types its zone accepts. You may want to confirm that the house, direct-sold, and programmatic demand pointed at that zone all carry creatives in those sizes, so a premium placement does not sit blank because the demand was trafficked at a size the zone never accepted.",
+          "ecommerce": "For a retailer running sponsored-product ads on its own site or app through Kevel, the sponsored slot in a search results grid or a product page rail accepts a specific set of ad types, often native creative templates rather than fixed display sizes. You may want to confirm that the sponsored-product demand is built to the same ad types the slot accepts, so a sponsored placement fills with a product card that fits the grid rather than returning blank or rendering a mismatched format."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Ad Sizes / Types",
+            "source_url": "https://dev.kevel.com/docs/ad-sizes"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Ads",
+            "source_url": "https://dev.kevel.com/docs/ads"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Zones Overview",
+            "source_url": "https://dev.kevel.com/docs/zones-overview"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the ad types declared on each zone, the ad types named in a live Decision API request for that placement, and the sizes of the creatives on the flights trafficked against it, then check that all three agree.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open 'Inventory', then 'Ad Sizes', and list the ad types in the network along with their dimensions and AdTypeIDs.",
+                "Open 'Inventory', then 'Sites', then the relevant zone, and note which ad types the zone and its channel accept.",
+                "Open the flights aimed at that zone and record the sizes of the creatives on them, then check whether those sizes are among the ad types the zone accepts."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "GET the ad types with the List Ad Types endpoint to confirm the AdTypeID for each size in use.",
+                "GET the zones and channels and read which ad types each accepts for the placement under review.",
+                "GET the flights and their ads for that zone and confirm each creative's size maps to an ad type the zone accepts, recording any flight whose size is not eligible."
+              ]
+            },
+            "kevel_decision_api": {
+              "label": "Kevel Decision API",
+              "steps": [
+                "Send a Decision API request for the placement exactly as the site or app sends it, including the ad types named in the placements array.",
+                "Inspect the response and note whether an ad was returned or the decision came back empty, which signals no eligible size matched.",
+                "Compare the ad types in the request against the ad types the zone accepts and against the sizes of the active demand, and record any place where the three disagree."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per placement, the ad types the zone accepts, the ad types named in the Decision API request, and the sizes of the creatives on the flights trafficked against it. A placement where all three agree and a live request returns an eligible ad passes. A placement that returns blank while flights are active, or where the request, the zone, and the demand name different sizes, is a fail recorded with the zone, the ad types involved, and the direction of the mismatch.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the zone ad types, the Decision API request ad types, and the trafficked creative sizes for each placement above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has placements where the ad types declared on the zone, the ad types named in the Decision Application Programming Interface (API) request, and the sizes of the trafficked demand do not all agree. When they disagree, Kevel either returns a blank ad because no eligible size matched, leaving the placement unfilled, or lets a flight win a slot it cannot fill cleanly. {{voice_recommend}} reconciling the three for each placement by listing the ad types per zone in the Management API, reading a live Decision API response, and confirming the eligible demand carries a matching size. After the change, recheck a live request for each placement to confirm an eligible ad returns at the size the slot expects."
+      }
+    },
+    {
+      "id": "kevel-ad-sizes-placements-not-isolated-overflow",
+      "title": "Placements are not isolated, so a creative can overflow its zone or disrupt the layout",
+      "category": "inventory",
+      "subcategory": "ad_sizes_placements",
+      "impact_score": 2,
+      "impact_rationale": "When a zone accepts ad types wider or taller than the slot the page reserved, or the rendered ad code does not constrain the creative to its container, a winning creative can render larger than its space and push or cover surrounding content. The result is a degraded reading or shopping experience and, on a retail or media surface, a layout shift that the operator did not intend.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "ad-experience",
+        "inventory"
+      ],
+      "educate": {
+        "base": "A Kevel zone can accept more than one ad size, which is useful for a placement meant to hold a range of formats. The same flexibility creates a risk when the sizes a zone accepts are wider or taller than the space the page or app reserved for that slot. Kevel decides which ad wins, but the surface decides how much room the slot has, and the two are configured separately. If a creative larger than the reserved space wins, it renders into a container that cannot hold it, and the overflow pushes, overlaps, or covers the content around it.<br><br>The rendered ad code is where the constraint either holds or fails. The Decision API returns the creative and its dimensions, and the markup that places it on the page decides whether the slot is sized to the creative or left to expand. A placement that hard-codes a container matching the ad type it expects keeps a winning creative inside its bounds. A placement that lets the slot grow to whatever the creative reports, or that accepts ad types it has no room to display, hands control of the layout to the demand.<br><br>Isolation also means one placement's creative should not reach into another. Zones overlapping on the same part of the page, or a single request that returns several ads without distinct containers, can let one creative render over the space meant for another. The audit question is whether each placement is bounded to the sizes it can actually show and whether the rendered code holds each creative inside its own container. A few signs point to a placement that is not isolated:<ul><li>A zone accepts ad types larger than the space the page or app reserved for that slot</li><li>The rendered ad code does not size the container to the expected ad type, so the slot expands to whatever the creative reports</li><li>Overlapping zones or a multi-ad request render creatives into the same region without separate, bounded containers</li></ul>You may want to confirm that each placement accepts only the sizes it has room to display and that the rendered code holds each creative inside its container. One approach is to list the ad types per zone, compare them against the reserved slot dimensions on the surface, and load the placement to watch whether a larger creative stays within bounds.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app, an in-content placement sits among the article text, so a creative that overflows its slot pushes the copy and disrupts the reading experience. You may want to confirm that the in-content zone accepts only the ad types the layout reserved room for, and that the rendered slot is sized to those ad types rather than left to expand to whatever wins.",
+          "ecommerce": "For a retailer running sponsored-product ads through Kevel, a sponsored slot lives inside a product grid or a results page where every cell is sized to a product card. You may want to confirm that the sponsored zone accepts only the native or display sizes that fit a grid cell, so a sponsored creative renders as a card the same size as the organic results rather than overflowing the cell and shifting the grid."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Zones Overview",
+            "source_url": "https://dev.kevel.com/docs/zones-overview"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Ad Sizes / Types",
+            "source_url": "https://dev.kevel.com/docs/ad-sizes"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the ad types each zone accepts against the dimensions of the slot the surface reserved, and load the placement to watch whether a winning creative stays inside its container.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open 'Inventory', then 'Sites', then the zone under review, and list the ad types it accepts with their dimensions.",
+                "Compare those dimensions against the space the page or app reserves for that slot, and note any ad type larger than the reserved area.",
+                "Record any zone that accepts a size it has no room to display, or any zones that overlap on the same region of the surface."
+              ]
+            },
+            "kevel_decision_api": {
+              "label": "Kevel Decision API",
+              "steps": [
+                "Send a Decision API request for the placement and read the dimensions of the creative returned in the response.",
+                "Load the placement on the page or app and watch whether the rendered creative stays inside the reserved container or overflows it, pushing or covering nearby content.",
+                "Repeat across the larger ad types the zone accepts and record any case where a winning creative renders beyond its slot or into a neighboring one."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per placement, the ad types the zone accepts, the dimensions of the slot the surface reserved, and whether a loaded creative stays inside its container. A placement that accepts only sizes it has room to show, with rendered code that holds each creative inside a bounded container, passes. A zone that accepts ad types larger than its reserved space, or a placement where a creative overflows or reaches into a neighboring slot, is a fail recorded with the zone, the oversized ad type, and the layout effect observed.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the accepted ad types, the reserved slot dimensions, and whether a loaded creative stays in bounds for each placement above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has placements that are not isolated to the sizes they can display, so a winning creative can overflow its zone and disrupt the surrounding layout. A Kevel zone accepts the ad types it is configured for, but the page reserves the space, and when the accepted sizes are larger than that space, or the rendered code lets the slot expand, an oversized creative pushes or covers nearby content. {{voice_recommend}} restricting each zone to the ad types the slot has room for, sizing the rendered container to those ad types, and separating any overlapping zones so each creative stays in its own bounds. After the change, load each placement with the larger accepted sizes to confirm the creative renders inside its container."
+      }
+    }
+  ]
+}

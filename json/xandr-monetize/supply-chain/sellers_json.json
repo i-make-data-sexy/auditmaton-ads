@@ -1,0 +1,157 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://iabtechlab.com/sellers-json/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Supply-chain transparency decides whether buyers can trace a publisher's inventory back to an authorized, named source, and a gap in that trace can route spend away from the publisher toward inventory that looks safer to a buyer. The check is a review of how Microsoft Monetize represents the publisher in sellers.json and how it passes the SupplyChain object, so it costs reading time against published files and bid records rather than rebuild time. The finding points to a concrete transparency fix the publisher can confirm with the platform.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Supply-chain transparency lets a buyer trace a bid request back through every party that touched it to a named, authorized seller, and it is the trust layer that programmatic demand increasingly checks before it spends. Microsoft Monetize (formerly Xandr Monetize, built on AppNexus) is a sell-side platform, so it publishes a sellers.json file that names the publisher accounts it represents and it carries the SupplyChain object that records the chain of intermediaries on each request. This subcategory is about whether those two mechanisms describe the publisher accurately and completely. These checks confirm that the publisher's sellers.json entry matches the seller relationship the publisher actually has, and that the SupplyChain object reaches the buyer intact rather than broken or incomplete.",
+  "audit_checks": [
+    {
+      "id": "xandr-monetize-sellers-json-entry-mismatch",
+      "title": "The sellers.json entry does not match the publisher's seller ID and relationship",
+      "category": "supply-chain",
+      "subcategory": "sellers_json",
+      "impact_score": 3,
+      "impact_rationale": "A buyer cross-checks the seller ID in the SupplyChain object against the platform's sellers.json before trusting the inventory. If the publisher's entry carries the wrong seller ID, the wrong relationship type, or is marked confidential when the publisher meant to be disclosed, the trace breaks and a cautious buyer can discount or skip the bid, so the mismatch reduces demand on inventory that is otherwise legitimate.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "A sellers.json file is a public document a sell-side platform publishes to name every account it sells on behalf of. The Interactive Advertising Bureau (IAB) Tech Lab sellers.json specification defines each entry as a seller record that pairs a seller ID with a relationship type and a name, so a buyer can look up any seller ID it sees in a bid request and confirm who stands behind it. Microsoft Monetize (formerly Xandr Monetize) publishes this file as a sell-side platform, and the publisher's account appears in it as one of those seller records.<br><br>The relationship type on the record matters. A 'DIRECT' relationship means the platform is selling inventory that the named seller owns or controls directly, and a 'RESELLER' relationship means the platform is selling inventory that passes through the seller from another source. A publisher that owns its inventory expects a DIRECT record, so a record that reads RESELLER, or a record whose name and seller ID do not match the account the publisher operates, tells a buyer something the publisher did not intend.<br><br>The specification also lets a seller record be confidential, which hides the seller's name and domain from the public file while still listing the seller ID. A confidential record is a deliberate choice for sellers who do not want to be named publicly. A publisher that means to be disclosed, so buyers can see the brand behind the inventory, does not want a confidential flag set by default because a named, disclosed record is the stronger transparency signal for most publishers.<br><br>A few signs point to a sellers.json entry that does not match the publisher's intent:<ul><li>The seller ID in the published record does not match the account ID Microsoft Monetize assigned the publisher</li><li>The relationship reads RESELLER for inventory the publisher owns directly, or DIRECT for inventory the publisher resells</li><li>The record is marked confidential when the publisher meant to appear as a named, disclosed seller, or named when the publisher meant to stay confidential</li></ul>You may want to confirm that the published seller record matches the publisher's actual seller ID, relationship, and disclosure choice. One approach is to read the platform's published sellers.json, find the record for the publisher's seller ID, and compare each field against what the publisher expects before treating any difference as the platform's representation of record.",
+        "site_type_overlays": {
+          "publishing": "On a media site that owns and operates its own content, the seller relationship is usually DIRECT since the publisher controls the inventory it sells. You may want to confirm the record reads DIRECT and names the publisher rather than an intermediary, so buyers see the brand they are buying and the trace lands on the publisher.",
+          "ecommerce": "On a commerce-content site that runs ads alongside its own retail content, the inventory is owned directly, so a DIRECT, disclosed record fits. You may want to confirm the record names the commercial brand buyers recognize since a confidential or mismatched record on owned inventory weakens the transparency signal the brand benefits from."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "sellers.json and the SupplyChain Object",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "learn_more_note": "Microsoft Monetize's detailed configuration documentation for how it builds and publishes a publisher's sellers.json record is in the Microsoft Advertising partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the platform's published sellers.json, locate the record for the publisher's seller ID, and compare its relationship type and disclosure state against what the publisher intends.",
+        "tools": {
+          "free": {
+            "sellers_json_file": {
+              "label": "Published sellers.json file",
+              "steps": [
+                "Open the Microsoft Monetize sellers.json file at the platform's well-known sellers.json path in a browser.",
+                "Search the file for the seller ID Microsoft Monetize assigned the publisher's account, and locate the matching seller record.",
+                "Record the relationship type on the record, either 'DIRECT' or 'RESELLER', and whether the record is marked confidential or names the publisher.",
+                "Compare each field against the seller ID, relationship, and disclosure choice the publisher expects, and note any field that differs."
+              ]
+            },
+            "ads_txt_cross_check": {
+              "label": "ads.txt cross-check",
+              "steps": [
+                "Open the publisher's own ads.txt file and find the line that authorizes Microsoft Monetize with the same seller ID.",
+                "Confirm the relationship declared in ads.txt, DIRECT or RESELLER, matches the relationship on the sellers.json record for the same seller ID.",
+                "Note any case where ads.txt and sellers.json disagree on the relationship since a buyer reads both, and a disagreement breaks the trace."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the publisher's expected seller ID, relationship type, and disclosure choice, then compares them against the published sellers.json record and the matching ads.txt line. A record whose seller ID, relationship, and disclosure state all match the publisher's intent and agree with ads.txt passes. A record with a mismatched seller ID, a relationship that does not fit the inventory, a disclosure state the publisher did not choose, or a disagreement with ads.txt is a fail recorded with the fields that differ.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the published seller ID, relationship type, and disclosure state alongside what the publisher intends above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the sellers.json record Microsoft Monetize publishes for {{site_name}} does not match the publisher's intended seller ID, relationship type, or disclosure state. A buyer cross-checks the seller ID it sees in a request against this file before trusting the inventory, so a record that reads RESELLER for owned inventory, carries the wrong seller ID, or hides a publisher that meant to be disclosed breaks the trace and can cost demand. {{voice_recommend}} reading the published record for the publisher's seller ID, confirming the relationship and disclosure choice with the platform, and correcting any field that does not match so the record and the publisher's ads.txt agree. After the correction, recheck the published file to confirm the record names the publisher accurately."
+      }
+    },
+    {
+      "id": "xandr-monetize-sellers-json-supplychain-incomplete",
+      "title": "The SupplyChain object is incomplete or not passed end to end",
+      "category": "supply-chain",
+      "subcategory": "sellers_json",
+      "impact_score": 3,
+      "impact_rationale": "The SupplyChain object carries the ordered list of parties that touched a bid request, and its complete flag tells a buyer the chain shows every party. If a node is missing or the complete flag is set to 0, a buyer that filters on a verified chain can discount or skip the bid, so a broken chain reduces demand on inventory that the publisher sells legitimately.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "The SupplyChain object, often shortened to 'schain', travels inside a bid request and records every party that resold or passed the request on its way to the buyer. The Interactive Advertising Bureau (IAB) Tech Lab OpenRTB SupplyChain Object specification defines it as an ordered array of nodes, where each node names a party by its advertising system identifier and its seller ID, plus a 'complete' flag. The complete flag is the part a buyer reads first because a value of 1 says the chain shows every party in the transaction and a value of 0 says at least one party is missing.<br><br>Microsoft Monetize (formerly Xandr Monetize, built on AppNexus) sits in the chain as a sell-side platform, so it adds its own node and is responsible for passing along any node that came before it. When the publisher's inventory reaches Microsoft Monetize through a wrapper such as Prebid, the upstream nodes need to arrive intact and Microsoft Monetize needs to forward the whole chain to the buyer. Microsoft Monetize is Prebid-compatible, and the Prebid schain module documents how a publisher declares schain configuration in the wrapper so the object is built correctly before it reaches the platform.<br><br>An incomplete or broken chain shows up in a few ways. A node can be dropped so the chain names fewer parties than actually touched the request. The complete flag can read 0 when the chain should be complete, which signals to a buyer that the trace cannot be trusted. The seller ID inside a node can fail to match the seller's sellers.json, which is the same trace break the sellers.json check covers, seen from the request side.<br><br>A few signs point to a SupplyChain object that is not passing cleanly:<ul><li>The complete flag reads 0 on requests where the publisher expects a full, verified chain</li><li>A node is missing for a party known to be in the path, such as the wrapper or an upstream reseller</li><li>The seller ID in a node does not match the same party's record in its sellers.json file</li></ul>You may want to confirm that the SupplyChain object reaches buyers complete and that every node matches a published seller record. One approach is to inspect the schain configuration in the wrapper, then read the object on outgoing requests to confirm the node list is whole and the complete flag is set correctly.",
+        "site_type_overlays": {
+          "publishing": "On a media site that sells owned inventory directly, the chain is often short, frequently the publisher and the platform, so the complete flag should read 1 and every node should resolve to a named seller. You may want to confirm the short chain is marked complete rather than left at 0 since a short chain that reads incomplete still reads as untrustworthy to a buyer.",
+          "ecommerce": "On a commerce-content site that may route inventory through a wrapper alongside other demand sources, the chain can include the wrapper as a node. You may want to confirm the wrapper's schain configuration adds its node correctly and forwards the publisher's node, so the chain that reaches the buyer is complete rather than missing the wrapper."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Specification",
+            "source_title": "OpenRTB SupplyChain Object specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/openrtb/blob/main/supplychainobject.md"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Supply Chain (schain) module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/schain.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect the SupplyChain object on outgoing bid requests to confirm the node list names every party and the complete flag is set correctly, then trace the configuration back to the wrapper.",
+        "tools": {
+          "free": {
+            "request_inspection": {
+              "label": "Bid request inspection",
+              "steps": [
+                "Capture a sample of outgoing bid requests, for example through the browser network panel on a page that loads the wrapper, and find the SupplyChain object on each.",
+                "Read the 'complete' flag on each request and record whether it is set to 1 or 0.",
+                "List the nodes in the chain and confirm each expected party is present, including the publisher, the wrapper, and Microsoft Monetize.",
+                "Check that the seller ID inside each node matches that party's sellers.json record, and note any node that does not resolve."
+              ]
+            },
+            "prebid_schain_config": {
+              "label": "Prebid schain configuration",
+              "steps": [
+                "Open the wrapper configuration and find where the schain object is declared, either globally or per bidder.",
+                "Confirm the publisher's node lists the correct advertising system identifier and seller ID, and that the complete flag is set to reflect the real chain.",
+                "Record whether the wrapper forwards upstream nodes intact or whether it overwrites or drops any node before the request leaves the page."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, across a sample of outgoing requests, the value of the complete flag, the list of nodes present, and whether each node's seller ID resolves to a published seller record. Requests whose chain names every expected party, sets the complete flag to match the real chain, and whose nodes all resolve pass. Requests with a missing node, a complete flag that reads 0 when the chain should be whole, or a node whose seller ID does not resolve are a fail recorded with the requests and nodes affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the complete flag, the node list, and whether each node resolves to a published seller record above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the SupplyChain object on requests carrying {{site_name}} inventory is incomplete or not passing end to end, with a missing node or a complete flag that reads 0 where the chain should be whole. A buyer reads this object to trace every party that touched the request, so a broken chain signals that the trace cannot be trusted and can cost demand on inventory the publisher sells legitimately. {{voice_recommend}} inspecting the schain configuration in the wrapper, confirming the node list names every party including the wrapper and Microsoft Monetize, and setting the complete flag to match the real chain so the object reaches buyers intact. After the change, recheck a sample of outgoing requests to confirm the chain is whole and every node resolves to a published seller record."
+      }
+    }
+  ]
+}

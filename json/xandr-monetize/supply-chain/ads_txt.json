@@ -1,0 +1,161 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://iabtechlab.com/ads-txt/",
+  "worth_it": "Yes",
+  "worth_it_explanation": "An ads.txt or app-ads.txt file is the public record buyers read to decide whether a Microsoft Monetize line is authorized to sell a publisher's inventory, so an entry that is missing, mistyped, or carries the wrong relationship designation can cost a publisher bids on inventory that is genuinely theirs. This check is a review of text the publisher already controls on their own domain, so it costs reading time rather than rebuild time, and the finding points to a specific line to add, correct, or remove.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "An ads.txt file (for web inventory) and an app-ads.txt file (for app inventory) are plain-text files a publisher posts on their own domain to declare publicly which companies are authorized to sell their advertising inventory. For inventory monetized through Microsoft Monetize (formerly Xandr Monetize), the file needs a line that names Microsoft Monetize's advertising system domain, the publisher's seller account ID on that platform, and whether the relationship is DIRECT or RESELLER. This subcategory checks that the Microsoft Monetize authorization is present and correct, and that no stale or unauthorized Microsoft Monetize lines are left in the file. The standard these files follow is the IAB Tech Lab Authorized Digital Sellers specification.",
+  "audit_checks": [
+    {
+      "id": "xandr-monetize-ads-txt-authorization-missing-or-wrong",
+      "title": "The Microsoft Monetize authorization line is missing or carries the wrong account ID or relationship",
+      "category": "supply-chain",
+      "subcategory": "ads_txt",
+      "impact_score": 4,
+      "impact_rationale": "Buyers and bidders read ads.txt to confirm a seller is authorized before bidding. If the Microsoft Monetize line is absent, names the wrong seller account ID, or marks a direct relationship as RESELLER (or the reverse), demand-side platforms can treat the inventory as unauthorized and filter it out, so genuine inventory loses bids and revenue for a reason the publisher cannot see in their own reporting.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "An ads.txt file is a list of authorized sellers a publisher posts at the root of their domain, for example at the path '/ads.txt'. App inventory uses the parallel app-ads.txt file, which a buyer locates from the developer website listed on the app's store page. Each authorization is one line with a defined format. The first field is the advertising system's canonical domain, the second is the publisher's seller account ID on that system, the third is the relationship (DIRECT if the publisher contracts directly with the system, RESELLER if a third party is authorized to resell on the publisher's behalf), and an optional fourth field carries the system's certification authority ID. A demand-side platform reads these lines to confirm that the entity offering the inventory is one the publisher actually authorized.<br><br>For inventory sold through Microsoft Monetize (formerly Xandr Monetize, built on the AppNexus platform), the file needs a line that names Microsoft Monetize's advertising-system domain, the publisher's own seller account ID issued on that platform, and the correct relationship. The exact domain string and the seller account ID come from the publisher's Microsoft Monetize account, so the audit reads the platform's account details and confirms the ads.txt line matches them field for field.<br><br>Three mismatches each break the authorization in their own way. A missing line means buyers find no authorization at all, so they may treat the inventory as unauthorized. A wrong seller account ID points at a different seller, so the authorization does not apply to this publisher's inventory. A wrong relationship, for example DIRECT recorded as RESELLER, misstates how the inventory is sold, which some buyers screen on. The IAB Tech Lab specification defines all three fields precisely, so the test is whether the line on the domain matches what the platform issued.<br><br>A few signs point to a missing or incorrect Microsoft Monetize authorization:<ul><li>The ads.txt or app-ads.txt file has no line naming Microsoft Monetize's advertising-system domain</li><li>The seller account ID on the Microsoft Monetize line does not match the account ID shown in the publisher's Microsoft Monetize account</li><li>The relationship field reads RESELLER where the publisher contracts directly with Microsoft Monetize, or DIRECT where a third party manages the inventory</li></ul>You may want to confirm that the file carries a Microsoft Monetize line whose domain, seller account ID, and relationship each match what the platform issued. One approach is to read the authorized-seller details inside the Microsoft Monetize account and compare them against the live file on the domain.",
+        "site_type_overlays": {
+          "publishing": "A media publisher often sells through more than one platform and may have both direct and reseller arrangements running at once, so the Microsoft Monetize line has to state the relationship that matches this publisher's own contract rather than a relationship copied from another seller's example. You may want to confirm the DIRECT or RESELLER designation against how the publisher actually contracts with Microsoft Monetize.",
+          "ecommerce": "A commerce-content site that runs ads alongside its catalog may have added Microsoft Monetize after the ads.txt file was first written for a different setup, so the file can lack the line entirely. You may want to confirm the Microsoft Monetize authorization was added when the platform was introduced rather than assumed to be inherited from an earlier configuration."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt - Authorized Digital Sellers",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt 1.1 Implementation Guide",
+            "source_url": "https://iabtechlab.com/wp-content/uploads/2022/04/Ads.txt-1.1-Implementation-Guide.pdf"
+          }
+        ],
+        "learn_more_note": "Microsoft Monetize's detailed configuration documentation for the exact advertising-system domain and seller account ID to declare is in the Microsoft Advertising partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the live ads.txt and app-ads.txt files on the publisher's domain, then compare the Microsoft Monetize line against the seller account details inside the Microsoft Monetize account.",
+        "tools": {
+          "free": {
+            "live_file": {
+              "label": "Live ads.txt / app-ads.txt file",
+              "steps": [
+                "Open the file at the '/ads.txt' path on the publisher's root domain, and the '/app-ads.txt' path if the publisher has app inventory.",
+                "Find every line whose first field names Microsoft Monetize's advertising-system domain, and record the seller account ID and the relationship (DIRECT or RESELLER) on each.",
+                "Note whether a Microsoft Monetize line exists at all, and if so whether the seller account ID and relationship look complete and correctly formatted."
+              ]
+            },
+            "monetize_account": {
+              "label": "Microsoft Monetize account",
+              "steps": [
+                "Open the publisher's Microsoft Monetize account and locate the authorized-seller details, including the advertising-system domain to declare and the publisher's seller account ID.",
+                "Confirm whether the publisher's arrangement with Microsoft Monetize is a direct relationship or a reseller relationship.",
+                "Compare the domain, seller account ID, and relationship from the account against the line read from the live file, and record any field that does not match."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the Microsoft Monetize line from the live file (domain, seller account ID, relationship) alongside the values shown in the Microsoft Monetize account. A line that is present and matches the account on all three fields passes. A missing line, a seller account ID that does not match the account, or a relationship that misstates how the publisher contracts with Microsoft Monetize is a fail recorded with the field that diverges.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the Microsoft Monetize line from the live file and the seller account details from the platform above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the Microsoft Monetize authorization in {{site_name}}'s ads.txt file is missing or does not match the publisher's account. Buyers read ads.txt to confirm a seller is authorized before bidding, so an absent line, a wrong seller account ID, or a relationship that misstates DIRECT versus RESELLER can lead demand-side platforms to filter the inventory as unauthorized and withhold bids. {{voice_recommend}} comparing the advertising-system domain, the seller account ID, and the relationship in the Microsoft Monetize account against the live file, then correcting the line so all three fields match what the platform issued. After the fix, recheck the live file to confirm the corrected line is published on the root domain."
+      }
+    },
+    {
+      "id": "xandr-monetize-ads-txt-stale-or-duplicate-lines",
+      "title": "Stale, duplicate, or unauthorized Microsoft Monetize lines remain in the file",
+      "category": "supply-chain",
+      "subcategory": "ads_txt",
+      "impact_score": 3,
+      "impact_rationale": "An ads.txt file accumulates lines as platforms and resellers come and go. A Microsoft Monetize line left in place after a relationship ended, a duplicate of the current line, or a reseller line for a partner no longer authorized keeps an authorization public that no longer reflects the publisher's real selling arrangements, which weakens the transparency the file exists to provide and can keep a path open for inventory the publisher meant to close.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "transparency",
+        "compliance"
+      ],
+      "educate": {
+        "base": "An ads.txt file is meant to be a current statement of who is authorized to sell a publisher's inventory, but it grows rather than shrinks. Lines get added when a publisher onboards a platform or a reseller, and they are easy to leave behind when a relationship ends because nothing breaks when a stale line stays in place. Over time the file can carry authorizations that no longer match how the publisher actually sells, and that gap is the opposite of the transparency the file is supposed to provide.<br><br>For Microsoft Monetize specifically, three residue patterns show up. A stale line is an authorization for Microsoft Monetize, or for a reseller selling through it, that was valid once but no longer reflects a live arrangement, for example a line from a Xandr-era setup that was superseded rather than removed. A duplicate line repeats the current Microsoft Monetize authorization more than once, which adds no authorization and only clutters the file. An unauthorized line names a seller account ID or a reseller that the publisher did not authorize, which can mean the line was copied in error or added by a party that should not have it.<br><br>The IAB Tech Lab specification treats the file as the authoritative public list, so keeping it current is part of using it correctly. The OWNERDOMAIN and MANAGERDOMAIN values added in version 1.1 further tie the file to who actually owns and manages the inventory, which makes leftover lines from old arrangements more visible as inconsistencies. The audit reads every Microsoft Monetize line and reseller line that routes through Microsoft Monetize, then confirms each one maps to a relationship the publisher can still account for.<br><br>A few signs point to stale, duplicate, or unauthorized lines:<ul><li>More than one line declares the same Microsoft Monetize seller account ID</li><li>A Microsoft Monetize line, or a reseller line routing through it, names a partner the publisher no longer works with</li><li>A seller account ID appears on a Microsoft Monetize line that the publisher cannot match to an arrangement in their own records</li></ul>You may want to confirm that every Microsoft Monetize line and reseller line routing through it maps to a current, authorized relationship. One approach is to list each such line and reconcile it against the publisher's record of who is actually authorized to sell their inventory today.",
+        "site_type_overlays": {
+          "publishing": "A media publisher that has changed monetization partners over the years can carry several layers of old authorizations, including lines from the Xandr era that predate the Microsoft Monetize naming. You may want to reconcile each Microsoft Monetize and reseller line against the publisher's current partner list and remove the ones that no longer map to a live arrangement.",
+          "ecommerce": "A commerce-content site that tested more than one monetization setup may have added reseller lines during a trial and left them in after the trial ended. You may want to confirm that every reseller line routing through Microsoft Monetize reflects a partner the publisher still authorizes rather than a leftover from an earlier test."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "ads.txt - Authorized Digital Sellers",
+            "source_url": "https://iabtechlab.com/ads-txt/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json and the OpenRTB SupplyChain object",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "learn_more_note": "Microsoft Monetize's own list of the seller account IDs currently authorized for a publisher is in the Microsoft Advertising partner portal (login required), which is the reference for reconciling the lines in the file.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "List every Microsoft Monetize line and every reseller line routing through Microsoft Monetize in the file, then reconcile each against the publisher's record of currently authorized sellers.",
+        "tools": {
+          "free": {
+            "live_file": {
+              "label": "Live ads.txt / app-ads.txt file",
+              "steps": [
+                "Open the file at the '/ads.txt' path, and the '/app-ads.txt' path for app inventory, and list every line whose advertising-system domain is Microsoft Monetize's.",
+                "Flag any seller account ID that appears more than once, which is a duplicate authorization.",
+                "Record each reseller line that routes through Microsoft Monetize, noting the partner and seller account ID named on it."
+              ]
+            },
+            "monetize_account": {
+              "label": "Microsoft Monetize account and partner records",
+              "steps": [
+                "Open the publisher's Microsoft Monetize account and gather the seller account IDs currently authorized for this publisher.",
+                "Reconcile each Microsoft Monetize and reseller line from the file against the account and the publisher's record of current partners.",
+                "Record any line that names an account ID or a partner the publisher cannot account for as a current, authorized relationship."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner lists every Microsoft Monetize line and reseller line routing through Microsoft Monetize, with its seller account ID and partner, and reconciles each against the publisher's record of currently authorized sellers. A file where every such line maps to a current, authorized relationship and no seller account ID repeats passes. Any duplicate line, or any line naming an account ID or partner the publisher cannot account for today, is a fail recorded with the specific lines to remove.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "List the Microsoft Monetize and reseller lines from the file and reconcile them against the publisher's authorized-seller record above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}}'s ads.txt file carries stale, duplicate, or unauthorized lines tied to Microsoft Monetize. The file is meant to be a current statement of who may sell the publisher's inventory, so a line left over from an ended arrangement, a repeated seller account ID, or a reseller line for a partner that is no longer authorized weakens the transparency the file provides and can keep a selling path open that the publisher meant to close. {{voice_recommend}} reconciling every Microsoft Monetize line and reseller line routing through it against the publisher's record of currently authorized sellers, then removing the lines that no longer map to a live relationship and collapsing any duplicate. After the edit, recheck the live file to confirm only current, authorized Microsoft Monetize lines remain."
+      }
+    }
+  ]
+}

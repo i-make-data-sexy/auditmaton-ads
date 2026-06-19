@@ -1,0 +1,166 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "First-party audience signals are how a publisher keeps curated demand able to target without third-party cookies, so this check protects a revenue path that cookie deprecation makes more valuable each year. A Publisher Provided Identifier or first-party segment that is missing leaves curated and deal-based demand with nothing to match against on cookieless traffic, and a signal passed without checking it against the consent the user granted creates a compliance exposure rather than a revenue gain. The check is a review of signal wiring and consent scoping the publisher already has in place, so it costs reading and testing time rather than rebuild time, and the finding points to a concrete configuration decision the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "A Publisher Provided Identifier (PPID) and first-party audience segments are the signals a publisher passes into the bid stream so that curated demand and deals can find their audience when third-party cookies are absent. This subcategory covers two questions about those signals on Equativ. The first is whether the publisher passes a stable first-party identifier and audience data at all, so curated demand has something to target on cookieless traffic. The second is whether the audience data passed stays scoped to the consent each user granted, so the signal carries a legal basis rather than an exposure. These checks confirm the first-party signal is both present and consented, not one without the other.",
+  "audit_checks": [
+    {
+      "id": "equativ-ppid-audience-signal-not-passed",
+      "title": "First-party identifier and audience signals are not passed for cookieless demand",
+      "category": "identity",
+      "subcategory": "ppid_audience",
+      "impact_score": 3,
+      "impact_rationale": "Without a stable first-party identifier and audience data in the bid stream, curated demand and deals have nothing to match against on traffic where third-party cookies are absent, so those impressions fall back to lower-value contextual or remnant demand. The lost value grows as cookieless traffic grows, but the inventory still serves, so this is a revenue gap rather than an outage.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["data-quality", "privacy"],
+      "educate": {
+        "base": "Curated demand and deal-based buyers find their audience by matching an identifier or a set of audience segments against the impression in the bid request. On traffic that still carries a third-party cookie, the cookie does that work. On traffic without one, which includes Safari, Firefox, much of the in-app environment, and a growing share of Chrome, there is nothing for the buyer to match against unless the publisher supplies its own signal. A Publisher Provided Identifier (PPID) is that signal. It is a stable, first-party identifier the publisher controls and passes into the bid stream so curated demand can target the impression without a third-party cookie.<br><br>The identifier carries audience data alongside it. A publisher that has built first-party segments, for example a 'frequent reader' segment or a logged-in subscriber segment, attaches those segments to the request so a curated buyer can target them. Equativ is Prebid-compatible, so a common path is to set a publisher-provided identifier and first-party segments in Prebid and let the adapter carry them into the bidstream in the OpenRTB extended-identifier and user-data fields. The identifier also commonly syncs to an ad server such as Google Ad Manager (GAM), where it drives first-party audience targeting and frequency capping when other identifiers are unavailable.<br><br>The audit question is whether any of this is wired up. A publisher can have first-party data and never pass it, in which case the cookieless inventory reaches curated demand with no audience signal at all and clears at whatever contextual or remnant price is available. The signal being present is what keeps the first-party data path earning on the inventory that has lost the cookie.<br><br>A few signs point to a first-party signal that is not being passed:<ul><li>No publisher-provided identifier appears in the bid request on cookieless browsers, only the contextual fields</li><li>First-party audience segments exist in the publisher's data tooling but never reach the bid stream</li><li>Curated demand and deals report low match rates or low spend specifically on Safari, Firefox, and in-app traffic</li></ul>You may want to confirm that a stable first-party identifier and the publisher's audience segments reach the bid stream on cookieless traffic. One approach is to inspect a bid request from a cookieless browser and check for the identifier and segment fields before assuming curated demand can target the impression.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a logged-in or registered audience is the strongest first-party signal a publisher holds, and segments such as a subscriber tier or a topic-affinity segment let curated demand target readers it cannot reach by cookie. You may want to confirm the identifier is set for logged-in sessions and that the reader segments built from on-site behavior reach the bid stream rather than staying inside the analytics or data tooling.",
+          "ecommerce": "On a commerce-content site, first-party segments built from product interest or purchase behavior are valuable to curated demand because they signal intent. You may want to confirm that those commerce segments, e.g., a cart-abandoner or a category-browser segment, are passed alongside the first-party identifier so curated buyers can target the higher-intent audience on cookieless traffic."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "PubProvided ID submodule",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/pubprovided.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "First Party Data for header bidding",
+            "source_url": "https://docs.prebid.org/features/firstPartyData.html"
+          },
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Publishers overview",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-publishers"
+          }
+        ],
+        "learn_more_note": "Equativ's detailed configuration documentation for setting up publisher-provided identifiers and first-party audience signals is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect a bid request from a cookieless browser to confirm a first-party identifier and audience segments are present, and review whether the publisher's first-party segments are wired into the bid stream at all.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the site in a browser that blocks third-party cookies by default, e.g., Safari or Firefox, and open the developer tools network panel.",
+                "Filter for the bid requests sent to Equativ and to any Prebid endpoints, then inspect the request payload.",
+                "Confirm whether a publisher-provided identifier is present in the extended-identifier fields (e.g., the OpenRTB 'eids' or 'user.ext') and whether first-party segments appear in the user-data fields.",
+                "Repeat in a logged-in session if the site has authentication since the identifier is often set only for known users, and record whether the signal appears for both states."
+              ]
+            },
+            "prebid_debug": {
+              "label": "Prebid debugging",
+              "steps": [
+                "Enable Prebid debugging in the browser console and read the configured user ID submodules and first-party data set on the auction.",
+                "Confirm whether a publisher-provided identifier submodule is configured and whether first-party segments are set on the ortb2 user or site data.",
+                "Record which segments, if any, reach the bid request, and note any segment that exists in the publisher's data tooling but is absent from the auction."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a stable first-party identifier and the publisher's audience segments are present in the bid request on cookieless traffic, checked against both logged-out and logged-in states where applicable. A setup where the identifier and the relevant segments reach the bid stream on cookieless browsers passes. A setup where no first-party identifier is passed, or where segments that exist in the publisher's data tooling never reach the bid request, is a fail recorded with the browsers and signal types affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a first-party identifier and audience segments appear in the bid request on cookieless traffic above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} does not pass a stable first-party identifier or audience segments into the bid stream on cookieless traffic, so curated demand and deals have no audience signal to match against on browsers where the third-party cookie is absent. Those impressions fall back to contextual or remnant demand and clear below what a targeted curated buyer would have paid, and the gap grows as cookieless traffic grows. {{voice_recommend}} setting a Publisher Provided Identifier (PPID) and the relevant first-party segments through Prebid so the adapter carries them into the bidstream, then inspecting a bid request from a cookieless browser to confirm the identifier and segments are present. After the change, watch curated match rates and spend on Safari, Firefox, and in-app traffic to confirm the signal reaches demand."
+      }
+    },
+    {
+      "id": "equativ-ppid-audience-consent-scope",
+      "title": "Audience data is passed beyond the scope of the consent the user granted",
+      "category": "identity",
+      "subcategory": "ppid_audience",
+      "impact_score": 4,
+      "impact_rationale": "Passing a first-party identifier or audience segments without checking them against the consent each user granted creates a compliance exposure under the General Data Protection Regulation (GDPR) and similar laws since the identifier and segments are personal data processed for advertising. A signal sent where consent was refused is unlawful processing rather than a configuration nuisance, which is why this sits higher than a revenue-only gap.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "A first-party identifier and the audience segments attached to it are personal data when they are used to target advertising, so passing them carries a legal-basis question alongside the revenue one. In the European Economic Area and the United Kingdom, the legal basis is recorded in the consent signal the user's consent management platform (CMP) produces. Under the IAB Europe Transparency and Consent Framework (TCF), that signal is the Transparency and Consent (TC) String, which records per-purpose and per-vendor consent. The purposes most relevant here are the ones covering creating a personalised ads profile and selecting personalised ads. The Global Privacy Platform (GPP) wraps the TC String and the United States state signals into a single string that travels through the supply chain.<br><br>The principle the framework sets out is that a vendor should evaluate the consent signal before processing, and the publisher's own pipeline carries the same duty. If a user refused consent for audience-based advertising, the first-party identifier and segments should not be attached to that user's bid requests. The exposure appears when the audience signal is wired to pass for every session regardless of the consent state, so the identifier and segments go out even when the user declined.<br><br>The audit question is whether the audience signal is gated on the consent the user granted. A correctly scoped setup reads the TC String or GPP string, confirms consent for the relevant purposes, and only then attaches the identifier and segments. A setup that passes the signal unconditionally treats consented and non-consented users the same, which is the failure mode to look for. The same scoping applies to identifier graphs built from authenticated data, e.g., Unified ID 2.0 (UID2), where the token should only be generated and passed where the user agreed to that use.<br><br>A few signs point to audience data passed beyond the granted consent:<ul><li>The first-party identifier and segments appear in the bid request even when the consent signal records a refusal for personalised-ads purposes</li><li>The signal-passing logic has no read of the TC String or GPP string before it attaches the identifier and segments</li><li>An authenticated identifier such as a UID2 token is generated for users who did not agree to that processing</li></ul>You may want to confirm that the first-party identifier and segments are gated on the consent each user granted. One approach is to set the CMP to a refused state for the personalised-ads purposes, then inspect the bid request to confirm the audience signal is withheld rather than sent.",
+        "site_type_overlays": {
+          "publishing": "On a media site with readers across the European Economic Area, a sizeable share of sessions will carry a refused or partial consent signal, so the gating logic is exercised constantly rather than rarely. You may want to test the bid request under a refused TC String specifically since a setup that looks correct for consented readers can still pass the identifier for the readers who declined.",
+          "ecommerce": "On a commerce-content site, the first-party segments are often built from purchase and browsing behavior, which makes their consent basis more sensitive because they describe commercial intent tied to a person. You may want to confirm that those behavioral segments are gated on consent for the profiling and personalised-ads purposes, not only on a general analytics consent that does not cover advertising use."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Europe TCF",
+            "source_title": "TCF Implementation Guidelines",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/GDPR-Transparency-and-Consent-Framework/blob/master/TCFv2/TCF-Implementation-Guidelines.md"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform Explained",
+            "source_url": "https://dev.iabtechlab.com/global-privacy-platform-explained/"
+          },
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Publishers overview",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-publishers"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Test the bid request under a refused consent state to confirm the first-party identifier and audience segments are withheld, and review the signal-passing logic for a consent check before it attaches the audience data.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the site, reach the consent management platform (CMP) prompt, and refuse consent for the personalised-ads and profiling purposes.",
+                "Open the developer tools network panel and inspect the bid requests sent to Equativ and any Prebid endpoints.",
+                "Confirm whether the publisher-provided identifier and the audience segments are absent from the request under the refused state, which is the correct outcome, or present, which is the exposure.",
+                "Repeat with consent granted to confirm the signal does appear when it should, so the difference shows the gating is working rather than the signal being broken for everyone."
+              ]
+            },
+            "consent_signal_check": {
+              "label": "Consent signal inspection",
+              "steps": [
+                "Read the Transparency and Consent (TC) String or Global Privacy Platform (GPP) string the CMP produces, e.g., via the CMP API in the console, for both a consented and a refused session.",
+                "Note which purposes are signaled as consented in each state, focusing on the purposes covering personalised-ads profile creation and selection.",
+                "Compare the consent state against whether the identifier and segments were passed, and record any case where the signal went out despite a refusal."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a consented session and a refused session, whether the first-party identifier and audience segments appeared in the bid request, alongside the consent state read from the TC String or GPP string. A setup where the identifier and segments are passed when consent is granted and withheld when consent is refused passes. A setup where the audience signal appears under a refused consent state, or where the signal-passing logic reads no consent string before attaching the identifier and segments, is a fail recorded with the purposes and signal types affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the identifier and segments are passed under a consented versus a refused consent state above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes a first-party identifier and audience segments without gating them on the consent each user granted, so the audience signal goes out even for users whose consent signal records a refusal for personalised-ads purposes. The identifier and segments are personal data when used for advertising, so a signal sent against a refusal is unlawful processing under the General Data Protection Regulation (GDPR) rather than a configuration nuisance. {{voice_recommend}} adding a read of the Transparency and Consent (TC) String or Global Privacy Platform (GPP) string before the identifier and segments are attached, so the signal passes only where consent for the relevant purposes was granted. After the change, test a refused consent state and confirm the audience signal is withheld while a consented state still passes it."
+      }
+    }
+  ]
+}

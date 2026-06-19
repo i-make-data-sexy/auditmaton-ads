@@ -1,0 +1,170 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Unified ID 2.0 (UID2) and European Unified ID (EUID) tokens give a logged-in publisher's inventory an addressable signal that buyers can target without a third-party cookie, so a working integration can raise the value of authenticated impressions in the bid stream Equativ forwards to demand-side platforms (DSPs). The check reads a configuration the publisher already runs rather than rebuilding it, so it costs reading and console time. Two things move the result. A token that never reaches the bid stream collects no value, and a token generated without a legal basis is a compliance exposure rather than a revenue gain, so the finding points to a concrete fix on either side.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "UID2 and EUID turn a consented email or phone number a publisher collects at login into an encrypted token that can be passed into the bid stream, giving buyers an addressable signal on authenticated inventory without a third-party cookie. Equativ can decrypt, process, and forward these identifiers, and it surfaces them in reporting through the 'Extended Ids' dimension. This subcategory is about whether that integration is wired correctly on the publisher's side, so the tokens are generated, refreshed, and passed where a legal basis exists, and held back where it does not. These checks confirm the integration earns value on consented inventory rather than sitting idle, and that consent gates token generation rather than running ahead of it.",
+  "audit_checks": [
+    {
+      "id": "equativ-uid2-euid-token-not-in-bidstream",
+      "title": "UID2 or EUID tokens are not reaching the bid stream on consented inventory",
+      "category": "identity",
+      "subcategory": "uid2_euid",
+      "impact_score": 3,
+      "impact_rationale": "An identity token earns value only when it reaches the bid stream a DSP reads. A UID2 or EUID integration that generates tokens but fails to pass them in the ad call to Equativ, or generates none at all on authenticated traffic, leaves the addressable signal uncollected on inventory the publisher already gathered consent for, so the authenticated audience clears as if it were anonymous.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "Unified ID 2.0 (UID2) and European Unified ID (EUID) work the same way at the publisher level. When a user logs in and consents, the publisher sends the hashed or unhashed email or phone number to a UID2 or EUID operator, which salts, hashes, and encrypts it into a token. That token, an advertising token paired with a refresh token, is what carries the addressable signal. For the signal to be worth anything, the token has to travel into the bid stream, which on a header-bidding setup means it lands in the user ID array (the 'eids' array) on the bid request that Equativ forwards to demand-side platforms (DSPs).<br><br>Equativ sits downstream of token generation. It can decrypt, process, and share UID2, EUID, and other extended identifiers received in the ad call, and it forwards the 'eids' it receives to DSPs in the bid request. What Equativ cannot do is generate a token the publisher never created or pass one the publisher never sent. So a gap on the publisher side, a token that is generated but never written to the bid request, or never generated on authenticated traffic in the first place, leaves Equativ with nothing to forward.<br><br>Prebid is the usual integration path, and Equativ is Prebid-compatible. The Prebid UID2 and EUID submodules read a server-generated token and place it in the user ID array, either from a cookie the publisher sets or from a value passed through configuration. The token is generated on the server side by calling the operator, then kept refreshed because an expired token stops being usable and the refresh chain has to keep it current.<br><br>A few signs point to tokens that are generated but not reaching the bid stream:<ul><li>The publisher confirms a UID2 or EUID integration exists, yet Equativ's 'Extended Ids' reporting dimension shows little to no extended-ID volume on authenticated traffic</li><li>The Prebid user ID submodule for UID2 or EUID is not enabled in the build, or its configuration does not point at where the token is stored</li><li>Tokens are generated at login but the refresh chain is not maintained, so they expire and drop out of later bid requests</li></ul>You may want to confirm the token is generated on consented logged-in traffic and that it lands in the bid request Equativ receives. One approach is to read the 'Extended Ids' dimension in Equativ reporting against the share of authenticated impressions, then inspect a sample bid request to see whether the UID2 or EUID token is present in the user ID array.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the authenticated audience is usually the registered or subscribed readers, and that logged-in inventory is where a UID2 or EUID token can be generated. You may want to confirm the token fires on the registration or subscription login flow and reaches the bid stream, rather than checking only the anonymous traffic where no token can exist.",
+          "ecommerce": "On a commerce-content site, account holders and signed-in shoppers are the authenticated audience that can carry a token. You may want to confirm the token is generated at account login and passed on those sessions since the higher-intent signed-in inventory is where the addressable identifier earns the most in the bid stream."
+        },
+        "learn_more": [
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Publishers overview",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-publishers"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Unified ID 2.0 for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/unified2.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "European Unified ID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/euid.html"
+          },
+          {
+            "source_type": "Equativ Help Center",
+            "source_title": "Extended ID integration (alternative/universal IDs)",
+            "source_url": "https://help.equativ.com/extended-id-integration-alternativeuniversal-ids"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether UID2 or EUID tokens are generated on authenticated traffic and whether they reach the bid request Equativ forwards, then read the extended-ID volume Equativ reports against the authenticated audience.",
+        "tools": {
+          "free": {
+            "equativ_reporting": {
+              "label": "Equativ Instant Report Builder",
+              "steps": [
+                "Open 'Reports', then 'Instant Report Builder', and add the 'Extended Ids' dimension, which shows the extended user IDs sent in the ad call to Equativ.",
+                "Filter to the inventory that should carry authenticated traffic and read the share of impressions that arrived with a UID2 or EUID token versus none.",
+                "Record whether the extended-ID volume is in line with the authenticated audience or close to zero, which would point to tokens not reaching the bid stream."
+              ]
+            },
+            "prebid_inspection": {
+              "label": "Prebid bid-request inspection",
+              "steps": [
+                "On a logged-in test session, open the browser developer tools and capture a Prebid bid request to Equativ.",
+                "Inspect the user ID array (the 'eids' array) on the request for a UID2 source (uidapi.com) or an EUID source (euid.eu) and confirm a token value is present.",
+                "Check the Prebid build and 'setConfig' for the UID2 or EUID user ID submodule, and confirm it points at where the server-generated token is stored.",
+                "Ask the publisher whether the token refresh chain is maintained after login since an expired token drops out of later bid requests, and record what you find."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a UID2 or EUID token is generated on consented authenticated traffic, whether it is present in the user ID array of the bid request Equativ receives, and what extended-ID volume Equativ's 'Extended Ids' dimension reports against the authenticated audience. A setup where tokens are generated, passed into the bid stream, and reflected in reporting on authenticated inventory passes. A setup where the integration exists but tokens do not reach the bid request, or extended-ID volume is near zero on authenticated traffic, is a fail recorded with the inventory and the point in the chain where the token is lost.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the token is generated, whether it appears in the bid request, and the extended-ID volume Equativ reports above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs a Unified ID 2.0 (UID2) or European Unified ID (EUID) integration whose tokens are not reaching the bid stream on consented authenticated inventory, so the addressable signal goes uncollected and the logged-in audience clears as if it were anonymous. Equativ forwards the extended IDs it receives in the ad call to demand-side platforms (DSPs), but it can only pass a token the publisher generates and writes into the bid request. {{voice_recommend}} confirming the token is generated on consented logged-in traffic, enabling and configuring the UID2 or EUID Prebid submodule so the token lands in the user ID array, and maintaining the refresh chain so it does not expire out of later requests. After the change, read the 'Extended Ids' dimension in Equativ reporting against the authenticated audience to confirm the volume rises."
+      }
+    },
+    {
+      "id": "equativ-uid2-euid-consent-not-gating-generation",
+      "title": "UID2 or EUID token generation is not gated on a recorded legal basis",
+      "category": "identity",
+      "subcategory": "uid2_euid",
+      "impact_score": 4,
+      "impact_rationale": "UID2 and EUID both require user consent before an identifier is created and added to the bid stream, and EUID is built for markets where that legal basis is mandatory. Generating a token without a recorded consent signal, or before the consent management platform has resolved the user's choice, turns the integration into a privacy and regulatory exposure rather than a revenue gain, and it can put the publisher offside of the very framework the identifier depends on.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "data-quality"],
+      "educate": {
+        "base": "Unified ID 2.0 (UID2) and European Unified ID (EUID) are built on a consent-first principle. Both rely on user consent before an ID can be added to the bid stream, and the token generation logic itself checks for opt-out, so a user who has opted out gets no token. EUID extends this for European markets, where it pairs the identifier with privacy controls meant to meet the legal requirements of many European countries and some other regions such as the UK. Consent is not an optional layer on top of the identifier. It is the condition the identifier depends on.<br><br>The legal basis is gathered through the publisher's own login and consent mechanism or through a single sign-on (SSO) provider that has integrated against the framework. In practice on a European site, that means the consent management platform (CMP) and the Transparency and Consent Framework (TCF) signal, or the Global Privacy Platform (GPP) string, has to resolve the user's choice before a hashed email or phone number is sent to the operator. If the token is generated before the CMP returns a decision, or regardless of what it returns, the integration has created an identifier without the legal basis the framework requires.<br><br>The audit question is whether token generation is sequenced behind a recorded consent signal rather than running ahead of it. A correctly gated integration generates the token only after the CMP confirms a legal basis, refreshes it only while that basis holds, and stops the refresh chain when the user opts out so the token is not used again. A wrongly gated one fires at login regardless of the consent state, which is the case that turns an addressable-signal integration into a compliance exposure.<br><br>A few signs point to token generation that is not gated on a recorded legal basis:<ul><li>The call to the UID2 or EUID operator fires at login without first reading the CMP or consent signal for the relevant purpose</li><li>Tokens appear for users whose TCF or GPP string records no consent, or before the CMP has resolved a choice</li><li>The refresh chain continues after a user opts out, rather than stopping so the token is not reused</li></ul>You may want to confirm that token generation waits on a recorded consent signal and stops on opt-out. One approach is to trace the login flow with the CMP set to decline, then to accept, and confirm a token is generated only in the accept case and is dropped when consent is later withdrawn.",
+        "site_type_overlays": {
+          "publishing": "On a media site serving European readers, the registration or subscription login is where both the consent prompt and the token generation live, so the order between them matters. You may want to confirm the CMP resolves the user's choice before the operator call fires, so a reader who declines is never turned into a token.",
+          "ecommerce": "On a commerce-content site with account login, the consent signal for advertising identifiers can sit apart from the terms a shopper accepts to create an account. You may want to confirm the UID2 or EUID call reads the advertising-purpose consent specifically, rather than treating account creation as a blanket legal basis for generating the identifier."
+        },
+        "learn_more": [
+          {
+            "source_type": "European Unified ID Documentation",
+            "source_title": "Publishers overview",
+            "source_url": "https://euid.eu/docs/overviews/overview-publishers"
+          },
+          {
+            "source_type": "Unified ID 2.0 Documentation",
+            "source_title": "Publishers overview",
+            "source_url": "https://unifiedid.com/docs/overviews/overview-publishers"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "European Unified ID for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/userid-submodules/euid.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the login flow to see whether the UID2 or EUID operator call waits on a recorded consent signal, and whether token generation and refresh stop when a user declines or opts out.",
+        "tools": {
+          "free": {
+            "consent_flow_trace": {
+              "label": "Consent flow trace",
+              "steps": [
+                "On a test session with the consent management platform (CMP) set to decline the advertising purpose, complete login and capture the network calls.",
+                "Confirm no call to the UID2 or EUID operator fires and no token is generated in the decline case.",
+                "Repeat with the CMP set to accept and confirm the operator call fires only after the CMP resolves the choice, not before.",
+                "Withdraw consent on an already-tokenized session and confirm the refresh chain stops so the token is not reused."
+              ]
+            },
+            "cmp_signal_check": {
+              "label": "CMP and consent signal review",
+              "steps": [
+                "Identify which consent signal gates the integration, the Transparency and Consent Framework (TCF) string, the Global Privacy Platform (GPP) string, or a publisher-built consent flag.",
+                "Confirm the signal records consent for the advertising purpose the identifier depends on, rather than a general account or terms acceptance.",
+                "Record whether token generation reads that signal before calling the operator, and whether any token appears for users whose signal records no consent."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the UID2 or EUID operator call is sequenced behind a resolved consent signal, whether tokens appear for users whose consent signal records no legal basis, and whether the refresh chain stops on opt-out. A setup where token generation fires only after a recorded consent signal confirms a legal basis and stops on withdrawal passes. A setup where tokens are generated before the CMP resolves, regardless of the consent state, or kept refreshing after opt-out is a fail recorded with the point in the flow where generation runs ahead of consent.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether token generation waits on a resolved consent signal and stops on opt-out above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} generates Unified ID 2.0 (UID2) or European Unified ID (EUID) tokens without gating that generation on a recorded legal basis, so an identifier can be created before the consent management platform (CMP) resolves the user's choice or regardless of what it records. Both frameworks require user consent before an ID is added to the bid stream, and EUID is built for markets where that basis is mandatory, so an ungated integration is a regulatory exposure rather than a revenue gain. {{voice_recommend}} sequencing the operator call behind a resolved consent signal so a token is generated only when the legal basis is confirmed, reading the advertising-purpose consent specifically, and stopping the refresh chain on opt-out so the token is not reused. After the change, trace the login flow with consent declined and then accepted to confirm a token is generated only in the accept case."
+      }
+    }
+  ]
+}

@@ -1,0 +1,161 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://dev.kevel.com/docs/priorities",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Priorities and flights decide which ad wins every decision the Kevel engine makes, so a tier set by default or a flight date range left loose changes which demand serves and which sits idle. The check reads the priority tiers and flight settings already in place rather than rebuilding them, so it costs reading time, and the finding points to a precedence rule or a flight setting the operator can adjust and measure.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Priorities and flights are the business rules that decide which ad wins inside a Kevel ad server. A priority is a tier in the waterfall, where the engine fills an impression with the highest tier first and cascades down through lower tiers when inventory is left, so the tier a flight sits in sets where it falls in line against other demand. A flight carries the date range, the goal, the rate, and the priority that place it in that line. This subcategory confirms that the priority tiers are deliberate, so higher-value flights win where they should and house ads serve only when paid demand is exhausted, and that flight date ranges, weights, and priorities are set so flights compete as intended rather than starving one another.",
+  "audit_checks": [
+    {
+      "id": "kevel-priority-flights-tiers-not-deliberate",
+      "title": "Priority tiers are not deliberate, so house ads can outrank or undercut paid demand",
+      "category": "delivery",
+      "subcategory": "priority_flights",
+      "impact_score": 3,
+      "impact_rationale": "Priority is what decides which flight wins when more than one could serve, so a tier set by default or assigned without a plan changes which demand fills an impression. House ads placed in a tier alongside paid demand can take impressions that a paying advertiser would have filled, and a guaranteed sponsorship placed too low can lose to remnant demand that should sit beneath it, so the precedence does not match the value of the demand.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "yield",
+        "performance"
+      ],
+      "educate": {
+        "base": "Kevel decides which ad wins through a waterfall of priorities. A priority is a tier numbered from 1 to 100, where a lower number means higher precedence, and the engine fills an impression with the highest tier first and cascades down to the next tier only when inventory is left unfilled. Kevel ships three default tiers, Sponsorship at priority 1, Premium at priority 5, and House at priority 20, so a new account starts with a structure that a paying advertiser, a guaranteed deal, and an internal house ad already fall into different parts of.<br><br>The tier a flight sits in is the lever that sets where it falls in line. A guaranteed sponsorship belongs in a high tier so it wins the impressions it was sold against. Remnant or backfill demand belongs lower so it fills only what the guaranteed demand left behind. House ads, the operator's own internal promotions, belong at or near the bottom so they serve only when paid demand is exhausted. The audit question is whether the flights in the account actually sit in tiers that follow that logic, or whether tiers were accepted as the default or assigned without a plan.<br><br>The cost of a tier that does not match the demand falls on revenue. A house ad sharing a tier with paid flights can take an impression a paying advertiser would have filled, so an internal promotion displaces revenue that the slot could have earned. A guaranteed deal placed in too low a tier can lose to remnant demand that should have sat beneath it, so the operator under-delivers a flight they are contractually committed to. Neither shows up as an error. The flights serve, and the precedence works against the operator's intent without any warning.<br><br>A few signs point to priority tiers that are not deliberate:<ul><li>House ad flights sit in the same tier as paid flights rather than in a tier beneath all paid demand</li><li>Guaranteed or sponsorship flights sit in a lower-precedence tier than remnant flights that should serve only as backfill</li><li>The operator cannot say why a flight was placed in its tier beyond it being the default Kevel assigned</li><li>Several distinct kinds of demand, guaranteed, remnant, and house, share one tier rather than separating into the waterfall</li></ul>You may want to confirm that each flight's priority tier matches the value and the commitment of its demand. One approach is to list the active flights by priority, group them by the kind of demand they carry, and check that guaranteed demand sits above remnant and that house ads sit at the bottom.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, a guaranteed sponsorship sold against a homepage or section placement belongs in a high tier so it wins those impressions, while a house ad promoting the publisher's own newsletter or subscription belongs at the bottom. You may want to confirm the sponsorship sits above the remnant and house tiers so the sold inventory delivers in full before internal promotions take any of it.",
+          "ecommerce": "On a retail media setup, where a retailer runs sponsored-product ads on its own site or app through Kevel, a paid sponsored-product flight from a brand belongs above the retailer's own house promotions for owned products or categories. You may want to confirm the brand-funded flights sit in a higher tier than the house ads so a paying brand's placement is not displaced by the retailer promoting its own stock in the same tier."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Priorities",
+            "source_url": "https://dev.kevel.com/docs/priorities"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Flights",
+            "source_url": "https://dev.kevel.com/docs/flights"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the priority tiers in the account and the tier each active flight sits in, then check whether guaranteed demand sits above remnant and whether house ads sit beneath all paid demand.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open the priorities for the channel, usually the All Sites Channel, and list the tiers in order with their priority numbers, noting the default Sponsorship, Premium, and House tiers and any custom tiers added.",
+                "List the active flights and record the priority tier each one sits in along with the kind of demand it carries, whether guaranteed, remnant, or house.",
+                "Check that guaranteed and sponsorship flights sit in higher-precedence tiers than remnant flights, and that house ad flights sit in a tier beneath all paid demand.",
+                "Note any flight whose tier does not match its demand, such as a house ad sharing a tier with paid flights or a guaranteed deal sitting below remnant."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "GET the priorities for the channel to read the full list of tiers with their priority numbers and weights.",
+                "GET the active flights and read the PriorityId on each one to map every flight to its tier.",
+                "Cross-reference each flight's PriorityId against the demand it carries to confirm guaranteed demand resolves to a higher-precedence tier than remnant and that house ads resolve to the lowest tier."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each active flight, the kind of demand it carries, and the priority tier it sits in. A setup where guaranteed and sponsorship demand sits above remnant demand, where house ads sit in a tier beneath all paid demand, and where each tier placement matches the value of its demand passes. A setup where house ads share a tier with paid flights, where guaranteed demand sits below remnant, or where flights were placed in their tiers by default with no stated reason is a fail recorded with the flights and tiers affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each flight, its demand type, and its priority tier above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the priority tiers on {{site_name}} do not consistently match the value of the demand each flight carries, so the waterfall does not always serve higher-value demand first. Kevel fills an impression with the highest priority tier first and cascades down, so a house ad sharing a tier with paid flights can take impressions a paying advertiser would have filled, and a guaranteed deal placed below remnant can under-deliver against what it was sold for. {{voice_recommend}} listing the active flights by priority, grouping them by demand type, and resetting the tiers so guaranteed and sponsorship demand sits above remnant and house ads sit in a tier beneath all paid demand. After the change, recheck which flights win each tier to confirm the precedence follows the value of the demand."
+      }
+    },
+    {
+      "id": "kevel-priority-flights-dates-weights-cause-starvation",
+      "title": "Flight date ranges, weights, and priorities let flights starve one another",
+      "category": "delivery",
+      "subcategory": "priority_flights",
+      "impact_score": 3,
+      "impact_rationale": "Flights in the same priority tier compete for the same impressions, so a flight set to win a disproportionate share, or one whose date range overlaps a higher-precedence flight, can take inventory that another flight needed to meet its goal. A flight that starves goes under-delivered, which can break a guaranteed commitment, while the flight that took the inventory may pace ahead of plan, so the delivery does not match what was intended.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "yield",
+        "performance"
+      ],
+      "educate": {
+        "base": "Once flights sit in their priority tiers, the date ranges, goals, and weights inside each tier decide how the impressions split between flights that could all serve. A flight carries a start date and an end date in GMT, a goal that defines its delivery target, such as an impression count or a percentage of the tier's traffic, and a rate that estimates the revenue it earns. Flights in the same tier compete for the same impressions, and when their goals are set as percentages of the tier's traffic, the engine distributes impressions according to those relative percentages, falling back to a lottery when the combined percentages climb above 100.<br><br>Starvation happens when those settings let one flight take inventory another flight needed. A percentage goal set high enough that the combined percentages in a tier exceed 100 means the flights can no longer all hit their targets, so the lottery splits a pool that is already oversubscribed and some flights fall short. A date range that overlaps a higher-precedence flight means the lower flight serves only what the higher one leaves, so a flight scheduled across a heavy sponsorship window may deliver almost nothing in that stretch even though its own dates are open. A flight given an aggressive goal can pace ahead and drain the shared inventory early, leaving the rest of the tier short for the remainder of the overlap.<br><br>The cost lands on goal delivery. A flight that starves ends under-delivered, and if it carried a guaranteed commitment the operator misses the impressions they were obligated to serve. The flight that took the inventory may pace ahead of plan, finishing early and leaving its slot idle afterward, or pulling impressions it did not strictly need. Because every flight involved is technically serving, the imbalance does not register as a failure until the delivery report shows one flight short and another long.<br><br>A few signs point to flights starving one another:<ul><li>The combined percentage goals of the flights in a tier add up to more than 100, so the tier is oversubscribed and the lottery decides who falls short</li><li>A flight's date range overlaps a higher-precedence flight heavily enough that it serves almost nothing during the overlap</li><li>Delivery reporting shows one flight pacing well ahead of its goal while another in the same tier paces well behind</li><li>A guaranteed flight is under-delivering against an impression goal it is committed to meet by its end date</li></ul>You may want to confirm that the date ranges, goals, and priorities let the flights in each tier hit their targets together rather than at one another's expense. One approach is to read the combined goals per tier against the inventory the tier receives, then adjust the date ranges, the goal amounts, or the priorities of the flights that pace ahead or fall behind.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, a seasonal sponsorship and a longer-running campaign can sit in overlapping date ranges in the same tier, and the sponsorship's heavier goal can starve the campaign during the overlap. You may want to confirm the combined goals in the tier fit the inventory the section receives, and stagger date ranges or adjust goals so a guaranteed sponsorship delivers in full without leaving the campaign short.",
+          "ecommerce": "On a retail media setup, where a retailer runs sponsored-product ads on its own site or app through Kevel, several brand flights can target the same category placement in overlapping windows, and a brand with an aggressive goal can drain the shared inventory early. You may want to confirm the combined goals across the brand flights in a tier match the impressions the category receives, so each funded flight delivers what the brand paid for rather than one brand pacing ahead while another starves."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Flights",
+            "source_url": "https://dev.kevel.com/docs/flights"
+          },
+          {
+            "source_type": "Kevel Developer Docs",
+            "source_title": "Create a Flight",
+            "source_url": "https://dev.kevel.com/reference/create-flight"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the date ranges, goals, and priorities of the flights in each tier, then compare delivery pacing across them to see whether any flight is starving another.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "List the active flights grouped by priority tier, and for each flight record its start date, end date, goal type, goal amount, and rate.",
+                "For each tier, add up the percentage goals of the flights that use them and note any tier where the combined percentages climb above 100.",
+                "Compare the date ranges within a tier and flag any lower-precedence flight whose window overlaps a heavier, higher-precedence flight.",
+                "Open the delivery report for the flights in the tier and note any flight pacing well ahead of its goal alongside another pacing well behind."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "GET the active flights and read StartDateISO, EndDateISO, GoalType, Impressions, and PriorityId on each one to map date ranges and goals to tiers.",
+                "Group the flights by PriorityId and compute, per tier, the combined goals against the inventory the tier receives to find any oversubscribed tier.",
+                "Pull delivery figures for the flights in a tier and compare actual delivery to the goal on each to identify flights pacing ahead and flights falling behind."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per priority tier, the date ranges, goals, and pacing of the flights that compete in it. A tier where the combined goals fit the inventory it receives, where overlapping date ranges leave each flight enough to hit its target, and where delivery pacing is balanced across the flights passes. A tier where combined percentage goals exceed 100, where a lower flight serves almost nothing under an overlapping higher flight, or where one flight paces well ahead while another paces well behind is a fail recorded with the flights and the delivery gap.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the date ranges, goals, and delivery pacing of the flights in each tier above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that some flights on {{site_name}} are starving one another because their date ranges, goals, and priorities let one flight take inventory another flight needed. Flights in the same Kevel tier compete for the same impressions, so combined percentage goals above 100, a date range that overlaps a higher-precedence flight, or an aggressive goal that paces ahead can leave another flight under-delivered against a target it was committed to meet. {{voice_recommend}} reading the combined goals per tier against the inventory the tier receives, then adjusting the date ranges, goal amounts, or priorities of the flights that pace ahead or fall behind so each one can hit its target. After the change, recheck delivery pacing across the tier to confirm the flights deliver together rather than at one another's expense."
+      }
+    }
+  ]
+}

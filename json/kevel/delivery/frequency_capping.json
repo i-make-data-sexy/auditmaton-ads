@@ -1,0 +1,162 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://dev.kevel.com/docs/ad-frequency-capping",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Frequency capping decides how many times a single person sees the same ad before Kevel stops serving it, so it controls the line between reach and over-exposure. Caps that are missing, set at the wrong level, or set over the wrong interval let the same ad repeat past the point where it helps, which annoys the audience and burns inventory on people who already saw the message. Caps that are set correctly but rely on an unstable identifier fail in a different way. The count resets whenever the identifier changes. The check reads the cap settings and the identifier handling that already exist in a Kevel setup, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration the operator can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Frequency capping in Kevel limits how often one person sees a given ad, which sets where the line falls between reaching enough people and repeating the same message past the point of usefulness. Caps can be set at the advertiser, campaign, flight, or ad level and counted by minute, hour, or day, and they hold only when each ad request carries a stable, persistent identifier so Kevel can match the request to the right count. These checks confirm that caps are set at a level and interval that fit the inventory rather than left off, and that the identifier carrying those caps is stable enough for the caps to hold across requests rather than resetting on every visit.",
+  "audit_checks": [
+    {
+      "id": "kevel-frequency-capping-not-set-at-right-level-or-interval",
+      "title": "Frequency caps are missing or set at the wrong level or interval",
+      "category": "delivery",
+      "subcategory": "frequency_capping",
+      "impact_score": 3,
+      "impact_rationale": "An uncapped ad repeats to the same person without limit, which wastes impressions on an audience that already saw the message and degrades the experience. A cap set at the wrong level or interval is a softer version of the same problem since a cap that does not match how the inventory is sold lets repetition slip through where it matters or chokes delivery where it does not, so the count exists but does not protect the experience it was meant to protect.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "ad-experience",
+        "data-quality"
+      ],
+      "educate": {
+        "base": "Kevel lets an operator cap how often a person sees an ad at four levels, and each one answers a different question. An advertiser cap limits exposure to everything from one advertiser, a campaign cap limits exposure to one campaign, a flight cap limits exposure to a single flight, and an ad cap limits exposure to one specific creative. Each cap is counted over an interval the operator chooses, by minute, by hour, or by day, with documented ceilings of 4400 minutes, 168 hours, or 180 days. The setting reads as a sentence in the Kevel UI, for example 'show this advertiser 10 times per 1 day', and it maps to the FreqCap, FreqCapDuration, and FreqCapType parameters on the Management Application Programming Interface (API).<br><br>The level matters because it has to match how the inventory is sold and how a person experiences the site or app. A retailer running many flights from the same brand may want an advertiser-level cap so the brand as a whole does not dominate a session, while a flight-level cap on each flight separately would still let the brand repeat across flights. A publisher rotating several creatives within one campaign may want a campaign-level cap so the campaign does not crowd a session, rather than an ad-level cap that lets the campaign repeat as long as each creative stays under its own count. Choosing the wrong level sets a limit that does not bind where the operator intended.<br><br>The interval matters because it has to match the rhythm of the inventory. A daily cap suits a site a person visits once a day, while a fast-refreshing feed or a long session may need an hourly or per-minute cap so the same ad does not fill several slots in a row. An interval that is too long lets the ad cluster early and then sit out, and an interval that is too short can starve delivery before the message lands.<br><br>The first audit question is simply whether caps exist on the inventory that needs them. The second is whether the level and interval fit how the inventory is sold and consumed. A few signs point to caps that are missing or mismatched:<ul><li>Flights or ads serve with no FreqCap value set, so a person can see the same ad without limit</li><li>Caps sit only at the ad level while the operator's intent was to limit a whole campaign or advertiser, so repetition slips through across creatives or flights</li><li>The interval is a flat daily cap across inventory whose session and refresh patterns differ, so a fast feed and a once-a-day page share one rule that fits neither</li></ul>You may want to confirm that caps are present where repetition would hurt, and that the level and interval match how each piece of inventory is sold and consumed. One approach is to list the active flights and ads, read the FreqCap settings on each, and check them against the operator's stated intent for that inventory.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, a person may load many pages or scroll a long feed in one session, so an ad with no cap or a loose daily cap can fill several slots before the visit ends. You may want to set caps at the level that matches how campaigns are sold, often campaign or advertiser level, and choose an hourly or per-minute interval on high-refresh feeds so the same ad does not repeat down a single scroll.",
+          "ecommerce": "On a retail media setup where a retailer runs sponsored-product ads on its own site or app through Kevel, the same brand often runs several flights at once, so a flight-level cap can still let that brand dominate a shopping session across flights. You may want an advertiser-level cap so total exposure to one brand stays in check, and an interval that fits a shopping visit rather than a flat daily count that lets the brand cluster on the first few pages."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Documentation",
+            "source_title": "Frequency Capping",
+            "source_url": "https://dev.kevel.com/docs/frequency-capping-1"
+          },
+          {
+            "source_type": "Kevel Documentation",
+            "source_title": "Ad Frequency Capping",
+            "source_url": "https://dev.kevel.com/docs/ad-frequency-capping"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which advertisers, campaigns, flights, and ads carry frequency caps, the level and interval of each, and whether the inventory that needs a cap actually has one.",
+        "tools": {
+          "free": {
+            "kevel_ui": {
+              "label": "Kevel UI",
+              "steps": [
+                "Open a representative campaign, then open its flights, and read the frequency cap setting on each flight as the 'show N times per duration' sentence.",
+                "Open the creatives under those flights and note whether ad-level caps are set, and at what count and interval.",
+                "Check whether caps also sit at the advertiser and campaign level, and record the level at which each piece of inventory is actually limited.",
+                "Compare the level and interval against the operator's stated intent for that inventory, and record any flight or ad that serves with no cap where repetition would hurt."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "GET the flights for a campaign and read the FreqCap, FreqCapDuration, and FreqCapType fields on each flight.",
+                "GET the ads under those flights and read the same three fields at the ad level, noting which caps are set and which are absent.",
+                "Record, per advertiser, campaign, flight, and ad, the level and interval of each cap so the pattern across the inventory is visible.",
+                "Flag any flight or ad with no FreqCap value on inventory the operator intended to limit."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per piece of inventory, whether a frequency cap exists, at which level it sits, and over which interval it counts, alongside the operator's stated intent for that inventory. A setup where caps are present on the inventory that needs them and the level and interval match how that inventory is sold and consumed passes. A setup where inventory serves uncapped, or where the cap sits at a level or interval that does not match the stated intent, is a fail recorded with the flights and ads affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the cap level and interval for each advertiser, campaign, flight, and ad above, alongside the intent for that inventory, to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} serves ads whose frequency caps are missing or set at a level or interval that does not match how the inventory is sold and consumed. An uncapped ad repeats to the same person without limit, and a cap at the wrong level or interval lets repetition slip through where it matters or chokes delivery where it does not, so the count exists without protecting the experience. {{voice_recommend}} listing the active flights and ads, reading the FreqCap, FreqCapDuration, and FreqCapType settings on each, and setting caps at the advertiser, campaign, flight, or ad level that fits the intent for that inventory, over an interval that fits its session and refresh rhythm. After the change, recheck delivery and exposure to confirm the caps hold where they were meant to."
+      }
+    },
+    {
+      "id": "kevel-frequency-capping-unstable-userkey-resets-counts",
+      "title": "Frequency caps rely on an unstable UserKey, so the counts reset",
+      "category": "delivery",
+      "subcategory": "frequency_capping",
+      "impact_score": 3,
+      "impact_rationale": "A frequency cap counts impressions against a per-user identifier, so the cap is only as reliable as that identifier. When the UserKey is regenerated on each request, or omitted so Kevel assigns a fresh one, the count starts over every time and the cap never binds. The result is a cap that appears set in the UI but does nothing in practice, which is harder to catch than a missing cap because the setting looks correct.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "data-quality",
+        "ad-experience"
+      ],
+      "educate": {
+        "base": "A Kevel frequency cap works by counting how many times a person has already seen an ad and comparing that count against the limit. That count is stored against the UserKey, a persistent identifier the operator passes in the key value of the user object on each Decision API request. Kevel uses the UserKey to store and check the number of times that user has seen the ad, so the cap holds only when the same UserKey arrives on every request from the same person. The identifier is the spine the whole cap rests on.<br><br>The failure mode is an identifier that does not persist. If the operator omits the UserKey, Kevel generates a fresh GUID for that request, which means every request looks like a new person and no count ever accumulates. If the operator does pass a UserKey but regenerates it on each page load, or derives it from something that changes between requests, the same person arrives under a different identifier each time and the count resets to zero. In both cases the cap reads as set in the UI while serving an ad to the same person far more often than the limit allows. The limit is being measured against an identifier that keeps changing.<br><br>A stable UserKey is one the operator stores against each user on their own side, looks up at the moment of the impression, and passes unchanged on every Decision API request from that user. Kevel's own guidance is explicit that user-level features, frequency capping among them, require sending the same persistent UserKey every time the user sees an ad. The identifier should also be one the operator controls and can keep stable across sessions, rather than a value that rotates with the session or the page. Consent state matters too. Kevel offers strict and lenient handling for users in the European Union who have not consented under the General Data Protection Regulation (GDPR), and the chosen mode affects whether a stable per-user count is kept for those users at all.<br><br>The audit question is whether the UserKey the operator sends is genuinely persistent for each person. A few signs point to an unstable identifier:<ul><li>Decision API requests omit the user key entirely, so Kevel assigns a fresh identifier per request and no count carries over</li><li>The UserKey is regenerated on each page load or session rather than stored and reused, so the same person arrives under a new identifier each time</li><li>Reporting or live testing shows the same person receiving a capped ad well past its limit, which points to a count that keeps resetting</li></ul>You may want to confirm that the UserKey passed on each request is the same persistent value for a returning person. One approach is to capture the user object across several Decision API requests from one known user and check that the key field stays identical rather than changing between requests.",
+        "site_type_overlays": {
+          "publishing": "On a media site or app running a Kevel-powered ad server, a person often returns across sessions and devices, so a UserKey tied to a session cookie that clears, or regenerated on each visit, resets the count and lets a capped ad repeat to a returning reader. You may want to confirm the UserKey comes from a stored, persistent identifier the site keeps for each reader, so the count survives between visits rather than starting over.",
+          "ecommerce": "On a retail media setup where a retailer runs sponsored-product ads on its own site or app through Kevel, the retailer usually already holds a stable customer or account identifier, which is a strong basis for the UserKey. You may want to confirm that logged-in shoppers pass that stable identifier as the UserKey rather than an anonymous per-session value, so frequency caps hold across the many pages of a shopping visit and across return visits."
+        },
+        "learn_more": [
+          {
+            "source_type": "Kevel Documentation",
+            "source_title": "UserDB",
+            "source_url": "https://dev.kevel.com/reference/userdb"
+          },
+          {
+            "source_type": "Kevel Documentation",
+            "source_title": "User-Level Targeting",
+            "source_url": "https://dev.kevel.com/docs/user-level"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review how the UserKey is generated and passed on Decision API requests, and check whether the same persistent value arrives across repeated requests from one known user.",
+        "tools": {
+          "free": {
+            "kevel_decision_api": {
+              "label": "Kevel Decision API",
+              "steps": [
+                "Capture the request body of several Decision API calls made from one known user across separate page loads or sessions.",
+                "Read the key field inside the user object on each request and confirm whether it stays identical or changes between requests.",
+                "Check whether any request omits the user object or its key entirely, which causes Kevel to assign a fresh identifier for that request.",
+                "Note whether the UserKey is derived from a stored, persistent value the operator controls, or from a session or page-level value that rotates."
+              ]
+            },
+            "kevel_management_api": {
+              "label": "Kevel Management API",
+              "steps": [
+                "GET a flight or ad that carries a frequency cap and confirm the FreqCap value is set, so the cap itself is in place to be tested.",
+                "Cross-check that the capped inventory is served through Decision API requests that carry the persistent UserKey rather than anonymous requests.",
+                "Record whether the identifier feeding the cap is the same persistent UserKey the operator stores per user."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the UserKey passed on Decision API requests is a stored, persistent value that stays identical for a returning user, and whether any requests omit the key. A setup where the same persistent UserKey arrives on every request from one user, so the cap counts against a stable identifier, passes. A setup where the key is omitted, regenerated per request or session, or derived from a value that rotates is a fail recorded with the evidence that the count resets.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the UserKey stays identical across repeated requests from one user, and whether any requests omit it, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} sets frequency caps that rest on an unstable UserKey, so the per-user count resets and the caps do not hold. A Kevel cap counts impressions against the UserKey passed in the Decision API request, and when that identifier is omitted or regenerated on each request, every request looks like a new person and the cap never binds, even though it reads as set in the user interface (UI). {{voice_recommend}} capturing the user object across several Decision API requests from one known person, confirming the key field stays identical, and feeding the cap from a stored, persistent identifier the operator controls per user. After the change, recheck exposure for a returning user to confirm the count now carries across requests."
+      }
+    }
+  ]
+}

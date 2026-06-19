@@ -1,0 +1,166 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Child-directed treatment decides whether inventory that reaches children is flagged so personalized ads and certain data uses are suppressed. The Children's Online Privacy Protection Act (COPPA) puts legal and financial weight behind getting this right, and the consequence of missing it is not a missed dollar of revenue but an enforcement exposure that can reach into the millions. The check is a review of how a publisher classifies its inventory in PubMatic and OpenWrap and whether that classification carries the child-directed signal through to demand, so it costs reading time rather than rebuild time, and the finding points to a concrete configuration the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Some of a publisher's inventory may reach an audience of children, either because a property is directed at children or because a section of a general-audience property is. COPPA limits how personal information is collected from and used about children under 13, which in the advertising context means suppressing personalized ads and the identifiers that drive them. This subcategory is about whether the publisher flags that inventory so the child-directed signal reaches demand, rather than about consent collection or the property's own privacy policy. These checks confirm that child-directed inventory is classified as such in PubMatic and OpenWrap, and that the classification carries through the bid request so partners apply the right restrictions.",
+  "audit_checks": [
+    {
+      "id": "pubmatic-child-directed-inventory-not-flagged",
+      "title": "Child-directed inventory is not flagged for COPPA treatment",
+      "category": "privacy",
+      "subcategory": "child_directed",
+      "impact_score": 4,
+      "impact_rationale": "When inventory that reaches children is not flagged, the bid request carries the same identifiers and personalized-ad signals as any other request, so demand partners treat children's traffic as targetable. That is the exact data use COPPA restricts, and the Federal Trade Commission (FTC) penalties for it have reached into the millions, which makes an unflagged child-directed unit a legal and financial exposure rather than a configuration preference.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "The Children's Online Privacy Protection Act (COPPA) governs how personal information is collected from and used about children under 13. A publisher is covered when a property, or a section of one, is directed at children, and a general-audience property is covered for any part of it where the publisher has actual knowledge it is reaching children under 13. In the advertising context, the practical effect is that personalized ads and the identifiers that drive them have to be suppressed on that inventory. The FTC enforces this. The publisher carries the obligation for inventory it monetizes, so the flag is not optional on inventory that meets the standard.<br><br>The mechanism that carries the restriction to demand is the COPPA signal on the bid request. PubMatic's OpenWrap wrapper is built on Prebid, so the publisher sets a COPPA flag through the wrapper, and on the OpenRTB request that flag appears as 'regs.coppa' set to '1'. Prebid Server then anonymizes the request before it reaches any adapter, removing device identifiers such as 'device.ifa', removing 'user.id' and 'user.buyeruid', and stripping precise geolocation such as 'geo.lat' and 'geo.lon'. Without the flag, none of that anonymization happens, and the request goes out with the same identifiers as any general-audience impression.<br><br>The gap this check looks for is inventory that meets the child-directed standard but is not flagged for it. That happens when a publisher classifies the property at a single level and a child-directed section is missed, or when the property is treated as general-audience even though a part of it is directed at children, or when the wrapper carries no COPPA configuration at all. In each case the signal that should reach demand never gets set.<br><br>A few signs point to child-directed inventory that is not flagged:<ul><li>A property or section that is directed at children carries no COPPA flag in the OpenWrap or Prebid configuration</li><li>The OpenRTB request for that inventory shows no 'regs.coppa' value, so device and user identifiers pass through unredacted</li><li>The publisher cannot say which units are classified as child-directed, or treats a mixed-audience property as general-audience throughout</li></ul>You may want to confirm that every unit meeting the child-directed standard carries the COPPA flag through the wrapper. One approach is to inspect a sample bid request from the inventory in question and check whether 'regs.coppa' is set and the identifiers are redacted. Because the standard is a legal one, it can be worth confirming the classification with the publisher's legal team rather than judging it on traffic alone.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a children's section such as a games hub or a kids' video area can sit inside an otherwise general-audience property, so the child-directed classification has to reach that section specifically rather than the property as a whole. You may want to confirm the wrapper sets the COPPA flag on the child-directed sections while leaving the general-audience inventory untouched, so each part of the site carries the treatment that fits it.",
+          "ecommerce": "On a commerce-content site, a toy or children's-products section can draw an audience that includes children even though the site sells to adults making the purchase. You may want to review whether any section meets the child-directed standard, and if it does, confirm the COPPA flag reaches that inventory so personalized ads are suppressed there while the rest of the catalog is unaffected."
+        },
+        "learn_more": [
+          {
+            "source_type": "FTC Business Guidance",
+            "source_title": "Children's Online Privacy Protection Rule: A Six-Step Compliance Plan for Your Business",
+            "source_url": "https://www.ftc.gov/business-guidance/resources/childrens-online-privacy-protection-rule-six-step-compliance-plan-your-business"
+          },
+          {
+            "source_type": "Prebid Server Documentation",
+            "source_title": "Prebid Server Privacy for Header Bidding",
+            "source_url": "https://docs.prebid.org/prebid-server/features/pbs-privacy.html"
+          },
+          {
+            "source_type": "Prebid.js Documentation",
+            "source_title": "pbjs.setConfig COPPA configuration",
+            "source_url": "https://docs.prebid.org/dev-docs/publisher-api-reference/setConfig.html"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed configuration documentation for OpenWrap inventory classification is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review which inventory meets the child-directed standard, then confirm that the OpenWrap and Prebid configuration sets the COPPA flag on that inventory and that the bid request carries it through to demand.",
+        "tools": {
+          "free": {
+            "inventory_review": {
+              "label": "Inventory and configuration review",
+              "steps": [
+                "List the properties and sections the publisher monetizes through PubMatic, and identify any that are directed at children or that a part of a general-audience property directs at children.",
+                "For each child-directed property or section, open the OpenWrap or Prebid configuration and note whether a COPPA flag is set for that inventory.",
+                "Record any child-directed inventory that carries no COPPA flag, along with where in the wrapper the flag would need to be set.",
+                "Where the classification is unclear, note it for the publisher's legal team rather than judging the child-directed standard from traffic alone."
+              ]
+            },
+            "request_inspection": {
+              "label": "Bid request inspection",
+              "steps": [
+                "Load a page from the child-directed inventory with the browser developer tools open, and capture the OpenRTB bid request the wrapper sends.",
+                "Check whether 'regs.coppa' is set to '1' on the request, and whether device identifiers such as 'device.ifa', user identifiers such as 'user.id' and 'user.buyeruid', and precise geolocation such as 'geo.lat' and 'geo.lon' are absent.",
+                "Record any request from child-directed inventory where the COPPA flag is missing or the identifiers pass through unredacted."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per child-directed property or section, whether the OpenWrap or Prebid configuration sets the COPPA flag and whether a sample bid request shows 'regs.coppa' set with identifiers redacted. Inventory that meets the child-directed standard and carries the flag through to a redacted request passes. Inventory that meets the standard but carries no COPPA flag, or whose request still passes identifiers, is a fail recorded with the property or section affected and where the flag needs to be set.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which child-directed inventory carries the COPPA flag and what a sample bid request shows above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} monetizes child-directed inventory that is not flagged for Children's Online Privacy Protection Act (COPPA) treatment, so the bid request carries the same identifiers and personalized-ad signals as a general-audience impression. COPPA restricts that exact data use on inventory reaching children under 13, and the Federal Trade Commission (FTC) penalties for it have reached into the millions, so the gap is a legal exposure rather than a configuration preference. {{voice_recommend}} setting the COPPA flag through the OpenWrap or Prebid configuration on every property and section that meets the child-directed standard, then confirming on a sample request that 'regs.coppa' is set and the device, user, and precise-location fields are redacted before they reach demand. Because the standard is a legal one, confirm the classification with the publisher's legal team rather than judging it on traffic alone."
+      }
+    },
+    {
+      "id": "pubmatic-child-directed-flag-not-propagated",
+      "title": "The COPPA flag is set but not propagated to demand partners",
+      "category": "privacy",
+      "subcategory": "child_directed",
+      "impact_score": 3,
+      "impact_rationale": "A COPPA flag that is configured in the wrapper but does not reach the bid request, or reaches adapters that do not honor it, leaves children's inventory exposed to personalized targeting even though the publisher believes the restriction is in place. The false sense of coverage is its own risk because the gap stays hidden until a request is inspected, and the inventory continues to clear against unredacted identifiers in the meantime.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Setting a Children's Online Privacy Protection Act (COPPA) flag in the wrapper is the first step, but the restriction only takes effect if the flag travels all the way to the partners bidding on the impression. PubMatic's OpenWrap is built on Prebid, where the publisher's COPPA configuration becomes 'regs.coppa' on the OpenRTB request. Prebid Server reads that value and anonymizes the request before any adapter sees it, removing device and user identifiers and stripping precise location. Each demand adapter is then responsible for honoring the flag on its own side and forwarding it to its endpoint.<br><br>Two things can break the chain. The flag can be configured at a level that does not apply to the inventory actually serving, so the request goes out without 'regs.coppa' set even though a COPPA setting exists somewhere in the account. Or the flag can be present on the request but routed to a demand path that does not honor it because not every adapter or server-to-server connection reads and forwards the COPPA signal. In both cases the publisher has done part of the work and may believe the inventory is covered, while the impression still clears against unredacted identifiers.<br><br>The audit question is whether the configured flag is actually present on the bid request for child-directed inventory, and whether the demand partners receiving that request honor it. The first half is confirmed by inspecting the request. The second half is confirmed by reviewing which partners serve the child-directed inventory and whether each one supports the COPPA flag. A partner that ignores it leaves a path around the restriction.<br><br>A few signs point to a flag that is set but not propagated:<ul><li>The OpenWrap or Prebid configuration shows a COPPA setting, but a sample request from the child-directed inventory has no 'regs.coppa' value</li><li>The request carries 'regs.coppa' set to '1', but identifiers still appear in it, which suggests the flag is not being acted on</li><li>Demand partners that do not support the COPPA flag are active on the child-directed inventory, so a path exists that ignores the restriction</li></ul>You may want to confirm that the configured flag reaches the request and that every partner on the child-directed inventory honors it. One approach is to inspect a sample request for the flag and the redaction, then cross-check the active partners against the ones that support COPPA. A partner that ignores the flag leaves a path around the restriction, so it can be removed or restricted from the child-directed inventory.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a children's section may route to a different set of demand partners than the general-audience inventory, so the COPPA flag has to be honored across whichever partners serve that section. You may want to confirm that the partners active on the children's section all support the flag, rather than assuming a flag configured at the property level covers a section with its own demand setup.",
+          "ecommerce": "On a commerce-content site, a children's-products section may share demand partners with the rest of the catalog, so a partner that ignores the COPPA flag would affect the child-directed inventory along with everything else. You may want to confirm the flag reaches the request for that section and that each shared partner honors it before treating the inventory as covered."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Server Documentation",
+            "source_title": "Prebid Server Privacy for Header Bidding",
+            "source_url": "https://docs.prebid.org/prebid-server/features/pbs-privacy.html"
+          },
+          {
+            "source_type": "Prebid Ad Ops Documentation",
+            "source_title": "Header Bidding Trafficking with Prebid Step by Step",
+            "source_url": "https://docs.prebid.org/adops/gam-hbt-step-by-step.html"
+          },
+          {
+            "source_type": "FTC Legal Library",
+            "source_title": "Children's Online Privacy Protection Rule (COPPA)",
+            "source_url": "https://www.ftc.gov/legal-library/browse/rules/childrens-online-privacy-protection-rule-coppa"
+          }
+        ],
+        "learn_more_note": "PubMatic's detailed documentation for OpenWrap demand-partner configuration is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Confirm that the configured COPPA flag reaches the bid request for child-directed inventory, then review which demand partners serve that inventory and whether each one honors the flag.",
+        "tools": {
+          "free": {
+            "request_inspection": {
+              "label": "Bid request inspection",
+              "steps": [
+                "Load a page from the child-directed inventory with the browser developer tools open, and capture the OpenRTB bid request the wrapper sends.",
+                "Confirm 'regs.coppa' is set to '1' on the request, and that device identifiers, user identifiers, and precise geolocation are absent rather than present.",
+                "Record any case where a COPPA setting exists in the configuration but the request carries no 'regs.coppa' value, or where the flag is set but identifiers still appear."
+              ]
+            },
+            "partner_review": {
+              "label": "Demand partner review",
+              "steps": [
+                "List the demand partners and adapters active on the child-directed inventory through OpenWrap.",
+                "For each partner, check whether it declares support for the COPPA flag, for example a Prebid adapter marked as COPPA-supported, and note any that do not.",
+                "Record any partner active on the child-directed inventory that does not honor the COPPA flag, which represents a path around the restriction."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a sample request from the child-directed inventory carries 'regs.coppa' with identifiers redacted, and whether every active demand partner on that inventory supports the COPPA flag. A setup where the flag reaches the request, the identifiers are redacted, and all active partners honor the flag passes. A setup where the configured flag is missing from the request, the identifiers still appear, or a partner that ignores the flag is active on the inventory is a fail recorded with the request finding and the partners affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record what the sample request shows and which active partners honor the COPPA flag above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has a Children's Online Privacy Protection Act (COPPA) flag configured for its child-directed inventory, but the flag does not reach the bid request, or it reaches demand partners that do not honor it, so the inventory still clears against unredacted identifiers. A flag that is set but not propagated gives a false sense of coverage because the gap stays hidden until a request is inspected. {{voice_recommend}} confirming on a sample request that 'regs.coppa' is set to '1' with the device, user, and precise-location fields redacted, then cross-checking the active demand partners on the child-directed inventory against the ones that support the COPPA flag and removing or restricting any that do not. After the change, recheck a request to confirm the flag reaches it and the identifiers stay out."
+      }
+    }
+  ]
+}

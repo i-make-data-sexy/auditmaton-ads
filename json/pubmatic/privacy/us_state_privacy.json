@@ -1,0 +1,223 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "US state privacy laws give consumers the right to opt out of the sale or sharing of their personal data, and that opt-out only reaches demand if the signal is encoded and passed through the supply chain. When a publisher monetizes inventory through PubMatic, the consent signal carried in the wrapper and the bid request is what tells PubMatic and its demand partners that a user opted out. A missing or wrong signal means opt-outs do not reach the buyers acting on them, which is a compliance exposure rather than a revenue tuning question. The check reads the configuration a publisher already has in place, so it costs review time, and the finding points to a concrete signal that can be corrected.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "US state privacy laws built on the California Consumer Privacy Act (CCPA) and the California Privacy Rights Act (CPRA), along with the state laws that followed, give consumers the right to opt out of the sale or sharing of their personal data. For a publisher monetizing inventory through PubMatic, the consumer's choice has to travel as an encoded signal from the consent management platform, through the header-bidding wrapper, into the bid request, and on to demand. This subcategory checks that the Global Privacy Platform (GPP) signal carrying US national and state sections is present and correct, and that an opt-out of sale or share is honored in what PubMatic receives rather than dropped along the way.",
+  "audit_checks": [
+    {
+      "id": "pubmatic-us-state-privacy-gpp-sections-not-passed",
+      "title": "GPP US national and state sections are not passed to PubMatic",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "If the Global Privacy Platform string carrying the US national and state sections never reaches PubMatic, the demand partners bidding on the inventory receive no record of the consumer's privacy choice. The publisher then sells or shares data without the opt-out signal that the state laws require to travel with it, which is a compliance exposure that scales across every impression on regulated traffic.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "The Global Privacy Platform (GPP) is the IAB Tech Lab transport format that carries privacy signals from a consent management platform (CMP) through the digital supply chain. It replaces the older single-purpose strings with one envelope that holds several sections, including a US national section and per-state sections for California, Virginia, Colorado, and the other states whose laws are in force. The consent management platform encodes the consumer's choice into the section that applies, and the rest of the chain reads it.<br><br>For a publisher monetizing through PubMatic, the path matters. The CMP sets the GPP string on the page. The header-bidding wrapper reads that string and attaches it to each bid request. PubMatic, as the sell-side platform, passes the signal on to the demand partners bidding on the impression. If any link in that path drops the GPP string, the buyers receive an impression with no record of the consumer's privacy choice, and the opt-out that the state laws require to accompany the data never arrives.<br><br>PubMatic's OpenWrap wrapper is built on Prebid, so the GPP signal is carried by the same consent management and GPP control modules that Prebid documents. In OpenRTB, the signal travels in the 'regs.gpp' and 'regs.gpp_sid' fields, where 'gpp' is the encoded string and 'gpp_sid' lists which sections apply. A bid request that reaches PubMatic without those fields populated on US traffic is the symptom this check looks for.<br><br>A few signs point to the GPP sections not being passed:<ul><li>Bid requests inspected on US traffic carry no 'regs.gpp' value or an empty 'gpp_sid' list</li><li>The consent management platform is set up for the older US Privacy string only, with no GPP national or state sections configured</li><li>The wrapper build does not include the GPP consent management module, so the string is never read off the page</li></ul>You may want to confirm that the GPP string carrying the US national and state sections reaches PubMatic on regulated traffic. One approach is to inspect a sample of bid requests from US users and check that 'regs.gpp' is populated and 'regs.gpp_sid' lists the applicable sections.",
+        "site_type_overlays": {
+          "publishing": "On a media site, traffic spans many US states, so the GPP string needs the national section plus whichever state sections apply to the audience the site reaches. You may want to confirm the consent management platform is configured for the full set of in-force state sections rather than California alone, so a reader in a covered state outside California still has their opt-out encoded and passed.",
+          "ecommerce": "On a commerce-content site, the same visitor may browse products and read editorial across the site, and the GPP signal has to travel on every monetized request regardless of page type. You may want to confirm the string is attached consistently across product, category, and editorial inventory rather than only on some templates."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - GPP for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect a sample of bid requests on US traffic to confirm the GPP string and its section list reach PubMatic, and review the consent management platform and wrapper configuration that produces the signal.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load a monetized page as a US user with developer tools open, and filter the network panel for the bid requests sent to PubMatic.",
+                "Inspect a request and locate the 'regs.gpp' and 'regs.gpp_sid' fields, recording whether the string is present and which sections the section list names.",
+                "Repeat across a few page types and confirm the GPP string is attached consistently rather than on some templates only."
+              ]
+            },
+            "cmp_config_review": {
+              "label": "Consent management platform configuration",
+              "steps": [
+                "Open the consent management platform settings and record which GPP sections are configured, including the US national section and the per-state sections.",
+                "Review the header-bidding wrapper build to confirm the GPP consent management module is included so the string is read off the page.",
+                "Note any case where the platform is set up for the older US Privacy string only, with no GPP sections configured."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, from inspected bid requests on US traffic, whether 'regs.gpp' is populated and 'regs.gpp_sid' lists the applicable sections, alongside which GPP sections the consent management platform is configured for. A setup where the GPP string with the national and state sections reaches PubMatic on regulated traffic passes. A setup where the string is absent, the section list is empty, or the platform carries no GPP sections is a fail recorded with the requests and configuration affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the GPP string and section list reach PubMatic and which GPP sections the consent platform is configured for above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that bid requests from US traffic reach PubMatic without the Global Privacy Platform (GPP) string carrying the US national and state sections, so the demand partners bidding on {{site_name}} receive no record of the consumer's privacy choice. US state privacy laws require the opt-out signal to travel with the data, and when the GPP string is dropped between the consent management platform and PubMatic, that signal never arrives. {{voice_recommend}} confirming the consent management platform is configured for the US national and applicable state GPP sections, including the GPP consent management module in the wrapper build, and verifying that 'regs.gpp' and 'regs.gpp_sid' are populated on a sample of US bid requests. After the change, re-inspect the requests to confirm the signal reaches PubMatic on regulated traffic."
+      }
+    },
+    {
+      "id": "pubmatic-us-state-privacy-optout-not-honored",
+      "title": "Opt-out of sale or share is not honored in the signal sent to PubMatic",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 4,
+      "impact_rationale": "A GPP string can be present yet still encode the wrong choice, so an impression carries a 'no opt-out' value for a user who in fact opted out. PubMatic and its demand partners then act on a signal that contradicts the consumer's decision, which means data is sold or shared against an express opt-out. That is a direct compliance breach rather than a signal that is merely missing.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Passing a Global Privacy Platform (GPP) string is the first half of the job. The second half is that the string encodes the consumer's actual choice, so that an opt-out of the sale or sharing of personal data shows up as an opt-out in what PubMatic receives. A signal that is present but encodes the wrong value is worse than a missing one because the chain treats it as a deliberate statement that the consumer did not opt out.<br><br>Two things have to line up. First, the consent management platform has to record the opt-out and write it into the correct GPP section, whether that is the US national section or the state section that applies to the user. Second, the header-bidding wrapper and PubMatic have to read that section and restrict the bid request accordingly. In OpenWrap, which is built on Prebid, the GPP control modules translate the US national and state sections into the activity restrictions that govern what data is passed and how the request is handled, so a correctly encoded opt-out reaches demand as a restricted request.<br><br>The mismatch this check looks for is a user who exercised the opt-out whose bid request still reaches PubMatic encoded as no opt-out. That can happen when the consent management platform does not map the opt-out into the GPP section correctly, when the wrapper is missing the GPP control module that applies the restrictions, or when the section the platform writes does not match the section PubMatic reads.<br><br>A few signs point to an opt-out that is not honored:<ul><li>A test user who selects opt-out of sale or share still produces a bid request whose GPP section decodes as no opt-out</li><li>The wrapper build omits the GPP control module, so the section is carried but its restrictions are never applied</li><li>The consent management platform writes a different GPP section than the one PubMatic and the demand partners read for that state</li></ul>You may want to confirm that an opt-out chosen by the consumer reaches PubMatic as an opt-out. One approach is to set the opt-out as a test user, capture the resulting bid request, and decode the GPP section to confirm it reflects the choice rather than contradicting it.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the opt-out is often set through a privacy choices link in the footer or a banner rather than the main consent prompt. You may want to test the opt-out through the path a reader would actually use and confirm that choice is the one encoded in the GPP string PubMatic receives.",
+          "ecommerce": "On a commerce-content site, a logged-in shopper's privacy choice should hold across the session and across page types. You may want to test that an opt-out set on one page is reflected in the GPP signal on subsequent product and editorial pages rather than resetting between them."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "GPP Control Module - US state strings",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/gppControl_usstates.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform specification",
+            "source_url": "https://github.com/InteractiveAdvertisingBureau/Global-Privacy-Platform"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Set an opt-out as a test user, capture the resulting bid request to PubMatic, and decode the GPP section to confirm the encoded value matches the choice.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "As a test user, select opt-out of the sale or sharing of personal data through the privacy choices path the site offers.",
+                "With developer tools open, capture a bid request sent to PubMatic after the opt-out and record the 'regs.gpp' string and the 'regs.gpp_sid' section list.",
+                "Decode the applicable GPP section and confirm whether it reflects the opt-out or still reads as no opt-out."
+              ]
+            },
+            "gpp_decoder": {
+              "label": "GPP string decoder",
+              "steps": [
+                "Paste the captured GPP string into a public IAB GPP decoder to read the field values per section.",
+                "Confirm the section that applies to the test user's state encodes the opt-out of sale or share that was selected.",
+                "Review whether the wrapper build includes the GPP control module that applies the restrictions, and note any mismatch between the section the consent platform writes and the section PubMatic reads."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, from a test opt-out captured in a bid request, whether the decoded GPP section reflects the opt-out of sale or share, alongside whether the wrapper applies the GPP control module restrictions. A signal where the consumer's opt-out is encoded correctly and reaches PubMatic as a restricted request passes. A signal where the opt-out decodes as no opt-out, or where the restrictions are never applied, is a fail recorded with the section and configuration affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the decoded GPP section reflects the test opt-out and whether the wrapper applies the GPP control restrictions above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that an opt-out of the sale or sharing of personal data is not honored in the signal {{site_name}} sends to PubMatic, so a bid request from a user who opted out still decodes as no opt-out. A Global Privacy Platform (GPP) string that encodes the wrong choice tells PubMatic and its demand partners that the consumer did not opt out, which means data is acted on against an express choice. {{voice_recommend}} confirming the consent management platform maps the opt-out into the correct GPP section, including the GPP control module in the wrapper so its restrictions are applied, and decoding a test opt-out in a captured bid request to verify the encoded value matches the choice. After the change, re-test the opt-out path to confirm the signal reaches PubMatic as a restricted request."
+      }
+    },
+    {
+      "id": "pubmatic-us-state-privacy-legacy-usp-not-reconciled",
+      "title": "Legacy US Privacy string is relied on without the GPP equivalent",
+      "category": "privacy",
+      "subcategory": "us_state_privacy",
+      "impact_score": 3,
+      "impact_rationale": "The older US Privacy string lost its contractual framework in early 2024, and the state laws beyond California are carried by GPP sections the legacy string cannot express. A publisher still relying on the US Privacy string alone passes a signal that no longer covers the full set of in-force state laws, leaving opt-outs in newer states unrepresented in what PubMatic receives.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Before the Global Privacy Platform (GPP) consolidated privacy signaling, US privacy traveled in the US Privacy string, a single value built around the California Consumer Privacy Act (CCPA) and the California Privacy Rights Act (CPRA). It expressed a California-style opt-out and little else. As more states passed their own laws, the single string could not carry the per-state detail those laws require, which is the gap GPP was designed to close with its national and per-state sections.<br><br>Two changes make relying on the legacy string alone a problem for a publisher monetizing through PubMatic. First, the US Privacy string lost its supporting contractual framework in early 2024, so the signal is no longer backed the way it was. Prebid's own documentation marks the US Privacy consent module as no longer recommended for that reason. Second, the string predates the state laws that came after California, so opt-outs from consumers in those states have no place to live in it.<br><br>The reconciliation this check looks for is whether the publisher has moved the US signal onto GPP, carrying the US national section and the applicable state sections, rather than continuing to pass only the legacy US Privacy string to PubMatic. A transitional setup may carry both for a period, but the GPP equivalent needs to be present so the newer state laws are represented in what demand receives.<br><br>A few signs point to reliance on the legacy string without the GPP equivalent:<ul><li>Bid requests carry the US Privacy string in 'regs.us_privacy' but no GPP national or state sections in 'regs.gpp'</li><li>The consent management platform is configured for the US Privacy string only, with GPP sections not enabled</li><li>The wrapper build includes the older US Privacy consent module but not the GPP consent management and control modules</li></ul>You may want to confirm the US signal has moved onto GPP so the in-force state laws are represented. One approach is to check whether bid requests carry GPP national and state sections alongside, or in place of, the legacy US Privacy string.",
+        "site_type_overlays": {
+          "publishing": "On a media site reaching audiences across many states, the legacy California-style string cannot express opt-outs from consumers in the states whose laws came later. You may want to confirm the consent management platform carries the GPP national and per-state sections so a reader outside California still has their choice represented.",
+          "ecommerce": "On a commerce-content site, the audience often spans states with different privacy laws, and the legacy string covers only the California-style opt-out. You may want to confirm the GPP sections for the applicable states are in place so the signal matches where the shoppers actually are."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "US Privacy Consent Management Module",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementUsp.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - GPP for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Inspect bid requests for whether US privacy is carried by the legacy US Privacy string, the GPP sections, or both, and review the consent management platform and wrapper modules in place.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load a monetized page as a US user with developer tools open and capture a bid request sent to PubMatic.",
+                "Record whether the request carries the legacy 'regs.us_privacy' string, the 'regs.gpp' GPP string with its section list, or both.",
+                "Note any case where only the legacy US Privacy string is present, with no GPP national or state sections."
+              ]
+            },
+            "cmp_config_review": {
+              "label": "Consent management platform configuration",
+              "steps": [
+                "Open the consent management platform settings and record whether it is configured for the US Privacy string, the GPP sections, or both.",
+                "Review the wrapper build to confirm whether the GPP consent management and control modules are included alongside or in place of the older US Privacy module.",
+                "Record whether a transition to GPP is planned or in progress, and which state sections are enabled."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether bid requests and the consent management platform carry the GPP national and state sections, the legacy US Privacy string only, or both, alongside which wrapper modules are in place. A setup where the GPP equivalent is present so the in-force state laws are represented passes. A setup relying on the legacy US Privacy string alone, with no GPP national or state sections, is a fail recorded with the requests and configuration affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the GPP national and state sections are present alongside or in place of the legacy US Privacy string above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} relies on the legacy US Privacy string without the Global Privacy Platform (GPP) equivalent, so the bid requests reaching PubMatic carry a signal that no longer covers the full set of in-force state laws. The US Privacy string lost its contractual framework in early 2024 and predates the state laws that followed California, so opt-outs from consumers in newer states have no place in it. {{voice_recommend}} configuring the consent management platform for the US national and applicable state GPP sections, including the GPP consent management and control modules in the wrapper, so the newer state laws are represented in what PubMatic receives. After the change, inspect bid requests to confirm the GPP sections are present alongside or in place of the legacy string."
+      },
+      "learn_more_note": "PubMatic's detailed configuration documentation for the consent and identity settings in OpenWrap is in the partner portal (login required)."
+    }
+  ]
+}

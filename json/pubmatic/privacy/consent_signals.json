@@ -1,0 +1,231 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Consent signals decide whether a publisher's bid requests can carry the personal data that demand partners need to bid competitively, and whether the publisher is on solid legal ground when they do. A consent string that is captured but not forwarded to PubMatic, or forwarded to PubMatic but dropped before it reaches demand, leaves the publisher exposed to a compliance gap while also depressing bids because partners receiving no consent signal may suppress or downgrade their response. The check is a review of how the consent string moves from the consent management platform through PubMatic to demand, so it costs reading and testing time rather than a rebuild, and the finding points to a concrete wiring decision the publisher can verify in the bid stream.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Consent signals carry the user's privacy choices from the consent management platform (CMP) on the page into the bid stream, so demand partners know what they are allowed to do with the request. For a publisher monetizing through PubMatic, two signals matter most. The Transparency and Consent Framework (TCF) string covers consent under the EU General Data Protection Regulation (GDPR), and the Global Privacy Platform (GPP) string carries TCF along with US state and other jurisdictional signals in one envelope. This subcategory is about whether those strings are captured, passed to PubMatic, and forwarded onward to demand, and whether the publisher limits requests where a legal basis is required but consent is absent. These checks confirm that the consent signal is a deliberate, verifiable part of the request flow rather than a string that is collected on the page and then lost before it reaches the buyers.",
+  "audit_checks": [
+    {
+      "id": "pubmatic-consent-signals-tcf-gpp-not-passed",
+      "title": "The TCF or GPP consent string is not captured and passed to PubMatic",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 4,
+      "impact_rationale": "If the consent string never reaches PubMatic, the publisher is processing requests in a regulated market without the signal that records the legal basis for it, which is a compliance exposure. The same gap depresses revenue because demand partners that receive no consent signal may suppress or downgrade their bids, so the failure costs the publisher on both the legal and the yield side.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "A consent string starts on the page. A consent management platform (CMP) presents the user with privacy choices, records the answer, and encodes it as a string. Under the Transparency and Consent Framework (TCF), that string says which purposes and vendors the user consented to for the EU General Data Protection Regulation (GDPR). Under the Global Privacy Platform (GPP), a single string carries TCF along with US state and other jurisdictional signals, so one envelope covers more than one regime. The CMP makes the string available through an in-page interface that header-bidding code reads.<br><br>For the string to do its job, it has to travel. The header-bidding wrapper reads the string from the CMP and writes it into the bid request, where it rides as a standard field that PubMatic and other partners know how to read. In an OpenRTB request the TCF signal sits in 'regs.ext.gdpr' and 'user.ext.consent', and the GPP signal sits in 'regs.gpp' and 'regs.gpp_sid'. PubMatic OpenWrap is built on Prebid, so the wrapper's consent management modules are what populate these fields before the request leaves the page.<br><br>The failure this check looks for is a break anywhere in that chain. The CMP may be present and collecting choices while the wrapper is not configured to read it, so the string is captured on the page but never written into the request. Or the wrapper may read the string but a misconfiguration leaves the field empty in the request PubMatic receives. In each case the user made a choice that the bid request does not carry, so PubMatic has no record of the legal basis and the demand it calls cannot honor the user's preference.<br><br>The check is worth running because the cost lands on two sides at once. A request that reaches a regulated market with no consent signal is a compliance exposure since the publisher cannot show the basis for processing. The same request also earns less because partners that receive no consent signal often suppress their bid or strip the personal data that would have made it competitive.<br><br>A few signs point to the consent string not reaching PubMatic:<ul><li>A CMP is installed on the page but the wrapper's consent management module is not enabled or configured to read it</li><li>Bid requests inspected in the browser show empty 'regs.ext.gdpr', 'user.ext.consent', or 'regs.gpp' fields for users in a regulated market</li><li>The timeout for fetching the consent string is short enough that the auction runs before the CMP returns a value</li></ul>You may want to confirm that the consent string the CMP collects is present in the request PubMatic receives. One approach is to load the page from a regulated market, make a consent choice, and inspect a live bid request to see whether the TCF and GPP fields carry the string.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a large share of audience can sit in the EU or a US state with its own privacy law, so the consent string is doing real work on most requests rather than an edge case. You may want to verify the string is present across the templates that carry the most ad traffic, such as the article and section-front pages, rather than checking only the homepage.",
+          "ecommerce": "On a commerce-content site, the same pages that carry ads also carry the shopper, and a consent gap there touches both advertising and the wider data the site collects. You may want to confirm the consent string reaches PubMatic on the product and category pages specifically because those pages tend to load the most third-party demand."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - TCF for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementTcf.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - GPP for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Global Privacy Platform",
+            "source_url": "https://iabtechlab.com/gpp/"
+          }
+        ],
+        "learn_more_note": "PubMatic's OpenWrap-specific configuration for consent module setup is documented in the partner portal (login required). The Prebid consent management documentation above covers the same module mechanics because OpenWrap is built on Prebid.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether the wrapper is configured to read the CMP, then inspect a live bid request from a regulated market to confirm the TCF and GPP fields carry the consent string PubMatic receives.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open the page from a market covered by a privacy law, such as an EU country for TCF or a US state for GPP, using a VPN if needed, and make a consent choice in the CMP.",
+                "Open the browser's network panel and find the bid requests sent to PubMatic, then inspect the request payload.",
+                "Confirm the TCF fields 'regs.ext.gdpr' and 'user.ext.consent' carry a value, and the GPP fields 'regs.gpp' and 'regs.gpp_sid' carry a value where GPP applies.",
+                "Repeat with a different consent choice and confirm the string in the request changes to match, which shows the wrapper is reading the live CMP value rather than a cached or default one."
+              ]
+            },
+            "wrapper_config": {
+              "label": "Wrapper configuration",
+              "steps": [
+                "Open the header-bidding wrapper configuration and confirm the consent management module for TCF, and for GPP where it applies, is enabled.",
+                "Record the consent timeout the wrapper uses to fetch the string from the CMP, and note whether it is long enough for the CMP to return a value before the auction runs.",
+                "Confirm the CMP installed on the page is the one the wrapper module is configured to read."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether the consent management module is enabled in the wrapper and whether a live bid request from a regulated market carries the TCF and GPP consent string. A setup where the string is captured by the CMP and present in the request PubMatic receives passes. A setup where the CMP collects a choice but the request reaches PubMatic with empty consent fields is a fail recorded with the jurisdiction tested and the fields found empty.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether the consent module is enabled and whether a live bid request carries the consent string above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the consent string {{site_name}}'s consent management platform collects does not reach PubMatic because bid requests from a regulated market arrive with empty Transparency and Consent Framework (TCF) and Global Privacy Platform (GPP) fields. A request that reaches a regulated market with no consent signal leaves no record of the legal basis for processing, and it also earns less because demand partners that receive no consent signal may suppress or downgrade their bids. {{voice_recommend}} enabling the consent management module in the wrapper, confirming it reads the live CMP, and inspecting a bid request to verify the consent fields carry the string before relying on the setup. After the change, recheck a live request from a regulated market to confirm the signal is present."
+      }
+    },
+    {
+      "id": "pubmatic-consent-signals-not-forwarded-to-demand",
+      "title": "PubMatic receives the consent string but it is not forwarded to demand partners",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 3,
+      "impact_rationale": "A consent string that stops at PubMatic and never reaches the demand partners behind it means each downstream buyer bids without the signal, so they cannot record the legal basis for their own processing and may strip personal data or suppress the bid. The publisher carries the request through its own setup correctly but the chain breaks one hop later, which weakens both compliance and the price the request earns.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Passing the consent string to PubMatic is the first hop, not the last. PubMatic sits between the publisher and a set of demand partners, and each of those partners processes the request under its own legal basis. For that to hold up, the consent string the publisher collected has to travel the whole chain, from the consent management platform (CMP) to PubMatic and onward to every demand partner PubMatic calls. A string that arrives at PubMatic and then drops out of the requests sent downstream leaves each partner bidding with no record of what the user chose.<br><br>In an OpenRTB request, the consent signal is meant to ride in standard fields that every receiver reads. The Transparency and Consent Framework (TCF) signal sits in 'regs.ext.gdpr' and 'user.ext.consent', and the Global Privacy Platform (GPP) signal sits in 'regs.gpp' and 'regs.gpp_sid'. When PubMatic forwards the request to a demand partner, those fields are supposed to carry through unchanged so the partner sees the same consent the publisher collected. A break here usually traces to a partner integration that was set up without consent forwarding, or a server-side path that reads the string for PubMatic's own use but does not write it into the outbound call.<br><br>The audit question is whether the consent the publisher collected reaches the buyers behind PubMatic, not just PubMatic itself. A publisher can satisfy the first check, with the string present in the request PubMatic receives, and still fail here if PubMatic's onward requests strip the field. The signal has to survive every hop because the legal basis it records applies to every party that touches the personal data.<br><br>A few signs point to the consent string not being forwarded to demand:<ul><li>The request PubMatic receives carries the consent string, but partner-level requests inspected downstream show the consent fields empty</li><li>A specific demand partner integration was added without confirming it passes the consent signal through</li><li>Reporting shows a demand partner returning few or no bids on regulated traffic, which can follow from that partner receiving no consent signal</li></ul>You may want to confirm that the consent string PubMatic receives is the same string its demand partners receive. One approach is to trace the signal one hop past PubMatic and verify the consent fields are still populated in the requests partners see.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the publisher often works with a long list of demand partners through PubMatic, and a forwarding gap can sit with one partner while the rest are fine. You may want to check the consent signal partner by partner rather than assuming that a populated request to PubMatic means every downstream partner receives the same.",
+          "ecommerce": "On a commerce-content site, retargeting and audience-based demand depend on personal data that only flows when consent is present, so a partner that receives no forwarded consent signal effectively loses its ability to bid on that audience. You may want to confirm the partners that drive higher-value, audience-based bids are receiving the forwarded consent string."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Prebid Server Privacy for Header Bidding",
+            "source_url": "https://docs.prebid.org/prebid-server/features/pbs-privacy.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - GPP for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementGpp.html"
+          }
+        ],
+        "learn_more_note": "PubMatic's partner-level consent forwarding settings for OpenWrap and its server-side integrations are documented in the partner portal (login required). The Prebid Server privacy documentation above covers the equivalent onward-forwarding mechanics because OpenWrap server-side is Prebid-based.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Trace the consent string one hop past PubMatic, comparing the request PubMatic receives against the requests its demand partners receive, to confirm the consent fields survive the forward.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load the page from a regulated market, make a consent choice, and confirm the request to PubMatic carries the TCF and GPP consent fields as in the first check.",
+                "Where partner calls are visible client-side, inspect the requests sent to individual demand partners and confirm 'regs.ext.gdpr', 'user.ext.consent', 'regs.gpp', and 'regs.gpp_sid' still carry the string.",
+                "Record any partner whose request arrives with the consent fields empty while the PubMatic request carried them, which marks where the forward breaks."
+              ]
+            },
+            "partner_setup": {
+              "label": "Partner integration review",
+              "steps": [
+                "List the demand partners PubMatic calls for the publisher and note which run through a server-side path where client inspection is not possible.",
+                "For each partner, confirm with the integration setup whether consent forwarding is enabled, and record any partner where it is not.",
+                "Cross-reference reporting for any partner returning few or no bids on regulated traffic, which can point to a missing forwarded consent signal."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per demand partner, whether the consent string PubMatic received is present in the request that partner receives. A setup where the consent fields survive the forward to every partner passes. A setup where one or more partners receive requests with the consent fields stripped while the inbound PubMatic request carried them is a fail recorded with the partners affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether each demand partner receives the consent string PubMatic was given above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that PubMatic receives {{site_name}}'s consent string but does not forward it to every demand partner, so some buyers behind PubMatic bid without the Transparency and Consent Framework (TCF) and Global Privacy Platform (GPP) signal the user's choice produced. A partner that receives no forwarded consent signal cannot record the legal basis for its own processing and may strip personal data or suppress the bid, which weakens both compliance and the price the request earns. {{voice_recommend}} tracing the consent signal one hop past PubMatic, confirming the consent fields survive into each partner request, and enabling forwarding for any partner where it is missing. After the change, recheck the partner requests on regulated traffic to confirm the signal carries through."
+      }
+    },
+    {
+      "id": "pubmatic-consent-signals-no-suppression-without-basis",
+      "title": "Bid requests are not limited where consent is absent and a legal basis is required",
+      "category": "privacy",
+      "subcategory": "consent_signals",
+      "impact_score": 4,
+      "impact_rationale": "When a user in a regulated market declines or gives no consent, continuing to send personal data into the bid stream processes that data without the legal basis the regulation requires, which is a direct compliance exposure. Limiting the request, by withholding personal identifiers or by not bidding where a basis is mandatory, is what keeps the publisher's monetization inside the boundary the user's choice set.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["privacy", "compliance"],
+      "educate": {
+        "base": "Passing the consent string is half of the work. The other half is acting on what the string says. When a user in a market governed by the EU General Data Protection Regulation (GDPR) declines consent, or the consent string carries no permission for a given purpose, the bid request that follows is not supposed to carry the personal data that the declined purpose would have allowed. Sending it anyway processes personal data with no legal basis, which is the exposure the consent string exists to prevent.<br><br>The header-bidding wrapper is where this enforcement happens before the request leaves the page. PubMatic OpenWrap is built on Prebid, whose consent control modules can withhold user identifiers, block specific vendors, or hold the request entirely when the consent string shows no basis for processing. The Transparency and Consent Framework (TCF) sets out the purposes a vendor needs consent or another legal basis for, and the wrapper reads the string against that to decide what a given request may carry. The choice the user made on the page is meant to shape the request, not just ride along inside it.<br><br>The audit question is whether the publisher's setup limits the request when the basis is absent, rather than passing a 'no consent' string into a request that still carries full personal data. A request that forwards the consent string faithfully but ignores what it says is still a compliance gap because the signal records a refusal that the request does not honor.<br><br>This sits at the high end of impact because it is where a privacy choice either holds or fails. The first two checks confirm the signal travels. This one confirms the signal is obeyed, and obeying a refusal is what keeps the monetization inside the boundary the user set.<br><br>A few signs point to requests not being limited where consent is absent:<ul><li>Bid requests from a user who declined consent still carry user identifiers or other personal data that the declined purpose would have required consent for</li><li>The wrapper's consent control or enforcement module is not enabled, so the consent string is read but never acted on</li><li>Vendors that need consent for a purpose continue to receive requests for users who gave none, with no suppression in place</li></ul>You may want to confirm that a declined or absent consent choice changes what the request carries. One approach is to decline consent on the page and inspect the resulting bid request to see whether personal identifiers are withheld and which vendors are suppressed.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a meaningful share of EU and US-state audience may decline consent, so enforcement applies to real traffic rather than a rare case. You may want to verify that a declined choice withholds personal identifiers across the high-traffic templates because that is where the bulk of regulated requests originate.",
+          "ecommerce": "On a commerce-content site, the audience and behavioral data that power retargeting are exactly the personal data a declined consent choice withholds, so enforcement directly governs whether that demand can run. You may want to confirm that a declined choice removes the identifiers retargeting partners rely on rather than passing them through with a 'no consent' flag attached."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Consent Management - TCF for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/consentManagementTcf.html"
+          },
+          {
+            "source_type": "IAB Europe",
+            "source_title": "Transparency and Consent Framework (TCF)",
+            "source_url": "https://iabeurope.eu/transparency-consent-framework/"
+          }
+        ],
+        "learn_more_note": "PubMatic's OpenWrap enforcement settings for suppressing requests where consent is absent are documented in the partner portal (login required). The Prebid TCF documentation above covers the consent control and enforcement mechanics because OpenWrap is Prebid-based.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Decline consent on the page and inspect the resulting bid request to confirm personal identifiers are withheld and vendors without a basis are suppressed, then confirm the wrapper's enforcement module is enabled.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Load the page from a market covered by GDPR, open the CMP, and decline consent or withhold it for the data-processing purposes.",
+                "Inspect the resulting bid request and confirm user identifiers and other personal data are withheld rather than passed through with a 'no consent' string.",
+                "Note which vendors still receive a request and confirm each has a legal basis other than consent, such as legitimate interest where it applies, rather than being called with no basis at all."
+              ]
+            },
+            "wrapper_config": {
+              "label": "Wrapper configuration",
+              "steps": [
+                "Open the wrapper configuration and confirm the consent control or enforcement module is enabled, not just the module that reads the string.",
+                "Record the enforcement behavior set for a 'no consent' state, such as withholding identifiers, blocking specific vendors, or holding the request.",
+                "Confirm the enforcement applies to the vendors and purposes that need consent rather than leaving gaps where a vendor is called regardless of the string."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records what a declined or absent consent choice does to the bid request and whether the wrapper's enforcement module is enabled. A setup where a declined choice withholds personal identifiers and suppresses vendors that lack a legal basis passes. A setup where a declined choice still produces a request carrying full personal data, or where enforcement is not enabled, is a fail recorded with the identifiers passed and the vendors called without a basis.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record what a declined consent choice does to the bid request and whether enforcement is enabled above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} continues to send personal data into the bid stream for users who declined or gave no consent in a regulated market, so the consent string is read but not acted on. Processing personal data where a user refused consent and a legal basis is required leaves the publisher without the basis the regulation demands, which is a direct compliance exposure. {{voice_recommend}} enabling the wrapper's consent enforcement so a declined choice withholds personal identifiers and suppresses vendors that lack a legal basis, then declining consent on the page and inspecting the request to confirm the change holds. After the change, recheck the request a declined choice produces to confirm the user's refusal is honored."
+      }
+    }
+  ]
+}

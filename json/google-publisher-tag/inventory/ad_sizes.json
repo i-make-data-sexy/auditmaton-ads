@@ -1,0 +1,169 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "https://developers.google.com/publisher-tag/guides/ad-sizes",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Ad sizes decide which creatives are eligible to fill each slot, so a size declaration that does not fit the page or does not match what Google Ad Manager (GAM) has trafficked either leaves a slot empty or serves a creative that breaks the layout. The check reads the size declarations already in the Google Publisher Tag (GPT) code and compares them against the trafficked sizes in GAM, so it costs reading time rather than rebuild time, and the finding points to a concrete change in either the tag or the line item setup.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Every GPT slot declares the ad size or sizes eligible to serve in it, and that declaration drives two outcomes. It tells GPT what to request, and it tells GAM which trafficked line items and creatives are eligible to fill the slot. This subcategory is about how those sizes are declared per slot, not about the creatives themselves or the line items that carry them. These checks confirm that responsive slots adapt to the viewport through size mappings rather than carrying one fixed size across every screen, and that the sizes declared in the tag are sizes GAM can actually fill.",
+  "audit_checks": [
+    {
+      "id": "google-publisher-tag-ad-sizes-no-responsive-size-mapping",
+      "title": "Responsive slots do not use size mappings, so one fixed size serves across all viewports",
+      "category": "inventory",
+      "subcategory": "ad_sizes",
+      "impact_score": 3,
+      "impact_rationale": "A slot that declares one fixed size across every viewport either requests a desktop size on a phone, where it overflows or clips, or requests a small size on desktop, where it leaves revenue on the table. Without a size mapping the slot cannot match the size to the screen, so the same declaration serves a device it does not fit.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "inventory",
+        "creative"
+      ],
+      "educate": {
+        "base": "Google Publisher Tag (GPT) lets a slot serve different ad sizes depending on the size of the browser viewport making the request. A publisher builds a size mapping with 'googletag.sizeMapping()', adds a viewport breakpoint and the sizes eligible at that breakpoint with each '.addSize()' call, calls '.build()', and attaches the result to the slot with 'defineSizeMapping()'. When the request fires, GPT reads the viewport, picks the largest mapping that fits, and requests only the sizes listed for that breakpoint. Google's documentation describes the selection as width first, then height, so the slot can carry a leaderboard on desktop and a mobile banner on a phone from the same definition.<br><br>Without a size mapping, the slot falls back to the sizes passed to 'defineSlot()', and those sizes apply at every viewport. A slot that declares a 728x90 leaderboard then requests that leaderboard on a 360-pixel-wide phone, where it overflows the column or gets clipped. A slot that declares only a 300x250 then requests that small size on a wide desktop, where a larger and higher-value creative could have served instead. The fixed declaration cannot fit a screen it was not sized for.<br><br>Size mappings also help layout stability. When the slot requests a size that fits the container the page reserved for it, the creative renders into reserved space rather than pushing content around, which keeps Cumulative Layout Shift (CLS) down. A fixed size that does not match the rendered container is one source of the shift a reserved-space approach is meant to prevent.<br><br>A few signs point to a responsive slot that is missing its size mapping:<ul><li>The slot is defined with 'defineSlot()' but no 'defineSizeMapping()' call attaches a viewport-to-size map to it</li><li>The same slot requests the same size on desktop and on mobile, visible in the request sent to securepubads or in the Google Publisher Console</li><li>An ad on a phone overflows its column, gets clipped, or renders at a desktop size the layout did not reserve room for</li></ul>You may want to confirm that slots meant to serve across desktop and mobile carry a size mapping that lists the sizes appropriate to each breakpoint. One approach is to read the slot definitions in the page code, then watch the request at two viewport widths to see whether the requested sizes change with the screen.",
+        "site_type_overlays": {
+          "publishing": "On a media site running GPT, a single article template usually serves both desktop and mobile readers, so an in-content unit defined with one fixed size requests that size on every screen the article reaches. You may want to attach a size mapping that requests a wide unit on desktop and a mobile-appropriate unit on phones, so the same in-content slot fits the reader's screen rather than overflowing the mobile column.",
+          "ecommerce": "On a commerce-content site running GPT, product and category pages render across desktop and mobile shoppers, and a banner sized for desktop can crowd a product image or push the add-to-cart control on a phone. You may want to use a size mapping so the slot requests a layout-appropriate size per breakpoint, keeping the ad from displacing the commercial elements on the smaller screen."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Publisher Tag",
+            "source_title": "Ad sizes",
+            "source_url": "https://developers.google.com/publisher-tag/guides/ad-sizes"
+          },
+          {
+            "source_type": "Google Publisher Tag",
+            "source_title": "Ad best practices",
+            "source_url": "https://developers.google.com/publisher-tag/guides/ad-best-practices"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Read the slot definitions in the page code to see whether responsive slots attach a size mapping, then watch the ad request at two viewport widths to confirm the requested sizes change with the screen.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the page, open DevTools, and view the page source or the script that initializes the ads.",
+                "Find each 'defineSlot()' call and check whether a matching 'defineSizeMapping()' call attaches a viewport-to-size map to the same slot.",
+                "Open the Network tab, filter for requests to securepubads.g.doubleclick.net, and load the page at a wide desktop width.",
+                "Resize the browser to a narrow mobile width, reload, and compare the sizes in the ad request to confirm they change with the viewport rather than staying fixed."
+              ]
+            },
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the Google Publisher Console on the page by appending '?googfc' to the URL or running the console bookmarklet.",
+                "Select each ad slot and read the requested sizes the console reports for the current viewport.",
+                "Resize the browser to a mobile width, reopen the console, and check whether the requested sizes for the same slot differ from the desktop sizes.",
+                "Record any slot whose requested sizes do not change between viewports, which indicates a fixed size with no size mapping."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per responsive slot, whether a size mapping is attached and whether the requested sizes change between a desktop and a mobile viewport. A slot that requests breakpoint-appropriate sizes through a size mapping passes. A slot that requests the same fixed size across viewports, or that overflows or clips on mobile, is a fail recorded with the slot and the viewport where the size does not fit.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether each responsive slot attaches a size mapping and whether its requested sizes change between desktop and mobile above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that responsive slots on {{site_name}} request a single fixed size across every viewport rather than attaching a size mapping. In Google Publisher Tag (GPT) a slot without a 'defineSizeMapping()' call falls back to the sizes passed to 'defineSlot()' at every screen width, so a desktop size can overflow or clip on a phone and a small size can leave a larger creative unrequested on desktop. {{voice_recommend}} building a size mapping for each responsive slot that lists the sizes appropriate to each viewport breakpoint and attaching it with 'defineSizeMapping()'. After the change, watch the ad request at a desktop and a mobile width to confirm the requested sizes follow the viewport."
+      }
+    },
+    {
+      "id": "google-publisher-tag-ad-sizes-declared-not-eligible-in-gam",
+      "title": "Declared sizes are not trafficked in Google Ad Manager, so they request demand that cannot fill",
+      "category": "inventory",
+      "subcategory": "ad_sizes",
+      "impact_score": 3,
+      "impact_rationale": "A size declared in the tag becomes eligible to serve only if Google Ad Manager has line items and creatives trafficked for it. A declared size with no matching trafficked demand requests an auction that returns nothing, so the slot carries a size that cannot fill while the demand the slot could win goes unrequested.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": [
+        "inventory",
+        "creative"
+      ],
+      "educate": {
+        "base": "A size declared in a Google Publisher Tag (GPT) slot is a request, not a guarantee. The slot tells Google Ad Manager (GAM) which sizes it will accept, and GAM then matches that request against the line items and creatives trafficked for the ad unit. A line item targeted to a specific size becomes eligible only when the tag declares a matching size, so the declaration and the trafficked demand have to line up for the slot to fill.<br><br>When they do not line up, the gap runs in two directions. A size declared in the tag but never trafficked in GAM requests an auction that no line item or creative can answer, so that size returns nothing and the request is spent on demand that cannot fill. A size trafficked in GAM but never declared in the tag is demand the slot could have won but never asks for, so eligible line items sit unused because no request ever reaches them. Either way the declared sizes and the trafficked sizes describe two different inventories, and the slot fills less than it could.<br><br>The fix is to reconcile the two lists. The sizes declared per slot in 'defineSlot()' and in any attached size mapping should match the sizes that GAM has active line items and creatives for on the same ad unit. Google's documentation notes that the tag must declare a size for a line item targeted to that size to be eligible, which makes the tag declaration the gate the trafficked demand has to pass through.<br><br>A few signs point to declared sizes that are not eligible in GAM:<ul><li>The tag declares sizes that do not appear among the active line items or creatives trafficked for that ad unit in GAM</li><li>Active line items in GAM target sizes the tag never declares, so the slot never requests them</li><li>A slot shows low fill on a size whose request returns no creative, which the Google Publisher Console reports as an unfilled or no-creative result</li></ul>You may want to confirm that the sizes each slot declares are sizes GAM can fill, and that no trafficked size is left unrequested. One approach is to list the declared sizes per slot from the page code, list the trafficked sizes per ad unit from GAM, and compare the two to find sizes present in one but not the other.",
+        "site_type_overlays": {
+          "publishing": "On a media site running GPT, ad unit templates and trafficked line items can drift apart as a site adds formats over time, so an article slot may still declare a legacy size that GAM no longer has a line item for. You may want to compare the sizes the article template declares against the active line items for that ad unit, so the slot requests sizes GAM can fill and asks for any newer trafficked size it currently omits.",
+          "ecommerce": "On a commerce-content site running GPT, product and category templates may share a slot definition while the line items trafficked for the commercial ad units differ from the editorial ones. You may want to reconcile the declared sizes per template against the trafficked sizes for each ad unit, so a product-page slot does not request a size with no matching line item while leaving an eligible commercial size unrequested."
+        },
+        "learn_more": [
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Set targeting and sizes with GPT",
+            "source_url": "https://support.google.com/admanager/answer/1697712"
+          },
+          {
+            "source_type": "Google Ad Manager Help",
+            "source_title": "Add creatives to line items",
+            "source_url": "https://support.google.com/admanager/answer/3187916?hl=en"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "List the sizes each slot declares in the page code, list the sizes trafficked for the matching ad unit in Google Ad Manager, and compare the two to find sizes present in one but not the other.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser DevTools",
+              "steps": [
+                "Open the page, open DevTools, and read the 'defineSlot()' calls and any attached size mapping to list the sizes declared for each ad unit slot.",
+                "Open the Network tab, filter for requests to securepubads.g.doubleclick.net, and confirm the sizes in the outgoing request match the declared sizes you listed.",
+                "Record the declared sizes per slot so they can be compared against the trafficked sizes in Google Ad Manager."
+              ]
+            },
+            "gam_ui": {
+              "label": "Google Ad Manager UI",
+              "steps": [
+                "Open 'Delivery', then 'Line items', and filter to the ad unit that matches the slot you are checking.",
+                "For each active line item, note the sizes it targets and confirm it has creatives of those sizes associated with it.",
+                "Compare the trafficked sizes against the declared sizes from the page code, and record any size declared in the tag with no matching line item, and any trafficked size the tag never declares."
+              ]
+            },
+            "gpt_console": {
+              "label": "Google Publisher Console",
+              "steps": [
+                "Open the Google Publisher Console on the page by appending '?googfc' to the URL or running the console bookmarklet.",
+                "Select each ad slot and read the requested sizes and the delivery result the console reports.",
+                "Record any size whose request returns no creative or an unfilled result, which points to a declared size with no matching trafficked demand."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per slot, the sizes declared in the tag and the sizes trafficked for the matching ad unit in Google Ad Manager. A slot whose declared sizes all have matching trafficked line items and creatives, with no trafficked size left undeclared, passes. A slot that declares a size GAM cannot fill, or that omits a trafficked size, is a fail recorded with the ad unit and the sizes that do not line up.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the declared sizes per slot and the trafficked sizes per ad unit above to see which sizes line up and which do not."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} declares ad sizes in Google Publisher Tag (GPT) that are not all trafficked in Google Ad Manager (GAM), so some requests ask for demand no line item can fill while some trafficked sizes are never requested. A size becomes eligible to serve only when the tag declares it and GAM has matching line items and creatives, so a mismatch in either direction costs fill. {{voice_recommend}} listing the declared sizes per slot from the page code, listing the trafficked sizes per ad unit from GAM, and reconciling the two so each slot requests only sizes GAM can fill and asks for every trafficked size it should. After the change, recheck fill on the affected slots to confirm the declared and trafficked sizes now line up."
+      }
+    }
+  ]
+}

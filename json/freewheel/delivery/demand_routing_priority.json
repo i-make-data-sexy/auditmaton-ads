@@ -1,0 +1,158 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Routing priority decides which demand wins each video ad slot, so it sits at the center of how much a publisher earns from inventory that is already sold or already in demand. A waterfall or unified-decisioning setup that was configured once and left alone can let lower-value demand win slots that higher-value demand should have taken, or let house ads displace paid demand, without a single error message to signal it. The check is a review of routing rules and reporting the publisher already has in FreeWheel, so it costs reading time rather than rebuild time, and the finding points to a concrete priority decision the publisher can adjust.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "FreeWheel routes the demand that competes for each video or Connected TV (CTV) ad slot, drawing on direct-sold campaigns, programmatic guaranteed deals, biddable programmatic, and house ads, then deciding which one fills the slot. This subcategory is about that routing decision, the priority order and the rules that govern it, rather than the pricing of any single deal. These checks confirm that the routing is a deliberate choice that lets higher-value demand win the slots it should, and that the order does not starve programmatic or let unpaid house ads take impressions that paid demand would have filled.",
+  "audit_checks": [
+    {
+      "id": "freewheel-demand-routing-priority-order-not-deliberate",
+      "title": "Demand priority order is inherited rather than chosen on value",
+      "category": "delivery",
+      "subcategory": "demand_routing_priority",
+      "impact_score": 3,
+      "impact_rationale": "When the priority order between direct-sold, programmatic guaranteed, and biddable demand is left at a default or carried over from an old setup, FreeWheel can fill a slot with lower-value demand while higher-value demand that was available loses. The lost revenue is the gap between what won the slot and what could have won it, repeated across every impression the misordered routing touches, and nothing in the delivery log flags it as a problem.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "FreeWheel serves video and Connected TV (CTV) ads from more than one source of demand at once. Direct-sold campaigns booked against a guarantee, programmatic guaranteed deals, biddable programmatic demand from the open market, and a publisher's own house ads all compete for the same ad slots. Something has to decide which one fills a given slot, and that decision is the routing priority. In a unified-decisioning setup the sources compete together on value within the rules the publisher sets, while an older or waterfall-style setup ranks the sources in a fixed order and gives each a turn before passing the slot down the chain.<br><br>The priority order earns its keep only when it follows value. A guaranteed campaign that the publisher committed to deliver has to win the slots it needs because under-delivering a guarantee carries make-good and relationship costs. Past that commitment, the slot should go to whichever remaining source clears highest, whether that is another direct deal, a programmatic guaranteed deal, or a high biddable bid. When the order is inherited from a default or copied from a setup that no longer matches the current demand mix, it can rank a source too high or too low for what it is worth today, so a slot fills with demand that clears below what was available.<br><br>The failure leaves no error. The slot fills, the delivery log shows an impression served, and the revenue that a better-ranked source would have brought never appears anywhere to be missed. That is what makes routing priority a review item rather than an alert: the cost is invisible in the day-to-day delivery view and shows up only when a publisher compares what won each slot against what else was competing for it.<br><br>A few signs point to a priority order that was inherited rather than chosen on value:<ul><li>The order between direct-sold, programmatic guaranteed, and biddable demand has not been reviewed since the inventory or demand mix last changed</li><li>The publisher cannot state why a given source sits where it does in the order beyond it being how the setup arrived</li><li>Reporting shows biddable bids clearing well above the price of direct demand that won the same slots, which points to an order that ranks direct too high for its current value</li></ul>You may want to confirm that the priority order reflects the value of each demand source as it stands today rather than a default or a carried-over setup. One approach is to read what won a sample of slots against what else was bidding or booked for them, then adjust the order where a lower-value source is winning over a higher-value one.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, premium live and prime-time slots usually carry direct-sold and programmatic guaranteed commitments that have to deliver in full, while lower-demand catalog or daytime inventory leans more on biddable programmatic. You may want to confirm the priority order protects the guaranteed commitments on the premium slots while letting biddable demand compete freely for the inventory that has no guarantee against it, rather than applying one fixed order across both.",
+          "ecommerce": "On a commerce-content property running video, slots against shoppable or product-review content reach an audience closer to a purchase and tend to draw higher biddable bids than slots against general editorial video. You may want to confirm the routing lets that higher-value biddable demand compete for the commercial slots rather than ranking a lower-clearing direct or house source above it by default."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          }
+        ],
+        "learn_more_note": "FreeWheel's detailed configuration documentation for routing priority and unified decisioning is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the priority order FreeWheel applies across direct-sold, programmatic guaranteed, biddable, and house demand, and look at reporting for slots where a lower-value source won over a higher-value one.",
+        "tools": {
+          "free": {
+            "freewheel_console": {
+              "label": "FreeWheel console",
+              "steps": [
+                "Open the routing or decisioning configuration and record the priority order applied across direct-sold, programmatic guaranteed, biddable, and house demand.",
+                "Note whether the setup runs unified decisioning where sources compete on value or a fixed waterfall order, and capture the order as configured.",
+                "Ask the publisher why each source sits where it does in the order and when the order was last reviewed against the current demand mix.",
+                "Record any source whose placement the publisher cannot tie to a value reason. That points to an inherited rather than a chosen order."
+              ]
+            },
+            "freewheel_reporting": {
+              "label": "FreeWheel reporting",
+              "steps": [
+                "Build a report broken out by demand source with impressions, revenue, and average CPM for each.",
+                "For a sample of slots, compare what won against what else was booked or bidding for the same slot, using the bid or booked-rate data where it is available.",
+                "Note any slot where a lower-value source won while a higher-value source was available. That is the gap the priority order is leaving on the table."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the configured priority order across direct-sold, programmatic guaranteed, biddable, and house demand, alongside a value reason for each source's placement and any reporting that shows what won sample slots against what was competing. An order where each source's rank ties to its value and the guaranteed commitments deliver passes. An order inherited from a default or an old setup, with no value reason on record and reporting showing lower-value demand winning over higher-value demand, is a fail recorded with the sources and slots affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the priority order, the value reason for each source's placement, and the sample of what won versus what was competing above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs a demand priority order inherited from a default or an older setup rather than one chosen on the value of each source as it stands today. When the order between direct-sold, programmatic guaranteed, and biddable demand does not follow value, FreeWheel can fill a slot with demand that clears below what was available, and because the slot still fills, the lost revenue never surfaces in the delivery log. {{voice_recommend}} reading what won a sample of slots against what else was booked or bidding for them, then adjusting the order so guaranteed commitments still deliver while the remaining slots go to whichever source clears highest. After the change, recheck the same slots to confirm higher-value demand is now winning where it should."
+      }
+    },
+    {
+      "id": "freewheel-demand-routing-priority-house-ads-displace-paid",
+      "title": "House ads or unfilled defaults displace paid demand",
+      "category": "delivery",
+      "subcategory": "demand_routing_priority",
+      "impact_score": 3,
+      "impact_rationale": "House ads and unsold defaults exist to fill a slot only when no paid demand is available, so when they sit too high in the routing or carry no price floor against them, they take impressions that direct or programmatic demand would have paid for. Every slot a house ad wins over an available paid source is revenue traded for an unpaid promotion, and the trade is silent because the slot still serves something.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "House ads are a publisher's own promotions, run in ad slots that would otherwise sit empty. An unfilled default works the same way, serving a fallback creative when no demand is available so the slot does not go dark. Both are there to catch leftover inventory, which means they should win a slot only after every paid source has had its chance and declined. Their correct place in the routing priority is at the bottom, below direct-sold, programmatic guaranteed, and biddable demand.<br><br>The problem appears when a house ad or a default sits higher than it should, or carries no price condition that paid demand can outrank. A house line item set at too high a priority competes against paid demand on equal footing or ahead of it, so it takes slots that a direct campaign or a programmatic bid would have filled for real money. The same happens when a fallback fires before biddable demand has been given a full chance to bid, cutting off paid fill to serve an unpaid promotion.<br><br>This trade is easy to miss because the slot still serves an ad. The delivery log records an impression, the page or stream shows a creative, and nothing looks wrong. The cost is the paid impression that did not happen, and it shows up only when a publisher reads how often house ads or defaults won slots where paid demand was available to compete. FreeWheel routes house and default inventory alongside paid demand, so the priority and any conditions on those lines decide whether they stay in their fallback role or quietly start displacing paid fill.<br><br>A few signs point to house ads or defaults displacing paid demand:<ul><li>House line items sit at a priority equal to or above paid direct demand rather than below all paid sources</li><li>A default or fallback creative serves on inventory where biddable demand was available but was not given a full chance to fill the slot</li><li>Reporting shows house ads or defaults winning a meaningful share of slots that paid demand also competed for, rather than only slots that went unsold</li></ul>You may want to confirm that house ads and defaults win only the slots no paid source wanted. One approach is to read the share of impressions house and default lines took on inventory where paid demand was competing, then lower their priority or tighten their conditions so paid demand wins first."
+,
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcaster property, a network promo for an upcoming show is a common house ad, and it belongs in slots that paid demand left empty rather than in premium slots that direct or programmatic buyers would pay for. You may want to confirm the promo line items sit below all paid demand so they backfill unsold avails rather than competing for the prime-time slots that carry real demand.",
+          "ecommerce": "On a commerce-content property, a house ad promoting a sale or a featured product can be valuable, but it should run in video slots that paid demand did not fill rather than displacing a paying advertiser. You may want to confirm the self-promotion lines sit at the bottom of the routing so they catch leftover commercial inventory instead of taking slots a paid buyer was bidding on."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Digital Video Multiple Ad Playlist (VMAP)",
+            "source_url": "https://iabtechlab.com/standards-old/video-multiple-ad-playlist-vmap/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          }
+        ],
+        "learn_more_note": "FreeWheel's detailed configuration documentation for house line items and default fallbacks is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review where house ads and unfilled defaults sit in the routing priority and read reporting for the share of slots they win on inventory that paid demand also competed for.",
+        "tools": {
+          "free": {
+            "freewheel_console": {
+              "label": "FreeWheel console",
+              "steps": [
+                "Open the line items and routing configuration and identify every house ad and unfilled-default creative in the setup.",
+                "Record the priority each house and default line carries relative to direct-sold, programmatic guaranteed, and biddable demand.",
+                "Note any condition or floor attached to the house and default lines that would let paid demand outrank them, and flag any that sit at or above paid demand with no such condition.",
+                "Ask the publisher whether house and default lines are meant to backfill only, and record any case where the configuration does not match that intent."
+              ]
+            },
+            "freewheel_reporting": {
+              "label": "FreeWheel reporting",
+              "steps": [
+                "Build a report broken out by line item with impressions for each, isolating the house and default lines.",
+                "For the inventory those lines served, check whether paid demand was available for the same slots using the bid or booked data where it is present.",
+                "Note the share of impressions house and default lines won on inventory where paid demand was competing. That share is the paid fill the fallback role is displacing."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the priority of every house and default line relative to paid demand, any condition that lets paid demand outrank them, and the share of slots those lines won where paid demand was available. House and default lines sitting below all paid demand, winning only slots that went unsold, pass. House or default lines at or above paid demand, or winning a share of slots where paid demand was competing, are a fail recorded with the lines and inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the priority of each house and default line and the share of contested slots they won above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} routes house ads or unfilled defaults at a priority that lets them win slots paid demand was available to fill. House ads and defaults belong at the bottom of the routing so they backfill only the inventory no paid source wanted, and when they sit higher or carry no condition that paid demand can outrank, they take impressions that direct or programmatic demand would have paid for, with nothing in the delivery log signaling the trade. {{voice_recommend}} lowering the priority of the house and default lines below all paid demand, or tightening the conditions on them, so paid demand wins first and the fallback creatives serve only unsold slots. After the change, recheck the share of contested slots those lines win to confirm they have returned to a backfill role."
+      }
+    }
+  ]
+}

@@ -1,0 +1,162 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Ad slot mapping is the wiring between a publisher's on-page ad units and the TripleLift inventory codes that identify them in the exchange. When the mapping is right, each placement passes under the inventory code, sizes, and format TripleLift expects, so reporting and demand line up with the real placement. When it drifts, a unit can pass under the wrong code, carry sizes that no longer match the slot, or keep firing after the placement is gone. The check is a review of the inventory codes and ad unit definitions a publisher already has, so it costs reading time rather than rebuild time, and the finding points to a specific tag the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Ad slot mapping describes how each ad unit on a publisher's pages connects to the TripleLift inventory code that represents it in the exchange. In a Prebid setup, every ad unit carries a 'code', a set of declared sizes, and a media type, and the TripleLift bid params attach an 'inventoryCode' that ties the slot to the configuration TripleLift holds for it. This subcategory is about whether that wiring is correct and current. These checks confirm that each placement maps to the inventory code, sizes, and format it is meant to use, and that no tag is orphaned, stale, or sending inventory under a placement it no longer matches.",
+  "audit_checks": [
+    {
+      "id": "triplelift-ad-slot-mapping-codes-sizes-formats-mismatch",
+      "title": "Ad units do not map to the correct TripleLift inventory codes, sizes, or formats",
+      "category": "inventory",
+      "subcategory": "ad_slot_mapping",
+      "impact_score": 3,
+      "impact_rationale": "An ad unit that passes under the wrong inventory code, a size the slot no longer renders, or a format TripleLift was not set up to fill will lose demand or report against the wrong placement. The revenue effect is real but contained to the affected units rather than the whole account, so the impact sits in the middle rather than at the top.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "data-quality"],
+      "educate": {
+        "base": "TripleLift identifies a publisher's placement through an inventory code, a value the partner manager assigns to each slot. In a Prebid integration, that value rides in the TripleLift bid params as 'inventoryCode' on the ad unit, alongside the ad unit's own 'code', its declared sizes, and its media type. The mapping works when all of these agree. The on-page slot, the Prebid ad unit definition, and the inventory code TripleLift holds for it describe the same placement, the same sizes, and the same format.<br><br>The mapping breaks when one of those pieces drifts from the others. A few patterns produce a mismatch:<ul><li>An ad unit passes an inventoryCode that belongs to a different placement, so demand and reporting attach to the wrong slot</li><li>The declared sizes in the Prebid ad unit no longer match what the slot actually renders, so TripleLift receives a size the page cannot fill or misses a size it could</li><li>The media type does not match how TripleLift configured the code, for example a slot set up as native receiving a banner-only ad unit, or a video placement using an outstream context the code was not built for</li></ul>TripleLift's own documentation through the Prebid adapter is explicit that 'inventoryCode' is required and is the link between the ad unit and the configuration TripleLift maintains, and that video placements carry a context value (instream or outstream) the publisher should confirm with their partner manager. The sizes and media types follow the standard Prebid ad unit reference, so the same definitions a publisher uses for any bidder apply here.<br><br>The audit question is whether each slot's inventory code, sizes, and format match across the page, the Prebid configuration, and the TripleLift setup, or whether one of them has drifted. A drifted mapping does not always throw an error. It can keep bidding while pointing demand at the wrong placement or dropping a size, which is why a direct comparison is worth doing rather than assuming the wiring still holds.<br><br>You may want to confirm that every TripleLift ad unit maps to the inventory code, sizes, and format it is meant to use. One approach is to list each placement's inventoryCode, declared sizes, and media type from the Prebid configuration and check them against the slots that actually render on the page and the configuration TripleLift holds.",
+        "site_type_overlays": {
+          "publishing": "On a media site, templated layouts mean one ad unit definition often serves many pages, so a single mismatched inventoryCode or stale size set can affect a whole section at once. You may want to check the high-traffic placements first, such as a homepage or section-front unit, where a mapping error reaches the most impressions.",
+          "ecommerce": "On a commerce-content site, product and category templates can carry different slot sizes than editorial pages, and a shared ad unit definition reused across both can declare sizes that fit one template but not the other. You may want to confirm that each template's slots map to an inventoryCode and size set built for that template rather than inherited from a different page type."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "TripleLift for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/bidders/triplelift.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "TripleLift Native for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/bidders/triplelift_native.html"
+          }
+        ],
+        "learn_more_note": "TripleLift's detailed inventory-code and placement configuration documentation is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review each TripleLift placement's inventoryCode, declared sizes, and media type in the Prebid configuration, then compare them against the slots that render on the page and the setup TripleLift holds.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Prebid configuration review",
+              "steps": [
+                "Open the Prebid ad unit configuration and list every ad unit that carries a TripleLift bid, noting its ad unit 'code', the TripleLift 'inventoryCode', the declared sizes, and the media type.",
+                "For each ad unit, confirm the inventoryCode matches the placement the ad unit is meant to represent rather than a code copied from a different slot.",
+                "Check that the declared sizes match the slot the ad unit fills on the page, and that the media type (banner, native, or video with its instream or outstream context) matches how TripleLift configured the code.",
+                "Record any ad unit where the inventoryCode, sizes, or media type does not match the placement it represents."
+              ]
+            },
+            "browser_inspection": {
+              "label": "Browser inspection",
+              "steps": [
+                "Load a representative page and open the browser developer tools to inspect the rendered ad slots and the Prebid bid requests they generate.",
+                "Confirm that the slot rendering on the page corresponds to the ad unit code and TripleLift inventoryCode sending the bid request, and that the sizes requested match the slot.",
+                "Note any slot where the request carries an inventoryCode, size, or format that does not match what the page renders."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per TripleLift placement, the inventoryCode, declared sizes, and media type from the Prebid configuration alongside what the slot actually renders on the page. A placement whose inventoryCode, sizes, and format match across the page, the Prebid configuration, and the TripleLift setup passes. A placement where any of those three has drifted, for example an inventoryCode pointing at a different slot, sizes that no longer match the rendered unit, or a format the code was not built for, is a fail recorded with the placement and the field that diverges.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the inventoryCode, declared sizes, and media type for each TripleLift placement above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that one or more TripleLift placements on {{site_name}} do not map to the correct inventory code, sizes, or format. A placement that passes under the wrong inventoryCode, carries sizes the slot no longer renders, or uses a format the code was not built for loses demand or reports against the wrong slot, so the mapping no longer describes the real placement. {{voice_recommend}} listing each placement's inventoryCode, declared sizes, and media type from the Prebid configuration, comparing them against the slots that render on the page and the setup TripleLift holds, and correcting any field that has drifted. After the change, recheck the affected slots to confirm the inventory code, sizes, and format agree across the page, the Prebid configuration, and TripleLift."
+      }
+    },
+    {
+      "id": "triplelift-ad-slot-mapping-orphaned-stale-tags",
+      "title": "Orphaned or stale TripleLift tags pass inventory under the wrong placement",
+      "category": "inventory",
+      "subcategory": "ad_slot_mapping",
+      "impact_score": 2,
+      "impact_rationale": "A tag left in place after its slot is removed or redesigned can keep sending bid requests with an inventoryCode that no longer matches any real placement, which muddies reporting and can attach demand to inventory that is not what the buyer expects. The effect is mostly measurement noise and minor misrouting rather than a large revenue loss, so the impact sits low.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "data-quality"],
+      "educate": {
+        "base": "Ad slot mapping drifts over time as a site changes. Pages get redesigned, placements get moved or removed, and templates get rebuilt, but the Prebid ad unit definitions and the TripleLift inventory codes attached to them do not always get cleaned up at the same pace. The result is a tag that still fires but no longer matches a real placement. The slot it was built for is gone or has changed, yet the ad unit keeps sending bid requests under its old inventoryCode.<br><br>A stale or orphaned tag is a measurement and trust problem rather than an outage. The request still goes out, so nothing visibly breaks, but the inventory it represents is not what the inventoryCode describes. A few patterns point to this kind of drift:<ul><li>An ad unit fires with a TripleLift inventoryCode for a slot that no longer exists on the page, so the request describes inventory that is not there</li><li>A placement was redesigned or relocated but kept its old inventoryCode, so the code now maps to a slot that differs in size, position, or context from what TripleLift has on file</li><li>Duplicate ad unit definitions exist for the same physical slot, so more than one tag claims the same placement and the reporting double-counts or splits it</li></ul>The cost is that reporting attributes impressions to placements that do not match reality, and a buyer relying on the inventoryCode to understand what they are buying receives a signal that no longer holds. Because a stale tag keeps bidding, it can persist for a long time without anyone noticing, which is why a periodic reconciliation between the live page and the configured tags is worth doing.<br><br>TripleLift's inventory codes are assigned per placement through the partner manager, so reconciling them means confirming that every configured code still corresponds to a slot that renders on the site and that no slot is represented by more than one code. The Prebid ad unit definitions are the place to start because they hold the inventoryCode, sizes, and media type for each tag, and the live page is the check against them.<br><br>You may want to confirm that every configured TripleLift tag still maps to a real, current placement and that no slot is covered by a duplicate or leftover tag. One approach is to reconcile the list of configured ad units against the slots that actually render on the site, then retire any tag whose placement is gone and consolidate any duplicates.",
+        "site_type_overlays": {
+          "publishing": "On a media site, frequent redesigns and section changes leave behind ad unit definitions for placements that have moved or been removed. You may want to reconcile the configured TripleLift tags against the current templates after any significant layout change. A redesign is the point where orphaned tags appear.",
+          "ecommerce": "On a commerce-content site, seasonal templates and product-page changes can add and remove slots more often than editorial pages, leaving stale tags from layouts that are no longer in use. You may want to confirm that retired product or category templates did not leave behind TripleLift tags still firing under inventory codes for slots the site no longer renders."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "TripleLift for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/bidders/triplelift.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          }
+        ],
+        "learn_more_note": "TripleLift's per-placement inventory-code records for reconciling configured tags against live slots are in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Reconcile the list of configured TripleLift ad units against the slots that actually render on the site, looking for tags whose placement is gone, has changed, or is covered more than once.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Prebid configuration review",
+              "steps": [
+                "Open the Prebid ad unit configuration and list every ad unit carrying a TripleLift inventoryCode, with its ad unit 'code', sizes, and media type.",
+                "For each configured tag, confirm a matching slot still renders on the site at the position, size, and format the tag describes.",
+                "Flag any tag whose slot no longer exists, whose placement was redesigned or relocated under the same code, or that duplicates another tag for the same physical slot.",
+                "Record each orphaned, stale, or duplicate tag with the placement it claims and the reason it no longer matches."
+              ]
+            },
+            "browser_inspection": {
+              "label": "Browser inspection",
+              "steps": [
+                "Load a representative set of current pages and inspect the rendered slots and the TripleLift bid requests they generate.",
+                "Compare the inventory codes firing on the page against the full list of configured tags to find codes that fire without a matching slot or slots covered by more than one code.",
+                "Note any inventoryCode that sends a request without a corresponding live placement, which points to an orphaned or stale tag."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each configured TripleLift inventoryCode alongside whether a matching, current slot renders on the site. A configuration where every code maps to a live placement and no slot is covered by more than one code passes. A configuration with a code that fires without a matching slot, a code mapped to a placement that was redesigned or relocated, or a duplicate code for the same slot is a fail recorded with the affected inventory codes and the reason each no longer matches.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each configured TripleLift inventoryCode and whether a matching current slot renders above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has one or more orphaned or stale TripleLift tags passing inventory under a placement that no longer matches reality. A tag that keeps firing after its slot is removed or redesigned sends bid requests under an inventoryCode that no longer describes a real placement, so reporting attributes impressions to inventory that is not there and a buyer receives a signal that no longer holds. {{voice_recommend}} reconciling the configured TripleLift ad units against the slots that render on the site, retiring any tag whose placement is gone, correcting any code mapped to a relocated or redesigned slot, and consolidating duplicates. After the cleanup, confirm that every configured inventory code maps to a current placement and that no slot is covered by more than one code."
+      }
+    }
+  ]
+}

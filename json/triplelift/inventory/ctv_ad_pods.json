@@ -1,0 +1,156 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Ad pod structure decides how many ads play in a break, how long the break runs, and which advertisers can share it, so it sets both the revenue a break can carry and the viewer experience that keeps a CTV audience watching. A pod left on default values can run long, repeat the same brand, or stack competitors back to back, and none of that shows up until churn or fill data forces the question. The check is a review of pod settings the publisher already controls in TripleLift, so it costs reading time rather than a rebuild, and the finding points to a concrete configuration the publisher can adjust.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "An ad pod is the set of ads that play together in a single Connected TV (CTV) ad break, and its structure decides how long the break runs, how many ads it holds, and which advertisers can appear in it side by side. This subcategory is about the pod configuration itself, the duration, the slot count, and the separation rules, rather than the demand sources that fill those slots. These checks confirm that the pod settings are a deliberate choice matched to the content and the viewer rather than defaults left in place, so the break carries revenue without driving the audience away.",
+  "audit_checks": [
+    {
+      "id": "triplelift-ctv-ad-pods-defaults-not-deliberate",
+      "title": "Pod duration and slot structure run on defaults rather than deliberate settings",
+      "category": "inventory",
+      "subcategory": "ctv_ad_pods",
+      "impact_score": 3,
+      "impact_rationale": "Pod duration and the number of ads per pod set how much of the viewing session is given to advertising and how the break is paced. Default values that no one chose can run a break longer than the content warrants or split the time into more slots than demand can fill, so the pod either tires the viewer or leaves empty slots that depress the break's value.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "ad-experience"],
+      "educate": {
+        "base": "An ad pod is the group of ads that play in one Connected TV (CTV) ad break, and two settings shape it. Pod duration is the total length the break is allowed to run, and the slot structure is how that time is divided into individual ad slots and how many ads the pod can hold. In a Prebid long-form setup, these map to concrete fields. The 'adPodDurationSec' value sets how long the pod runs, and 'durationRangeSec' sets the allowed creative lengths, e.g., a fifteen-second or thirty-second spot, that fill the slots within it.<br><br>The cost of leaving these on a default is that the default was tuned for no particular content. A two-minute pod that fits a long sports stream is a long interruption inside a six-minute clip. A pod cut into many short slots needs enough demand to fill all of them, and when the demand is not there the empty slots either show filler or shorten the break in ways the player handles unevenly. The pod length and slot count work best when they follow the content length and the demand the inventory actually draws.<br><br>TripleLift serves CTV and online video inventory, and the pod settings live in its publisher console alongside the inventory configuration. The audit question is whether the pod duration and slot structure were set against the content and the demand, or whether they carry whatever values were in place when the inventory was first connected.<br><br>A few signs point to pod settings left on defaults:<ul><li>Pod duration is the same across content types that differ widely in length, e.g., a short clip and a full episode carrying the same break length</li><li>The number of ad slots per pod was never matched to the demand the inventory draws, so pods routinely run with empty slots</li><li>The publisher cannot say why the current duration and slot count were chosen beyond them being the values already there</li></ul>You may want to confirm that pod duration and slot structure were set deliberately for the content they serve. One approach is to read fill rate and completion by content type, then set the pod length and slot count to match the content length and the demand each type draws.",
+        "site_type_overlays": {
+          "publishing": "On a media publisher's CTV inventory, content length varies from short news clips to full episodes, and one pod duration cannot suit both. You may want to set pod duration by content type so a short clip carries a shorter break and a full episode carries a longer one, rather than applying a single length that interrupts the short content and underuses the long content.",
+          "ecommerce": "On a commerce-content publisher's video inventory, shoppable or product-adjacent segments tend to be short, so a long pod can push the viewer away from the moment that drives a purchase. You may want to keep pod duration on those segments short and reserve longer pods for standalone editorial video where a fuller break fits the viewing context."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Getting Started with Long-Form Video",
+            "source_url": "https://docs.prebid.org/prebid-video/video-long-form.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Digital Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          }
+        ],
+        "learn_more_note": "TripleLift's detailed pod configuration documentation for CTV and online video inventory is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the pod duration and slot structure set on the CTV inventory and compare them against the content lengths and the demand each content type draws.",
+        "tools": {
+          "free": {
+            "triplelift_console": {
+              "label": "TripleLift publisher console",
+              "steps": [
+                "Open the CTV or online video inventory configuration and locate the ad pod settings for each placement.",
+                "Record the pod duration and the slot structure, including the maximum number of ads per pod and the allowed creative lengths.",
+                "Note whether the same duration and slot count apply across content types that differ in length, or whether they were set per content type.",
+                "Ask the publisher why the current pod duration and slot count were chosen, and record the reason or the absence of one."
+              ]
+            },
+            "vast_response_review": {
+              "label": "VAST response review",
+              "steps": [
+                "Capture the VAST response for a sample ad break on the CTV inventory and read the ads it returns within the pod.",
+                "Confirm the total returned duration and the count of ads against the pod settings recorded in the console.",
+                "Note any case where the pod returns fewer ads than its slot count, which points to slots the demand is not filling."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per placement, the pod duration and slot structure alongside the content length and the fill the inventory draws. Pod settings that follow the content length and the demand, with shorter pods on short content and a slot count the demand can fill, pass. A single pod duration and slot count applied across content of varying length, or a slot count that routinely leaves empty slots, is a fail recorded with the placements and content types affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the pod duration, slot structure, and content length for each placement above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs CTV ad pods on default duration and slot settings rather than values chosen for the content they serve. A pod tuned for no particular content can run a break longer than a short clip warrants or split the time into more slots than the demand can fill, so the pod either tires the viewer or leaves empty slots that lower the break's value. {{voice_recommend}} reading fill rate and completion by content type, then setting pod duration and slot count to match the content length and the demand each type draws, with shorter pods on short content and longer pods on full-length content. After the change, recheck fill and completion to confirm the pod fits the content."
+      }
+    },
+    {
+      "id": "triplelift-ctv-ad-pods-no-competitive-separation",
+      "title": "Pods allow competing advertisers in the same break",
+      "category": "inventory",
+      "subcategory": "ctv_ad_pods",
+      "impact_score": 3,
+      "impact_rationale": "When a pod places two advertisers from the same category back to back, the second ad lands against a viewer who just saw a competitor, which weakens both messages and reads as a careless break. Competitive separation is a setting the publisher controls, and leaving it off means the break can stack rival brands in a way that lowers the experience and the value buyers place on the inventory.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "ad-experience"],
+      "educate": {
+        "base": "Competitive separation is the rule that keeps two advertisers from the same category out of the same Connected TV (CTV) ad break. Without it, a pod can play a car ad followed immediately by a rival car ad, which blunts both messages and signals to the viewer that no one curated the break. Buyers notice the same thing, and a break that stacks competitors reads as lower-quality inventory than one that holds them apart.<br><br>The separation is enforced through brand category data attached to each ad. In a Prebid long-form setup, the 'brandCategoryExclusion' setting requires every bid in the pod to carry a brand category, and the auction then rejects a bid whose category would repeat one already winning a slot. The category labels follow a shared taxonomy so a category from one demand source means the same thing as the matching category from another. When the setting is off, or when bids arrive without a category, the pod has no basis to separate competitors and they can land side by side.<br><br>TripleLift serves CTV and online video inventory where these pods play, and the separation behavior depends on both the pod setting and the category data the demand supplies. The audit question is whether competitive separation is configured and whether the demand carries the category data the separation needs to work.<br><br>A few signs point to separation that is not configured:<ul><li>The pod setting that enforces brand category separation is off, so nothing prevents two advertisers from the same category sharing a break</li><li>Bids reach the pod without brand category data, which leaves the separation rule with nothing to compare</li><li>Reviewing recorded breaks shows competing advertisers appearing in the same pod</li></ul>You may want to confirm that competitive separation is on and that the demand supplies the category data it depends on. One approach is to enable brand category enforcement on the pod, then review a sample of recorded breaks to confirm competitors no longer share one.",
+        "site_type_overlays": {
+          "publishing": "On a media publisher's CTV inventory, a premium content environment is part of what buyers pay for, and a break that stacks rival brands undercuts that premium. You may want to enforce competitive separation on the higher-value placements first, where the gap between a curated break and a careless one shows most clearly to both the viewer and the buyer.",
+          "ecommerce": "On a commerce-content publisher's video inventory, the advertisers are often close to the products the content features, which raises the chance that two competing brands bid into the same break. You may want to confirm separation is enforced on those product-adjacent placements specifically because the category overlap there is higher than on general editorial video."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Module - Adpod for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/adpod.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Getting Started with Long-Form Video",
+            "source_url": "https://docs.prebid.org/prebid-video/video-long-form.html"
+          }
+        ],
+        "learn_more_note": "TripleLift's competitive separation configuration for its CTV pods is documented in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether competitive separation is enabled on the CTV pods and whether the demand carries the brand category data the separation rule needs.",
+        "tools": {
+          "free": {
+            "triplelift_console": {
+              "label": "TripleLift publisher console",
+              "steps": [
+                "Open the CTV or online video pod settings and locate the competitive separation or brand category enforcement controls.",
+                "Record whether separation is enabled and, if so, the category basis it uses to keep competitors apart.",
+                "Note whether the setting applies across all placements or only some, and whether any premium placements are left without it."
+              ]
+            },
+            "vast_response_review": {
+              "label": "VAST response review",
+              "steps": [
+                "Capture VAST responses for a sample of CTV ad breaks and identify the advertiser and apparent category of each ad in the pod.",
+                "Look for any break where two ads share a category, which would mean competitors landed in the same pod.",
+                "Note whether bids arrive with brand category data attached because separation cannot work on bids that carry none."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether competitive separation is enabled on the CTV pods and whether the demand supplies the brand category data the rule depends on. Separation that is enabled, applied across the placements that matter, and backed by category data on the bids passes. Separation left off, or enabled but undermined by bids that carry no category data, is a fail recorded with the placements where competitors can share a break.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether competitive separation is enabled and whether bids carry brand category data above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs CTV ad pods without competitive separation, so two advertisers from the same category can play back to back in one break. A break that stacks rival brands blunts both messages and reads as careless inventory to the viewer and to buyers, which lowers the value placed on the placement. {{voice_recommend}} enabling brand category enforcement on the pods, confirming the demand supplies the category data the rule needs, and reviewing a sample of recorded breaks to verify competitors no longer share one. After the change, keep separation enforced on the premium placements where the difference shows most."
+      }
+    }
+  ]
+}

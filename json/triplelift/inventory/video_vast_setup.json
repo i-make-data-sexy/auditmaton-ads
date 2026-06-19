@@ -1,0 +1,162 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "The video parameters a publisher declares to TripleLift, the player size, the placement type, and the skippability rules, are what video demand reads to decide whether to bid and how much. A player size that does not match the real slot, a placement type set wrong, or viewability and content signals left out can hold the bid down or push the impression into a lower-value pool. The check is a review of the video request configuration a publisher already has in place, so it costs reading time rather than rebuild time, and the finding points to specific values the publisher can correct in their Prebid setup or video tag.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Video Ad Serving Template (VAST) is the XML response a video player reads to play an ad, and the request that asks for it carries the video parameters demand uses to value the impression. This subcategory covers the video request configuration a publisher passes to TripleLift, which it sells as an exchange compatible with Prebid through its bid adapter. These checks confirm that the player size, placement type, and skippability rules match the real slot, and that viewability and content signals are present so video demand can read what the impression is worth.",
+  "audit_checks": [
+    {
+      "id": "triplelift-video-vast-setup-player-params-misdeclared",
+      "title": "VAST version and player parameters do not match the real slot",
+      "category": "inventory",
+      "subcategory": "video_vast_setup",
+      "impact_score": 3,
+      "impact_rationale": "Video demand reads the player size, placement type, and skippability a publisher declares to decide whether to bid and how much. When those values do not match the real slot, for example a player size larger than the rendered slot or a placement type set to instream on an outstream unit, demand either values the impression on a slot that does not exist or filters it out, so the mismatch lowers the bid on inventory that would otherwise clear higher.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "Every video request a publisher sends to a video exchange carries parameters that describe the slot the ad will play in. The Video Ad Serving Template (VAST) version the player can render, the player size in pixels, the placement type that says whether the ad runs inside video content or alongside other content, and the skippability rules that say whether and when a viewer can skip. TripleLift sells video through an exchange that a publisher integrates with Prebid, so for a Prebid integration these values live in the video media type of the ad unit, and they flow into the OpenRTB request that reaches video demand.<br><br>These parameters are not cosmetic. Video demand reads them to decide whether the impression fits a campaign and what it is worth. A player size declared larger than the slot that actually renders tells demand the ad will be bigger and more viewable than it will be, so a bid placed on that promise underdelivers. A placement type set to instream on a unit that is really outstream, or the reverse, routes the impression to the wrong demand pool because instream and outstream carry different value and different buyer rules. Skippability declared one way while the player behaves another way creates the same gap between what demand expects and what the viewer sees.<br><br>The Prebid video ad unit documents the fields that carry these values, including 'playerSize', 'mimes', 'protocols', 'plcmt' for placement, and the 'skip', 'skipmin', and 'skipafter' skippability fields, and it maps them to their OpenRTB definitions. The audit question is whether the values declared match the slot a viewer actually sees rather than a copied template or a default that was never checked against the real player.<br><br>A few signs point to player parameters that do not match the real slot:<ul><li>The declared 'playerSize' differs from the rendered dimensions of the video slot on the page</li><li>The placement type is set to instream on an outstream unit or to outstream on an instream unit</li><li>The 'mimes' or 'protocols' list does not match what the player can actually render, so valid creatives are filtered out</li><li>Skippability declared in the request does not match how the player behaves for the viewer</li></ul>You may want to confirm that the declared video parameters match the slot a viewer actually sees. One approach is to read the live video request, compare each parameter against the rendered player, and correct any value that describes a slot that does not exist.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a video unit may run as instream before article video content or as outstream inside an article body, and the two carry different value. You may want to confirm the placement type and player size match the slot each unit really renders, so an outstream in-content player is not declared as instream and priced against content it does not run inside.",
+          "ecommerce": "On a commerce-content site, video often runs as an outstream unit inside editorial or product pages rather than before owned video content. You may want to confirm the placement type reflects that the unit is outstream and that the player size matches the in-page slot, so demand values the impression on the slot the shopper actually sees."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Ad Unit Reference (video media type)",
+            "source_url": "https://docs.prebid.org/dev-docs/adunit-reference.html"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "VAST (Video Ad Serving Template)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "OpenRTB",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          }
+        ],
+        "learn_more_note": "TripleLift's detailed configuration documentation for its video and Prebid adapter parameters is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the video parameters in the live request against the slot the viewer actually sees, checking player size, placement type, MIME types, protocols, and skippability.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open a page that carries the video unit and open the browser network panel.",
+                "Find the bid request or video tag request that reaches the video exchange and read the declared player size, placement type, MIME types, protocols, and skippability values.",
+                "Compare the declared player size against the rendered dimensions of the video slot on the page.",
+                "Record any parameter that describes a slot different from the one the viewer actually sees, for example a placement type or player size that does not match."
+              ]
+            },
+            "prebid_debug": {
+              "label": "Prebid debugging tools",
+              "steps": [
+                "If the unit runs through Prebid, enable Prebid debug output and read the video media type configuration for the ad unit.",
+                "Confirm 'playerSize', 'plcmt', 'mimes', 'protocols', and the skippability fields match the real player and the slot it renders.",
+                "Note any field copied from a template or left at a default that does not fit the actual unit."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per video unit, the declared player size, placement type, MIME types, protocols, and skippability, alongside what the rendered slot actually shows. A unit whose declared parameters match the real player and slot passes. A unit where the player size, placement type, or skippability describes a slot the viewer does not see is a fail recorded with the unit and the parameter that diverges.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the declared video parameters and the rendered slot for each unit above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the video request {{site_name}} sends to TripleLift declares player parameters that do not match the slot a viewer actually sees, such as a player size or placement type set to a slot that does not render. Video demand reads the player size, placement type, and skippability to decide whether to bid and how much, so a mismatch values the impression on a slot that does not exist and holds the bid down. {{voice_recommend}} reading the live video request, comparing each parameter against the rendered player, and correcting the player size, placement type, MIME types, protocols, and skippability so they describe the slot the viewer sees. After the change, recheck the request against the player to confirm the values match."
+      }
+    },
+    {
+      "id": "triplelift-video-vast-setup-viewability-content-signals-missing",
+      "title": "Viewability and content signals are not passed with the video request",
+      "category": "inventory",
+      "subcategory": "video_vast_setup",
+      "impact_score": 2,
+      "impact_rationale": "Video demand uses viewability and content signals to value an impression because a viewable in-content impression next to known content is worth more than a blind one. When those signals are absent, demand cannot tell a strong impression from a weak one, so it values the inventory at the floor it assigns to an unknown impression rather than the price the slot could command.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["inventory", "creative"],
+      "educate": {
+        "base": "A video impression is worth more to a buyer when the buyer can tell where it will run and whether it will be seen. Two kinds of signal carry that information. Viewability signals describe whether the player is in view and able to register a measured impression, and content signals describe the context the ad runs in, such as the content category or rating that lets a buyer judge fit and brand safety. When a publisher passes these signals with the video request, video demand can read them and value the impression accordingly.<br><br>The cost of leaving them out is not a broken request. The request still serves, but demand has less to go on. The Media Rating Council (MRC) viewability guidelines define what a viewable video impression is and how it is measured, and buyers price against that definition, so an impression that carries no viewability signal looks the same to demand as one that may never be seen. The same holds for content. The OpenRTB request can carry content metadata, and the IAB Content Taxonomy gives a shared vocabulary for it, but a request with no content signal leaves the buyer unable to confirm the impression sits next to content they want. Either gap pushes the impression into the price demand assigns to an unknown impression.<br><br>For a Prebid integration, content metadata travels in the OpenRTB content object that the publisher can populate, and viewability measurement depends on the player and the measurement vendor reporting against the MRC definition. The audit question is whether the video request carries the viewability and content signals demand needs to value the impression, or whether it serves blind.<br><br>A few signs point to viewability and content signals being absent:<ul><li>The video request carries no content metadata, so demand cannot read the category or context the ad runs in</li><li>No viewability measurement is reported against the slot, so demand cannot confirm the impression was seen</li><li>Average video clearing prices sit near the floor across units that should command different prices, which suggests demand is valuing them as unknown impressions</li></ul>You may want to confirm the video request carries the viewability and content signals demand uses to value the impression. One approach is to read the live request for content metadata, confirm viewability is measured against the MRC definition, and add the signals that are missing.",
+        "site_type_overlays": {
+          "publishing": "On a media site, content signals matter because a buyer wants to confirm the video sits next to editorial that fits their campaign and avoids categories they exclude. You may want to confirm the video request carries content metadata for the page, so demand can value an impression next to known editorial higher than a blind one.",
+          "ecommerce": "On a commerce-content site, a video on a product or category page reaches a higher-intent audience, but demand can only price that if the content signal tells it so. You may want to confirm the request carries content metadata that identifies the commercial context, so the higher-intent inventory is not valued as an unknown impression."
+        },
+        "learn_more": [
+          {
+            "source_type": "MRC Standard",
+            "source_title": "MRC Standards and Guidelines (viewability and digital video measurement)",
+            "source_url": "https://mediaratingcouncil.org/standards-and-guidelines"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "OpenRTB",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          }
+        ],
+        "learn_more_note": "TripleLift's detailed documentation for the viewability and content signals its video integration reads is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the live video request for content metadata and confirm viewability is measured against the slot, then compare clearing prices to see whether demand is valuing the inventory as known or unknown.",
+        "tools": {
+          "free": {
+            "browser_devtools": {
+              "label": "Browser developer tools",
+              "steps": [
+                "Open a page carrying the video unit and open the browser network panel.",
+                "Find the bid request that reaches the video exchange and read whether it carries content metadata, such as a content category or rating.",
+                "Confirm whether a viewability measurement script is present and reporting against the slot.",
+                "Record which signals are present and which are absent for each video unit."
+              ]
+            },
+            "exchange_reporting": {
+              "label": "Exchange reporting",
+              "steps": [
+                "Build a report broken out by video unit with average video CPM and fill, using whatever reporting the exchange exposes to the publisher.",
+                "Compare clearing prices across units that should command different prices to see whether they cluster near the floor.",
+                "Note any unit where prices sit near the floor despite a slot that should clear higher, which points to demand valuing it as an unknown impression."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per video unit, whether content metadata is present in the request and whether viewability is measured against the slot, alongside the average clearing price. A unit that passes content and viewability signals and clears at a price the slot supports passes. A unit that carries neither signal and clears near the floor it would receive as an unknown impression is a fail recorded with the unit and the missing signals.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record which viewability and content signals each video unit passes, and its average clearing price, above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the video request {{site_name}} sends to TripleLift carries no viewability or content signals, so video demand cannot tell a viewable in-content impression from a blind one. Demand prices against what it can read, and an impression with no content metadata and no measured viewability looks the same as one that may never be seen, so it clears at the floor for an unknown impression rather than the price the slot could command. {{voice_recommend}} adding content metadata to the request through the OpenRTB content object and confirming viewability is measured against the MRC definition for each video unit. After the change, recheck clearing prices to confirm demand values the inventory on its real context rather than as an unknown impression."
+      }
+    }
+  ]
+}

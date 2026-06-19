@@ -1,0 +1,154 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Content classification is the signal a publisher sends buyers about what a page is about, and buyers read it to target contextually and to apply brand-suitability controls. When the signal is accurate, suitable demand finds the inventory and unsuitable demand stays away. When it is wrong or missing, premium contextual budgets pass the inventory by, and a buyer's safety filter can block a clean page or, worse, let an ad run beside content it should have avoided. The check reviews the classification a publisher is already passing through OpenX and its header-bidding wrapper, so it costs reading time rather than rebuild time, and the finding points to a concrete signal the publisher can correct.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Content classification is how a publisher tells buyers what a page is about, using the IAB Tech Lab Content Taxonomy categories carried in the bid request. OpenX runs a Prebid-compatible header-bidding wrapper, so those categories travel in the OpenRTB site object alongside the request that reaches each buyer. This subcategory is about whether that classification is accurate and whether sensitive or mismatched content is flagged rather than mislabeled. These checks confirm that the categories a publisher passes describe the page honestly, so contextual demand can find the right inventory and brand-suitability controls can do their job on both sides of the auction.",
+  "audit_checks": [
+    {
+      "id": "openx-content-classification-categories-inaccurate",
+      "title": "Content category signals do not match the page they describe",
+      "category": "brand-safety",
+      "subcategory": "content_classification",
+      "impact_score": 3,
+      "impact_rationale": "Category signals drive contextual targeting and brand-suitability filtering on the buy side. When the IAB category passed in the bid request does not match the page, contextual budgets that would target the real topic pass the inventory by, and a buyer's suitability filter judges the inventory on a label that does not describe it, so demand is misdirected across a slice of inventory rather than a single page.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "data-quality"],
+      "educate": {
+        "base": "Content classification is the way a publisher describes a page to the buyers bidding on it. The shared language is the IAB Tech Lab Content Taxonomy, a standard set of category codes that publishers, sell-side platforms (SSPs), demand-side platforms (DSPs), and verification vendors all read the same way. The category travels in the OpenRTB bid request, in the site object's category fields, so a buyer can target contextually and apply brand-suitability rules without having to crawl the page itself.<br><br>OpenX runs a Prebid-compatible header-bidding wrapper, so for a publisher those category values are set in the wrapper's first-party data configuration and carried into the request that reaches each buyer. The OpenRTB site object separates the signal by scope. The 'cat' field describes the site as a whole, 'sectioncat' describes the section, and 'pagecat' describes the individual page. A page-level category that contradicts the actual topic, or a site-level category left at a generic default while the real content sits elsewhere, sends buyers a description the page does not support.<br><br>The cost of an inaccurate category cuts in two directions. Contextual demand that targets the page's real topic never sees the inventory because the signal points somewhere else, so a budget that would have valued the page passes it by. At the same time a buyer's suitability filter judges the inventory on the label it was given, so a page labeled with a category the buyer avoids gets blocked even when the content is clean. Either way the classification is doing the opposite of its job.<br><br>A few signs point to category signals that do not match the page:<ul><li>Site, section, and page categories are left at a single generic default across inventory whose topics clearly differ</li><li>Page-level categories contradict the visible topic of the page, for example a recipe page carrying a finance category</li><li>The IAB taxonomy version in use is older than the version buyers expect, so categories map imprecisely or not at all</li></ul>You may want to confirm that the categories passed for a sample of pages describe those pages accurately and use a current taxonomy version. One approach is to pull the bid request for several representative pages, read the site, section, and page categories, and compare each against the page's real topic.",
+        "site_type_overlays": {
+          "publishing": "On a media site, sections differ sharply in topic, so a finance section, a sports section, and a lifestyle section each warrant their own section and page categories rather than one site-wide default. You may want to confirm that 'sectioncat' and 'pagecat' are set per section and article, so contextual demand can find the right content and suitability filters judge each page on its own topic.",
+          "ecommerce": "On a commerce-content site, product and category pages carry a different topic than editorial pages, and a generic site category cannot describe both. You may want to set page categories that reflect the product or editorial topic of each page, so a buyer targeting a specific category of goods reaches the commercial inventory and a suitability filter does not misread a product page as off-topic editorial."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Content Taxonomy",
+            "source_url": "https://iabtechlab.com/standards/content-taxonomy/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "First Party Data",
+            "source_url": "https://docs.prebid.org/features/firstPartyData.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the content categories passed for a sample of representative pages, comparing the site, section, and page categories in the bid request against the real topic of each page.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Header-bidding wrapper configuration",
+              "steps": [
+                "Open the Prebid wrapper configuration and locate the first-party data set in 'setConfig', specifically the 'ortb2.site' object.",
+                "Record the values of 'cat', 'sectioncat', and 'pagecat', and note whether they are static across all pages or set per section and page.",
+                "Check which IAB Content Taxonomy version the configuration targets and whether it matches the version buyers in the stack expect."
+              ]
+            },
+            "bid_request_inspection": {
+              "label": "Bid request inspection",
+              "steps": [
+                "On a sample of representative pages, open the browser developer tools network tab and capture the outgoing bid request from the wrapper.",
+                "Read the 'site.cat', 'site.sectioncat', and 'site.pagecat' arrays in the request payload and write down the categories sent for each page.",
+                "Compare each page's categories against its visible topic, and flag any page whose categories contradict or fail to describe the content."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, for a sample of representative pages, the site, section, and page categories sent in the bid request alongside the real topic of each page, and the IAB taxonomy version in use. A setup where the categories describe each page accurately and use a current taxonomy version passes. A setup where categories are left at a generic default, contradict the page topic, or rely on an outdated taxonomy version is a fail recorded with the pages and categories affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the site, section, and page categories sent for each sampled page and the taxonomy version above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes content categories that do not match the pages they describe, with categories left at a generic default or contradicting the visible topic across a sample of inventory. The IAB Tech Lab Content Taxonomy category in the bid request drives contextual targeting and brand-suitability filtering on the buy side, so a category that misdescribes the page sends contextual demand elsewhere and lets suitability filters judge the inventory on a label that does not fit. {{voice_recommend}} setting site, section, and page categories that describe each page accurately, on a current taxonomy version, in the header-bidding wrapper's first-party data configuration. After the change, recheck the bid request for a sample of pages to confirm the categories now match the content."
+      }
+    },
+    {
+      "id": "openx-content-classification-sensitive-content-not-flagged",
+      "title": "Sensitive content is mislabeled rather than flagged for buyers",
+      "category": "brand-safety",
+      "subcategory": "content_classification",
+      "impact_score": 4,
+      "impact_rationale": "When sensitive content is passed with a benign or generic category rather than flagged, buyers cannot apply the suitability controls they rely on, so an advertiser's ad can run beside content it explicitly excludes. That is a brand-safety breach that damages advertiser trust in the supply, and repeated breaches can lead buyers to throttle or block the publisher's inventory, so the exposure compounds across the demand relationship rather than affecting one impression.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "data-quality"],
+      "educate": {
+        "base": "Some content is sensitive in a way that buyers need to know about before they bid. News coverage of a tragedy, mature themes, or a section that carries content many advertisers avoid all fall in this group. The IAB Tech Lab Content Taxonomy and the OpenRTB content object exist partly so a publisher can describe this honestly, giving buyers the category and content attributes they use to decide whether their advertisers belong on the page.<br><br>The failure here is not having sensitive content. Sensitive content is a normal part of publishing, and buyers have suitability tiers built to handle it. The failure is passing that content with a benign or generic category that hides what the page actually is. When the signal says the page is ordinary lifestyle content while the page covers a sensitive news event, a buyer's suitability filter has nothing to act on, so an advertiser that excludes that content category bids and wins anyway. The ad runs beside content the advertiser told its DSP to avoid.<br><br>For a publisher on OpenX, the classification travels through the Prebid-compatible wrapper in the OpenRTB site and content objects, so the place to flag sensitive content is the first-party data configuration that fills those objects. Accurate flagging protects the publisher as much as the buyer. A buyer whose ad lands beside content it excluded loses trust in the supply, and that trust is hard to rebuild, so an honest sensitive-content signal keeps the demand relationship intact rather than risking it for one cleared impression.<br><br>A few signs point to sensitive content that is mislabeled rather than flagged:<ul><li>A section known to carry sensitive or mature content passes the same generic category as ordinary inventory</li><li>No content attributes or sensitive-topic categories are set for pages whose subject matter clearly warrants them</li><li>Buyer complaints or suitability blocks cluster on inventory whose classification does not reveal why</li></ul>You may want to confirm that pages carrying sensitive content are classified honestly rather than passed with a benign default. One approach is to identify the sections or page types most likely to carry sensitive content, read the categories and attributes sent for them, and confirm the signal tells a buyer what the page really contains.",
+        "site_type_overlays": {
+          "publishing": "On a media site, breaking news and investigative sections can carry sensitive subject matter that shifts quickly, so a static site-level category cannot keep up. You may want to confirm that sensitive sections and individual sensitive articles carry categories and content attributes that flag the subject matter, so buyers can apply their suitability tiers rather than discovering the content after their ad has run.",
+          "ecommerce": "On a commerce-content site, most inventory is low-sensitivity, but editorial coverage adjacent to products can touch sensitive topics such as health claims or regulated goods. You may want to confirm that any such editorial inventory is flagged honestly rather than blended into the generic product classification, so a buyer with restrictions on those topics can act on the signal."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Content Taxonomy",
+            "source_url": "https://iabtechlab.com/standards/content-taxonomy/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "First Party Data",
+            "source_url": "https://docs.prebid.org/features/firstPartyData.html"
+          }
+        ],
+        "learn_more_note": "OpenX's detailed configuration documentation for content signals in its wrapper is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review how the sections and page types most likely to carry sensitive content are classified, checking whether the categories and content attributes sent flag the subject matter or hide it behind a generic default.",
+        "tools": {
+          "free": {
+            "wrapper_config": {
+              "label": "Header-bidding wrapper configuration",
+              "steps": [
+                "List the sections or page types most likely to carry sensitive or mature content, working from the site map and editorial structure.",
+                "For each, open the wrapper's first-party data configuration and record the 'ortb2.site' category fields and any content attributes set for that inventory.",
+                "Note whether the sensitive inventory carries a category or attribute that flags its subject matter, or whether it shares the same generic default as ordinary inventory."
+              ]
+            },
+            "bid_request_inspection": {
+              "label": "Bid request inspection",
+              "steps": [
+                "On a sample of pages from the sensitive sections, capture the outgoing bid request in the browser developer tools network tab.",
+                "Read the 'site.cat', 'site.pagecat', and 'site.content' fields and confirm whether they describe the sensitive nature of the page.",
+                "Flag any sensitive page whose request carries a benign or generic classification that would let a buyer's suitability filter clear it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records how the sections and page types most likely to carry sensitive content are classified, listing the categories and content attributes sent for them. A setup where sensitive inventory carries categories or attributes that flag its subject matter honestly passes. A setup where sensitive content is passed with a benign or generic classification that hides what the page contains is a fail recorded with the sections and pages affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the categories and content attributes sent for each sensitive section or page type above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} passes sensitive content with a benign or generic classification rather than flagging it, so buyers cannot apply the suitability controls they rely on. When the signal hides what a page contains, an advertiser that excludes that content category can bid and win anyway, and its ad runs beside content it meant to avoid, which damages the buyer's trust in the supply. {{voice_recommend}} classifying the sections and pages that carry sensitive content with categories and content attributes that describe the subject matter honestly, set in the header-bidding wrapper's first-party data configuration. After the change, recheck the bid request for those pages to confirm the sensitive nature is now visible to buyers."
+      }
+    }
+  ]
+}

@@ -1,0 +1,163 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Ad quality scanning decides whether a malicious or policy-breaking creative reaches the page before it can harm a reader or the publisher's standing with browsers and demand partners. A scanner that is switched off, or one that flags creatives nobody acts on, leaves the inventory open to malware, auto-redirects, and deceptive ads that the publisher carries the reputational cost for. This check is a review of the scanning controls and the response process a publisher already has in place, so it costs reading time rather than rebuild time, and the finding points to a concrete protection the publisher can turn on or tighten.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Ad quality scanning is the layer that inspects the creatives demand partners return and stops the ones that carry malware, force redirects, or break content policy before they render. On a sell-side platform (SSP) such as OpenX, the publisher is the party a reader blames when a bad ad fires, and repeated malvertising can cost a publisher demand-partner trust and browser standing. This subcategory covers two questions. First, whether creative scanning for malware, auto-redirects, and policy violations is actually enabled on the inventory. Second, whether the creatives that scanning flags are acted on rather than left active. These checks confirm that quality protection is a working control with a response behind it rather than a setting that was switched on once and never watched.",
+  "audit_checks": [
+    {
+      "id": "openx-ad-quality-scanning-not-enabled",
+      "title": "Creative scanning for malware and policy violations is not enabled",
+      "category": "brand-safety",
+      "subcategory": "ad_quality_scanning",
+      "impact_score": 4,
+      "impact_rationale": "Without creative scanning, a malicious creative from a demand partner can reach the page and run a malware payload, force an auto-redirect, or render a deceptive ad, all of which land on the reader and on the publisher's standing. The exposure scales with traffic and recurs on every auction, so an unscanned supply path is a recurring safety and reputational gap rather than a one-time misconfiguration.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "ad-experience"],
+      "educate": {
+        "base": "A creative that wins an auction on a sell-side platform (SSP) was written by someone other than the publisher, so the publisher has no direct control over what its code does once it renders. A malicious creative can carry a malware payload, force the browser to an auto-redirect the reader never asked for, or render a deceptive ad that imitates a system alert or a download prompt. OpenX runs Prebid-compatible header bidding, so for many publishers the creatives flow in through a Prebid wrapper, and the question is whether any scanning layer inspects those creatives before they reach the page.<br><br>Creative scanning is the control that closes this gap. A scanner inspects the bid response or the rendered creative against known malware signatures, redirect behavior, and policy rules, then blocks the ones that fail before the reader sees them. The Prebid tooling supports this through real-time data modules that sit in the auction. The Confiant Ad Quality module, for example, runs low-latency pre-auction scanning of bid responses, and the HUMAN Security Malvertising Defense module blocks 0-click and 1-click redirects and deceptive creatives in real time. The Media Trust module similarly lets publisher teams block malware, high-risk ad platforms, and heavy ads. The point is not which vendor a publisher chooses. The point is whether a scanning layer exists at all on the path between the demand partner and the page.<br><br>The cost of having no scanner is carried by the reader first and the publisher second. A reader who hits a malicious redirect on a site forms an impression of that site, not of the demand partner who served the ad. Browsers and demand partners track malvertising too, so a supply path that repeatedly serves bad creatives can lose standing with the partners a publisher depends on for revenue. An unscanned path leaves all of that downside open.<br><br>A few signs point to creative scanning not being enabled:<ul><li>No ad quality or malvertising-defense module is present in the Prebid wrapper configuration, and OpenX-side creative controls are left at their defaults</li><li>Reader complaints about redirects, fake alerts, or unexpected downloads have surfaced with no scanning layer in place to have caught them</li><li>The publisher cannot name what scans creatives before they render, or assumes the demand partner handles it without confirming</li></ul>You may want to confirm that a scanning layer sits on the supply path before creatives reach the page. One approach is to enable an ad quality or malvertising-defense module in the wrapper and pair it with whatever creative controls OpenX exposes, so malware, auto-redirects, and policy breaks are caught rather than rendered.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a reader who hits a forced redirect or a fake virus alert associates the experience with the publication's name rather than with the demand partner that served the ad, so an unscanned creative path puts the publication's reputation directly at risk. You may want to treat creative scanning as a standing control on every monetized placement, not just the high-traffic pages because a single malicious creative can fire anywhere inventory is open.",
+          "ecommerce": "On a commerce-content site, a deceptive creative that imitates a checkout prompt or a download button can erode the trust a shopper needs to complete a purchase, and a malware redirect during a session can end it outright. You may want to confirm scanning covers the product and checkout-adjacent inventory specifically because a bad ad there carries a higher cost than the same ad on an editorial page."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Confiant Ad Quality Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/prebid-server/pbs-modules/confiant-ad-quality.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "HUMAN Security Malvertising Defense Real-Time Data Submodule",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/humansecurityMalvDefenseRtdProvider.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "The Media Trust Real-Time Ad Defense for Header Bidding",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/mediafilterRtdProvider.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review whether a creative-scanning layer exists on the supply path, both in the Prebid wrapper configuration and in whatever creative controls OpenX exposes, and confirm what it inspects.",
+        "tools": {
+          "free": {
+            "prebid_config": {
+              "label": "Prebid wrapper configuration",
+              "steps": [
+                "Locate the Prebid wrapper configuration the publisher runs, then list the real-time data modules and any ad quality or malvertising-defense submodule loaded in it.",
+                "For each scanning module present, note what it inspects, for example malware signatures, redirect behavior, or policy categories, and at what stage it runs.",
+                "Record whether any scanning module is present at all, or whether the wrapper carries no ad quality layer."
+              ]
+            },
+            "openx_controls": {
+              "label": "OpenX creative controls",
+              "steps": [
+                "Open the OpenX publisher console and review the creative-quality or ad-quality controls available for the inventory.",
+                "Note whether those controls are switched on and what categories of creative they block or flag.",
+                "Record any gap where the OpenX-side controls are left at their defaults and no wrapper-side scanning layer covers them."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records whether a creative-scanning layer is present on the supply path, naming the wrapper module or the OpenX control that inspects creatives for malware, auto-redirects, and policy violations. A setup with an active scanning layer that covers the monetized inventory passes. A setup where no scanning module is present in the wrapper and the OpenX-side creative controls are left at their defaults is a fail recorded with the inventory left unscanned.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record whether a creative-scanning layer is present and what it inspects above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs monetized inventory without a creative-scanning layer on the supply path, so creatives reach the page without being inspected for malware, auto-redirects, or policy violations. A malicious creative that gets through lands on the reader first and on {{site_name}}'s standing second, and the exposure recurs on every auction. {{voice_recommend}} enabling an ad quality or malvertising-defense module in the Prebid-compatible wrapper, such as Confiant, HUMAN Security, or The Media Trust, and pairing it with the creative controls OpenX exposes so malware and deceptive creatives are blocked before they render. After enabling scanning, confirm it covers the full monetized inventory rather than a subset."
+      }
+    },
+    {
+      "id": "openx-ad-quality-scanning-flagged-creatives-not-actioned",
+      "title": "Flagged creatives are left active instead of being blocked",
+      "category": "brand-safety",
+      "subcategory": "ad_quality_scanning",
+      "impact_score": 3,
+      "impact_rationale": "A scanner that flags a bad creative but does not block it, or whose flags nobody reviews, leaves the same malware or deceptive ad able to keep serving. Scanning that produces alerts without a response gives the appearance of protection while the harmful creative continues to reach readers, so the gap is in the response process rather than in the detection.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "ad-experience"],
+      "educate": {
+        "base": "Detecting a bad creative is only half of the control. The other half is what happens after the scanner raises a flag. A scanning layer can run in a reporting mode that logs a problem creative without stopping it, or it can run in an enforcement mode that blocks the creative outright. If the scanner only reports, then a flag is a record of harm rather than a barrier against it, and the malicious or deceptive creative keeps serving until someone reviews the log and acts.<br><br>The Prebid ad quality modules distinguish these modes. The HUMAN Security Malvertising Defense module, for example, offers a full protection mode that blocks at the page level and a bids-only mode, so the configured mode decides whether a flagged creative is stopped or merely noted. The Confiant module reports per-bid status such as inspected-has-issue alongside inspected-no-issues, which is the signal a response process is meant to act on. A publisher that runs scanning in a logging mode, or that never reviews the flags an enforcing scanner produces, has detection without a response.<br><br>A response process has two parts. The scanner needs to be set to block flagged creatives where the publisher wants enforcement rather than only logging, and someone needs to own the review of what gets flagged so that recurring offenders, new patterns, and demand partners that repeatedly send bad creatives are caught and addressed. Without the first part, known-bad creatives render. Without the second, the publisher cannot tell a one-off flag from a demand source that needs to be cut off.<br><br>A few signs point to flagged creatives not being acted on:<ul><li>The scanning module is configured in a reporting or bids-only mode where flagged creatives are logged rather than blocked, with no stated reason for not enforcing</li><li>No one owns the review of scanning flags, so the alerts accumulate without anyone deciding what to do with them</li><li>The same problem creative or the same demand partner appears in the flags repeatedly with no action taken to block it</li></ul>You may want to confirm that flags lead to a response. One approach is to set the scanner to block where the publisher wants enforcement, then assign ownership of the flag review so recurring offenders and bad demand sources are acted on rather than logged and forgotten.",
+        "site_type_overlays": {
+          "publishing": "On a media site, the flags a scanner produces often point to a specific demand partner that keeps sending problem creatives, and that pattern is the signal worth acting on. You may want to review flags on a regular cadence and decide whether a repeatedly-flagged demand source should be restricted because blocking individual creatives one at a time leaves the source able to send the next one.",
+          "ecommerce": "On a commerce-content site, a deceptive creative flagged on a checkout-adjacent page carries enough cost that logging it is not a sufficient response. You may want to set the scanner to block rather than report on the commercial inventory specifically, so a flagged creative is stopped at render rather than reviewed after it has already served to shoppers."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "HUMAN Security Malvertising Defense Real-Time Data Submodule",
+            "source_url": "https://docs.prebid.org/dev-docs/modules/humansecurityMalvDefenseRtdProvider.html"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "Confiant Ad Quality Module for Header Bidding",
+            "source_url": "https://docs.prebid.org/prebid-server/pbs-modules/confiant-ad-quality.html"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "Ad Product Taxonomy",
+            "source_url": "https://dev.iabtechlab.com/standards/ad-product-taxonomy/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the mode the scanning layer runs in and confirm whether flagged creatives are blocked and whether anyone owns the review of what gets flagged.",
+        "tools": {
+          "free": {
+            "scanner_config": {
+              "label": "Scanning module configuration",
+              "steps": [
+                "Open the configuration for the ad quality or malvertising-defense module in the wrapper and note its protection mode, for example full enforcement versus a reporting or bids-only mode.",
+                "Record whether flagged creatives are blocked at render or only logged, and whether the publisher stated a reason for the mode in place.",
+                "Confirm the same for any OpenX-side creative control, noting whether it blocks or only flags."
+              ]
+            },
+            "flag_review": {
+              "label": "Flag review and response",
+              "steps": [
+                "Ask the publisher who owns the review of scanning flags and on what cadence the flags are looked at.",
+                "Review a recent sample of flagged creatives and note whether each was acted on, left active, or never reviewed.",
+                "Look for the same creative or the same demand partner appearing in the flags more than once, which points to a recurring offender that no response has addressed."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the mode the scanning layer runs in and whether a response process exists behind it. A setup where flagged creatives are blocked where the publisher wants enforcement and an owner reviews the flags for recurring offenders passes. A setup where the scanner only logs flagged creatives, or where flags accumulate with no owner and recurring offenders go unaddressed, is a fail recorded with the flags left unactioned.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the scanner's mode and whether flagged creatives are acted on above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs creative scanning without a response behind it, so flagged creatives are logged rather than blocked and no one owns the review of what gets flagged. Detection without a response means a known-bad creative keeps serving and a demand partner that repeatedly sends problem creatives goes unaddressed. {{voice_recommend}} setting the scanner to block flagged creatives where {{site_name}} wants enforcement, and assigning an owner to review the flags on a regular cadence so recurring offenders and bad demand sources are acted on. After the change, confirm that a flagged creative is stopped at render rather than reviewed after it has served."
+      }
+    }
+  ]
+}

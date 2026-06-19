@@ -1,0 +1,153 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Creative blocking controls decide which advertisers, categories, and domains are allowed to buy a publisher's inventory, so they sit at the join between brand standards and revenue. A block list that is missing the advertisers a publisher genuinely wants out lets unwanted creatives run next to the content, while a block list that is drawn too wide suppresses demand that would have paid. The check is a review of settings the publisher already holds in OpenX and in any Prebid wrapper feeding it, so it costs reading time rather than rebuild time, and each finding points to a concrete list the publisher can tighten or relax.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Creative blocking is how a publisher keeps unwanted ads off its inventory, by naming the advertiser domains, the content categories, and the specific brands it does not want OpenX to serve. OpenX is a sell-side platform (SSP), and it carries blocking controls in its own console while also passing the OpenRTB blocked-advertiser-domain and blocked-category signals that a Prebid wrapper can set. This subcategory is about the block lists themselves, what they contain and how wide they reach, rather than the supply-quality filtering OpenX applies upstream. These checks confirm that the block lists match the publisher's own standards and that they are not drawn so broadly that they suppress demand the publisher meant to keep.",
+  "audit_checks": [
+    {
+      "id": "openx-creative-blocking-lists-not-maintained",
+      "title": "Advertiser, category, and domain block lists are not maintained to the publisher's standards",
+      "category": "brand-safety",
+      "subcategory": "creative_blocking",
+      "impact_score": 3,
+      "impact_rationale": "A block list that is stale or incomplete lets advertisers, categories, or domains the publisher meant to exclude keep buying inventory, so creatives that conflict with the publisher's brand standards run next to its content. The harm is reputational rather than a direct revenue loss, but an unwanted creative on a premium placement can cost a direct-sold relationship or an audience's trust, which is why the lists need to track the publisher's standards rather than sit untouched.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "creative"],
+      "educate": {
+        "base": "Creative blocking gives a publisher three levers over what runs on its inventory. The first is the blocked advertiser domain, which names a specific advertiser by its landing-page domain so that nothing pointing to that domain serves, expressed in OpenRTB as the blocked-advertiser-domains signal (badv). The second is the blocked category, which excludes a whole class of advertising such as gambling, alcohol, or political content, expressed as the blocked-categories signal (bcat) keyed to the Interactive Advertising Bureau (IAB) Content Taxonomy. The third is the sensitive-category or brand control that OpenX exposes in its own console, which lets a publisher hold back categories it considers off-brand even when they are otherwise legal demand.<br><br>OpenX is a sell-side platform (SSP), so it both holds its own block lists and passes the OpenRTB blocking signals a Prebid wrapper sets on the bid request. That means a publisher can have block rules in two places at once, the OpenX console and the Prebid configuration, and the two need to agree. A category blocked in the wrapper but allowed in the console, or an advertiser domain blocked in one path and not the other, leaves a gap the publisher may not see.<br><br>The standards a publisher blocks against are not fixed. New advertisers enter the market, a brand the publisher competes with starts buying programmatically, a category becomes sensitive for a particular audience, or a direct-sold client asks that a rival never appear beside its placement. A block list set once and left alone drifts away from the publisher's current standards as the market moves around it.<br><br>A few signs point to block lists that are not maintained:<ul><li>The blocked advertiser domains and categories in OpenX have no record of when they were last reviewed against the publisher's brand standards</li><li>Block rules in the OpenX console and in the Prebid wrapper configuration do not match, so a creative blocked on one path can serve on the other</li><li>Advertisers or categories the publisher names as off-brand, such as direct competitors or a sensitive vertical for its audience, are not present in any block list</li></ul>You may want to confirm that the block lists reflect the publisher's current standards rather than a setup left untouched. One approach is to read the OpenX console block lists and the Prebid badv and bcat values side by side, then check both against the advertisers and categories the publisher actually wants excluded.",
+        "site_type_overlays": {
+          "publishing": "On a media site, direct-sold sponsorships often come with a promise that a competitor will not appear beside the sponsor's placement, and editorial standards may rule out categories such as gambling or political advertising on certain sections. You may want to confirm that those competitor domains and sensitive categories are present in the OpenX block lists and the Prebid configuration, so a programmatic creative cannot break a commitment the direct-sold team made.",
+          "ecommerce": "On a commerce-content site, the advertisers a publisher most wants to exclude are often direct retail competitors whose creatives would sit beside the publisher's own product content. You may want to confirm that those competitor domains are in the blocked-advertiser-domains list, and that any category the publisher considers off-brand for a shopping audience is blocked, so a rival's ad does not run next to a recommendation the publisher is trying to convert on."
+        },
+        "learn_more": [
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "ORTB2 Blocking Module",
+            "source_url": "https://docs.prebid.org/prebid-server/pbs-modules/ortb2-blocking.html"
+          },
+          {
+            "source_type": "IAB Tech Lab Standards",
+            "source_title": "Content Taxonomy",
+            "source_url": "https://iabtechlab.com/standards/content-taxonomy/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the advertiser, category, and domain block lists in the OpenX console alongside the blocked-advertiser-domains and blocked-categories values set in any Prebid wrapper, and check both against the advertisers and categories the publisher names as off-brand.",
+        "tools": {
+          "free": {
+            "openx_console": {
+              "label": "OpenX console",
+              "steps": [
+                "Open the brand-safety or creative-blocking controls in the OpenX console and list the blocked advertiser domains, blocked categories, and any sensitive-category settings in place.",
+                "Record when each list was last reviewed, if a date is available, and which standard or request each block traces back to.",
+                "Ask the publisher for the advertisers and categories it wants excluded, for example direct competitors or sensitive verticals, and check each against the lists in the console."
+              ]
+            },
+            "prebid_config": {
+              "label": "Prebid wrapper configuration",
+              "steps": [
+                "Open the Prebid configuration feeding OpenX and read the ortb2 blocked-advertiser-domains (badv) and blocked-categories (bcat) values, set globally or per bidder.",
+                "Compare the Prebid badv and bcat values against the block lists in the OpenX console, and note any advertiser or category blocked on one path but allowed on the other.",
+                "Record whether the Prebid block values use the same IAB Content Taxonomy version the rest of the setup expects, so a category code does not block the wrong class of advertising."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the block lists in the OpenX console and the Prebid badv and bcat values, alongside the advertisers and categories the publisher names as off-brand. A setup where the lists cover the publisher's stated exclusions and agree across the console and the wrapper passes. A setup where named exclusions are missing, or where the console and the wrapper disagree so a creative blocked on one path can serve on the other, is a fail recorded with the advertisers, categories, and paths affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the block lists from the OpenX console and the Prebid badv and bcat values above, alongside the publisher's named exclusions, to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the creative block lists for {{site_name}} do not match the publisher's stated standards, with named exclusions missing or the OpenX console and the Prebid wrapper disagreeing on what is blocked. Block lists drift as the market moves, and a stale or split list lets advertisers, categories, or domains the publisher meant to exclude keep serving next to its content. {{voice_recommend}} reading the OpenX console block lists and the Prebid blocked-advertiser-domains and blocked-categories values side by side, reconciling the two so a creative blocked on one path cannot serve on the other, and adding the competitors and sensitive categories the publisher names as off-brand. After the change, keep a record of when the lists were last reviewed so the next audit can see whether they still track the standards."
+      }
+    },
+    {
+      "id": "openx-creative-blocking-over-broad-suppresses-revenue",
+      "title": "Block lists are drawn too broadly and suppress demand the publisher meant to keep",
+      "category": "brand-safety",
+      "subcategory": "creative_blocking",
+      "impact_score": 3,
+      "impact_rationale": "A block list that reaches wider than the publisher's standards require removes demand that would have paid, so the auction runs thinner and the clearing price falls without any brand-safety benefit in return. A blocked top-level category or an over-inclusive domain list can suppress a meaningful slice of bids, which makes over-blocking a quiet revenue cost rather than a protection.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["brand-safety", "creative"],
+      "educate": {
+        "base": "Blocking has a cost on the other side of the ledger. Every advertiser, domain, or category a publisher excludes is demand removed from the auction, so a block list that reaches wider than the publisher's standards require thins the competition for each impression and pulls the clearing price down. The aim is to block what genuinely conflicts with the publisher's standards and no more. Each block beyond that point trades revenue for no brand-safety gain.<br><br>Over-blocking usually comes from one of a few habits. A publisher blocks a top-level category in the Interactive Advertising Bureau (IAB) Content Taxonomy when only a narrow child category was the concern, which removes far more demand than intended. A domain block list grows by accretion as names are added and never removed, so it carries advertisers that are no longer a concern. Or the same exclusion is set in both the OpenX console and the Prebid wrapper in overlapping ways that together reach wider than either was meant to.<br><br>Category blocking is where the breadth question bites hardest. The IAB Content Taxonomy is hierarchical. Blocking a parent category blocks every child beneath it, so a publisher that meant to exclude one sensitive subcategory can remove an entire branch of legitimate demand by blocking one level too high. Choosing the most specific category that covers the concern keeps the block narrow.<br><br>A few signs point to block lists drawn too broadly:<ul><li>Top-level IAB categories are blocked where a narrower child category would have covered the publisher's actual concern</li><li>The blocked-advertiser-domains list has grown over time with no review to remove advertisers that are no longer a concern</li><li>Reporting shows bid density or fill softening on inventory where the block lists apply, with no brand-safety reason that explains the suppressed demand</li></ul>You may want to confirm that each block is as narrow as the publisher's standard allows. One approach is to review the blocked categories against the IAB Content Taxonomy to replace any over-broad parent with the specific child that matches the concern, and to prune domains from the list that no longer need to be there.",
+        "site_type_overlays": {
+          "publishing": "On a media site, a publisher concerned about one sensitive topic can block a broad parent category and lose unrelated demand beneath it, for example blocking an entire news branch to keep out one kind of political content. You may want to review the blocked categories against the IAB Content Taxonomy and narrow each to the specific child that matches the concern, so the editorial standard holds without thinning the auction across a whole branch.",
+          "ecommerce": "On a commerce-content site, a long-standing block of a competitor's domain can outlast the reason it was added, and a broad retail category block can remove demand the publisher would happily run beside non-competing product content. You may want to prune the domain list to the competitors that still matter and narrow any category block to the specific concern, so the commercial inventory keeps the demand that pays for it."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standards",
+            "source_title": "Content Taxonomy",
+            "source_url": "https://iabtechlab.com/standards/content-taxonomy/"
+          },
+          {
+            "source_type": "Prebid Documentation",
+            "source_title": "ORTB2 Blocking Module",
+            "source_url": "https://docs.prebid.org/prebid-server/pbs-modules/ortb2-blocking.html"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the blocked categories against the IAB Content Taxonomy to see whether any parent is blocked where a child would do, read the blocked-advertiser-domains list for entries that no longer need to be there, and check reporting for demand softening on the inventory where the blocks apply.",
+        "tools": {
+          "free": {
+            "openx_console": {
+              "label": "OpenX console",
+              "steps": [
+                "Open the creative-blocking controls in the OpenX console and list the blocked categories alongside the IAB Content Taxonomy level each one sits at.",
+                "For each blocked category, ask whether a narrower child category would cover the publisher's concern, and flag any parent block that reaches wider than the stated standard.",
+                "Read the blocked-advertiser-domains list and ask the publisher whether each entry is still a concern, flagging names that can be removed."
+              ]
+            },
+            "openx_reporting": {
+              "label": "OpenX reporting",
+              "steps": [
+                "Build a report on the inventory where the block lists apply, with bid density, fill rate, and average eCPM.",
+                "Compare that inventory against comparable inventory with lighter blocking to see whether the blocks coincide with softer demand or a lower clearing price.",
+                "Note any case where demand is suppressed without a brand-safety reason that explains it, which points to a block drawn wider than it needs to be."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each blocked category with its IAB Content Taxonomy level, each blocked advertiser domain with whether it is still a concern, and the demand metrics on the affected inventory. A setup where each block is as narrow as the publisher's standard allows, with specific child categories rather than broad parents and a domain list kept current, passes. A setup where parent categories are blocked in place of children, or the domain list carries stale entries, or demand is suppressed with no brand-safety reason, is a fail recorded with the blocks that reach too wide.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the blocked categories with their IAB Content Taxonomy level, the blocked domains, and the demand metrics on the affected inventory above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that the creative block lists for {{site_name}} reach wider than the publisher's standards require, with broad parent categories blocked where a child would do, or stale advertiser domains left on the list, so demand that would have paid is suppressed with no brand-safety gain. Each block beyond the genuine concern thins the auction and pulls the clearing price down. {{voice_recommend}} reviewing the blocked categories against the Interactive Advertising Bureau (IAB) Content Taxonomy and replacing each over-broad parent with the specific child that matches the concern, pruning the blocked-advertiser-domains list to the names that still matter, and rechecking bid density on the affected inventory. After the change, the block lists should cover what genuinely conflicts with the publisher's standards while leaving the rest of the demand in the auction."
+      }
+    }
+  ]
+}

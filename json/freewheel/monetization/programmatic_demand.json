@@ -1,0 +1,162 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Programmatic demand in FreeWheel feeds the video and Connected TV (CTV) inventory through real-time bidding (RTB) and supply-side platform (SSP) connections, so the set of connected sources and how they are tuned decides how much programmatic revenue the inventory actually earns. A connection that was added for a test and never removed, or a timeout set for a display environment rather than a streaming one, can drag fill and revenue without anyone noticing. This check is a review of the connections a publisher already has in place, so it costs reading time rather than rebuild time, and the finding points to a concrete connection to keep, prune, or retune.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Programmatic demand connections decide which RTB and SSP sources compete for FreeWheel's video and CTV inventory, and how those sources are tuned for a streaming environment where the player has a hard window to fill the ad break. This subcategory is about the connections themselves, which sources are active, why each one is connected, and whether the timeouts fit the streaming context, rather than the deal terms or pricing carried inside them. These checks confirm that the connected demand is a deliberate, active set rather than a list that grew by accretion, and that each connection earns its place in the auction.",
+  "audit_checks": [
+    {
+      "id": "freewheel-programmatic-demand-sources-unjustified-or-inactive",
+      "title": "Connected programmatic demand sources are not justified or are inactive",
+      "category": "monetization",
+      "subcategory": "programmatic_demand",
+      "impact_score": 3,
+      "impact_rationale": "Each programmatic connection adds a source bidding into the auction, but a source that no longer wins, or that was connected for a reason no one can name, adds request overhead and supply-path complexity without earning revenue. A demand list that grew by accretion makes the auction harder to reason about and can route the same impression through paths that no longer pay, so confirming each connection is active and justified keeps the demand set working rather than just present.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "FreeWheel serves video and Connected TV (CTV) inventory and connects to programmatic demand through real-time bidding (RTB) and supply-side platform (SSP) sources that bid into the auction for that inventory. Each connected source is a path that demand can take to reach the impression, and in a healthy setup every active source wins enough of the time to justify the path it occupies. The question this check asks is whether the connected sources are a deliberate, active set or a list that accumulated as integrations were added for tests, pilots, and one-off campaigns and then left in place.<br><br>An inactive or unjustified connection is not free. It adds a path the impression can travel, which makes the supply chain longer and harder to reason about, and a longer supply chain is exactly what buyers scrutinize through sellers.json and the SupplyChain object that travels with each bid request. A source that no longer wins still appears in that record as a seller a publisher works with, so pruning dormant connections keeps the publicly declared supply path matching the demand that is actually transacting.<br><br>In a streaming environment the cost compounds because the player has a fixed window to fill the ad break. Time spent waiting on sources that rarely or never win is time not spent on the sources that do, and the streaming context gives a stricter deadline than a display page where a slow bidder can be tolerated more easily. A demand list weighted with dormant connections spreads the available time thinner than a focused one.<br><br>A few signs point to connected demand that is not justified or no longer active:<ul><li>A connected source shows little or no win or revenue volume across a recent reporting window while staying enabled</li><li>The publisher cannot say why a particular source is connected beyond it having been added at some point</li><li>The connected list includes sources from a past test, pilot, or campaign that ended without the connection being removed</li><li>The set of declared sellers in sellers.json includes intermediaries that no longer transact for this inventory</li></ul>You may want to confirm that each connected programmatic source is both active and connected for a reason the publisher can state. One approach is to read win rate and revenue per source across a recent window, then keep the sources that earn their path and retire the ones that do not.",
+        "site_type_overlays": {
+          "publishing": "For a broadcaster or streaming publisher, the demand list often carries connections added during channel launches, app rollouts, or seasonal campaigns, and some outlive the reason they were added. You may want to review the connected sources per content channel or app and confirm each still wins enough to justify its place because a CTV ad break's fixed fill window makes time spent on dormant sources costlier than on a display page.",
+          "ecommerce": "For a commerce-content video setup, such as shoppable video or product-explainer streams, demand connections may have been added to chase a specific retail campaign and then left enabled. You may want to confirm the connected sources still serve the commercial video inventory rather than lingering from a campaign that has ended, so the active demand matches what the inventory needs now."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB (Real-Time Bidding)",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "sellers.json Supply Chain Transparency",
+            "source_url": "https://iabtechlab.com/sellers-json/"
+          }
+        ],
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the connected programmatic demand sources, then read win rate and revenue per source across a recent window to see which are active and which are dormant, and ask the publisher why each is connected.",
+        "tools": {
+          "free": {
+            "freewheel_console": {
+              "label": "FreeWheel console",
+              "steps": [
+                "Open the programmatic demand or marketplace section and list every connected RTB and SSP source that is currently enabled.",
+                "For each source, note whether it is active, the inventory or channels it is connected for, and whether the publisher can state why it is connected.",
+                "Flag any source that was added for a test, pilot, or campaign that has since ended but remains enabled."
+              ]
+            },
+            "freewheel_reporting": {
+              "label": "FreeWheel reporting",
+              "steps": [
+                "Build a report broken out by programmatic demand source across a recent window, with bid requests, win rate, impressions, and revenue.",
+                "Identify sources that show little or no win or revenue volume while staying enabled, and record them as candidates to retire.",
+                "Compare each active source's contribution against the request overhead it adds, and note which sources earn their path and which do not."
+              ]
+            },
+            "sellers_json": {
+              "label": "sellers.json review",
+              "steps": [
+                "Open the publisher's published sellers.json and list the declared seller and intermediary entries for this inventory.",
+                "Compare the declared sellers against the demand sources that actually transact in reporting.",
+                "Note any declared intermediary that no longer corresponds to an active, transacting connection."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each connected programmatic source with its win rate and revenue across the window and the reason it is connected. A demand set where every active source earns its path and the publisher can justify each connection passes. A set that includes sources with little or no win or revenue volume, or connections the publisher cannot justify, is a fail recorded with the specific sources to retire or re-justify.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each connected source with its win rate, revenue, and the reason it is connected above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} keeps programmatic demand sources connected that show little or no win or revenue volume, or that no one can justify, so the demand list has grown by accretion rather than by deliberate choice. Each connection adds a path through the supply chain and, in a Connected TV (CTV) environment with a fixed ad-break fill window, spreads the available time across sources that may never win. {{voice_recommend}} reading win rate and revenue per source across a recent window, retiring the sources that do not earn their path, and confirming the remaining connections match the sellers declared in sellers.json. After the change, recheck fill and revenue to confirm the focused demand set holds up."
+      }
+    },
+    {
+      "id": "freewheel-programmatic-demand-timeouts-not-tuned-for-streaming",
+      "title": "Programmatic demand timeouts are not tuned for the streaming environment",
+      "category": "monetization",
+      "subcategory": "programmatic_demand",
+      "impact_score": 3,
+      "impact_rationale": "In Connected TV and online video, the player has a fixed window to fill the ad break, so the timeout given to each programmatic source decides whether its bid arrives in time to count. A timeout carried over from a display setup can be too short to collect bids from sources that would have won, or too long to fit the break and risk an unfilled slot, so tuning the timeout to the streaming context directly affects fill and revenue.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "A programmatic demand timeout is the window FreeWheel gives a real-time bidding (RTB) or supply-side platform (SSP) source to return a bid before the auction moves on. In a streaming environment the timeout matters more than it does on a display page because the video player has a hard deadline to fill the ad break. The ad break has a fixed duration, the player needs the creative ready before the content resumes, and a bid that arrives after the window closes does not count no matter how high it was.<br><br>The tension runs in two directions. Set the timeout too short and the auction closes before slower sources return, so bids that would have won are never collected and the impression clears at a lower price or goes to a faster but cheaper source. Set the timeout too long and the auction risks overrunning the player's window, which can leave the slot unfilled or force a fallback, so a longer wait does not always mean a better fill. The right setting balances collecting enough bids against fitting inside the streaming deadline, and that balance differs from the one a display setup would use.<br><br>FreeWheel's video and Connected TV (CTV) context also brings ad pods, where several ad slots fill one break together, so the timeout budget is shared across the pod rather than spent on a single impression. The IAB Tech Lab CTV Programmatic Guide describes how pod bidding works in OpenRTB, and a timeout tuned for a single display slot does not account for a pod that has to assemble multiple creatives inside one fill window. A timeout copied from a display environment, or left at a platform default, is the sign that the streaming deadline was not accounted for.<br><br>A few signs point to demand timeouts that are not tuned for streaming:<ul><li>The timeout matches a value carried over from a display or header-bidding setup rather than one chosen for the video fill window</li><li>Reporting shows late or discarded bids from sources that arrive after the auction has closed</li><li>Unfilled ad slots or fallbacks cluster around breaks where the auction window appears to overrun the player's deadline</li><li>The same timeout applies across single-slot and pod-based breaks without accounting for the shared pod budget</li></ul>You may want to confirm the demand timeouts fit the player's fill window rather than a display default. One approach is to read late-bid and timeout rates per source alongside fill, then adjust the window so it collects the bids that win without overrunning the break.",
+        "site_type_overlays": {
+          "publishing": "For a broadcaster or streaming publisher, ad breaks run inside live or video-on-demand content where the player must resume on schedule, so the timeout has to fit that deadline. You may want to tune the window per content type because a live stream's break may allow a different budget than a video-on-demand break, and confirm the pod-based breaks account for assembling several creatives inside one window.",
+          "ecommerce": "For a commerce-content video setup, such as shoppable or product video, the player still has a fixed break to fill but the inventory may be lower volume than a broadcaster's. You may want to confirm the timeout is not left at a display default carried over from the surrounding commerce pages because the video fill window is the constraint that matters for these slots."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "CTV Programmatic Guide",
+            "source_url": "https://iabtechlab.com/standards/advanced-tv/ctv-programmatic-guide/"
+          },
+          {
+            "source_type": "IAB Tech Lab",
+            "source_title": "OpenRTB (Real-Time Bidding)",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          }
+        ],
+        "learn_more_note": "FreeWheel's detailed configuration documentation for programmatic demand timeouts is in the partner portal (login required).",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the demand timeout settings against the player's ad-break fill window, then read late-bid, timeout, and fill rates per source to see whether the window is collecting the bids that win without overrunning the break.",
+        "tools": {
+          "free": {
+            "freewheel_console": {
+              "label": "FreeWheel console",
+              "steps": [
+                "Open the programmatic demand or auction settings and record the timeout applied to each RTB and SSP source.",
+                "Note whether the timeout was chosen for the video fill window or carried over from a display or header-bidding default.",
+                "Check whether single-slot and pod-based breaks share one timeout or account separately for the pod's shared budget."
+              ]
+            },
+            "freewheel_reporting": {
+              "label": "FreeWheel reporting",
+              "steps": [
+                "Build a report broken out by demand source with bid requests, late or discarded bids, timeout rate, and fill rate.",
+                "Identify sources whose bids frequently arrive after the auction closes, which points to a window that is too short for them.",
+                "Look for unfilled slots or fallbacks clustering around breaks where the auction window appears to overrun the player's deadline, which points to a window that is too long."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records the demand timeout per source alongside late-bid rate, timeout rate, and fill across a recent window, and notes whether single-slot and pod breaks are handled separately. A timeout chosen to fit the player's fill window, where winning bids arrive in time and breaks fill without overrunning, passes. A timeout carried over from a display default, or one where late bids or unfilled slots point to a window that is too short or too long, is a fail recorded with the sources and break types affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the timeout per source with late-bid, timeout, and fill rates above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs programmatic demand timeouts that were not tuned for the streaming environment, so the auction window does not fit the player's fixed ad-break deadline. A window too short closes before slower sources return their bids, leaving revenue uncollected, and a window too long risks overrunning the break and leaving the slot unfilled, and a Connected TV (CTV) pod shares that budget across several creatives. {{voice_recommend}} reading late-bid, timeout, and fill rates per source, then adjusting the window so it collects the bids that win without overrunning the break, handling pod-based breaks separately from single-slot ones. After the change, recheck fill and average price to confirm the timeout fits the streaming context."
+      }
+    }
+  ]
+}

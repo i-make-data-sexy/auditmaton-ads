@@ -1,0 +1,157 @@
+{
+  "subcat_img": "",
+  "subcat_img_caption": "",
+  "subcat_img_credit": "",
+  "important_note": "",
+  "important_note_url": "",
+  "google_guidance": "",
+  "worth_it": "Yes",
+  "worth_it_explanation": "Yield settings in FreeWheel decide how a video impression or ad pod is cleared across direct-sold demand, programmatic demand, and any throttling the publisher has put in place, so they sit directly on the revenue a streaming or broadcast property earns from each break. A throttle set once and forgotten, or a programmatic lane held too tight to protect direct-sold delivery, can suppress the value of an impression without anyone seeing it in a single report. This check is a review of the yield configuration a publisher already runs in FreeWheel, so it costs reading time rather than rebuild time, and each finding points to a concrete pricing or routing decision the publisher can test.",
+  "worth_it_visible": "Yes",
+  "tier": "core",
+  "intro": "Yield optimization in FreeWheel covers the auction dynamics, demand throttling, and the balance between direct-sold protection and programmatic competition that together decide what each video impression or ad pod clears at. This subcategory is about the yield strategy itself, the auction settings and routing choices and how deliberately they are applied, rather than the floor values alone. These checks confirm that the auction is letting eligible demand compete rather than quietly capping it, and that the line between protecting direct-sold delivery and opening inventory to programmatic yield is a decision the publisher made on purpose.",
+  "audit_checks": [
+    {
+      "id": "freewheel-yield-optimization-demand-throttling-not-reviewed",
+      "title": "Auction dynamics and demand throttling are not reviewed against impression value",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "Throttles, caps, and timeout settings that limit which demand competes for a video impression can protect viewer experience and direct-sold delivery, but the same controls suppress clearing price when they cut competition further than intended. Left unreviewed against the value each impression actually clears at, a throttle set for one reason keeps applying after the reason has passed, so the publisher loses yield on inventory that could have cleared higher.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "A video impression in FreeWheel clears at the price the winning demand is willing to pay, and that price depends on how many sources were allowed to compete for it. Auction dynamics describe how that competition runs, and demand throttling describes the controls that narrow it. Caps on how many programmatic partners are called, timeouts that drop a partner whose bid arrives late, frequency limits, and pacing rules all shape which demand reaches the auction. Each control exists for a reason, often to protect the viewer experience in a Connected TV (CTV) ad break or to keep latency low, but each one also removes demand that might have cleared higher.<br><br>The auction itself adds another layer. Programmatic video and CTV demand transacts under the OpenRTB protocol, where a buyer submits a bid for an impression and the seller decides what clears. OpenRTB carries explicit price-floor signals, including a DurFloor object that lets the seller set floors that vary by ad duration, so a fifteen-second spot and a thirty-second spot can be priced differently. How the publisher sets those signals, and how the throttles sit on top of them, decides whether eligible demand actually competes or is capped before it reaches the auction.<br><br>The audit question is not whether throttling is wrong. The question is whether the current throttles still match the value of the inventory they sit on. A timeout tuned for a low-latency requirement that has since relaxed, or a partner cap set during an early integration and never revisited, keeps cutting competition after the reason has passed. Without reading the clearing price against the throttle in place, a publisher cannot see that gap.<br><br>A few signs point to throttling that has not been reviewed against impression value:<ul><li>Partner caps, timeouts, or pacing rules exist with no record of when they were set or what they were meant to protect</li><li>Reporting shows fill rate or average clearing price varying widely across pods or placements while the throttle settings stay the same for all of them</li><li>The publisher cannot say which demand sources are eligible for a given pod, or why some are excluded</li></ul>You may want to confirm that each throttle still earns its place against the value of the inventory it limits. One approach is to relax a single control on a slice of comparable inventory, hold the rest unchanged, and read clearing price, fill, and viewer-experience signals across both before deciding whether the throttle stays.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcast property, a live sports break and a long-tail catch-up episode carry very different demand, yet a single set of throttles often covers both. You may want to read clearing price by content type and daypart, then loosen caps or timeouts on the high-demand inventory where the competition is being cut more than the viewer experience requires.",
+          "ecommerce": "On a commerce-content video property, shoppable or product-adjacent segments reach an audience closer to a purchase and can clear higher than general editorial video. You may want to confirm the throttles on those higher-intent segments are not borrowed from the general inventory since a cap that fits editorial video can leave the commercial inventory underpriced."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "OpenRTB (Real-Time Bidding) protocol",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Video Ad Serving Template (VAST)",
+            "source_url": "https://iabtechlab.com/standards/vast/"
+          }
+        ],
+        "learn_more_note": "FreeWheel's detailed configuration documentation for auction dynamics and demand throttling is in the partner portal (login required). The standards links above cover the public auction and ad-serving mechanics those settings sit on.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review the throttling and auction settings that limit which demand competes for an impression, and look for any record of why each control was set and any read of clearing price against it.",
+        "tools": {
+          "free": {
+            "freewheel_ui": {
+              "label": "FreeWheel console",
+              "steps": [
+                "Open the demand and auction settings for the inventory under review and list the active partner caps, timeouts, frequency limits, and pacing rules.",
+                "For each control, note which pods or placements it covers and record any stated reason or date for why it was set.",
+                "Record which demand sources are eligible for a given pod and which are excluded, along with the reason for each exclusion.",
+                "Ask the publisher whether any setting has been tested or revisited since it was put in place, and record what the result showed and when."
+              ]
+            },
+            "freewheel_reporting": {
+              "label": "FreeWheel reporting",
+              "steps": [
+                "Build a report broken out by pod, placement, content type, and daypart, with fill rate, average clearing price, and timeout or error counts.",
+                "Compare the clearing price across slices that share a throttle to see whether the control is cutting competition more on high-value inventory than on low-value inventory.",
+                "Note any case where fill or clearing price varies widely but the throttle settings stay the same, which points to a control that no longer fits the inventory it sits on."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records each active throttle, cap, timeout, and pacing rule alongside the inventory it covers, the stated reason for it, and the clearing price the inventory shows. A configuration where each control has a current reason and the clearing price supports keeping it passes. A configuration where throttles apply with no recorded reason, or where clearing price varies widely under a uniform throttle with no test on record, is a fail recorded with the controls and the inventory affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record each throttle and the clearing price for the inventory it covers above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} runs demand throttles, caps, or timeouts on its video inventory without a current record of why each was set or a read of clearing price against it. These controls protect viewer experience and delivery, but the same controls suppress clearing price when they cut competition further than the inventory requires, and a throttle set for a reason that has since passed keeps applying. {{voice_recommend}} listing each active control with the inventory it covers and the reason for it, reading average clearing price and fill by pod and placement, and relaxing a single control on a slice of comparable inventory to measure the effect before deciding whether the throttle stays. Keep whichever setting the clearing price and viewer-experience data support for each slice of inventory."
+      }
+    },
+    {
+      "id": "freewheel-yield-optimization-direct-sold-programmatic-not-deliberate",
+      "title": "The balance between direct-sold protection and programmatic yield is not set deliberately",
+      "category": "monetization",
+      "subcategory": "yield_optimization",
+      "impact_score": 3,
+      "impact_rationale": "FreeWheel lets a publisher protect direct-sold delivery while opening unsold inventory to programmatic demand, and where that line sits decides how much yield each side contributes. A line drawn by default rather than on purpose can starve programmatic of the impressions it would clear highest on, or let it undercut a guaranteed campaign that needed protection, so the split between the two demand types goes untested.",
+      "has_chart": false,
+      "has_code_snippet": false,
+      "has_export": false,
+      "image_count": 0,
+      "conditional": null,
+      "column_dependencies": [],
+      "theme_tags": ["yield", "performance"],
+      "educate": {
+        "base": "A premium video publisher carries two kinds of demand at once. Direct-sold campaigns are sold ahead of time at a negotiated rate and often carry a delivery guarantee, so the publisher has promised those impressions will run. Programmatic demand competes in real time for whatever is left, and on strong inventory it sometimes bids above the direct-sold rate. FreeWheel sits between the two and decides, pod by pod and impression by impression, which demand fills the slot. Where the publisher draws the line between protecting the guarantee and letting programmatic compete is the yield decision in this check.<br><br>The trade is real in both directions. Protect the direct-sold delivery too tightly and programmatic never sees the impressions it would have cleared highest on, so revenue that was available goes uncollected. Open the inventory too freely and a high programmatic bid can pull an impression away from a guaranteed campaign that still needs to deliver, which risks an under-delivery the publisher has to make good on later. The right line depends on how the direct-sold campaigns are pacing, how much inventory is forecast to go unsold, and how strong the programmatic demand is for that inventory.<br><br>FreeWheel gives the publisher controls to set this balance rather than leave it to chance, including the priority a line item carries, the floors that programmatic demand has to clear, and the rules that decide when unsold guaranteed inventory is released to the open auction. The audit question is whether those controls reflect a decision the publisher made on purpose or a default that was never revisited. A guaranteed line item left at a priority that blocks all programmatic competition, or a release rule that opens inventory the direct-sold campaigns still needed, both point to a balance set by accident.<br><br>A few signs point to a balance that was not set deliberately:<ul><li>Direct-sold line items run at a priority that excludes programmatic competition with no stated reason tied to a delivery guarantee</li><li>No rule exists for releasing under-pacing or unsold guaranteed inventory to the open auction, so it either sits idle or is released without control</li><li>Reporting shows programmatic clearing prices above the direct-sold rate on inventory that programmatic is not allowed to win, which suggests yield is being left behind to protect a guarantee that is already on track</li></ul>You may want to confirm the split between direct-sold protection and programmatic yield is a choice rather than a default. One approach is to read direct-sold pacing against programmatic clearing prices on the same inventory, then set release and priority rules that protect the guarantees that need it while letting programmatic compete for the rest.",
+        "site_type_overlays": {
+          "publishing": "On a streaming or broadcast property, tentpole programming such as a live event is usually sold direct at a premium and needs its delivery protected, while long-tail catch-up content often goes unsold and is a strong candidate for programmatic. You may want to set the direct-sold-versus-programmatic line by content type, protecting the tentpole guarantees while opening the long-tail inventory to the open auction.",
+          "ecommerce": "On a commerce-content video property, sponsored product segments may be sold direct to a brand partner while general shoppable inventory is open to programmatic demand. You may want to confirm the release rules keep the sponsored commitments intact while letting programmatic compete for the unsold commercial inventory rather than treating both the same."
+        },
+        "learn_more": [
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "OpenRTB (Real-Time Bidding) protocol",
+            "source_url": "https://iabtechlab.com/standards/openrtb/"
+          },
+          {
+            "source_type": "IAB Tech Lab Standard",
+            "source_title": "Digital Video Multiple Ad Playlist (VMAP)",
+            "source_url": "https://iabtechlab.com/standards-old/video-multiple-ad-playlist-vmap/"
+          }
+        ],
+        "learn_more_note": "FreeWheel's detailed configuration documentation for line-item priority and the rules that release guaranteed inventory to the open auction is in the partner portal (login required). The standards links above cover the public programmatic auction and ad-break mechanics that the direct-sold-versus-programmatic balance sits on.",
+        "impactful_updates": []
+      },
+      "investigate": {
+        "intro": "Review how direct-sold line items are prioritized against programmatic demand, and look for the rules that decide when unsold or under-pacing guaranteed inventory is released to the open auction.",
+        "tools": {
+          "free": {
+            "freewheel_ui": {
+              "label": "FreeWheel console",
+              "steps": [
+                "Open the line items for the inventory under review and record the priority each direct-sold campaign carries and whether it allows programmatic competition.",
+                "List any rules that release under-pacing or unsold guaranteed inventory to the open auction, and note the conditions that trigger them.",
+                "Record which inventory is reserved for direct-sold demand, which is open to programmatic, and where the two overlap.",
+                "Ask the publisher whether the priority and release rules were set to match a specific delivery guarantee, and record the reason given for each."
+              ]
+            },
+            "freewheel_reporting": {
+              "label": "FreeWheel reporting",
+              "steps": [
+                "Build a report comparing direct-sold delivery pacing against the programmatic clearing price on the same inventory.",
+                "Look for inventory where programmatic clears above the direct-sold rate but is blocked from winning, and for guaranteed campaigns that are under-pacing while their inventory stays closed to programmatic.",
+                "Note any case where the priority or release rule is leaving yield behind without protecting a guarantee that needs it."
+              ]
+            }
+          },
+          "paid": {}
+        }
+      },
+      "evaluate": {
+        "logic": "The practitioner records, per inventory slice, the direct-sold priority, the programmatic eligibility, the release rules for unsold guaranteed inventory, and the pacing and clearing prices on each side. A configuration where the balance protects the guarantees that need protecting and lets programmatic compete for the rest, backed by the pacing and clearing data, passes. A configuration where direct-sold priority blocks programmatic with no delivery reason, or where no release rule exists for unsold guaranteed inventory, is a fail recorded with the inventory and the rules affected.",
+        "column_dependencies": [],
+        "export_available": false,
+        "fallback_message": "Record the direct-sold priority, programmatic eligibility, and release rules for each inventory slice above to see the evaluation."
+      },
+      "visualizations": [],
+      "generate": {
+        "narrative_template": "{{voice_found}} that {{site_name}} has not set the balance between protecting direct-sold delivery and opening inventory to programmatic yield deliberately. Where this line falls decides how much each demand type contributes, and a line drawn by default can starve programmatic of the impressions it would clear highest on or let it pull an impression from a guaranteed campaign that still needed it. {{voice_recommend}} reading direct-sold pacing against programmatic clearing prices on the same inventory, then setting priority and release rules in FreeWheel that protect the guarantees that need protecting while letting programmatic compete for the unsold and under-pacing inventory. After the change, recheck direct-sold delivery and programmatic clearing prices to confirm the balance fits both sides."
+      }
+    }
+  ]
+}

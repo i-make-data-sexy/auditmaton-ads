@@ -141,7 +141,10 @@ def intake_start():
 
         # Store every intake field in the session
         audit_name = request.form.get("audit_name", "").strip()
-        site_type = request.form.get("site_type", "general").strip()
+        # Site type is multi-select: a practitioner may audit a site that is
+        # both ecommerce and lead gen, for example. getlist returns every
+        # checked value; the empty-default keeps it a list when none are picked.
+        site_types = request.form.getlist("site_type")
         site_type_suggestion = request.form.get("site_type_suggestion", "").strip()
 
         session["intake_audit_name"] = audit_name
@@ -151,7 +154,9 @@ def intake_start():
         session["intake_side"] = side
         session["intake_platforms"] = platforms
         session["intake_site_name"] = request.form.get("site_name", "").strip()
-        session["intake_site_type"] = site_type
+        # Stored under the plural key the dashboard override logic already
+        # reads (routes.apply_intake_overrides); a list of selected site types.
+        session["intake_site_types"] = site_types
         session["intake_site_type_suggestion"] = site_type_suggestion
         session["intake_voice"] = voice
         session["intake_container_id"] = request.form.get("container_id", "").strip()
@@ -159,7 +164,7 @@ def intake_start():
 
         # Log a user-submitted site type so it can be added to the list later.
         # Only when 'Other' is chosen and the user actually typed something.
-        if site_type == "other" and site_type_suggestion:
+        if "other" in site_types and site_type_suggestion:
             email = current_user.email if getattr(current_user, "is_authenticated", False) else ""
             append_suggestion(
                 site_type_suggestion,
@@ -192,7 +197,7 @@ def intake_start():
             "side": session.get("intake_side", "demand"),
             "platforms": session.get("intake_platforms", []),
             "site_name": session.get("intake_site_name", ""),
-            "site_type": session.get("intake_site_type", "general"),
+            "site_types": session.get("intake_site_types", []),
             "site_type_suggestion": session.get("intake_site_type_suggestion", ""),
             "voice": session.get("intake_voice", "solo"),
             "container_id": session.get("intake_container_id", ""),

@@ -126,6 +126,24 @@ def canvas_view(side, platform, category, subcategory, check_id, step=None):
     if not check:
         abort(404)
 
+    # Filter the per-check site-type overlays down to the site type(s) the
+    # auditor selected at intake, so they only see guidance relevant to their
+    # site. "default" and "general" overlays are catch-all guidance not tied
+    # to a specific site type, so they stay regardless of selection. When no
+    # site type was selected, leave every overlay in place since we cannot
+    # infer which apply. get_check_data loads fresh JSON on each call, so
+    # mutating the returned dict is safe (no shared/cached object).
+    selected_site_types = session.get("intake_site_types", [])
+    if selected_site_types and isinstance(check.get("educate"), dict):
+        overlays = check["educate"].get("site_type_overlays")
+        if overlays:
+            always_show = {"default", "general"}
+            check["educate"]["site_type_overlays"] = {
+                key: text
+                for key, text in overlays.items()
+                if key in selected_site_types or key in always_show
+            }
+
     return render_template(
         "audit/canvas.html",
         category_key=category,

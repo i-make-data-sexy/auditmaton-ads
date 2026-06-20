@@ -206,7 +206,7 @@ The consolidation merges everything into `main` so this fragmentation ends.
 
 - [ ] `requirements.txt` generated from the active venv: `pip freeze > requirements.txt`
 - [ ] `.gitignore` includes `__pycache__/`, `venv/`, `archive/`, `.env`, `logs/`
-- [ ] `wsgi.py` exists in project root with `ProxyFix` + `DispatcherMiddleware` for the URL prefix
+- [ ] `wsgi.py` exists in project root (a bare `create_app()`; the URL prefix is applied by the systemd unit's `SCRIPT_NAME` env, not `DispatcherMiddleware`)
 - [ ] Editorial gate CLEAN: `python3 scripts/lint_editorial.py json/ --severity medium`
 - [ ] URL health (from a normal network): `python3 scripts/verify_citation_urls.py json/`
 - [ ] `git status` is clean and the working branch is merged to `main`
@@ -233,6 +233,210 @@ systemd:      auditmaton-ads-staging.service  /  auditmaton-ads.service
 6. **Prod:** repeat on `~/apps/auditmaton-ads/` with port 8023 and the prod nginx/systemd files.
 
 > The full step-by-step (venv, nginx block, systemd unit templates, troubleshooting) is identical to Cloud Kingdom's DEPLOY.md Parts 1–2 — follow that for the mechanics; this file owns the Auditmaton-specific variables, invariants, and the branch rule.
+
+---
+
+## First-Time Staging Provisioning (worked walkthrough)
+
+This is the exact sequence that brought Auditmaton: Ads up on staging from nothing, generalized so the next edition is copy-paste. It assumes the app's work is merged to `main` and pushed (Rule #1), and the editorial gate is CLEAN.
+
+Set these once, then paste the blocks. The example values are Ads; swap them per edition.
+
+```bash
+APP=auditmaton-ads                       # dir + service + DB-name stem (kebab; stays even if URL changes)
+REPO=git@github.com:i-make-data-sexy/auditmaton-ads.git
+SEGMENT=tools/auditmaton/ad-audits       # URL path segment (singular "ad", per the display name)
+PORT=8022                                # staging port from the Port Registry (confirm it is FREE first)
+DB=auditmaton_ads                        # Postgres DB name (underscores)
+SOURCE_APP=crawl-canvas                  # any configured sibling — donor for the DB-role password + secrets
+```
+
+**0. Confirm the port is free** (never reuse one — see the Port Registry):
+
+```bash
+ssh -i ~/.ssh/id_ed25519_imds anniecushing@208.109.215.51 \
+  "sudo ss -ltnp | grep ':$PORT ' || echo 'port $PORT free'"
+```
+
+**1. Clone + create the runtime dirs** (`logs/` and `queue/` are gitignored, so they must be made):
+
+```bash
+ssh -i ~/.ssh/id_ed25519_imds anniecushing@208.109.215.51 "set -e
+  cd ~/apps/staging
+  git clone $REPO $APP
+  cd $APP && git checkout main
+  mkdir -p logs queue migrations/versions"   # versions/ is empty in git, so create it (see step 4 gotcha)
+```
+
+**2. Python 3.11 venv + dependencies** (NEVER plain `python3` — the server default is 3.10):
+
+```bash
+ssh -i ~/.ssh/id_ed25519_imds anniecushing@208.109.215.51 "set -e
+  cd ~/apps/staging/$APP
+  /usr/bin/python3.11 -m venv venv
+  venv/bin/pip install --upgrade pip -q
+  venv/bin/pip install -r requirements.txt -q
+  venv/bin/python -c 'import flask, gunicorn, psycopg2; print(\"deps ok\")'"
+```
+
+**3. Create the database + write `.env`.** The Postgres `anniecushing` role has a password, so the app's TCP connection (`localhost`) needs it even though `createdb`/`psql` work over the socket without one. Copy the password from a sibling's `DATABASE_URL`; generate a fresh `SECRET_KEY`.
+
+```bash
+ssh -i ~/.ssh/id_ed25519_imds anniecushing@208.109.215.51 "set -e
+  cd ~/apps/staging/$APP
+  createdb $DB || echo 'db exists'
+  PW=\$(grep '^DATABASE_URL=' ~/apps/staging/$SOURCE_APP/.env | sed -E 's#^DATABASE_URL=postgresql://anniecushing:([^@]*)@.*#\1#')
+  SECRET=\$(venv/bin/python -c 'import secrets; print(secrets.token_hex(32))')
+  cat > .env <<EOF
+FLASK_ENV=production
+SECRET_KEY=\$SECRET
+DATABASE_URL=postgresql://anniecushing:\$PW@localhost:5432/$DB
+APPLICATION_ROOT=/$SEGMENT
+FIREBASE_API_KEY=
+FIREBASE_AUTH_DOMAIN=
+FIREBASE_PROJECT_ID=
+GOOGLE_APPLICATION_CREDENTIALS=
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_DEFAULT_SENDER=noreply@annielytics.com
+AUTHORIZE_NET_API_LOGIN_ID=
+AUTHORIZE_NET_TRANSACTION_KEY=
+AUTHORIZE_NET_PUBLIC_CLIENT_KEY=
+AUTHORIZE_NET_SANDBOX=true
+EOF
+  chmod 600 .env
+  export FLASK_APP=app
+  venv/bin/python -c 'from app import create_app; from extensions import db; a=create_app(); a.app_context().push(); db.engine.connect(); print(\"DB connection OK\")'"
+```
+
+(Firebase/mail/Authorize.net are left empty here and filled in step 7 / the **Secrets & Environment Setup** section. The app boots and serves pages without them.)
+
+**4. Build the schema.** Gotcha: `migrations/versions/` is empty in git (Git doesn't track empty dirs), so it must exist (step 1 made it) before Alembic can write. If the repo has no committed migration yet, autogenerate the initial one, apply it, then **copy it back into the repo and commit it** so prod and future clones share the baseline.
+
+```bash
+ssh -i ~/.ssh/id_ed25519_imds anniecushing@208.109.215.51 "set -e
+  cd ~/apps/staging/$APP && export FLASK_APP=app
+  if ls migrations/versions/*.py >/dev/null 2>&1; then
+    venv/bin/flask db upgrade
+  else
+    venv/bin/flask db migrate -m 'initial schema'
+    venv/bin/flask db upgrade
+  fi
+  psql $DB -c '\dt' | tail -n +1 | wc -l"
+# If you just autogenerated it, pull the file down and commit it to main:
+#   scp -i ~/.ssh/id_ed25519_imds anniecushing@208.109.215.51:'~/apps/staging/$APP/migrations/versions/*.py' migrations/versions/
+#   git add migrations/versions/*.py && commit on a branch -> merge main -> push
+```
+
+**5. systemd units (web + Huey worker).** The web unit's `SCRIPT_NAME` env is what applies the URL prefix inside gunicorn (this app's `wsgi.py` is a bare `create_app()`; there is no `DispatcherMiddleware`). The Huey worker (SqliteHuey, no Redis) runs chart/PDF jobs; its unit ships in `deploy/`.
+
+```bash
+ssh -i ~/.ssh/id_ed25519_imds anniecushing@208.109.215.51 "set -e
+  cd ~/apps/staging/$APP
+  sudo tee /etc/systemd/system/$APP-staging.service > /dev/null <<EOF
+[Unit]
+Description=$APP Staging Gunicorn Daemon
+After=network.target postgresql.service
+
+[Service]
+User=anniecushing
+Group=www-data
+WorkingDirectory=/home/anniecushing/apps/staging/$APP
+Environment=\"PATH=/home/anniecushing/apps/staging/$APP/venv/bin\"
+Environment=\"FLASK_ENV=production\"
+Environment=\"PYTHONUNBUFFERED=1\"
+Environment=\"SCRIPT_NAME=/$SEGMENT\"
+ExecStart=/home/anniecushing/apps/staging/$APP/venv/bin/gunicorn \\\\
+    --workers 3 --bind 127.0.0.1:$PORT --timeout 300 \\\\
+    --error-logfile /home/anniecushing/apps/staging/$APP/logs/error.log \\\\
+    --access-logfile /home/anniecushing/apps/staging/$APP/logs/access.log \\\\
+    wsgi:app
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+  sudo cp deploy/$APP-huey-staging.service /etc/systemd/system/
+  sudo systemctl daemon-reload
+  sudo systemctl enable --now $APP-staging $APP-huey-staging
+  sleep 2
+  sudo systemctl is-active $APP-staging $APP-huey-staging
+  curl -s -o /dev/null -w 'gunicorn: HTTP %{http_code}\n' http://127.0.0.1:$PORT/$SEGMENT/"
+```
+
+The internal curl should be **200**. If it 500s with a "SCRIPT_NAME mismatch" body, the `SCRIPT_NAME` value disagrees with the request prefix — fix and `daemon-reload`.
+
+**6. nginx block.** Two `location` blocks: the proxy (with `X-Forwarded-Prefix` + `X-Script-Name` = the segment) and a static `alias`. Gotcha: the `alias` filesystem path uses the app **dir** name (`$APP`, e.g. `auditmaton-ads`), not the URL segment — those differ on purpose (the dir keeps the legacy `-ads` while the URL is `ad-audits`). Back up the conf, insert after a sibling's blocks, validate, reload.
+
+```bash
+ssh -i ~/.ssh/id_ed25519_imds anniecushing@208.109.215.51 "set -e
+  CONF=/etc/nginx/sites-available/staging.annielytics.conf
+  sudo cp \$CONF \$CONF.bak.\$(date +%Y%m%d-%H%M%S)
+  sudo python3 - <<PY
+conf='/etc/nginx/sites-available/staging.annielytics.conf'
+t=open(conf).read()
+block='''
+    location /$SEGMENT/ {
+        proxy_set_header Host \\\$http_host;
+        proxy_set_header X-Real-IP \\\$remote_addr;
+        proxy_set_header X-Forwarded-For \\\$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \\\$scheme;
+        proxy_set_header X-Forwarded-Host \\\$host;
+        proxy_set_header X-Forwarded-Prefix /$SEGMENT;
+        proxy_set_header X-Script-Name /$SEGMENT;
+        proxy_redirect off;
+        proxy_pass http://127.0.0.1:$PORT\\\$request_uri;
+        proxy_read_timeout 300;
+        proxy_connect_timeout 300;
+    }
+    location /$SEGMENT/static/ {
+        alias /home/anniecushing/apps/staging/$APP/static/;
+        expires -1;
+        add_header Cache-Control \"no-cache, no-store, must-revalidate\";
+        add_header Pragma \"no-cache\";
+    }
+'''
+anchor=t.rindex('    }', 0, t.rindex('location /tools/auditmaton'))  # after the last existing auditmaton block
+# Simpler/safer in practice: insert right before the final closing brace of the 443 server block.
+t=t[:t.rstrip().rfind('}')] + block + '\n}\n'
+open(conf,'w').write(t)
+print('inserted')
+PY
+  sudo nginx -t && sudo systemctl reload nginx"
+```
+
+> In practice, inserting the two blocks by hand (or after a sibling's `tag-audits` blocks) is the most reliable. The point is: proxy block + static alias, `nginx -t` must pass, then reload. Through nginx the app returns **401** (the staging basic-auth gate) — that is success, not a fault.
+
+**7. Wire Firebase so Google sign-in works.** A fresh `.env` has empty Firebase values, which throws `auth/invalid-api-key` in the browser. Copy the shared `crawl-canvas` Firebase config + service-account JSON per the **Secrets & Environment Setup** walkthrough, then restart. No Firebase console change is needed — `staging.annielytics.com` is already an authorized domain for the sibling apps.
+
+**8. Seed the owner account (the fresh-deploy subscription bypass).** A new DB has no subscription records, so the first real sign-in gets bounced with "Your subscription has expired." The app bypasses the subscription gate for `is_admin` users (see `app.py` `before_request`). So: have the owner sign in once with Google (this creates their `users` row as `viewer`), then promote that row.
+
+```bash
+# After the owner has signed in once (creates the row):
+ssh -i ~/.ssh/id_ed25519_imds anniecushing@208.109.215.51 \
+  "psql $DB -c \"UPDATE users SET is_admin = TRUE, role = 'owner' WHERE email = 'annie@annielytics.com';\""
+```
+
+Hard-refresh and sign in again — the `is_admin` bypass grants immediate access plus the admin hub. (This mirrors the `destinee@annielytics.com` staging promotion in the hero-redesign playbook. Staging DB writes are fine; prod promotions are gated on Annie's go-ahead.)
+
+**9. Final verification.** Internal gunicorn 200, both services active, no errors:
+
+```bash
+ssh -i ~/.ssh/id_ed25519_imds anniecushing@208.109.215.51 "
+  curl -s -o /dev/null -w 'app: HTTP %{http_code}\n' http://127.0.0.1:$PORT/$SEGMENT/
+  sudo systemctl is-active $APP-staging $APP-huey-staging
+  grep -iE 'error|traceback' ~/apps/staging/$APP/logs/error.log | tail -3 || echo 'no errors'"
+```
+
+### Gotchas captured from the Ads first deploy
+
+- **`migrations/versions/` is empty in git.** Create it before `flask db migrate`, and commit the generated migration back to the repo (it's the schema baseline for prod).
+- **TCP DB connections need the role password.** `createdb`/`psql` use the socket (peer auth) and work without one; the running app uses `localhost` TCP and needs `anniecushing:<password>@localhost`. Copy the password from a sibling.
+- **`SCRIPT_NAME` env, not `DispatcherMiddleware`.** The prefix is applied by gunicorn's `SCRIPT_NAME` env on the systemd unit. A mismatch is a 500 with a clear "does not start with SCRIPT_NAME" body.
+- **The static `alias` uses the app dir name, not the URL segment** (`auditmaton-ads` vs `ad-audits`).
+- **401 through nginx is correct** (basic-auth gate). Verify via internal `curl http://127.0.0.1:$PORT/...` for a true 200.
+- **Fresh DB → promote the owner** to clear the subscription gate (`is_admin` bypass).
 
 ---
 

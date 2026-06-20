@@ -46,7 +46,82 @@ HAS_DATABASE=      yes        # confirm DB name before the first server deploy
 DB_NAME=           auditmaton_ads   # CONFIRM — may differ from scaffold
 ```
 
-> Claude Code: confirm the DB name, ports, and path segment with Annie before the first server deploy. Nothing in this repo is deployed to the server yet as of 2026-06-17 — it is local + branch work only.
+> Claude Code: confirm the DB name, ports, and path segment with Annie before the first server deploy.
+>
+> **Status (2026-06-19):** staging is deployed at `https://staging.annielytics.com/tools/auditmaton/ad-audits/` (gunicorn on 8022, Huey worker, Postgres `auditmaton_ads`, initial migration committed). Prod is not yet deployed. The staging `.env` still has Firebase, mail, and Authorize.net values empty, to be filled per **Secrets & Environment Setup** below.
+
+---
+
+## Secrets & Environment Setup
+
+The app reads every secret from a `.env` file in the app root (gitignored, never committed). Two kinds of values live there. A few are **unique per app** and must be generated fresh. The rest are **shared Annielytics infrastructure** that every Auditmaton/Canvas app reuses: one Firebase project (`crawl-canvas`), one Gmail mailbox, and one Authorize.net merchant account. For the shared ones, copy from any already-configured sibling app (Crawl Canvas, Conversion Canvas, Auditmaton Tags, or Ads itself once it's set up).
+
+> The `<SOURCE_APP>` referenced below is any configured sibling, e.g. `crawl-canvas`. Once Ads is fully configured, Ads can be the source for the next edition.
+
+| `.env` key | Copy or generate? | How |
+|---|---|---|
+| `SECRET_KEY` | 🆕 **Generate** (unique per app) | `python -c "import secrets; print(secrets.token_hex(32))"` |
+| `DATABASE_URL` | ⚙️ **Mostly generate** | The database name is new per app (`auditmaton_ads`); the password is the shared `anniecushing` Postgres role password, copied from a sibling's `DATABASE_URL`. |
+| `APPLICATION_ROOT` | ⚙️ **Per app** | This app: `/tools/auditmaton/ad-audits` |
+| `FLASK_ENV` | ⚙️ **Per environment** | `production` on the server, `development` locally |
+| `FIREBASE_API_KEY` | ♻️ **Copy** | Identical across all apps (shared `crawl-canvas` project) |
+| `FIREBASE_AUTH_DOMAIN` | ♻️ **Copy** | `crawl-canvas.firebaseapp.com` |
+| `FIREBASE_PROJECT_ID` | ♻️ **Copy** | `crawl-canvas` |
+| `GOOGLE_APPLICATION_CREDENTIALS` | ♻️ **Copy the file** | Same Firebase service account for every app. Copy a sibling's `.secrets/*-firebase.json` to this app's `.secrets/auditmaton-ads-firebase.json` (chmod 600), then point the var at the new path. This is the server-side Admin SDK key that verifies Firebase ID tokens, distinct from the client-side `FIREBASE_*` config above. |
+| `MAIL_USERNAME` / `MAIL_PASSWORD` | ♻️ **Copy** | Reuse a mailbox and its Gmail app password. `support@annielytics.com` aligns with the Reply-To pattern; `annie@annielytics.com` is also in use. |
+| `MAIL_DEFAULT_SENDER` | ♻️ **Copy** | Match the chosen mailbox |
+| `AUTHORIZE_NET_API_LOGIN_ID` | ♻️ **Copy** | One merchant account, shared across all apps |
+| `AUTHORIZE_NET_TRANSACTION_KEY` | ♻️ **Copy** | Same merchant account |
+| `AUTHORIZE_NET_PUBLIC_CLIENT_KEY` | ♻️ **Copy** | Same merchant account |
+| `AUTHORIZE_NET_SANDBOX` | ⚙️ **Per environment** | `true` on staging, `false` on prod (live charges) |
+
+> **Net for a new edition: only `SECRET_KEY` and the database are truly new. Everything else copies from a sibling.**
+
+### Walkthrough (staging)
+
+Run on the server, from the app dir. Replace `<SOURCE_APP>` with a configured sibling (e.g. `crawl-canvas`).
+
+```bash
+cd ~/apps/staging/auditmaton-ads
+SOURCE=~/apps/staging/<SOURCE_APP>
+
+# 1) Firebase service-account JSON (same project for every app, so copy the file)
+mkdir -p .secrets && chmod 700 .secrets
+cp "$SOURCE"/.secrets/*firebase*.json .secrets/auditmaton-ads-firebase.json
+chmod 600 .secrets/auditmaton-ads-firebase.json
+
+# 2) Copy the shared values from the sibling .env into this .env
+#    (Firebase client config, mail, Authorize.net)
+for k in FIREBASE_API_KEY FIREBASE_AUTH_DOMAIN FIREBASE_PROJECT_ID \
+         MAIL_USERNAME MAIL_PASSWORD MAIL_DEFAULT_SENDER \
+         AUTHORIZE_NET_API_LOGIN_ID AUTHORIZE_NET_TRANSACTION_KEY \
+         AUTHORIZE_NET_PUBLIC_CLIENT_KEY; do
+  val=$(grep -E "^$k=" "$SOURCE/.env" | cut -d= -f2-)
+  python3 - "$k" "$val" <<'PY'
+import sys, re, pathlib
+k, v = sys.argv[1], sys.argv[2]
+p = pathlib.Path(".env"); t = p.read_text()
+t = re.sub(rf"^{k}=.*$", f"{k}={v}", t, flags=re.M)
+p.write_text(t)
+PY
+done
+
+# 3) Point the credentials path at THIS app's copy of the JSON
+sed -i "s#^GOOGLE_APPLICATION_CREDENTIALS=.*#GOOGLE_APPLICATION_CREDENTIALS=$PWD/.secrets/auditmaton-ads-firebase.json#" .env
+
+# 4) Restart so gunicorn and the Huey worker pick up the new values
+sudo systemctl restart auditmaton-ads-staging auditmaton-ads-huey-staging
+```
+
+Already set when staging was first provisioned, so do NOT overwrite these: `SECRET_KEY` (freshly generated), `DATABASE_URL` (database `auditmaton_ads` with the shared role password), `APPLICATION_ROOT`, and `FLASK_ENV`.
+
+**Firebase note:** sign-in needs no console change. Firebase authorizes by domain, and `staging.annielytics.com` and `www.annielytics.com` are already authorized for the sibling apps. Reusing the `crawl-canvas` project also means a shared user pool across all Auditmaton apps (one Annielytics identity), which matches the long-term one-account goal.
+
+**Mail note:** `MAIL_PASSWORD` is a Gmail **app password** (not the account login password), tied to the chosen mailbox. Reusing a sibling's app password works, since any app password authenticates SMTP for that account. To mint a dedicated one for Ads instead (recommended, so it can be revoked independently), generate it at <https://myaccount.google.com/apppasswords> while signed in as the mailbox owner, then paste the 16-character value into `MAIL_PASSWORD`.
+
+### Prod differences
+
+When deploying prod, repeat the walkthrough under `~/apps/auditmaton-ads/` with these changes: generate a fresh `SECRET_KEY` distinct from staging, set `AUTHORIZE_NET_SANDBOX=false` (live charges), and put the credentials JSON under the prod dir's `.secrets/` with the matching `GOOGLE_APPLICATION_CREDENTIALS` path. Confirm `www.annielytics.com` is in the Firebase authorized domains (it already is, for the sibling apps).
 
 ---
 
